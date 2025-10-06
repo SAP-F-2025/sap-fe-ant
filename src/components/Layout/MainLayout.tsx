@@ -29,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
 import { gradients } from '../../theme/gradients';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -50,6 +51,7 @@ const MainLayout: React.FC = () => {
   const { token } = useThemeToken();
   const { mode, toggleDark, setMode } = useTheme();
   const screens = useBreakpoint();
+  const { user, logout } = useAuth();
 
   // Auto-collapse on mobile
   React.useEffect(() => {
@@ -91,6 +93,15 @@ const MainLayout: React.FC = () => {
       label: <span style={{ fontWeight: 500 }}>Chấm điểm</span>,
     },
   ];
+
+  // User dropdown menu handler
+  const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key === 'logout') {
+      logout();
+    } else if (key === 'profile' || key === 'settings') {
+      navigate(`/${key}`);
+    }
+  };
 
   // User dropdown menu
   const userMenuItems: MenuProps['items'] = [
@@ -253,7 +264,7 @@ const MainLayout: React.FC = () => {
             />
 
             {/* User dropdown */}
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+            <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }} placement="bottomRight">
               <Button
                 type="text"
                 icon={<UserOutlined />}
@@ -263,7 +274,7 @@ const MainLayout: React.FC = () => {
                   fontWeight: 500,
                 }}
               >
-                {!screens.xs && 'Admin'}
+                {!screens.xs && (user?.name || 'User')}
               </Button>
             </Dropdown>
           </Space>

@@ -2,8 +2,10 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './theme/ThemeProvider';
 import { QueryProvider } from './providers/QueryProvider';
+import { AuthProvider } from './contexts/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import MainLayout from './components/Layout/MainLayout';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -16,6 +18,8 @@ import QuestionForm from './pages/Questions/QuestionForm';
 import QuestionBankList from './pages/QuestionBanks/QuestionBankList';
 import QuestionBankForm from './pages/QuestionBanks/QuestionBankForm';
 import GradingList from './pages/Grading/GradingList';
+import Login from './pages/Auth/Login';
+import Callback from './pages/Auth/Callback';
 
 /**
  * Main App Component
@@ -31,44 +35,58 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ThemeProvider defaultMode="light">
         <QueryProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<MainLayout />}>
-                <Route index element={<Navigate to="/dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/callback" element={<Callback />} />
 
-                {/* Users Management */}
-                <Route path="users" element={<UserManagement />} />
+                {/* Protected routes */}
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route path="dashboard" element={<Dashboard />} />
 
-                {/* Assessment routes */}
-                <Route path="assessments">
-                  <Route index element={<AssessmentList />} />
-                  <Route path="new" element={<AssessmentForm />} />
-                  <Route path="edit/:id" element={<AssessmentForm />} />
-                  <Route path=":id" element={<AssessmentDetail />} />
+                  {/* Users Management */}
+                  <Route path="users" element={<UserManagement />} />
+
+                  {/* Assessment routes */}
+                  <Route path="assessments">
+                    <Route index element={<AssessmentList />} />
+                    <Route path="new" element={<AssessmentForm />} />
+                    <Route path="edit/:id" element={<AssessmentForm />} />
+                    <Route path=":id" element={<AssessmentDetail />} />
+                  </Route>
+
+                  {/* Question routes */}
+                  <Route path="questions">
+                    <Route index element={<QuestionList />} />
+                    <Route path="new" element={<QuestionForm />} />
+                    <Route path="edit/:id" element={<QuestionForm />} />
+                  </Route>
+
+                  {/* Question Bank routes */}
+                  <Route path="question-banks">
+                    <Route index element={<QuestionBankList />} />
+                    <Route path="new" element={<QuestionBankForm />} />
+                    <Route path="edit/:id" element={<QuestionBankForm />} />
+                  </Route>
+
+                  {/* Grading routes */}
+                  <Route path="grading">
+                    <Route index element={<GradingList />} />
+                  </Route>
                 </Route>
-
-                {/* Question routes */}
-                <Route path="questions">
-                  <Route index element={<QuestionList />} />
-                  <Route path="new" element={<QuestionForm />} />
-                  <Route path="edit/:id" element={<QuestionForm />} />
-                </Route>
-
-                {/* Question Bank routes */}
-                <Route path="question-banks">
-                  <Route index element={<QuestionBankList />} />
-                  <Route path="new" element={<QuestionBankForm />} />
-                  <Route path="edit/:id" element={<QuestionBankForm />} />
-                </Route>
-
-                {/* Grading routes */}
-                <Route path="grading">
-                  <Route index element={<GradingList />} />
-                </Route>
-              </Route>
-            </Routes>
-          </BrowserRouter>
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
         </QueryProvider>
       </ThemeProvider>
     </ErrorBoundary>

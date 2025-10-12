@@ -60,18 +60,19 @@ const MainLayout: React.FC = () => {
     }
   }, [screens.xs]);
 
-  // Menu items
+  // Menu items - filter based on user role
   const menuItems: MenuProps['items'] = [
     {
       key: '/dashboard',
       icon: <DashboardOutlined style={{ fontSize: 18 }} />,
       label: <span style={{ fontWeight: 500 }}>Tổng quan</span>,
     },
-    {
+    // Only show Users menu for admin
+    ...(user?.isAdmin ? [{
       key: '/users',
       icon: <TeamOutlined style={{ fontSize: 18 }} />,
       label: <span style={{ fontWeight: 500 }}>Người dùng</span>,
-    },
+    }] : []),
     {
       key: '/assessments',
       icon: <FileTextOutlined style={{ fontSize: 18 }} />,

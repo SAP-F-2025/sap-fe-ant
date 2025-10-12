@@ -1,18 +1,24 @@
 import { API_CONFIG, API_ENDPOINTS } from '../config/api';
 import apiService from './api';
 import {
-  Assessment,
-  AssessmentCreateRequest,
-  PaginatedResponse,
-  PaginationParams,
-  AssessmentStats,
+    Assessment,
+    AssessmentCreateRequest,
+    PaginationParams,
+    AssessmentStats,
+    PaginatedAssessmentResponse,
+    AssessmentQuestion,
+    AddQuestionToAssessmentRequest,
+    UpdateQuestionSettingsRequest,
+    BulkUpdateQuestionSettingsRequest,
+    ReorderQuestionsRequest,
+    PaginatedQuestionResponse,
 } from '../types';
 import { mockAssessments, mockAssessmentStats, paginateData, delay } from './mockData';
 
 class AssessmentService {
   async getAssessments(
     params?: PaginationParams & { status?: string; search?: string }
-  ): Promise<PaginatedResponse<Assessment>> {
+  ): Promise<PaginatedAssessmentResponse<Assessment>> {
     if (API_CONFIG.USE_MOCK) {
       await delay();
       let filtered = [...mockAssessments];
@@ -33,7 +39,7 @@ class AssessmentService {
       return paginateData(filtered, params?.page, params?.size);
     }
 
-    return apiService.get<PaginatedResponse<Assessment>>(API_ENDPOINTS.ASSESSMENTS, params);
+    return apiService.get<PaginatedAssessmentResponse<Assessment>>(API_ENDPOINTS.ASSESSMENTS, params);
   }
 
   async getAssessment(id: number): Promise<Assessment> {
@@ -82,7 +88,7 @@ class AssessmentService {
       return mockAssessments[index];
     }
 
-    return apiService.put<Assessment>(API_ENDPOINTS.ASSESSMENT_DETAIL(id), data);
+    return apiService.put<Assessment>(API_ENDPOINTS.ASSESSMENT_UPDATE(id), data);
   }
 
   async deleteAssessment(id: number): Promise<void> {
@@ -139,6 +145,135 @@ class AssessmentService {
     }
 
     return apiService.get<AssessmentStats>(API_ENDPOINTS.ASSESSMENT_STATS(id));
+  }
+
+  // Question Management
+  async getAssessmentQuestions(
+    id: number,
+    params?: PaginationParams
+  ): Promise<PaginatedQuestionResponse<AssessmentQuestion>> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      // Mock data - empty for now
+      return {
+        questions: [],
+        total: 0,
+        page: params?.page || 1,
+        size: params?.size || 10,
+        total_pages: 0,
+      };
+    }
+
+    return apiService.get<PaginatedQuestionResponse<AssessmentQuestion>>(
+      API_ENDPOINTS.ASSESSMENT_QUESTIONS(id),
+      params
+    );
+  }
+
+  async addQuestionToAssessment(
+    assessmentId: number,
+    questionId: number,
+    settings?: AddQuestionToAssessmentRequest
+  ): Promise<void> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      return;
+    }
+
+    return apiService.post(
+      API_ENDPOINTS.ASSESSMENT_ADD_QUESTION(assessmentId, questionId),
+      settings || {}
+    );
+  }
+
+  async bulkAddQuestionsToAssessment(
+    assessmentId: number,
+    questionIds: number[]
+  ): Promise<void> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      return;
+    }
+
+    return apiService.post(
+      API_ENDPOINTS.ASSESSMENT_BULK_ADD_QUESTIONS(assessmentId),
+      { question_ids: questionIds }
+    );
+  }
+
+  async bulkRemoveQuestionsFromAssessment(
+    assessmentId: number,
+    questionIds: number[]
+  ): Promise<void> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      return;
+    }
+
+    return apiService.delete(
+      API_ENDPOINTS.ASSESSMENT_BULK_REMOVE_QUESTIONS(assessmentId),
+      { data: { question_ids: questionIds } }
+    );
+  }
+
+  async removeQuestionFromAssessment(
+    assessmentId: number,
+    questionId: number
+  ): Promise<void> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      return;
+    }
+
+    return apiService.delete(
+      API_ENDPOINTS.ASSESSMENT_REMOVE_QUESTION(assessmentId, questionId)
+    );
+  }
+
+  async updateQuestionSettings(
+    assessmentId: number,
+    questionId: number,
+    settings: UpdateQuestionSettingsRequest
+  ): Promise<void> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      return;
+    }
+
+    return apiService.put(
+      API_ENDPOINTS.ASSESSMENT_UPDATE_QUESTION(assessmentId, questionId),
+      settings
+    );
+  }
+
+  async bulkUpdateQuestionSettings(
+    assessmentId: number,
+    updates: Array<{ question_id: number; points?: number; time_limit?: number }>
+  ): Promise<void> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      return;
+    }
+
+    return apiService.put(
+      API_ENDPOINTS.ASSESSMENT_BULK_UPDATE_QUESTIONS(assessmentId),
+      updates
+    );
+  }
+
+  async reorderAssessmentQuestions(
+    assessmentId: number,
+    data: ReorderQuestionsRequest
+  ): Promise<void> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      return;
+    }
+
+    return apiService.put(
+      API_ENDPOINTS.ASSESSMENT_REORDER_QUESTIONS(assessmentId),
+      data
+    );
   }
 }
 

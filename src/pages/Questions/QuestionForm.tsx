@@ -11,7 +11,6 @@ import {
   Row,
   Col,
   Select,
-  message,
   Spin,
   Radio,
   Checkbox,
@@ -25,6 +24,7 @@ import {
 } from '@ant-design/icons';
 import { QuestionCreateRequest, QuestionType, DifficultyLevel } from '../../types';
 import questionService from '../../services/questionService';
+import { showSuccess } from '../../utils/errorHandler';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -53,7 +53,7 @@ const QuestionForm: React.FC = () => {
       form.setFieldsValue(question);
       setQuestionType(question.type);
     } catch (error) {
-      message.error('Không thể tải thông tin câu hỏi');
+      // Error will be handled by axios interceptor
       navigate('/questions');
     } finally {
       setLoading(false);
@@ -72,17 +72,15 @@ const QuestionForm: React.FC = () => {
 
       if (isEdit && id) {
         await questionService.updateQuestion(parseInt(id), data);
-        message.success('Cập nhật câu hỏi thành công');
+        showSuccess('Cập nhật câu hỏi thành công');
       } else {
         await questionService.createQuestion(data);
-        message.success('Tạo câu hỏi thành công');
+        showSuccess('Tạo câu hỏi thành công');
       }
 
       navigate('/questions');
     } catch (error) {
-      message.error(
-        isEdit ? 'Không thể cập nhật câu hỏi' : 'Không thể tạo câu hỏi'
-      );
+      // Error will be handled by axios interceptor with notification
     } finally {
       setSubmitting(false);
     }
@@ -140,15 +138,31 @@ const QuestionForm: React.FC = () => {
               )}
             </Form.List>
             <Form.Item
-              label="Đáp án đúng"
-              name={['content', 'correct_answers']}
-              rules={[{ required: true, message: 'Chọn đáp án đúng' }]}
+              noStyle
+              shouldUpdate={(prevValues, currentValues) => 
+                prevValues.content?.options !== currentValues.content?.options
+              }
             >
-              <Select
-                mode="multiple"
-                placeholder="Chọn đáp án đúng (ID)"
-                style={{ width: '100%' }}
-              />
+              {({ getFieldValue }) => {
+                const options = getFieldValue(['content', 'options']) || [];
+                return (
+                  <Form.Item
+                    label="Đáp án đúng"
+                    name={['content', 'correct_answers']}
+                    rules={[{ required: true, message: 'Chọn đáp án đúng' }]}
+                  >
+                    <Select
+                      mode="multiple"
+                      placeholder="Chọn đáp án đúng (ID)"
+                      style={{ width: '100%' }}
+                      options={options.map((opt: any) => ({
+                        label: `${opt?.id || ''} - ${opt?.text || ''}`,
+                        value: opt?.id,
+                      })).filter((opt: any) => opt.value)}
+                    />
+                  </Form.Item>
+                );
+              }}
             </Form.Item>
             <Form.Item
               label="Cho phép nhiều đáp án đúng"

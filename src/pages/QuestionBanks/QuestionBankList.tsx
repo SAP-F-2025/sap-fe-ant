@@ -7,7 +7,7 @@ import {
   Input,
   Tag,
   Typography,
-  Modal,
+  Popconfirm,
   message,
   Tooltip,
   Row,
@@ -37,6 +37,9 @@ import { QuestionBank } from '../../types';
 import questionBankService from '../../services/questionBankService';
 import dayjs from 'dayjs';
 import { useThemeToken } from '../../theme/ThemeProvider';
+import {showError, showSuccess} from '../../utils/errorHandler';
+import { ShareQuestionBankModal } from '../../components/QuestionBank/ShareQuestionBankModal';
+
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -52,6 +55,8 @@ const QuestionBankList: React.FC = () => {
     size: 10,
     search: '',
   });
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [selectedBank, setSelectedBank] = useState<QuestionBank | null>(null);
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -75,7 +80,7 @@ const QuestionBankList: React.FC = () => {
     setLoading(true);
     try {
       const response = await questionBankService.getQuestionBanks(filters);
-      setQuestionBanks(response.data);
+      setQuestionBanks(response.banks);
       setTotal(response.total);
     } catch (error) {
       message.error('Không thể tải danh sách ngân hàng câu hỏi');
@@ -84,37 +89,28 @@ const QuestionBankList: React.FC = () => {
     }
   };
 
-  const handleDelete = (id: number) => {
-    Modal.confirm({
-      title: 'Xác nhận xóa',
-      content: 'Bạn có chắc chắn muốn xóa ngân hàng câu hỏi này?',
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          await questionBankService.deleteQuestionBank(id);
-          message.success('Xóa ngân hàng câu hỏi thành công');
-          fetchQuestionBanks();
-        } catch (error) {
-          message.error('Không thể xóa ngân hàng câu hỏi');
-        }
-      },
-    });
+  const handleDelete = async (id: number) => {
+    try {
+      await questionBankService.deleteQuestionBank(id);
+      showSuccess('Xóa ngân hàng câu hỏi thành công');
+      fetchQuestionBanks();
+    } catch (error) {
+      message.error('Không thể xóa ngân hàng câu hỏi');
+    }
   };
 
-  const handleShare = (id: number) => {
-    Modal.info({
-      title: 'Chia sẻ ngân hàng câu hỏi',
-      content: (
-        <div>
-          <p>Tính năng chia sẻ sẽ được bổ sung trong phiên bản tiếp theo.</p>
-          <p>Bạn có thể thay đổi trạng thái Công khai/Riêng tư trong trang chỉnh sửa.</p>
-        </div>
-      ),
-      okText: 'Đóng',
-    });
+  const handleShare = (bank: QuestionBank) => {
+    setSelectedBank(bank);
+    setShareModalVisible(true);
   };
+
+  const handleShareModalClose = () => {
+    setShareModalVisible(false);
+    // Clear selected bank after animation completes
+    setTimeout(() => setSelectedBank(null), 300);
+  };
+
+
 
   const columns: ColumnsType<QuestionBank> = [
     {
@@ -145,18 +141,6 @@ const QuestionBankList: React.FC = () => {
           )}
         </Space>
       ),
-    },
-    {
-      title: 'Thẻ',
-      dataIndex: 'tags',
-      key: 'tags',
-      width: 250,
-      render: (tags) =>
-        tags?.slice(0, 3).map((tag: string) => (
-          <Tag key={tag} color="blue">
-            {tag}
-          </Tag>
-        )),
     },
     {
       title: 'Số câu hỏi',
@@ -205,17 +189,25 @@ const QuestionBankList: React.FC = () => {
             <Button
               type="text"
               icon={<ShareAltOutlined />}
-              onClick={() => handleShare(record.id)}
+              onClick={() => handleShare(record)}
             />
           </Tooltip>
-          <Tooltip title="Xóa">
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
-            />
-          </Tooltip>
+          <Popconfirm
+            title="Xác nhận xóa"
+            description="Bạn có chắc chắn muốn xóa ngân hàng câu hỏi này?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+            okButtonProps={{ danger: true }}
+          >
+            <Tooltip title="Xóa">
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+              />
+            </Tooltip>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -232,15 +224,33 @@ const QuestionBankList: React.FC = () => {
             Quản lý và chia sẻ ngân hàng câu hỏi
           </Text>
         </Space>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          size="large"
-          onClick={() => navigate('/question-banks/new')}
-          style={{ fontWeight: 500, height: 44, borderRadius: 10, paddingLeft: 24, paddingRight: 24 }}
-        >
-          Tạo ngân hàng mới
-        </Button>
+        <Space>
+          <Button
+            icon={<GlobalOutlined />}
+            size="large"
+            onClick={() => navigate('/question-banks/public')}
+            style={{ height: 44, borderRadius: 10 }}
+          >
+            Công khai
+          </Button>
+          <Button
+            icon={<ShareAltOutlined />}
+            size="large"
+            onClick={() => navigate('/question-banks/shared')}
+            style={{ height: 44, borderRadius: 10 }}
+          >
+            Được chia sẻ
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            size="large"
+            onClick={() => navigate('/question-banks/new')}
+            style={{ fontWeight: 500, height: 44, borderRadius: 10, paddingLeft: 24, paddingRight: 24 }}
+          >
+            Tạo mới
+          </Button>
+        </Space>
       </Flex>
 
       {/* Statistics Cards */}
@@ -313,6 +323,16 @@ const QuestionBankList: React.FC = () => {
           />
         </Space>
       </Card>
+
+      <ShareQuestionBankModal
+        bankId={selectedBank?.id || 0}
+        bankName={selectedBank?.name || ''}
+        visible={shareModalVisible}
+        onCancel={handleShareModalClose}
+        onSuccess={() => {
+          fetchQuestionBanks();
+        }}
+      />
     </Space>
   );
 };

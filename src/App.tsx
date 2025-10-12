@@ -1,9 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { App as AntdApp } from 'antd';
 import { ThemeProvider } from './theme/ThemeProvider';
 import { QueryProvider } from './providers/QueryProvider';
 import { AuthProvider } from './contexts/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
+import { NotificationProvider } from './components/NotificationProvider/NotificationProvider';
 import MainLayout from './components/Layout/MainLayout';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
@@ -17,7 +19,11 @@ import QuestionList from './pages/Questions/QuestionList';
 import QuestionForm from './pages/Questions/QuestionForm';
 import QuestionBankList from './pages/QuestionBanks/QuestionBankList';
 import QuestionBankForm from './pages/QuestionBanks/QuestionBankForm';
+import QuestionBankDetail from './pages/QuestionBanks/QuestionBankDetail';
+import PublicQuestionBanks from './pages/QuestionBanks/PublicQuestionBanks';
+import SharedQuestionBanks from './pages/QuestionBanks/SharedQuestionBanks';
 import GradingList from './pages/Grading/GradingList';
+import Profile from './pages/Profile';
 import Login from './pages/Auth/Login';
 import Callback from './pages/Auth/Callback';
 
@@ -34,60 +40,70 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultMode="light">
-        <QueryProvider>
-          <AuthProvider>
-            <BrowserRouter>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/callback" element={<Callback />} />
+        <AntdApp>
+          <NotificationProvider>
+            <QueryProvider>
+              <AuthProvider>
+                <BrowserRouter>
+                  <Routes>
+                    {/* Public routes */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/callback" element={<Callback />} />
 
-                {/* Protected routes */}
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <MainLayout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
+                  {/* Protected routes */}
+                  <Route
+                    path="/"
+                    element={
+                      <ProtectedRoute>
+                        <MainLayout />
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    <Route path="dashboard" element={<Dashboard />} />
 
-                  {/* Users Management */}
-                  <Route path="users" element={<UserManagement />} />
+                    {/* Users Management */}
+                    <Route path="users" element={<UserManagement />} />
 
-                  {/* Assessment routes */}
-                  <Route path="assessments">
-                    <Route index element={<AssessmentList />} />
-                    <Route path="new" element={<AssessmentForm />} />
-                    <Route path="edit/:id" element={<AssessmentForm />} />
-                    <Route path=":id" element={<AssessmentDetail />} />
+                    {/* Profile */}
+                    <Route path="profile" element={<Profile />} />
+
+                    {/* Assessment routes */}
+                    <Route path="assessments">
+                      <Route index element={<AssessmentList />} />
+                      <Route path="new" element={<AssessmentForm />} />
+                      <Route path="edit/:id" element={<AssessmentForm />} />
+                      <Route path=":id" element={<AssessmentDetail />} />
+                    </Route>
+
+                    {/* Question routes */}
+                    <Route path="questions">
+                      <Route index element={<QuestionList />} />
+                      <Route path="new" element={<QuestionForm />} />
+                      <Route path="edit/:id" element={<QuestionForm />} />
+                    </Route>
+
+                    {/* Question Bank routes */}
+                    <Route path="question-banks">
+                      <Route index element={<QuestionBankList />} />
+                      <Route path="public" element={<PublicQuestionBanks />} />
+                      <Route path="shared" element={<SharedQuestionBanks />} />
+                      <Route path="new" element={<QuestionBankForm />} />
+                      <Route path="edit/:id" element={<QuestionBankForm />} />
+                      <Route path=":id" element={<QuestionBankDetail />} />
+                    </Route>
+
+                    {/* Grading routes */}
+                    <Route path="grading">
+                      <Route index element={<GradingList />} />
+                    </Route>
                   </Route>
-
-                  {/* Question routes */}
-                  <Route path="questions">
-                    <Route index element={<QuestionList />} />
-                    <Route path="new" element={<QuestionForm />} />
-                    <Route path="edit/:id" element={<QuestionForm />} />
-                  </Route>
-
-                  {/* Question Bank routes */}
-                  <Route path="question-banks">
-                    <Route index element={<QuestionBankList />} />
-                    <Route path="new" element={<QuestionBankForm />} />
-                    <Route path="edit/:id" element={<QuestionBankForm />} />
-                  </Route>
-
-                  {/* Grading routes */}
-                  <Route path="grading">
-                    <Route index element={<GradingList />} />
-                  </Route>
-                </Route>
-              </Routes>
-            </BrowserRouter>
-          </AuthProvider>
-        </QueryProvider>
+                </Routes>
+              </BrowserRouter>
+            </AuthProvider>
+          </QueryProvider>
+          </NotificationProvider>
+        </AntdApp>
       </ThemeProvider>
     </ErrorBoundary>
   );

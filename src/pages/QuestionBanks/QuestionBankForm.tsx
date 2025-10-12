@@ -10,12 +10,12 @@ import {
   Row,
   Col,
   Switch,
-  message,
   Spin,
 } from 'antd';
 import { SaveOutlined, RollbackOutlined } from '@ant-design/icons';
 import { QuestionBankCreateRequest } from '../../types';
 import questionBankService from '../../services/questionBankService';
+import { showSuccess } from '../../utils/errorHandler';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -43,7 +43,7 @@ const QuestionBankForm: React.FC = () => {
         tags: bank.tags?.join(', '),
       });
     } catch (error) {
-      message.error('Không thể tải thông tin ngân hàng câu hỏi');
+      // Error will be handled by axios interceptor
       navigate('/question-banks');
     } finally {
       setLoading(false);
@@ -62,19 +62,15 @@ const QuestionBankForm: React.FC = () => {
 
       if (isEdit && id) {
         await questionBankService.updateQuestionBank(parseInt(id), data);
-        message.success('Cập nhật ngân hàng câu hỏi thành công');
+        showSuccess('Cập nhật ngân hàng câu hỏi thành công');
       } else {
         await questionBankService.createQuestionBank(data);
-        message.success('Tạo ngân hàng câu hỏi thành công');
+        showSuccess('Tạo ngân hàng câu hỏi thành công');
       }
 
       navigate('/question-banks');
     } catch (error) {
-      message.error(
-        isEdit
-          ? 'Không thể cập nhật ngân hàng câu hỏi'
-          : 'Không thể tạo ngân hàng câu hỏi'
-      );
+      // Error will be handled by axios interceptor with notification
     } finally {
       setSubmitting(false);
     }

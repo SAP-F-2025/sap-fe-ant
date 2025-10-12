@@ -13,12 +13,12 @@ import {
   DatePicker,
   Switch,
   Divider,
-  message,
   Spin,
 } from 'antd';
 import { SaveOutlined, RollbackOutlined } from '@ant-design/icons';
 import { AssessmentCreateRequest } from '../../types';
 import assessmentService from '../../services/assessmentService';
+import { showSuccess } from '../../utils/errorHandler';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -47,7 +47,7 @@ const AssessmentForm: React.FC = () => {
         due_date: assessment.due_date ? dayjs(assessment.due_date) : null,
       });
     } catch (error) {
-      message.error('Không thể tải thông tin bài thi');
+      // Error will be handled by axios interceptor
       navigate('/assessments');
     } finally {
       setLoading(false);
@@ -64,17 +64,16 @@ const AssessmentForm: React.FC = () => {
 
       if (isEdit && id) {
         await assessmentService.updateAssessment(parseInt(id), data);
-        message.success('Cập nhật bài thi thành công');
+        showSuccess('Cập nhật bài thi thành công');
       } else {
         await assessmentService.createAssessment(data);
-        message.success('Tạo bài thi thành công');
+        showSuccess('Tạo bài thi thành công');
       }
 
       navigate('/assessments');
     } catch (error) {
-      message.error(
-        isEdit ? 'Không thể cập nhật bài thi' : 'Không thể tạo bài thi'
-      );
+      // Error will be handled by axios interceptor with notification
+      // No need to show message here
     } finally {
       setSubmitting(false);
     }

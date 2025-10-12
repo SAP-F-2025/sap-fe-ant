@@ -1,12 +1,18 @@
 import { API_CONFIG, API_ENDPOINTS } from '../config/api';
 import apiService from './api';
-import { Question, QuestionCreateRequest, PaginatedResponse, PaginationParams } from '../types';
+import {
+    Question,
+    QuestionCreateRequest,
+    PaginatedResponse,
+    PaginationParams,
+    PaginatedQuestionResponse
+} from '../types';
 import { mockQuestions, paginateData, delay } from './mockData';
 
 class QuestionService {
   async getQuestions(
     params?: PaginationParams & { type?: string; difficulty?: string; search?: string }
-  ): Promise<PaginatedResponse<Question>> {
+  ): Promise<PaginatedQuestionResponse<Question>> {
     if (API_CONFIG.USE_MOCK) {
       await delay();
       let filtered = [...mockQuestions];

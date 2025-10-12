@@ -8,8 +8,7 @@ import {
   Select,
   Tag,
   Typography,
-  Modal,
-  message,
+  Popconfirm,
   Tooltip,
   Row,
   Col,
@@ -37,9 +36,13 @@ import { Assessment, AssessmentStatus } from '../../types';
 import assessmentService from '../../services/assessmentService';
 import dayjs from 'dayjs';
 import { useThemeToken } from '../../theme/ThemeProvider';
+import {showError, showSuccess} from '../../utils/errorHandler';
+
 
 const { Title, Text } = Typography;
 const { Search } = Input;
+
+
 
 const AssessmentList: React.FC = () => {
   const navigate = useNavigate();
@@ -72,51 +75,42 @@ const AssessmentList: React.FC = () => {
     setLoading(true);
     try {
       const response = await assessmentService.getAssessments(filters);
-      setAssessments(response.data);
+      setAssessments(response.assessments);
       setTotal(response.total);
     } catch (error) {
-      message.error('Không thể tải danh sách bài thi');
+      // showError('Không thể tải danh sách bài thi');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = (id: number) => {
-    Modal.confirm({
-      title: 'Xác nhận xóa',
-      content: 'Bạn có chắc chắn muốn xóa bài thi này?',
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          await assessmentService.deleteAssessment(id);
-          message.success('Xóa bài thi thành công');
-          fetchAssessments();
-        } catch (error) {
-          message.error('Không thể xóa bài thi');
-        }
-      },
-    });
+  const handleDelete = async (id: number) => {
+    try {
+      await assessmentService.deleteAssessment(id);
+      showSuccess('Xóa bài thi thành công');
+      fetchAssessments();
+    } catch (error) {
+      // Error handled by interceptor
+    }
   };
 
   const handlePublish = async (id: number) => {
     try {
       await assessmentService.publishAssessment(id);
-      message.success('Xuất bản bài thi thành công');
+      showSuccess('Xuất bản bài thi thành công');
       fetchAssessments();
     } catch (error) {
-      message.error('Không thể xuất bản bài thi');
+      // message.error('Không thể xuất bản bài thi');
     }
   };
 
   const handleArchive = async (id: number) => {
     try {
       await assessmentService.archiveAssessment(id);
-      message.success('Lưu trữ bài thi thành công');
+      showSuccess('Lưu trữ bài thi thành công');
       fetchAssessments();
     } catch (error) {
-      message.error('Không thể lưu trữ bài thi');
+      // message.error('Không thể lưu trữ bài thi');
     }
   };
 
@@ -200,7 +194,7 @@ const AssessmentList: React.FC = () => {
       fixed: 'right',
       width: 200,
       render: (_, record) => (
-        <Space size="small">
+        <Space size="small" style={{ display: 'flex' }}>
           <Tooltip title="Xem chi tiết">
             <Button
               type="text"
@@ -215,32 +209,51 @@ const AssessmentList: React.FC = () => {
               onClick={() => navigate(`/assessments/edit/${record.id}`)}
             />
           </Tooltip>
-          {record.status === AssessmentStatus.Draft && (
+          {record.status === AssessmentStatus.Draft ? (
             <Tooltip title="Xuất bản">
               <Button
                 type="text"
                 icon={<CheckCircleOutlined />}
-                onClick={() => handlePublish(record.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePublish(record.id);
+                }}
               />
             </Tooltip>
-          )}
-          {record.status === AssessmentStatus.Active && (
+          ) : record.status === AssessmentStatus.Active ? (
             <Tooltip title="Lưu trữ">
               <Button
                 type="text"
                 icon={<CloseCircleOutlined />}
-                onClick={() => handleArchive(record.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleArchive(record.id);
+                }}
               />
             </Tooltip>
-          )}
-          <Tooltip title="Xóa">
+          ) : (
             <Button
               type="text"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
+              icon={<CheckCircleOutlined />}
+              style={{ visibility: 'hidden', pointerEvents: 'none' }}
             />
-          </Tooltip>
+          )}
+          <Popconfirm
+            title="Xác nhận xóa"
+            description="Bạn có chắc chắn muốn xóa bài thi này?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+            okButtonProps={{ danger: true }}
+          >
+            <Tooltip title="Xóa">
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+              />
+            </Tooltip>
+          </Popconfirm>
         </Space>
       ),
     },

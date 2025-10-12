@@ -80,8 +80,9 @@ export interface Assessment {
   creator_id: number;
   created_at: string;
   updated_at: string;
-  question_count?: number;
+  questions_count?: number;
   total_points?: number;
+  questions?: AssessmentQuestion[];
 }
 
 // Question types
@@ -131,6 +132,12 @@ export interface Question {
 }
 
 // Question Bank types
+export enum QuestionBankSharePermission {
+  ViewOnly = 'view',
+  CanEdit = 'edit',
+  CanDelete = 'delete',
+}
+
 export interface QuestionBankCreateRequest {
   name: string;
   description?: string;
@@ -150,6 +157,38 @@ export interface QuestionBank {
   created_at: string;
   updated_at: string;
   question_count?: number;
+}
+
+export interface ShareQuestionBankRequest {
+  user_ids: string[];
+  permission: QuestionBankSharePermission;
+}
+
+export interface UpdateSharePermissionRequest {
+  permission: QuestionBankSharePermission;
+}
+
+export interface QuestionBankShare {
+  id: number;
+  bank_id: number;
+  user_id: string;
+  permission: QuestionBankSharePermission;
+  shared_by: string;
+  shared_at: string;
+  user?: {
+    id: string;
+    full_name: string;
+    email: string;
+    avatar_url?: string;
+  };
+}
+
+export interface QuestionBankStats {
+  total_questions: number;
+  total_usage: number;
+  avg_difficulty: number;
+  question_types: Record<string, number>;
+  difficulty_distribution: Record<string, number>;
 }
 
 // Attempt types
@@ -190,6 +229,30 @@ export interface PaginationParams {
   size?: number;
 }
 
+export interface PaginatedQuestionResponse<T> {
+  questions: T[];
+  total: number;
+  page: number;
+  size: number;
+  total_pages: number;
+}
+
+export interface PaginatedAssessmentResponse<T> {
+    assessments: T[];
+    total: number;
+    page: number;
+    size: number;
+    total_pages: number;
+}
+
+export interface PaginatedQuestionBankResponse<T> {
+    banks: T[];
+    total: number;
+    page: number;
+    size: number;
+    total_pages: number;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
@@ -217,4 +280,140 @@ export interface AssessmentStats {
   average_score: number;
   pass_rate: number;
   average_time: number;
+}
+
+// Assessment Questions Management
+export interface AssessmentQuestionSettings {
+  order?: number;
+  points?: number;
+  time_limit?: number;
+}
+
+export interface AssessmentQuestion {
+  id: number;
+  assessment_id: number;
+  question_id: number;
+  order: number;
+  points: number;  // Override points for this question in the assessment
+  time_limit?: number;  // Override time limit for this question in the assessment
+  required: boolean;
+  created_at: string;
+  question: Question;  // Nested question object with original values
+}
+
+export interface AddQuestionToAssessmentRequest {
+  order?: number;
+  points?: number;
+  time_limit?: number;
+}
+
+export interface UpdateQuestionSettingsRequest {
+  points?: number;
+  time_limit?: number;
+}
+
+export interface BulkUpdateQuestionSettingsRequest {
+  updates: Array<{
+    question_id: number;
+    points?: number;
+    time_limit?: number;
+  }>;
+}
+
+export interface ReorderQuestionsRequest {
+  question_orders: Array<{
+    question_id: number;
+    order: number;
+  }>;
+}
+
+// Question Bank Questions Management
+export interface AddQuestionsRequest {
+  question_ids: number[];
+}
+
+export interface RemoveQuestionsRequest {
+  question_ids: number[];
+}
+
+// User types
+export interface User {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+  avatar_url?: string;
+  email_verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserListResponse {
+  users: User[];
+  total: number;
+  page: number;
+  size: number;
+}
+
+// Dashboard types
+export interface DashboardStats {
+  overview: {
+    total_assessments: number;
+    total_questions: number;
+    total_question_banks: number;
+    total_attempts: number;
+    active_users: number;
+  };
+  metrics: {
+    completion_rate: number;
+    average_score: number;
+    pass_rate: number;
+  };
+  trends: {
+    assessments_change: number;
+    attempts_change: number;
+    score_change: number;
+  };
+}
+
+export interface ActivityTrend {
+  period: string;
+  attempts: number;
+  users: number;
+  average_score: number;
+}
+
+export enum RecentActivityAction {
+  CompletedAssessment = 'completed_assessment',
+  StartedAssessment = 'started_assessment',
+  CreatedQuestion = 'created_question',
+  CreatedAssessment = 'created_assessment',
+  PublishedAssessment = 'published_assessment',
+}
+
+export interface RecentActivity {
+  id: number;
+  user_id: string;
+  user_name: string;
+  action: RecentActivityAction;
+  assessment_id?: number;
+  assessment_title?: string;
+  question_id?: number;
+  question_bank_name?: string;
+  score?: number;
+  created_at: string;
+  time_ago: string;
+}
+
+export interface QuestionDistribution {
+  type: string;
+  name: string;
+  count: number;
+  percentage: number;
+}
+
+export interface SubjectPerformance {
+  subject_id?: number;
+  subject_name: string;
+  average_score: number;
 }

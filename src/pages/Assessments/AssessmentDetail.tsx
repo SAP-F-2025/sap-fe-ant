@@ -12,7 +12,6 @@ import {
   Statistic,
   Spin,
   message,
-  Divider,
 } from 'antd';
 import {
   EditOutlined,
@@ -27,6 +26,7 @@ import {
 import { Assessment, AssessmentStatus, AssessmentStats } from '../../types';
 import assessmentService from '../../services/assessmentService';
 import dayjs from 'dayjs';
+import { ManageAssessmentQuestions } from '../../components/Assessment/ManageAssessmentQuestions';
 
 const { Title } = Typography;
 
@@ -223,7 +223,7 @@ const AssessmentDetail: React.FC = () => {
             {assessment.max_attempts}
           </Descriptions.Item>
           <Descriptions.Item label="Số câu hỏi">
-            <FileTextOutlined /> {assessment.question_count || 0} câu
+            <FileTextOutlined /> {assessment.questions_count || 0} câu
           </Descriptions.Item>
           <Descriptions.Item label="Tổng điểm">
             {assessment.total_points || 0} điểm
@@ -308,6 +308,14 @@ const AssessmentDetail: React.FC = () => {
           </Descriptions>
         </Card>
       )}
+
+      <ManageAssessmentQuestions
+        assessmentId={parseInt(id!)}
+        questions={assessment.questions}
+        onQuestionsChange={() => {
+          fetchAssessment(parseInt(id!));
+        }}
+      />
     </Space>
   );
 };

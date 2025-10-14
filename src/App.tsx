@@ -23,9 +23,11 @@ import QuestionBankDetail from './pages/QuestionBanks/QuestionBankDetail';
 import PublicQuestionBanks from './pages/QuestionBanks/PublicQuestionBanks';
 import SharedQuestionBanks from './pages/QuestionBanks/SharedQuestionBanks';
 import GradingList from './pages/Grading/GradingList';
+import GradingDetail from './pages/Grading/GradingDetail';
 import Profile from './pages/Profile';
 import Login from './pages/Auth/Login';
 import Callback from './pages/Auth/Callback';
+
 
 /**
  * Main App Component
@@ -96,6 +98,7 @@ const App: React.FC = () => {
                     {/* Grading routes */}
                     <Route path="grading">
                       <Route index element={<GradingList />} />
+                      <Route path=":id" element={<GradingDetail />} />
                     </Route>
                   </Route>
                 </Routes>

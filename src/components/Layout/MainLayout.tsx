@@ -9,7 +9,7 @@ import {
   Dropdown,
   Switch,
   Grid,
-  Badge,
+  Avatar,
 } from 'antd';
 import { elevation } from '../../styles/elevation';
 import type { MenuProps } from 'antd';
@@ -64,34 +64,34 @@ const MainLayout: React.FC = () => {
   const menuItems: MenuProps['items'] = [
     {
       key: '/dashboard',
-      icon: <DashboardOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Tổng quan</span>,
+      icon: <DashboardOutlined />,
+      label: 'Tổng quan',
     },
     // Only show Users menu for admin
     ...(user?.isAdmin ? [{
       key: '/users',
-      icon: <TeamOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Người dùng</span>,
+      icon: <TeamOutlined />,
+      label: 'Người dùng',
     }] : []),
     {
       key: '/assessments',
-      icon: <FileTextOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Quản lý bài thi</span>,
+      icon: <FileTextOutlined />,
+      label: 'Quản lý bài thi',
     },
     {
       key: '/questions',
-      icon: <QuestionCircleOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Quản lý câu hỏi</span>,
+      icon: <QuestionCircleOutlined />,
+      label: 'Quản lý câu hỏi',
     },
     {
       key: '/question-banks',
-      icon: <BankOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Ngân hàng câu hỏi</span>,
+      icon: <BankOutlined />,
+      label: 'Ngân hàng câu hỏi',
     },
     {
       key: '/grading',
-      icon: <Badge count={3} size="small" offset={[10, 0]}><CheckCircleOutlined style={{ fontSize: 18 }} /></Badge>,
-      label: <span style={{ fontWeight: 500 }}>Chấm điểm</span>,
+      icon: <CheckCircleOutlined />,
+      label: 'Chấm điểm',
     },
   ];
 
@@ -176,7 +176,9 @@ const MainLayout: React.FC = () => {
           bottom: 0,
           zIndex: 1000,
           background: mode === 'dark' ? '#1a1a1a' : '#ffffff',
-          borderRight: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+          borderRight: mode === 'dark'
+            ? '1px solid rgba(255, 255, 255, 0.08)'
+            : '1px solid rgba(0, 0, 0, 0.06)',
         }}
       >
         {/* Logo */}
@@ -190,7 +192,9 @@ const MainLayout: React.FC = () => {
             fontSize: collapsed ? 24 : 18,
             fontWeight: 700,
             padding: `0 ${token.paddingLG}px`,
-            borderBottom: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+            borderBottom: mode === 'dark'
+              ? '1px solid rgba(255, 255, 255, 0.08)'
+              : '1px solid rgba(0, 0, 0, 0.06)',
             letterSpacing: '-0.5px',
           }}
         >
@@ -231,11 +235,12 @@ const MainLayout: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+            borderBottom: mode === 'dark'
+              ? '1px solid rgba(255, 255, 255, 0.08)'
+              : '1px solid rgba(0, 0, 0, 0.06)',
             position: 'sticky',
             top: 0,
             zIndex: 999,
-            ...elevation[1],
           }}
         >
           <Button
@@ -246,7 +251,6 @@ const MainLayout: React.FC = () => {
               fontSize: 18,
               width: 48,
               height: 48,
-              borderRadius: token.borderRadius,
             }}
           />
 
@@ -266,17 +270,40 @@ const MainLayout: React.FC = () => {
 
             {/* User dropdown */}
             <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }} placement="bottomRight">
-              <Button
-                type="text"
-                icon={<UserOutlined />}
+              <div
                 style={{
-                  height: 40,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  cursor: 'pointer',
+                  padding: '4px 12px',
                   borderRadius: token.borderRadius,
-                  fontWeight: 500,
+                  transition: 'background 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.08)'
+                    : 'rgba(0, 0, 0, 0.04)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
                 }}
               >
-                {!screens.xs && (user?.name || 'User')}
-              </Button>
+                <Avatar
+                  size={32}
+                  icon={<UserOutlined />}
+                  src={user?.avatar}
+                  style={{
+                    backgroundColor: '#1890ff',
+                    flexShrink: 0,
+                  }}
+                />
+                {!screens.xs && (
+                  <span style={{ fontWeight: 500, fontSize: 14 }}>
+                    {user?.name || 'User'}
+                  </span>
+                )}
+              </div>
             </Dropdown>
           </Space>
         </Header>
@@ -289,7 +316,9 @@ const MainLayout: React.FC = () => {
             minHeight: 280,
             background: token.colorBgContainer,
             borderRadius: 20,
-            border: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+            border: mode === 'dark'
+              ? '1px solid rgba(255, 255, 255, 0.08)'
+              : '1px solid rgba(0, 0, 0, 0.06)',
             ...elevation[0],
           }}
         >

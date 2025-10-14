@@ -1,54 +1,65 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   Button,
   Space,
   Tag,
   Typography,
-  Modal,
   message,
   Card,
   Row,
   Col,
-  InputNumber,
-  Input,
   Flex,
   Avatar,
+  Select,
+  Input,
 } from 'antd';
 import { StatusBadge } from '../../components/StatusBadge/StatusBadge';
 import { elevation } from '../../styles/elevation';
 import { cardColors } from '../../styles/cardColors';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
-  EditOutlined,
+  EyeOutlined,
   TrophyOutlined,
   FileSearchOutlined,
   SyncOutlined,
+  UserOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
-import { Attempt, AttemptStatus } from '../../types';
-import { mockAttempts } from '../../services/mockData';
+import { AttemptStatus } from '../../types';
 import dayjs from 'dayjs';
 import { useThemeToken } from '../../theme/ThemeProvider';
+import { gradingService, type AttemptListItem } from '../../services/gradingService';
 
 const { Title, Text } = Typography;
-const { TextArea } = Input;
+const { Search } = Input;
 
 const GradingList: React.FC = () => {
+  const navigate = useNavigate();
   const token = useThemeToken();
   const [loading, setLoading] = useState(false);
-  const [attempts, setAttempts] = useState<Attempt[]>([]);
-  const [gradingModalVisible, setGradingModalVisible] = useState(false);
-  const [selectedAttempt, setSelectedAttempt] = useState<Attempt | null>(null);
-  const [score, setScore] = useState<number>(0);
-  const [feedback, setFeedback] = useState<string>('');
+  const [attempts, setAttempts] = useState<AttemptListItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
+
+  // Filters
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [searchText, setSearchText] = useState('');
+  const [assessmentFilter, setAssessmentFilter] = useState<number | undefined>(undefined);
 
   // Calculate statistics
   const stats = useMemo(() => {
     const graded = attempts.filter((a) => a.score !== undefined).length;
     const pending = attempts.filter(
-      (a) => a.status === AttemptStatus.Completed && a.score === undefined
+      (a) => a.status === 'completed' && a.score === undefined
     ).length;
     const avgScore =
       graded > 0
@@ -68,42 +79,69 @@ const GradingList: React.FC = () => {
 
   useEffect(() => {
     fetchAttempts();
-  }, []);
+  }, [pagination.current, pagination.pageSize, statusFilter, assessmentFilter]);
 
   const fetchAttempts = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      setAttempts(mockAttempts);
+    try {
+      setLoading(true);
+      const response = await gradingService.getAttempts({
+        page: pagination.current - 1, // API uses 0-indexed pages
+        size: pagination.pageSize,
+        status: statusFilter,
+        assessment_id: assessmentFilter,
+      });
+
+      setAttempts(response.attempts);
+      setTotal(response.total_elements);
+    } catch (error) {
+      message.error('Không thể tải danh sách bài làm');
+    } finally {
       setLoading(false);
-    }, 500);
-  };
-
-  const getStatusBadge = (status: AttemptStatus) => {
-    const statusMap: Record<AttemptStatus, 'in-progress' | 'completed' | 'failed' | 'pending'> = {
-      [AttemptStatus.InProgress]: 'in-progress',
-      [AttemptStatus.Completed]: 'completed',
-      [AttemptStatus.Abandoned]: 'failed',
-      [AttemptStatus.Timeout]: 'failed',
-    };
-    return <StatusBadge status={statusMap[status]} />;
-  };
-
-  const handleGrade = (attempt: Attempt) => {
-    setSelectedAttempt(attempt);
-    setScore(attempt.score || 0);
-    setFeedback('');
-    setGradingModalVisible(true);
-  };
-
-  const handleSubmitGrade = () => {
-    if (selectedAttempt) {
-      message.success('Chấm điểm thành công');
-      setGradingModalVisible(false);
-      fetchAttempts();
     }
   };
 
-  const columns: ColumnsType<Attempt> = [
+  const handleTableChange = (newPagination: TablePaginationConfig) => {
+    setPagination({
+      current: newPagination.current || 1,
+      pageSize: newPagination.pageSize || 10,
+    });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, 'in-progress' | 'completed' | 'failed' | 'pending'> = {
+      in_progress: 'in-progress',
+      completed: 'completed',
+      abandoned: 'failed',
+      timeout: 'failed',
+    };
+    return <StatusBadge status={statusMap[status] || 'pending'} />;
+  };
+
+  const handleViewDetail = (attemptId: number) => {
+    navigate(`/grading/${attemptId}`);
+  };
+
+  const handleAutoGradeAll = async () => {
+    if (!assessmentFilter) {
+      message.warning('Vui lòng chọn bài thi để chấm tự động');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await gradingService.autoGradeAssessment(assessmentFilter);
+      message.success(
+        `Đã xử lý ${result.processed_attempts} bài. Chấm tự động: ${result.auto_graded}, Cần chấm thủ công: ${result.manual_required}`
+      );
+      await fetchAttempts();
+    } catch (error) {
+      message.error('Không thể chấm điểm tự động');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const columns: ColumnsType<AttemptListItem> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -112,17 +150,38 @@ const GradingList: React.FC = () => {
     },
     {
       title: 'Bài thi',
-      dataIndex: 'assessment_id',
-      key: 'assessment_id',
-      width: 120,
-      render: (id) => `Bài thi #${id}`,
+      dataIndex: ['assessment', 'title'],
+      key: 'assessment',
+      width: 200,
+      render: (_, record) => (
+        <Space direction="vertical" size={0}>
+          <Text strong>{record.assessment?.title || `Bài thi #${record.assessment_id}`}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            Điểm chuẩn: {record.assessment?.passing_score}%
+          </Text>
+        </Space>
+      ),
     },
     {
       title: 'Học viên',
-      dataIndex: 'student_id',
-      key: 'student_id',
-      width: 120,
-      render: (id) => `HV-${id}`,
+      dataIndex: ['student', 'full_name'],
+      key: 'student',
+      width: 200,
+      render: (_, record) => (
+        <Space>
+          <Avatar
+            size="small"
+            icon={<UserOutlined />}
+            src={record.student?.avatar_url}
+          />
+          <Space direction="vertical" size={0}>
+            <Text>{record.student?.full_name || `HV-${record.student_id}`}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {record.student?.email}
+            </Text>
+          </Space>
+        </Space>
+      ),
     },
     {
       title: 'Trạng thái',
@@ -130,28 +189,38 @@ const GradingList: React.FC = () => {
       key: 'status',
       width: 130,
       render: (status) => getStatusBadge(status),
+      filters: [
+        { text: 'Đang làm', value: 'in_progress' },
+        { text: 'Hoàn thành', value: 'completed' },
+        { text: 'Bỏ cuộc', value: 'abandoned' },
+        { text: 'Hết giờ', value: 'timeout' },
+      ],
+      filteredValue: statusFilter ? [statusFilter] : null,
     },
     {
       title: 'Điểm',
       dataIndex: 'score',
       key: 'score',
-      width: 100,
+      width: 120,
       align: 'center',
+      sorter: (a, b) => (a.score || 0) - (b.score || 0),
       render: (score, record) => (
         <Space direction="vertical" size={0}>
           {score !== undefined ? (
             <>
               <Text strong style={{ fontSize: 18 }}>
-                {score}
+                {score.toFixed(1)}
               </Text>
-              {record.passed ? (
-                <Tag color="success">Đạt</Tag>
-              ) : (
-                <Tag color="error">Không đạt</Tag>
+              {record.passed !== undefined && (
+                record.passed ? (
+                  <Tag color="success">Đạt</Tag>
+                ) : (
+                  <Tag color="error">Không đạt</Tag>
+                )
               )}
             </>
           ) : (
-            <Text type="secondary">Chưa chấm</Text>
+            <Tag color="warning">Chưa chấm</Tag>
           )}
         </Space>
       ),
@@ -160,30 +229,51 @@ const GradingList: React.FC = () => {
       title: 'Thời gian bắt đầu',
       dataIndex: 'started_at',
       key: 'started_at',
-      width: 150,
-      render: (date) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+      width: 160,
+      sorter: (a, b) => dayjs(a.started_at).unix() - dayjs(b.started_at).unix(),
+      render: (date) => (
+        <Space direction="vertical" size={0}>
+          <Text>{dayjs(date).format('DD/MM/YYYY')}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {dayjs(date).format('HH:mm:ss')}
+          </Text>
+        </Space>
+      ),
     },
     {
       title: 'Thời gian hoàn thành',
       dataIndex: 'completed_at',
       key: 'completed_at',
-      width: 150,
-      render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '-'),
+      width: 160,
+      sorter: (a, b) => {
+        if (!a.completed_at) return 1;
+        if (!b.completed_at) return -1;
+        return dayjs(a.completed_at).unix() - dayjs(b.completed_at).unix();
+      },
+      render: (date) => date ? (
+        <Space direction="vertical" size={0}>
+          <Text>{dayjs(date).format('DD/MM/YYYY')}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {dayjs(date).format('HH:mm:ss')}
+          </Text>
+        </Space>
+      ) : (
+        <Text type="secondary">-</Text>
+      ),
     },
     {
       title: 'Thao tác',
       key: 'action',
       fixed: 'right',
-      width: 100,
+      width: 120,
       render: (_, record) => (
         <Button
           type="primary"
           size="small"
-          icon={<EditOutlined />}
-          onClick={() => handleGrade(record)}
-          disabled={record.status !== AttemptStatus.Completed}
+          icon={<EyeOutlined />}
+          onClick={() => handleViewDetail(record.id)}
         >
-          Chấm điểm
+          Xem chi tiết
         </Button>
       ),
     },
@@ -200,7 +290,81 @@ const GradingList: React.FC = () => {
             Quản lý và chấm điểm bài làm của học viên
           </Text>
         </Space>
+        <Space>
+          <Button
+            icon={<SyncOutlined />}
+            onClick={fetchAttempts}
+            loading={loading}
+          >
+            Làm mới
+          </Button>
+          <Button
+            type="primary"
+            icon={<ThunderboltOutlined />}
+            onClick={handleAutoGradeAll}
+            disabled={!assessmentFilter}
+          >
+            Chấm tự động tất cả
+          </Button>
+        </Space>
       </Flex>
+
+      {/* Filters */}
+      <Card style={{ ...elevation[1], borderRadius: 16 }}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={8}>
+            <Space direction="vertical" style={{ width: '100%' }} size={4}>
+              <Text strong>Trạng thái</Text>
+              <Select
+                style={{ width: '100%' }}
+                placeholder="Tất cả trạng thái"
+                allowClear
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={[
+                  { label: 'Đang làm', value: 'in_progress' },
+                  { label: 'Hoàn thành', value: 'completed' },
+                  { label: 'Bỏ cuộc', value: 'abandoned' },
+                  { label: 'Hết giờ', value: 'timeout' },
+                ]}
+              />
+            </Space>
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <Space direction="vertical" style={{ width: '100%' }} size={4}>
+              <Text strong>Bài thi</Text>
+              <Select
+                style={{ width: '100%' }}
+                placeholder="Tất cả bài thi"
+                allowClear
+                showSearch
+                value={assessmentFilter}
+                onChange={setAssessmentFilter}
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={[
+                  // This should be populated from assessments API
+                  { label: 'Bài thi 1', value: 1 },
+                  { label: 'Bài thi 2', value: 2 },
+                ]}
+              />
+            </Space>
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <Space direction="vertical" style={{ width: '100%' }} size={4}>
+              <Text strong>Tìm kiếm</Text>
+              <Search
+                placeholder="Tìm theo tên học viên..."
+                allowClear
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onSearch={fetchAttempts}
+              />
+            </Space>
+          </Col>
+        </Row>
+      </Card>
 
       {/* Statistics Cards */}
       <Row gutter={[16, 16]}>
@@ -248,57 +412,18 @@ const GradingList: React.FC = () => {
           dataSource={attempts}
           rowKey="id"
           loading={loading}
-          scroll={{ x: 1200 }}
+          scroll={{ x: 1400 }}
           pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: total,
             showSizeChanger: true,
             showTotal: (total) => `Tổng ${total} bài làm`,
+            pageSizeOptions: ['10', '20', '50', '100'],
           }}
+          onChange={handleTableChange}
         />
       </Card>
-
-      <Modal
-        title="Chấm điểm bài làm"
-        open={gradingModalVisible}
-        onOk={handleSubmitGrade}
-        onCancel={() => setGradingModalVisible(false)}
-        okText="Lưu điểm"
-        cancelText="Hủy"
-        width={600}
-      >
-        {selectedAttempt && (
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <div>
-              <Text strong>Bài thi:</Text> Bài thi #{selectedAttempt.assessment_id}
-            </div>
-            <div>
-              <Text strong>Học viên:</Text> HV-{selectedAttempt.student_id}
-            </div>
-            <div>
-              <Text strong>Điểm số:</Text>
-              <br />
-              <InputNumber
-                min={0}
-                max={100}
-                value={score}
-                onChange={(value) => setScore(value || 0)}
-                style={{ width: '100%', marginTop: 8 }}
-                size="large"
-              />
-            </div>
-            <div>
-              <Text strong>Nhận xét:</Text>
-              <br />
-              <TextArea
-                rows={4}
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Nhập nhận xét cho học viên"
-                style={{ marginTop: 8 }}
-              />
-            </div>
-          </Space>
-        )}
-      </Modal>
     </Space>
   );
 };

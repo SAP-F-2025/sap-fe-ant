@@ -220,7 +220,15 @@ export interface StudentAnswer {
 export interface GradeAnswerRequest {
   score: number;
   feedback?: string;
-  graded_by: number;
+}
+
+export interface GradingStats {
+  total_attempts: number;
+  graded_attempts: number;
+  pending_attempts: number;
+  average_score: number;
+  auto_gradable?: number;
+  manual_required?: number;
 }
 
 // Pagination

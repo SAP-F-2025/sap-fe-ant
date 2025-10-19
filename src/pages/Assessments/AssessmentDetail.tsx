@@ -12,6 +12,7 @@ import {
   Statistic,
   Spin,
   message,
+  Modal,
 } from 'antd';
 import {
   EditOutlined,
@@ -22,6 +23,7 @@ import {
   ClockCircleOutlined,
   TrophyOutlined,
   UserOutlined,
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { Assessment, AssessmentStatus, AssessmentStats } from '../../types';
 import assessmentService from '../../services/assessmentService';
@@ -78,14 +80,54 @@ const AssessmentDetail: React.FC = () => {
   };
 
   const handlePublish = async () => {
-    if (!id) return;
-    try {
-      await assessmentService.publishAssessment(parseInt(id));
-      message.success('Xuất bản bài thi thành công');
-      fetchAssessment(parseInt(id));
-    } catch (error) {
-      message.error('Không thể xuất bản bài thi');
-    }
+    if (!id || !assessment) return;
+
+    // Validation before publishing
+    const hasQuestions = (assessment.questions_count || 0) > 0;
+    const totalPoints = assessment.total_points || 0;
+    const hasValidPoints = totalPoints === 100;
+
+    // Show warning modal
+    Modal.confirm({
+      title: 'Xuất bản Assessment',
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <div>
+          <p>
+            <strong>⚠️ Lưu ý:</strong> Sau khi sinh viên bắt đầu làm bài, bạn sẽ{' '}
+            <strong>KHÔNG THỂ</strong> thêm, xóa hoặc chỉnh sửa câu hỏi.
+          </p>
+          <p>Vui lòng kiểm tra kỹ trước khi xuất bản:</p>
+          <ul style={{ marginLeft: 20 }}>
+            <li style={{ color: hasQuestions ? 'green' : 'red' }}>
+              {hasQuestions ? '✓' : '✗'} Có ít nhất 1 câu hỏi
+            </li>
+            <li style={{ color: hasValidPoints ? 'green' : 'orange' }}>
+              {hasValidPoints ? '✓' : '⚠'} Tổng điểm = 100 (hiện tại: {totalPoints})
+            </li>
+            <li style={{ color: assessment.description ? 'green' : 'orange' }}>
+              {assessment.description ? '✓' : '⚠'} Có mô tả
+            </li>
+          </ul>
+        </div>
+      ),
+      okText: 'Xuất bản',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        if (!hasQuestions) {
+          message.error('Không thể xuất bản assessment không có câu hỏi');
+          return;
+        }
+
+        try {
+          await assessmentService.publishAssessment(parseInt(id));
+          message.success('Xuất bản bài thi thành công');
+          fetchAssessment(parseInt(id));
+        } catch (error) {
+          message.error('Không thể xuất bản bài thi');
+        }
+      },
+    });
   };
 
   const handleArchive = async () => {
@@ -310,7 +352,7 @@ const AssessmentDetail: React.FC = () => {
       )}
 
       <ManageAssessmentQuestions
-        assessmentId={parseInt(id!)}
+        assessment={assessment}
         questions={assessment.questions}
         onQuestionsChange={() => {
           fetchAssessment(parseInt(id!));

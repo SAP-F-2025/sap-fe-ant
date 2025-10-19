@@ -1,7 +1,7 @@
 export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8888',
   TIMEOUT: 30000,
-  USE_MOCK: false, // Default to mock for development
+  USE_MOCK: import.meta.env.VITE_USE_MOCK === 'true', // Read from environment variable
 };
 
 export const API_ENDPOINTS = {
@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   ASSESSMENT_BULK_REMOVE_QUESTIONS: (id: number) => `/api/v1/assessments/${id}/questions/batch`,
   ASSESSMENT_BULK_UPDATE_QUESTIONS: (id: number) => `/api/v1/assessments/${id}/questions/batch`,
   ASSESSMENT_REORDER_QUESTIONS: (id: number) => `/api/v1/assessments/${id}/questions/reorder`,
+  ASSESSMENT_AUTO_ASSIGN_QUESTIONS: (id: number) => `/api/v1/assessments/${id}/questions/auto-assign`,
 
   // Questions
   QUESTIONS: '/api/v1/questions',
@@ -50,6 +51,15 @@ export const API_ENDPOINTS = {
   ATTEMPT_START: '/api/v1/attempts/start',
   ATTEMPT_SUBMIT: '/api/v1/attempts/submit',
   ATTEMPT_DETAIL: (id: number) => `/api/v1/attempts/${id}`,
+  ATTEMPT_DETAIL_FULL: (id: number) => `/api/v1/attempts/${id}/details`,
+  ATTEMPT_RESUME: (id: number) => `/api/v1/attempts/${id}/resume`,
+  ATTEMPT_ANSWER: (id: number) => `/api/v1/attempts/${id}/answer`,
+  ATTEMPT_TIME_REMAINING: (id: number) => `/api/v1/attempts/${id}/time-remaining`,
+  ATTEMPT_CAN_START: (assessmentId: number) => `/api/v1/attempts/can-start/${assessmentId}`,
+  ATTEMPT_CURRENT: (assessmentId: number) => `/api/v1/attempts/current/${assessmentId}`,
+  ATTEMPT_COUNT: (assessmentId: number) => `/api/v1/attempts/count/${assessmentId}`,
+  ATTEMPT_BY_STUDENT: (studentId: string | number) => `/api/v1/attempts/student/${studentId}`,
+  ATTEMPT_BY_ASSESSMENT: (assessmentId: number) => `/api/v1/attempts/assessment/${assessmentId}`,
 
   // Grading
   GRADING_ANSWER: (answerId: number) => `/api/v1/grading/answers/${answerId}`,
@@ -67,4 +77,10 @@ export const API_ENDPOINTS = {
   DASHBOARD_RECENT_ACTIVITIES: '/api/v1/dashboard/recent-activities',
   DASHBOARD_QUESTION_DISTRIBUTION: '/api/v1/dashboard/question-distribution',
   DASHBOARD_PERFORMANCE_BY_SUBJECT: '/api/v1/dashboard/performance-by-subject',
+
+  // Student Panel
+  STUDENT_STATS: '/api/v1/students/me/stats',
+  STUDENT_ASSESSMENTS: '/api/v1/students/me/assessments',
+  STUDENT_ASSESSMENT_DETAIL: (id: number) => `/api/v1/students/me/assessments/${id}`,
+  STUDENT_ATTEMPTS: '/api/v1/students/me/attempts',
 };

@@ -23,6 +23,7 @@ import {
   Empty,
   Tooltip,
   Modal,
+  App,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -49,7 +50,6 @@ dayjs.extend(duration);
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
-const { confirm } = Modal;
 
 interface AnswerGrade {
   score: number;
@@ -59,13 +59,17 @@ interface AnswerGrade {
 const GradingDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { modal } = App.useApp();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [autoGrading, setAutoGrading] = useState(false);
+  const [generatingFeedback, setGeneratingFeedback] = useState(false);
   const [attempt, setAttempt] = useState<AttemptDetailResponse | null>(null);
   const [grades, setGrades] = useState<Map<number, AnswerGrade>>(new Map());
   const [expandedAnswers, setExpandedAnswers] = useState<string[]>([]);
+  const [overallFeedback, setOverallFeedback] = useState('');
+  const [finalScore, setFinalScore] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     if (id) {
@@ -137,9 +141,12 @@ const GradingDetail: React.FC = () => {
   };
 
   const handleAutoGrade = () => {
-    if (!attempt) return;
+    if (!attempt) {
+      message.error('Không tìm thấy thông tin bài làm');
+      return;
+    }
 
-    confirm({
+    modal.confirm({
       title: 'Chấm điểm tự động',
       icon: <ThunderboltOutlined />,
       content: 'Bạn có chắc chắn muốn chấm điểm tự động cho bài làm này? Điểm số hiện tại sẽ bị ghi đè.',
@@ -159,8 +166,137 @@ const GradingDetail: React.FC = () => {
           }
         } catch (error) {
           message.error('Không thể chấm điểm tự động');
+          console.error('Auto grade error:', error);
         } finally {
           setAutoGrading(false);
+        }
+      },
+    });
+  };
+
+  const handleAutoGradeAnswer = async (answerId: number) => {
+    try {
+      const result = await gradingService.autoGradeAnswer(answerId);
+
+      // Update grades map
+      setGrades(new Map(grades.set(answerId, {
+        score: result.score,
+        feedback: result.feedback || '',
+      })));
+
+      message.success(`Đã chấm tự động. Điểm: ${result.score}`);
+    } catch (error) {
+      message.error('Không thể chấm tự động câu này');
+    }
+  };
+
+  const handleGenerateFeedback = async () => {
+    if (!attempt) return;
+
+    try {
+      setGeneratingFeedback(true);
+      const result = await gradingService.generateFeedback({
+        attempt_id: attempt.id,
+        feedback_type: 'detailed',
+        include_suggestions: true,
+      });
+
+      setOverallFeedback(result.feedback);
+
+      modal.info({
+        title: 'Phản hồi AI',
+        width: 600,
+        content: (
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <div>
+              <Text strong>Phản hồi tổng quát:</Text>
+              <Paragraph>{result.feedback}</Paragraph>
+            </div>
+
+            {result.strengths && result.strengths.length > 0 && (
+              <div>
+                <Text strong style={{ color: '#52c41a' }}>Điểm mạnh:</Text>
+                <ul>
+                  {result.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                </ul>
+              </div>
+            )}
+
+            {result.weaknesses && result.weaknesses.length > 0 && (
+              <div>
+                <Text strong style={{ color: '#ff4d4f' }}>Điểm cần cải thiện:</Text>
+                <ul>
+                  {result.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
+                </ul>
+              </div>
+            )}
+
+            {result.suggestions && result.suggestions.length > 0 && (
+              <div>
+                <Text strong style={{ color: '#1890ff' }}>Gợi ý:</Text>
+                <ul>
+                  {result.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+                </ul>
+              </div>
+            )}
+          </Space>
+        ),
+      });
+    } catch (error) {
+      message.error('Không thể tạo phản hồi AI');
+    } finally {
+      setGeneratingFeedback(false);
+    }
+  };
+
+  const handleSaveOverallGrade = async () => {
+    if (!attempt) return;
+
+    try {
+      setSaving(true);
+      await gradingService.gradeAttempt(attempt.id, {
+        final_score: finalScore,
+        feedback: overallFeedback,
+      });
+
+      message.success('Đã lưu điểm tổng kết');
+
+      // Reload attempt
+      if (id) {
+        await fetchAttemptDetail(parseInt(id));
+      }
+    } catch (error) {
+      message.error('Không thể lưu điểm tổng kết');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRegradeQuestion = async (questionId: number) => {
+    modal.confirm({
+      title: 'Chấm lại câu hỏi',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Bạn có chắc chắn muốn chấm lại tất cả câu trả lời cho câu hỏi này? Điểm số hiện tại sẽ bị ghi đè.',
+      okText: 'Chấm lại',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          setLoading(true);
+          const result = await gradingService.regradeQuestion(questionId, {
+            reason: 'Chấm lại từ giao diện giáo viên',
+          });
+
+          message.success(`Đã chấm lại ${result.affected_answers} câu trả lời`);
+
+          // Reload attempt
+          if (id) {
+            await fetchAttemptDetail(parseInt(id));
+          }
+        } catch (error) {
+          message.error('Không thể chấm lại câu hỏi');
+          console.error('Regrade error:', error);
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -191,24 +327,21 @@ const GradingDetail: React.FC = () => {
 
   const calculateTotalScore = () => {
     if (!attempt) return 0;
-    return 0;
-    // return attempt.answers.reduce((total, answer) => {
-    //   const grade = grades.get(answer.id);
-    //   return total + (grade?.score || answer.score || 0);
-    // }, 0);
+    return attempt.answers.reduce((total, answer) => {
+      const grade = grades.get(answer.id);
+      return total + (grade?.score ?? answer.score ?? 0);
+    }, 0);
   };
 
   const calculateMaxScore = () => {
     if (!attempt) return 0;
-    return 0;
-   // return attempt.answers.reduce((total, answer) => total + answer.max_score, 0);
+    return attempt.answers.reduce((total, answer) => total + answer.max_score, 0);
   };
 
   const calculateProgress = () => {
-    if (!attempt) return 0;
-    // const gradedCount = attempt.answers.filter(a => a.is_graded || grades.has(a.id)).length;
-    // return (gradedCount / attempt.answers.length) * 100;
-      return 0;
+    if (!attempt || attempt.answers.length === 0) return 0;
+    const gradedCount = attempt.answers.filter(a => a.is_graded || grades.has(a.id)).length;
+    return (gradedCount / attempt.answers.length) * 100;
   };
 
   const renderAnswerContent = (answer: StudentAnswerDetail) => {
@@ -312,12 +445,18 @@ const GradingDetail: React.FC = () => {
         </Space>
         <Space>
           <Button
-            type="default"
             icon={<ThunderboltOutlined />}
             onClick={handleAutoGrade}
             loading={autoGrading}
           >
-            Chấm tự động
+            Chấm tự động toàn bộ
+          </Button>
+          <Button
+            icon={<FileTextOutlined />}
+            onClick={handleGenerateFeedback}
+            loading={generatingFeedback}
+          >
+            Tạo phản hồi AI
           </Button>
           <Button
             type="primary"
@@ -344,6 +483,70 @@ const GradingDetail: React.FC = () => {
             showInfo={false}
           />
         </Space>
+      </Card>
+
+      {/* Overall Grade & Feedback */}
+      <Card
+        title={
+          <Space>
+            <FileTextOutlined />
+            <Text strong>Điểm tổng kết & Phản hồi chung</Text>
+          </Space>
+        }
+        style={{ ...elevation[1], borderRadius: 16 }}
+        extra={
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            onClick={handleSaveOverallGrade}
+            loading={saving}
+          >
+            Lưu điểm tổng kết
+          </Button>
+        }
+      >
+        <Row gutter={16}>
+          <Col xs={24} md={8}>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Text strong>Điểm tổng kết (tùy chọn):</Text>
+              <InputNumber
+                min={0}
+                max={100}
+                step={0.5}
+                value={finalScore}
+                onChange={(value) => setFinalScore(value || undefined)}
+                style={{ width: '100%' }}
+                size="large"
+                placeholder="Điểm tổng kết..."
+              />
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                Để trống nếu muốn tính tự động từ từng câu
+              </Text>
+            </Space>
+          </Col>
+          <Col xs={24} md={16}>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Flex justify="space-between">
+                <Text strong>Phản hồi chung:</Text>
+                {overallFeedback && (
+                  <Button
+                    size="small"
+                    type="link"
+                    onClick={() => setOverallFeedback('')}
+                  >
+                    Xóa
+                  </Button>
+                )}
+              </Flex>
+              <TextArea
+                rows={4}
+                value={overallFeedback}
+                onChange={(e) => setOverallFeedback(e.target.value)}
+                placeholder="Nhập phản hồi chung cho học viên... (hoặc dùng nút 'Tạo phản hồi AI' ở trên)"
+              />
+            </Space>
+          </Col>
+        </Row>
       </Card>
 
       {/* Attempt Info */}

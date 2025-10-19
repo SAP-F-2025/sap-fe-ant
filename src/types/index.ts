@@ -83,6 +83,14 @@ export interface Assessment {
   questions_count?: number;
   total_points?: number;
   questions?: AssessmentQuestion[];
+
+  // Permission flags (from backend)
+  can_edit?: boolean;
+  can_delete?: boolean;
+  can_take?: boolean;
+
+  // Question lock policy (from backend)
+  has_attempts?: boolean; // Indicates if students have started attempts
 }
 
 // Question types
@@ -106,7 +114,7 @@ export interface QuestionCreateRequest {
   type: QuestionType;
   text: string;
   points: number;
-  time_limit?: number;
+  time_limit?: number; // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
   content: QuestionContent;
   category_id?: number;
   difficulty: DifficultyLevel;
@@ -119,7 +127,7 @@ export interface Question {
   type: QuestionType;
   text: string;
   points: number;
-  time_limit?: number;
+  time_limit?: number; // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
   content: QuestionContent;
   category_id?: number;
   difficulty: DifficultyLevel;
@@ -194,7 +202,7 @@ export interface QuestionBankStats {
 // Attempt types
 export interface AttemptStartRequest {
   assessment_id: number;
-  student_id: number;
+  student_id: string | number;
 }
 
 export interface Attempt {
@@ -278,7 +286,20 @@ export interface ApiResponse<T> {
 export interface ErrorResponse {
   error: string;
   message: string;
-  details?: any;
+  code?: string;
+  details?: {
+    rule?: string;
+    context?: {
+      assessment_id?: number;
+      status?: string;
+      has_attempts?: boolean;
+    };
+  };
+  validation_errors?: Array<{
+    field: string;
+    message: string;
+    code: string;
+  }>;
 }
 
 // Statistics
@@ -294,7 +315,7 @@ export interface AssessmentStats {
 export interface AssessmentQuestionSettings {
   order?: number;
   points?: number;
-  time_limit?: number;
+  time_limit?: number; // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
 }
 
 export interface AssessmentQuestion {
@@ -303,28 +324,37 @@ export interface AssessmentQuestion {
   question_id: number;
   order: number;
   points: number;  // Override points for this question in the assessment
-  time_limit?: number;  // Override time limit for this question in the assessment
+  time_limit?: number;  // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
   required: boolean;
   created_at: string;
   question: Question;  // Nested question object with original values
 }
 
 export interface AddQuestionToAssessmentRequest {
-  order?: number;
-  points?: number;
-  time_limit?: number;
+  question_id: number;
+  order: number;
+  points: number; // REQUIRED: Must be between 1-100, total must not exceed 100
+  time_limit?: number; // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
+}
+
+export interface BulkAddQuestionsRequest {
+  questions: Array<{
+    question_id: number;
+    order: number;
+    points: number; // REQUIRED: Must be between 1-100, total must not exceed 100
+  }>;
 }
 
 export interface UpdateQuestionSettingsRequest {
   points?: number;
-  time_limit?: number;
+  time_limit?: number; // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
 }
 
 export interface BulkUpdateQuestionSettingsRequest {
   updates: Array<{
     question_id: number;
     points?: number;
-    time_limit?: number;
+    time_limit?: number; // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
   }>;
 }
 
@@ -424,4 +454,200 @@ export interface SubjectPerformance {
   subject_id?: number;
   subject_name: string;
   average_score: number;
+}
+
+// Student Panel types
+export interface StudentAssessment {
+  id: number;
+  title: string;
+  description?: string;
+  duration: number;
+  passing_score: number;
+  status: AssessmentStatus;
+  due_date?: string;
+  questions_count?: number;
+  total_points?: number;
+  // Student-specific fields
+  max_attempts: number;
+  attempts_used: number;
+  can_start: boolean;
+  has_active_attempt: boolean;
+  best_score?: number;
+  last_attempt_date?: string;
+}
+
+export interface StudentDashboardStats {
+  overview: {
+    total_assessments_available: number;
+    total_assessments_completed: number;
+    total_assessments_in_progress: number;
+    total_attempts: number;
+  };
+  performance: {
+    average_score: number;
+    pass_rate: number;
+    highest_score: number;
+    lowest_score: number;
+  };
+  recent_attempts: Array<{
+    id: number;
+    assessment_id: number;
+    assessment_title: string;
+    score: number;
+    passed: boolean;
+    completed_at: string;
+    time_spent: number;
+  }>;
+  upcoming_assessments: Array<{
+    id: number;
+    title: string;
+    due_date: string;
+    days_remaining: number;
+  }>;
+}
+
+export interface AttemptWithAssessment {
+  id: number;
+  assessment_id: number;
+  assessment_title: string;
+  status: AttemptStatus;
+  score?: number;
+  max_score?: number;
+  passed?: boolean;
+  started_at: string;
+  completed_at?: string;
+  time_spent?: number; // in seconds
+  questions_answered?: number;
+  total_questions?: number;
+}
+
+export interface AttemptDetail extends Attempt {
+  answers: StudentAnswer[];
+  assessment?: Assessment;
+  questions?: AssessmentQuestion[];
+}
+
+export interface SubmitAnswerRequest {
+  question_id: number;
+  answer: any;
+  time_spent?: number;
+}
+
+export interface CompleteAttemptRequest {
+  attempt_id: number;
+  answers: SubmitAnswerRequest[];
+  time_spent?: number;
+  end_reason?: string;
+}
+
+// API Response types for simple data responses
+export interface TimeRemainingResponse {
+  message: string;
+  data: number; // seconds remaining
+}
+
+export interface CanStartAttemptResponse {
+  message: string;
+  can_start: boolean;
+}
+
+export interface AttemptCountResponse {
+  message: string;
+  data: number; // total attempt count
+}
+
+export interface IsActiveResponse {
+  message: string;
+  data: boolean; // is attempt active
+}
+
+// Student API Response types
+export interface StudentAssessmentsResponse {
+  assessments: StudentAssessment[];
+  total: number;
+  page: number;
+  size: number;
+  total_pages: number;
+}
+
+export interface StudentAttemptsResponse {
+  attempts: AttemptWithAssessment[];
+  total: number;
+  page: number;
+  size: number;
+  total_pages: number;
+}
+
+export interface StudentAssessmentDetailResponse {
+  assessment: Assessment;
+  student_context: {
+    attempts_used: number;
+    max_attempts: number;
+    can_start: boolean;
+    has_active_attempt: boolean;
+    attempts_history: AttemptWithAssessment[];
+    best_score?: number;
+    average_score?: number;
+  };
+}
+
+// Teacher Panel types
+export interface TeacherDashboardStats {
+  overview: {
+    total_assessments: number;
+    active_assessments: number;
+    draft_assessments: number;
+    total_questions: number;
+    total_question_banks: number;
+  };
+  metrics: {
+    total_students_attempts: number;
+    average_score: number;
+    pass_rate: number;
+  };
+  recent_student_activities: Array<{
+    id: number;
+    student_id: string;
+    student_name: string;
+    assessment_id: number;
+    assessment_title: string;
+    score: number;
+    status: string;
+    completed_at: string;
+  }>;
+  top_assessments: Array<{
+    id: number;
+    title: string;
+    attempts_count: number;
+    average_score: number;
+    pass_rate: number;
+  }>;
+}
+
+export interface CreatorStats {
+  total_assessments: number;
+  total_questions: number;
+  total_question_banks: number;
+  assessments_by_status: Record<string, number>;
+}
+
+export interface QuestionUsageStats {
+  total_usage: number;
+  avg_score: number;
+  total_questions: number;
+}
+
+export interface StudentProgressItem {
+  id: number;
+  student_id: string;
+  student_name: string;
+  email: string;
+  assessment_id: number;
+  assessment_title: string;
+  status: AttemptStatus;
+  score?: number;
+  started_at: string;
+  completed_at?: string;
+  time_spent?: number;
+  attempt_number: number;
 }

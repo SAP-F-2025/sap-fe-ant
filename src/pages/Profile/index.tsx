@@ -23,6 +23,7 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../../hooks/useAuth';
 import { CasdoorConfig } from '../../config/casdoor';
+import { getUserRole } from '../../utils/roleChecker';
 
 const { Title, Text } = Typography;
 
@@ -74,9 +75,19 @@ const Profile: React.FC = () => {
                   <Title level={2} style={{ margin: 0 }}>
                     {user?.displayName || user?.name || 'Người dùng'}
                   </Title>
-                  {user?.isAdmin && (
+                  {getUserRole(user) === 'admin' && (
                     <Tag color="red" icon={<SafetyOutlined />}>
                       Admin
+                    </Tag>
+                  )}
+                  {getUserRole(user) === 'teacher' && (
+                    <Tag color="blue">
+                      Giáo viên
+                    </Tag>
+                  )}
+                  {getUserRole(user) === 'student' && (
+                    <Tag color="green">
+                      Học sinh
                     </Tag>
                   )}
                 </Space>
@@ -110,38 +121,51 @@ const Profile: React.FC = () => {
           <div>
             <Title level={4}>Thông tin chi tiết</Title>
             <Descriptions column={1} bordered>
-              {user?.affiliation && (
-                <Descriptions.Item label="Tổ chức">
-                  {user.affiliation}
+              {user?.id && (
+                <Descriptions.Item label="ID">
+                  {user.id}
                 </Descriptions.Item>
               )}
-              {user?.title && (
-                <Descriptions.Item label="Chức danh">
-                  {user.title}
+              {(user as any)?.education && (
+                <Descriptions.Item label="Trường">
+                  {(user as any).education}
                 </Descriptions.Item>
               )}
               {user?.owner && (
-                <Descriptions.Item label="Quản lý bởi">
+                <Descriptions.Item label="Tổ chức quản lý">
                   {user.owner}
                 </Descriptions.Item>
               )}
+              {(user as any)?.countryCode && (
+                <Descriptions.Item label="Quốc gia">
+                  {(user as any).countryCode}
+                </Descriptions.Item>
+              )}
+              {(user as any)?.type && (
+                <Descriptions.Item label="Loại tài khoản">
+                  {(user as any).type}
+                </Descriptions.Item>
+              )}
               <Descriptions.Item label="Vai trò">
-                {user?.isAdmin ? (
+                {getUserRole(user) === 'admin' && (
                   <Tag color="red" icon={<SafetyOutlined />}>
                     Admin
                   </Tag>
-                ) : (
-                  <Tag color="blue">User</Tag>
+                )}
+                {getUserRole(user) === 'teacher' && (
+                  <Tag color="blue">
+                    Giáo viên
+                  </Tag>
+                )}
+                {getUserRole(user) === 'student' && (
+                  <Tag color="green">
+                    Học sinh
+                  </Tag>
                 )}
               </Descriptions.Item>
               {user?.createdTime && (
-                <Descriptions.Item label="Ngày tạo">
+                <Descriptions.Item label="Ngày tạo tài khoản">
                   <ClockCircleOutlined /> {formatDate(user.createdTime)}
-                </Descriptions.Item>
-              )}
-              {user?.lastSigninTime && (
-                <Descriptions.Item label="Đăng nhập lần cuối">
-                  <ClockCircleOutlined /> {formatDate(user.lastSigninTime)}
                 </Descriptions.Item>
               )}
             </Descriptions>

@@ -11,19 +11,22 @@ export interface User {
   name: string;
   displayName?: string;
   avatar?: string;
+  type?: string;
 
   // Contact
   email?: string;
   emailVerified?: boolean;
   phone?: string;
+  countryCode?: string;
 
   // Organization
   owner?: string;
   affiliation?: string;
-  title?: string;
+  education?: string;
 
   // Permissions
   isAdmin?: boolean;
+  role?: string; // User role: 'student', 'teacher', 'admin', etc.
   roles?: any[];
   permissions?: any[];
 

@@ -10,6 +10,7 @@ import {
     AddQuestionToAssessmentRequest,
     UpdateQuestionSettingsRequest,
     BulkUpdateQuestionSettingsRequest,
+    BulkAddQuestionsRequest,
     ReorderQuestionsRequest,
     PaginatedQuestionResponse,
 } from '../types';
@@ -188,7 +189,7 @@ class AssessmentService {
 
   async bulkAddQuestionsToAssessment(
     assessmentId: number,
-    questionIds: number[]
+    questions: Array<{ question_id: number; order: number; points: number }>
   ): Promise<void> {
     if (API_CONFIG.USE_MOCK) {
       await delay();
@@ -197,6 +198,21 @@ class AssessmentService {
 
     return apiService.post(
       API_ENDPOINTS.ASSESSMENT_BULK_ADD_QUESTIONS(assessmentId),
+      { questions }
+    );
+  }
+
+  async autoAssignQuestions(
+    assessmentId: number,
+    questionIds: number[]
+  ): Promise<void> {
+    if (API_CONFIG.USE_MOCK) {
+      await delay();
+      return;
+    }
+
+    return apiService.post(
+      API_ENDPOINTS.ASSESSMENT_AUTO_ASSIGN_QUESTIONS(assessmentId),
       { question_ids: questionIds }
     );
   }

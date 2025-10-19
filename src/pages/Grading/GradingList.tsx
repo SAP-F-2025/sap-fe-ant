@@ -31,10 +31,11 @@ import {
   FilterOutlined,
   ThunderboltOutlined,
 } from '@ant-design/icons';
-import { AttemptStatus } from '../../types';
+import { AttemptStatus, Assessment } from '../../types';
 import dayjs from 'dayjs';
 import { useThemeToken } from '../../theme/ThemeProvider';
 import { gradingService, type AttemptListItem } from '../../services/gradingService';
+import { assessmentService } from '../../services/assessmentService';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -54,6 +55,7 @@ const GradingList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [searchText, setSearchText] = useState('');
   const [assessmentFilter, setAssessmentFilter] = useState<number | undefined>(undefined);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -81,6 +83,19 @@ const GradingList: React.FC = () => {
     fetchAttempts();
   }, [pagination.current, pagination.pageSize, statusFilter, assessmentFilter]);
 
+  useEffect(() => {
+    fetchAssessments();
+  }, []);
+
+  const fetchAssessments = async () => {
+    try {
+      const response = await assessmentService.getAssessments({ page: 1, size: 100 });
+      setAssessments(response.assessments || []);
+    } catch (error) {
+      console.error('Không thể tải danh sách bài thi', error);
+    }
+  };
+
   const fetchAttempts = async () => {
     try {
       setLoading(true);
@@ -91,8 +106,8 @@ const GradingList: React.FC = () => {
         assessment_id: assessmentFilter,
       });
 
-      setAttempts(response.attempts);
-      setTotal(response.total_elements);
+      setAttempts(response.data); // Changed from 'attempts' to 'data'
+      setTotal(response.total); // Changed from 'total_elements' to 'total'
     } catch (error) {
       message.error('Không thể tải danh sách bài làm');
     } finally {
@@ -343,11 +358,10 @@ const GradingList: React.FC = () => {
                 filterOption={(input, option) =>
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
-                options={[
-                  // This should be populated from assessments API
-                  { label: 'Bài thi 1', value: 1 },
-                  { label: 'Bài thi 2', value: 2 },
-                ]}
+                options={assessments.map(assessment => ({
+                  label: assessment.title,
+                  value: assessment.id,
+                }))}
               />
             </Space>
           </Col>

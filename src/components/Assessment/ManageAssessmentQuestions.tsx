@@ -17,6 +17,7 @@ import {
     Tooltip,
     Alert,
     Divider,
+    Radio,
 } from 'antd';
 import {
     PlusOutlined,
@@ -27,9 +28,11 @@ import {
     EditOutlined,
     CheckOutlined,
     CloseOutlined,
+    LockOutlined,
 } from '@ant-design/icons';
 import type {ColumnsType} from 'antd/es/table';
 import {
+    Assessment,
     AssessmentQuestion,
     Question,
     QuestionType,
@@ -39,6 +42,14 @@ import {
 import assessmentService from '../../services/assessmentService';
 import questionService from '../../services/questionService';
 import {showSuccess, showError} from '../../utils/errorHandler';
+import {
+    canEditQuestions,
+    getQuestionsLockReason,
+    POINTS_VALIDATION,
+    validateQuestionPoints,
+    wouldExceedTotalPoints,
+    getRemainingPoints,
+} from '../../utils/assessmentHelpers';
 import {DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors} from '@dnd-kit/core';
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from '@dnd-kit/sortable';
 import {useSortable} from '@dnd-kit/sortable';
@@ -47,7 +58,7 @@ import {CSS} from '@dnd-kit/utilities';
 const {Text} = Typography;
 
 interface Props {
-    assessmentId: number;
+    assessment: Assessment;
     questions?: AssessmentQuestion[];
     onQuestionsChange?: () => void;
 }
@@ -95,24 +106,32 @@ const SortableRow = (props: any) => {
     return <tr {...props} ref={setNodeRef} style={style} />;
 };
 
-const MAX_TOTAL_POINTS = 100;
+const MAX_TOTAL_POINTS = POINTS_VALIDATION.TOTAL_MAX;
 
 export const ManageAssessmentQuestions: React.FC<Props> = ({
-                                                               assessmentId,
+                                                               assessment,
                                                                questions: initialQuestions,
                                                                onQuestionsChange,
                                                            }) => {
+    const assessmentId = assessment.id;
+    const isQuestionsLocked = !canEditQuestions(assessment);
+    const lockReason = getQuestionsLockReason(assessment);
+
     const [questions, setQuestions] = useState<AssessmentQuestion[]>(initialQuestions || []);
     const [loading, setLoading] = useState(false);
     const [addModalVisible, setAddModalVisible] = useState(false);
     const [availableQuestions, setAvailableQuestions] = useState<Question[]>([]);
     const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
+    // Track points for each selected question
+    const [questionPoints, setQuestionPoints] = useState<Record<number, number>>({});
     const [addLoading, setAddLoading] = useState(false);
     const [fetchingQuestions, setFetchingQuestions] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [filterType, setFilterType] = useState<string | undefined>();
     const [filterDifficulty, setFilterDifficulty] = useState<string | undefined>();
     const [pagination, setPagination] = useState({page: 1, size: 10, total: 0});
+    // Add mode selection: 'manual' or 'auto-assign'
+    const [addMode, setAddMode] = useState<'manual' | 'auto-assign'>('manual');
 
     // Bulk actions states
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
@@ -180,15 +199,104 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
     };
 
     const handleAddQuestions = async () => {
+        if (addMode === 'auto-assign') {
+            // Auto-assign mode: just send question IDs
+            setAddLoading(true);
+            try {
+                await assessmentService.autoAssignQuestions(assessmentId, selectedQuestions);
+                showSuccess(`Đã tự động phân phối điểm cho ${selectedQuestions.length} câu hỏi`);
+                setAddModalVisible(false);
+                setSelectedQuestions([]);
+                setQuestionPoints({});
+                setAddMode('manual'); // Reset to manual mode
+                onQuestionsChange?.();
+            } catch (error: any) {
+                // Handle specific lock error
+                if (error.response?.status === 422) {
+                    const details = error.response.data?.details;
+                    if (details?.rule === 'assessment_questions_locked') {
+                        showError(
+                            'Không thể thêm câu hỏi - ' +
+                            (details.context?.has_attempts
+                                ? 'Sinh viên đã bắt đầu làm bài'
+                                : 'Assessment đã được lưu trữ')
+                        );
+                        // Refresh to update UI state
+                        onQuestionsChange?.();
+                        return;
+                    }
+                }
+                if (error.response?.status === 400) {
+                    const message = error.response.data?.message;
+                    if (message?.includes('exceeding maximum')) {
+                        showError(message);
+                        return;
+                    }
+                }
+                // Error handled by interceptor for other cases
+            } finally {
+                setAddLoading(false);
+            }
+            return;
+        }
+
+        // Manual mode: validate and send with points
+        // Validate that all selected questions have points
+        const questionsToAdd: Array<{ question_id: number; order: number; points: number }> = [];
+        const startOrder = questions.length + 1;
+
+        for (let i = 0; i < selectedQuestions.length; i++) {
+            const questionId = selectedQuestions[i];
+            const points = questionPoints[questionId];
+
+            if (!points || points < POINTS_VALIDATION.MIN || points > POINTS_VALIDATION.MAX) {
+                showError(`Vui lòng nhập điểm hợp lệ (${POINTS_VALIDATION.MIN}-${POINTS_VALIDATION.MAX}) cho tất cả câu hỏi`);
+                return;
+            }
+
+            questionsToAdd.push({
+                question_id: questionId,
+                order: startOrder + i,
+                points: points,
+            });
+        }
+
+        // Validate total points
+        const newTotal = totalPoints + questionsToAdd.reduce((sum, q) => sum + q.points, 0);
+        if (newTotal > MAX_TOTAL_POINTS) {
+            showError(
+                `Tổng điểm sẽ vượt quá ${MAX_TOTAL_POINTS}. ` +
+                `Tổng hiện tại: ${totalPoints}, Thêm: ${questionsToAdd.reduce((sum, q) => sum + q.points, 0)}, ` +
+                `Tổng mới: ${newTotal}`
+            );
+            return;
+        }
+
         setAddLoading(true);
         try {
-            await assessmentService.bulkAddQuestionsToAssessment(assessmentId, selectedQuestions);
+            await assessmentService.bulkAddQuestionsToAssessment(assessmentId, questionsToAdd);
             showSuccess(`Đã thêm ${selectedQuestions.length} câu hỏi`);
             setAddModalVisible(false);
             setSelectedQuestions([]);
+            setQuestionPoints({});
             onQuestionsChange?.();
-        } catch (error) {
-            // Error handled by interceptor
+        } catch (error: any) {
+            // Handle specific lock error
+            if (error.response?.status === 422) {
+                const details = error.response.data?.details;
+                if (details?.rule === 'assessment_questions_locked') {
+                    showError(
+                        'Không thể thêm câu hỏi - ' +
+                        (details.context?.has_attempts
+                            ? 'Sinh viên đã bắt đầu làm bài'
+                            : 'Assessment đã được lưu trữ')
+                    );
+                    // Refresh to update UI state
+                    onQuestionsChange?.();
+                    return;
+                }
+            }
+            // Error handled by interceptor for other cases
         } finally {
             setAddLoading(false);
         }
@@ -199,8 +307,22 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
             await assessmentService.removeQuestionFromAssessment(assessmentId, questionId);
             showSuccess('Xóa câu hỏi thành công');
             onQuestionsChange?.();
-        } catch (error) {
-            // Error handled by interceptor
+        } catch (error: any) {
+            // Handle specific lock error
+            if (error.response?.status === 422) {
+                const details = error.response.data?.details;
+                if (details?.rule === 'assessment_questions_locked') {
+                    showError(
+                        'Không thể xóa câu hỏi - ' +
+                        (details.context?.has_attempts
+                            ? 'Sinh viên đã bắt đầu làm bài'
+                            : 'Assessment đã được lưu trữ')
+                    );
+                    onQuestionsChange?.();
+                    return;
+                }
+            }
+            // Error handled by interceptor for other cases
         }
     };
 
@@ -225,8 +347,19 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                 });
                 showSuccess('Đã cập nhật thứ tự câu hỏi');
                 onQuestionsChange?.();
-            } catch (error) {
-                // Error handled by interceptor
+            } catch (error: any) {
+                // Handle specific lock error
+                if (error.response?.status === 422) {
+                    const details = error.response.data?.details;
+                    if (details?.rule === 'assessment_questions_locked') {
+                        showError(
+                            'Không thể sắp xếp lại câu hỏi - ' +
+                            (details.context?.has_attempts
+                                ? 'Sinh viên đã bắt đầu làm bài'
+                                : 'Assessment đã được lưu trữ')
+                        );
+                    }
+                }
                 // Revert on error
                 setQuestions(questions);
                 onQuestionsChange?.();
@@ -257,11 +390,26 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
             await assessmentService.updateQuestionSettings(assessmentId, questionId, {points});
             showSuccess('Cập nhật điểm thành công');
             onQuestionsChange?.();
-        } catch (error) {
-            // Error handled by interceptor
+        } catch (error: any) {
+            // Handle specific lock error
+            if (error.response?.status === 422) {
+                const details = error.response.data?.details;
+                if (details?.rule === 'assessment_questions_locked') {
+                    showError(
+                        'Không thể cập nhật điểm - ' +
+                        (details.context?.has_attempts
+                            ? 'Sinh viên đã bắt đầu làm bài'
+                            : 'Assessment đã được lưu trữ')
+                    );
+                    onQuestionsChange?.();
+                    return;
+                }
+            }
+            // Error handled by interceptor for other cases
         }
     };
 
+    /* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
     const handleUpdateTimeLimit = async (questionId: number, timeLimit: number | null) => {
         if (timeLimit !== null && timeLimit < 0) {
             showError('Thời gian phải lớn hơn hoặc bằng 0');
@@ -278,6 +426,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
             // Error handled by interceptor
         }
     };
+    */
 
     // Bulk actions handlers
     const handleBulkUpdate = () => {
@@ -296,7 +445,8 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
             const updates = selectedRows.map(questionId => ({
                 question_id: questionId,
                 ...(values.points !== undefined && {points: values.points}),
-                ...(values.time_limit !== undefined && {time_limit: values.time_limit}),
+                // time_limit deprecated - not used in timing logic
+                // ...(values.time_limit !== undefined && {time_limit: values.time_limit}),
             }));
 
             // Validate total points if updating points
@@ -318,7 +468,22 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
             setSelectedRows([]);
             bulkForm.resetFields();
             onQuestionsChange?.();
-        } catch (error) {
+        } catch (error: any) {
+            // Handle specific lock error
+            if (error.response?.status === 422) {
+                const details = error.response.data?.details;
+                if (details?.rule === 'assessment_questions_locked') {
+                    showError(
+                        'Không thể cập nhật câu hỏi - ' +
+                        (details.context?.has_attempts
+                            ? 'Sinh viên đã bắt đầu làm bài'
+                            : 'Assessment đã được lưu trữ')
+                    );
+                    onQuestionsChange?.();
+                    setBulkLoading(false);
+                    return;
+                }
+            }
             // Error handled by interceptor or form validation
         } finally {
             setBulkLoading(false);
@@ -330,7 +495,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
             title: '',
             dataIndex: 'drag',
             width: 50,
-            render: (_, record) => <DragHandle id={record.question_id} />,
+            render: (_, record) => isQuestionsLocked ? null : <DragHandle id={record.question_id} />,
         },
         {
             title: 'STT',
@@ -363,13 +528,14 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
             render: (points, record: any) => {
                 const effectivePoints = points ?? record.question?.points;
                 return (
-                    <Tooltip title="Click để chỉnh sửa">
+                    <Tooltip title={isQuestionsLocked ? 'Không thể chỉnh sửa - Câu hỏi đã bị khóa' : 'Click để chỉnh sửa'}>
                         <InputNumber
                             size="small"
                             min={0}
                             max={MAX_TOTAL_POINTS}
                             defaultValue={effectivePoints}
                             style={{width: '100%'}}
+                            disabled={isQuestionsLocked}
                             onBlur={(e: any) => {
                                 const value = parseFloat(e.target.value);
                                 if (!isNaN(value) && value !== effectivePoints) {
@@ -388,6 +554,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                 );
             },
         },
+        /* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
         {
             title: 'Thời gian (giây)',
             dataIndex: 'time_limit',
@@ -420,6 +587,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                 );
             },
         },
+        */
         {
             title: 'Thao tác',
             width: 100,
@@ -430,8 +598,9 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                     onConfirm={() => handleRemoveQuestion(record.question_id)}
                     okText="Xóa"
                     cancelText="Hủy"
+                    disabled={isQuestionsLocked}
                 >
-                    <Button type="text" danger icon={<DeleteOutlined/>} size="small"/>
+                    <Button type="text" danger icon={<DeleteOutlined/>} size="small" disabled={isQuestionsLocked}/>
                 </Popconfirm>
             ),
         },
@@ -460,14 +629,51 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
         {
             title: 'Điểm',
             dataIndex: 'points',
-            width: 80,
+            width: 120,
+            render: (_, record) => {
+                // In auto-assign mode, don't show point inputs
+                if (addMode === 'auto-assign') {
+                    return <Text type="secondary">Tự động</Text>;
+                }
+
+                const isSelected = selectedQuestions.includes(record.id);
+                const currentValue = questionPoints[record.id] || record.points || 10;
+                const remainingPoints = getRemainingPoints(totalPoints);
+
+                return isSelected ? (
+                    <InputNumber
+                        size="small"
+                        min={POINTS_VALIDATION.MIN}
+                        max={Math.min(POINTS_VALIDATION.MAX, remainingPoints + (questionPoints[record.id] || 0))}
+                        value={currentValue}
+                        placeholder="Điểm"
+                        style={{width: '100%'}}
+                        onChange={(value) => {
+                            if (value) {
+                                setQuestionPoints(prev => ({...prev, [record.id]: value}));
+                            }
+                        }}
+                    />
+                ) : (
+                    <Text type="secondary">{record.points || 10}</Text>
+                );
+            },
         },
     ];
 
     return (
         <>
             <Card
-                title={`Câu hỏi (${questions.length})`}
+                title={
+                    <Space>
+                        <span>Câu hỏi ({questions.length})</span>
+                        {isQuestionsLocked && (
+                            <Tag icon={<LockOutlined />} color="warning">
+                                Đã khóa
+                            </Tag>
+                        )}
+                    </Space>
+                }
                 extra={
                     <Button
                         type="primary"
@@ -476,11 +682,25 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                             setAddModalVisible(true);
                             fetchAvailableQuestions({page: 1, size: 10});
                         }}
+                        disabled={isQuestionsLocked}
+                        title={isQuestionsLocked ? lockReason || 'Không thể thêm câu hỏi' : 'Thêm câu hỏi'}
                     >
                         Thêm câu hỏi
                     </Button>
                 }
             >
+                {/* Lock warning */}
+                {isQuestionsLocked && lockReason && (
+                    <Alert
+                        message="Câu hỏi đã bị khóa"
+                        description={lockReason}
+                        type="warning"
+                        showIcon
+                        icon={<LockOutlined />}
+                        style={{marginBottom: 16}}
+                    />
+                )}
+
                 {/* Total points indicator */}
                 <Alert
                     message={
@@ -509,6 +729,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                             icon={<EditOutlined/>}
                             onClick={handleBulkUpdate}
                             type="primary"
+                            disabled={isQuestionsLocked}
                         >
                             Cập nhật hàng loạt
                         </Button>
@@ -528,7 +749,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                             rowKey="question_id"
                             loading={loading}
                             pagination={false}
-                            rowSelection={{
+                            rowSelection={isQuestionsLocked ? undefined : {
                                 selectedRowKeys: selectedRows,
                                 onChange: (keys) => setSelectedRows(keys as number[]),
                             }}
@@ -551,6 +772,8 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                 onCancel={() => {
                     setAddModalVisible(false);
                     setSelectedQuestions([]);
+                    setQuestionPoints({});
+                    setAddMode('manual'); // Reset mode
                 }}
                 onOk={handleAddQuestions}
                 okText="Thêm"
@@ -560,6 +783,95 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                 okButtonProps={{disabled: selectedQuestions.length === 0}}
             >
                 <Space direction="vertical" size="middle" style={{width: '100%', marginTop: 16}}>
+                    {/* Mode selection */}
+                    <Card size="small" style={{backgroundColor: '#f0f5ff'}}>
+                        <Space direction="vertical" size="small" style={{width: '100%'}}>
+                            <Text strong>Chọn phương thức thêm câu hỏi:</Text>
+                            <Radio.Group
+                                value={addMode}
+                                onChange={(e) => setAddMode(e.target.value)}
+                                style={{width: '100%'}}
+                            >
+                                <Space direction="vertical">
+                                    <Radio value="manual">
+                                        <Space direction="vertical" size={0}>
+                                            <Text strong>Nhập điểm thủ công</Text>
+                                            <Text type="secondary" style={{fontSize: 12}}>
+                                                Bạn sẽ nhập điểm cho từng câu hỏi. Câu hỏi hiện có giữ nguyên điểm.
+                                            </Text>
+                                        </Space>
+                                    </Radio>
+                                    <Radio value="auto-assign">
+                                        <Space direction="vertical" size={0}>
+                                            <Text strong>Tự động phân phối điểm đều</Text>
+                                            <Text type="secondary" style={{fontSize: 12}}>
+                                                Hệ thống sẽ tự động phân phối 100 điểm đều cho TẤT CẢ câu hỏi (cả hiện có và mới).
+                                            </Text>
+                                        </Space>
+                                    </Radio>
+                                </Space>
+                            </Radio.Group>
+                        </Space>
+                    </Card>
+
+                    {/* Auto-assign preview and warning */}
+                    {addMode === 'auto-assign' && selectedQuestions.length > 0 && (
+                        <>
+                            <Alert
+                                message="Xem trước phân phối điểm"
+                                description={
+                                    <Space direction="vertical" size="small">
+                                        <Text>
+                                            Tổng số câu hỏi: <Text strong>{questions.length + selectedQuestions.length}</Text> câu
+                                            ({questions.length} hiện có + {selectedQuestions.length} mới)
+                                        </Text>
+                                        <Text>
+                                            Điểm mỗi câu: <Text strong style={{color: '#1890ff'}}>
+                                            {Math.floor(100 / (questions.length + selectedQuestions.length))} điểm
+                                        </Text>
+                                            {100 % (questions.length + selectedQuestions.length) > 0 && (
+                                                <Text type="secondary" style={{fontSize: 12}}>
+                                                    {' '}({100 % (questions.length + selectedQuestions.length)} câu đầu sẽ có thêm 1 điểm)
+                                                </Text>
+                                            )}
+                                        </Text>
+                                    </Space>
+                                }
+                                type="info"
+                                showIcon
+                            />
+                            <Alert
+                                message="Lưu ý quan trọng"
+                                description={
+                                    <ul style={{margin: 0, paddingLeft: 20}}>
+                                        <li>Tất cả câu hỏi (cả hiện có) sẽ được phân phối lại điểm đều nhau</li>
+                                        <li>Điểm của câu hỏi hiện có sẽ bị thay đổi</li>
+                                        <li>Chỉ có thể sử dụng khi chưa có sinh viên nào bắt đầu làm bài</li>
+                                    </ul>
+                                }
+                                type="warning"
+                                showIcon
+                            />
+                        </>
+                    )}
+
+                    {/* Points info for manual mode */}
+                    {addMode === 'manual' && (
+                        <Alert
+                            message={
+                                <Space>
+                                    <Text>Điểm khả dụng:</Text>
+                                    <Text strong style={{color: '#1890ff'}}>
+                                        {getRemainingPoints(totalPoints)} / {MAX_TOTAL_POINTS}
+                                    </Text>
+                                </Space>
+                            }
+                            type="info"
+                            showIcon
+                            description="Nhập điểm cho từng câu hỏi sau khi chọn. Tổng điểm không được vượt quá 100."
+                        />
+                    )}
+
                     <Row gutter={[8, 8]}>
                         <Col span={12}>
                             <Input
@@ -616,7 +928,18 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                         loading={fetchingQuestions}
                         rowSelection={{
                             selectedRowKeys: selectedQuestions,
-                            onChange: (keys) => setSelectedQuestions(keys as number[]),
+                            onChange: (keys) => {
+                                setSelectedQuestions(keys as number[]);
+                                // Initialize points for newly selected questions
+                                const newPoints = {...questionPoints};
+                                keys.forEach(key => {
+                                    if (!newPoints[key as number]) {
+                                        const q = availableQuestions.find(q => q.id === key);
+                                        newPoints[key as number] = q?.points || 10;
+                                    }
+                                });
+                                setQuestionPoints(newPoints);
+                            },
                         }}
                         pagination={{
                             current: pagination.page,
@@ -667,6 +990,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                         />
                     </Form.Item>
 
+                    {/* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
                     <Form.Item
                         label="Thời gian (giây)"
                         name="time_limit"
@@ -678,6 +1002,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                             placeholder="Nhập thời gian cho tất cả câu hỏi đã chọn"
                         />
                     </Form.Item>
+                    */}
 
                     <Alert
                         message="Lưu ý"

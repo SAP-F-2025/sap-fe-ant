@@ -116,15 +116,12 @@ export interface AttemptListItem {
 }
 
 export interface PaginatedAttemptResponse {
-  attempts: AttemptListItem[];
-  total_elements: number;
-  total_pages: number;
-  size: number;
+  data: AttemptListItem[]; // Changed from 'attempts' to 'data' per OpenAPI spec
+  total: number; // Changed from 'total_elements'
   page: number;
-  first: boolean;
-  last: boolean;
-  number_of_elements: number;
-  empty: boolean;
+  size: number;
+  total_pages: number;
+  // Removed Spring Boot style fields: first, last, number_of_elements, empty
 }
 
 export interface GradeAttemptRequest {
@@ -174,6 +171,22 @@ export interface GenerateFeedbackResponse {
   suggestions?: string[];
   strengths?: string[];
   weaknesses?: string[];
+}
+
+export interface CalculateScoreRequest {
+  answers: Array<{
+    question_id: number;
+    score: number;
+    max_score: number;
+  }>;
+  grading_method?: 'weighted' | 'simple' | 'curved';
+}
+
+export interface CalculateScoreResponse {
+  total_score: number;
+  max_score: number;
+  percentage: number;
+  grade_letter?: string;
 }
 
 class GradingService {
@@ -252,6 +265,13 @@ class GradingService {
    */
   async generateFeedback(data: GenerateFeedbackRequest): Promise<GenerateFeedbackResponse> {
     return apiService.post<GenerateFeedbackResponse>('/api/v1/grading/generate-feedback', data);
+  }
+
+  /**
+   * Calculate score based on answers
+   */
+  async calculateScore(data: CalculateScoreRequest): Promise<CalculateScoreResponse> {
+    return apiService.post<CalculateScoreResponse>('/api/v1/grading/calculate-score', data);
   }
 
   /**

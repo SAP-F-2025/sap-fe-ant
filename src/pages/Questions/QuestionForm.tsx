@@ -474,19 +474,21 @@ const QuestionForm: React.FC = () => {
                 />
               </Form.Item>
             </Col>
+            {/* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
             <Col xs={24} sm={12}>
               <Form.Item
                 label="Giới hạn thời gian (giây)"
                 name="time_limit"
               >
                 <InputNumber
-                  min={10}
+                  min={5}
                   max={7200}
                   style={{ width: '100%' }}
                   placeholder="Không giới hạn"
                 />
               </Form.Item>
             </Col>
+            */}
           </Row>
 
           <Form.Item

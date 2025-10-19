@@ -26,6 +26,9 @@ import {
   MoonOutlined,
   SunOutlined,
   TeamOutlined,
+  BookOutlined,
+  HistoryOutlined,
+  ReadOutlined,
 } from '@ant-design/icons';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
 import { gradients } from '../../theme/gradients';
@@ -61,7 +64,30 @@ const MainLayout: React.FC = () => {
   }, [screens.xs]);
 
   // Menu items - filter based on user role
-  const menuItems: MenuProps['items'] = [
+  // Default to student if no role specified
+  const isStudent = !user?.role && !user?.roles?.length
+    ? true
+    : user?.role === 'student' || user?.roles?.includes('student');
+
+  const menuItems: MenuProps['items'] = isStudent ? [
+    // Student menu items
+    {
+      key: '/student/dashboard',
+      icon: <DashboardOutlined />,
+      label: 'Bảng điều khiển',
+    },
+    {
+      key: '/student/assessments',
+      icon: <BookOutlined />,
+      label: 'Bài kiểm tra',
+    },
+    {
+      key: '/student/history',
+      icon: <HistoryOutlined />,
+      label: 'Lịch sử',
+    },
+  ] : [
+    // Admin/Teacher menu items
     {
       key: '/dashboard',
       icon: <DashboardOutlined />,
@@ -148,6 +174,13 @@ const MainLayout: React.FC = () => {
   // Get selected menu key based on current path
   const getSelectedKey = () => {
     const path = location.pathname;
+    // Student paths
+    if (path.startsWith('/student/dashboard')) return '/student/dashboard';
+    if (path.startsWith('/student/assessments')) return '/student/assessments';
+    if (path.startsWith('/student/history')) return '/student/history';
+    if (path.startsWith('/student/take')) return '/student/assessments';
+    if (path.startsWith('/student/results')) return '/student/history';
+    // Admin/Teacher paths
     if (path.startsWith('/users')) return '/users';
     if (path.startsWith('/assessments')) return '/assessments';
     if (path.startsWith('/questions')) return '/questions';

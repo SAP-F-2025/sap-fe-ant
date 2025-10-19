@@ -123,21 +123,23 @@ export const extractUserInfo = (decodedToken: DecodedToken): any => {
     name: decodedToken.name,
     displayName: decodedToken.displayName,
     avatar: decodedToken.avatar,
+    type: decodedToken.type,
 
     // Contact
     email: decodedToken.email,
     emailVerified: decodedToken.emailVerified,
     phone: decodedToken.phone,
+    countryCode: decodedToken.countryCode,
 
     // Organization
     owner: decodedToken.owner,
     affiliation: decodedToken.affiliation,
-    title: decodedToken.title,
+    education: decodedToken.education,
 
-    // Permissions
-    isAdmin: decodedToken.isAdmin,
-    roles: decodedToken.roles,
-    permissions: decodedToken.permissions,
+    // Permissions - CRITICAL: Ensure isAdmin defaults to false if undefined
+    isAdmin: decodedToken.isAdmin ?? false,
+    roles: decodedToken.roles ?? [],
+    permissions: decodedToken.permissions ?? [],
 
     // Metadata
     createdTime: decodedToken.createdTime,

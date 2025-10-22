@@ -98,15 +98,79 @@ export interface QuestionOption {
   id: string;
   text: string;
   order: number;
+  image_url?: string;
+}
+
+export interface BlankDef {
+  accepted_answers: string[];
+  points: number;
+  placeholder_text?: string;
+}
+
+export interface MatchItem {
+  id: string;
+  text: string;
+  image_url?: string;
+}
+
+export interface MatchPair {
+  left_id: string;
+  right_id: string;
+}
+
+export interface OrderItem {
+  id: string;
+  text: string;
+  image_url?: string;
 }
 
 export interface QuestionContent {
+  // Multiple Choice
   options?: QuestionOption[];
   correct_answers?: string[];
   multiple_correct?: boolean;
-  pairs?: Array<{ left: string; right: string }>;
-  blanks?: string[];
-  items?: string[];
+  randomize_options?: boolean;
+
+  // True False
+  correct_answer?: boolean;
+  true_label?: string;
+  false_label?: string;
+
+  // Matching
+  left_items?: MatchItem[];
+  right_items?: MatchItem[];
+  correct_pairs?: MatchPair[];
+  randomize_left?: boolean;
+  randomize_right?: boolean;
+  partial_credit?: boolean;
+
+  // Ordering
+  items?: OrderItem[];
+  correct_order?: string[];
+  randomize_initial?: boolean;
+
+  // Fill Blank - fields directly in content
+  template?: string;
+  blanks?: Record<string, BlankDef>;
+  case_sensitive?: boolean;
+  trim_spaces?: boolean;
+
+  // Short Answer - fields directly in content
+  accepted_answers?: string[];
+  exact_match?: boolean;
+  max_length?: number;
+  placeholder_text?: string;
+  fuzzy_matching?: boolean;
+
+  // Essay - fields directly in content
+  min_words?: number;
+  max_words?: number;
+  suggested_length?: string;
+  rubric_criteria?: string[];
+  sample_answer?: string;
+  auto_grade?: boolean;
+  key_words?: string[];
+
   [key: string]: any;
 }
 

@@ -5,6 +5,7 @@ import {
   Radio,
   Checkbox,
   Input,
+  Select,
   Space,
   Typography,
   Progress,
@@ -239,7 +240,16 @@ const TakeAssessment: React.FC = () => {
             <Space direction="vertical" style={{ width: '100%' }}>
               {question.content.options?.map((option: any) => (
                 <Radio key={option.id} value={option.id} style={{ padding: '8px' }}>
-                  {option.text}
+                  <Space direction="vertical">
+                    {option.image_url && (
+                      <img
+                        src={option.image_url}
+                        alt={option.text}
+                        style={{ maxWidth: '200px', maxHeight: '150px', marginBottom: '4px' }}
+                      />
+                    )}
+                    <Text>{option.text}</Text>
+                  </Space>
                 </Radio>
               ))}
             </Space>
@@ -247,30 +257,161 @@ const TakeAssessment: React.FC = () => {
         );
 
       case 'true_false':
+        const trueLabel = question.content?.true_label || 'Đúng';
+        const falseLabel = question.content?.false_label || 'Sai';
+
         return (
           <Radio.Group
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(questionId, e.target.value)}
           >
             <Space direction="vertical">
-              <Radio value={true}>Đúng</Radio>
-              <Radio value={false}>Sai</Radio>
+              <Radio value={true}>{trueLabel}</Radio>
+              <Radio value={false}>{falseLabel}</Radio>
             </Space>
           </Radio.Group>
         );
 
       case 'essay':
-      case 'short_answer':
+        const minWords = question.content?.min_words;
+        const maxWords = question.content?.max_words;
+        const suggestedLength = question.content?.suggested_length;
+        const currentText = currentAnswer || '';
+        const wordCount = currentText.trim().split(/\s+/).filter(Boolean).length;
+
         return (
-          <TextArea
-            rows={question.type === 'essay' ? 8 : 4}
-            placeholder="Nhập câu trả lời của bạn..."
-            value={currentAnswer || ''}
-            onChange={(e) => handleAnswerChange(questionId, e.target.value)}
-          />
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            {/* Info Alerts */}
+            {(minWords || maxWords || suggestedLength) && (
+              <Alert
+                message="Yêu cầu"
+                description={
+                  <Space direction="vertical" size="small">
+                    {minWords && <Text>• Số từ tối thiểu: {minWords} từ</Text>}
+                    {maxWords && <Text>• Số từ tối đa: {maxWords} từ</Text>}
+                    {suggestedLength && <Text>• Độ dài gợi ý: {suggestedLength}</Text>}
+                  </Space>
+                }
+                type="info"
+                showIcon
+              />
+            )}
+
+            {/* Text Area */}
+            <TextArea
+              rows={12}
+              placeholder="Nhập câu trả lời của bạn..."
+              value={currentText}
+              onChange={(e) => handleAnswerChange(questionId, e.target.value)}
+            />
+
+            {/* Word Counter */}
+            <Card size="small" style={{ backgroundColor: '#fafafa' }}>
+              <Space split={<span>|</span>}>
+                <Text>
+                  <strong>Số từ:</strong>{' '}
+                  <Tag color={
+                    (minWords && wordCount < minWords) || (maxWords && wordCount > maxWords)
+                      ? 'warning'
+                      : 'success'
+                  }>
+                    {wordCount}
+                  </Tag>
+                </Text>
+                {minWords && (
+                  <Text type={wordCount < minWords ? 'danger' : 'secondary'}>
+                    Tối thiểu: {minWords}
+                  </Text>
+                )}
+                {maxWords && (
+                  <Text type={wordCount > maxWords ? 'danger' : 'secondary'}>
+                    Tối đa: {maxWords}
+                  </Text>
+                )}
+              </Space>
+            </Card>
+          </Space>
+        );
+
+      case 'short_answer':
+        const maxLength = question.content?.max_length || 200;
+        const placeholderText = question.content?.placeholder_text || 'Nhập câu trả lời ngắn...';
+        const caseSensitive = question.content?.case_sensitive;
+
+        return (
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            <Input
+              placeholder={placeholderText}
+              value={currentAnswer || ''}
+              onChange={(e) => handleAnswerChange(questionId, e.target.value)}
+              maxLength={maxLength}
+              showCount
+              style={{ width: '100%' }}
+            />
+            {caseSensitive && (
+              <Alert
+                message="Lưu ý: Câu trả lời có phân biệt chữ hoa chữ thường"
+                type="info"
+                showIcon
+                style={{ marginTop: '8px' }}
+              />
+            )}
+          </Space>
         );
 
       case 'fill_blank':
+        // Check if using new fill_blank structure (fields directly in content)
+        if (question.content?.template && question.content?.blanks) {
+          const { template, blanks, case_sensitive } = question.content;
+          const blankMatches = template.match(/\{blank\d+\}/g) || [];
+          const uniqueBlanks = Array.from(new Set(blankMatches));
+
+          // Split template by blanks
+          const parts = template.split(/(\{blank\d+\})/);
+
+          return (
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <div style={{ fontSize: '16px', lineHeight: '2' }}>
+                {parts.map((part, index) => {
+                  const blankMatch = part.match(/\{(blank\d+)\}/);
+                  if (blankMatch) {
+                    const blankId = blankMatch[1];
+                    const blankDef = blanks[blankId];
+                    const currentValue = currentAnswer?.[blankId] || '';
+
+                    return (
+                      <Input
+                        key={index}
+                        placeholder={blankDef?.placeholder_text || 'Điền vào chỗ trống...'}
+                        value={currentValue}
+                        onChange={(e) => {
+                          const newAnswer = { ...currentAnswer, [blankId]: e.target.value };
+                          handleAnswerChange(questionId, newAnswer);
+                        }}
+                        style={{
+                          width: '200px',
+                          margin: '0 4px',
+                          display: 'inline-block',
+                        }}
+                      />
+                    );
+                  }
+                  return <span key={index}>{part}</span>;
+                })}
+              </div>
+              {case_sensitive && (
+                <Alert
+                  message="Lưu ý: Câu trả lời có phân biệt chữ hoa chữ thường"
+                  type="info"
+                  showIcon
+                  style={{ marginTop: '8px' }}
+                />
+              )}
+            </Space>
+          );
+        }
+
+        // Fallback for old structure
         return (
           <Input
             placeholder="Điền vào chỗ trống..."
@@ -278,6 +419,137 @@ const TakeAssessment: React.FC = () => {
             onChange={(e) => handleAnswerChange(questionId, e.target.value)}
           />
         );
+
+      case 'matching':
+        if (question.content?.left_items && question.content?.right_items) {
+          const { left_items, right_items } = question.content;
+          const currentMatches = currentAnswer || {};
+
+          return (
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Row gutter={[16, 16]}>
+                <Col span={12}>
+                  <Card title="Danh sách bên trái" size="small">
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                      {left_items.map((leftItem: any) => (
+                        <div key={leftItem.id} style={{ marginBottom: '12px' }}>
+                          <div style={{ marginBottom: '8px' }}>
+                            {leftItem.image_url && (
+                              <img
+                                src={leftItem.image_url}
+                                alt={leftItem.text}
+                                style={{ maxWidth: '100%', maxHeight: '100px', marginBottom: '8px' }}
+                              />
+                            )}
+                            <Text strong>{leftItem.text}</Text>
+                          </div>
+                          <Select
+                            placeholder="Chọn cặp ghép"
+                            style={{ width: '100%' }}
+                            value={currentMatches[leftItem.id] || undefined}
+                            onChange={(value) => {
+                              const newMatches = { ...currentMatches, [leftItem.id]: value };
+                              handleAnswerChange(questionId, newMatches);
+                            }}
+                            options={right_items.map((rightItem: any) => ({
+                              label: rightItem.text,
+                              value: rightItem.id,
+                            }))}
+                          />
+                        </div>
+                      ))}
+                    </Space>
+                  </Card>
+                </Col>
+                <Col span={12}>
+                  <Card title="Danh sách bên phải" size="small">
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                      {right_items.map((rightItem: any) => (
+                        <div key={rightItem.id} style={{ padding: '8px', border: '1px solid #d9d9d9', borderRadius: '4px' }}>
+                          {rightItem.image_url && (
+                            <img
+                              src={rightItem.image_url}
+                              alt={rightItem.text}
+                              style={{ maxWidth: '100%', maxHeight: '100px', marginBottom: '8px' }}
+                            />
+                          )}
+                          <Text>{rightItem.text}</Text>
+                        </div>
+                      ))}
+                    </Space>
+                  </Card>
+                </Col>
+              </Row>
+            </Space>
+          );
+        }
+        return <Text type="secondary">Câu hỏi ghép cặp không hợp lệ</Text>;
+
+      case 'ordering':
+        if (question.content?.items) {
+          const { items } = question.content;
+          const currentOrder = currentAnswer || items.map((item: any) => item.id);
+
+          const moveItem = (fromIndex: number, toIndex: number) => {
+            const newOrder = [...currentOrder];
+            const [removed] = newOrder.splice(fromIndex, 1);
+            newOrder.splice(toIndex, 0, removed);
+            handleAnswerChange(questionId, newOrder);
+          };
+
+          return (
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Alert
+                message="Kéo thả hoặc dùng nút ↑↓ để sắp xếp các items theo thứ tự đúng"
+                type="info"
+                showIcon
+              />
+              <div>
+                {currentOrder.map((itemId: string, index: number) => {
+                  const item = items.find((i: any) => i.id === itemId);
+                  if (!item) return null;
+
+                  return (
+                    <Card
+                      key={itemId}
+                      size="small"
+                      style={{ marginBottom: '8px' }}
+                      extra={
+                        <Space>
+                          <Button
+                            size="small"
+                            icon={<span>↑</span>}
+                            disabled={index === 0}
+                            onClick={() => moveItem(index, index - 1)}
+                          />
+                          <Button
+                            size="small"
+                            icon={<span>↓</span>}
+                            disabled={index === currentOrder.length - 1}
+                            onClick={() => moveItem(index, index + 1)}
+                          />
+                        </Space>
+                      }
+                    >
+                      <Space>
+                        <Tag color="blue">{index + 1}</Tag>
+                        {item.image_url && (
+                          <img
+                            src={item.image_url}
+                            alt={item.text}
+                            style={{ maxWidth: '100px', maxHeight: '60px' }}
+                          />
+                        )}
+                        <Text>{item.text}</Text>
+                      </Space>
+                    </Card>
+                  );
+                })}
+              </div>
+            </Space>
+          );
+        }
+        return <Text type="secondary">Câu hỏi sắp xếp không hợp lệ</Text>;
 
       default:
         return <Text type="secondary">Loại câu hỏi không được hỗ trợ</Text>;

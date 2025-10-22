@@ -351,7 +351,6 @@ const GradingDetail: React.FC = () => {
     // Render based on question type
     switch (question.type) {
       case QuestionType.MultipleChoice:
-      case QuestionType.TrueFalse:
         const selectedOptions = Array.isArray(answer.answer) ? answer.answer : [answer.answer];
         return (
           <Space direction="vertical" style={{ width: '100%' }}>
@@ -370,6 +369,13 @@ const GradingDetail: React.FC = () => {
                       <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
                       <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
                     )}
+                    {option.image_url && (
+                      <img
+                        src={option.image_url}
+                        alt={option.text}
+                        style={{ maxWidth: '150px', maxHeight: '100px', marginRight: '8px' }}
+                      />
+                    )}
                     <Text>{option.text}</Text>
                   </Space>
                 </div>
@@ -378,8 +384,244 @@ const GradingDetail: React.FC = () => {
           </Space>
         );
 
+      case QuestionType.TrueFalse:
+        const studentAnswer = answer.answer; // boolean
+        const correctAnswer = question.content?.correct_answer; // boolean
+        const trueLabel = question.content?.true_label || 'Đúng';
+        const falseLabel = question.content?.false_label || 'Sai';
+        const isAnswerCorrect = studentAnswer === correctAnswer;
+
+        return (
+          <Space direction="vertical" style={{ width: '100%' }}>
+            {/* True option */}
+            <div style={{
+              padding: '8px 12px',
+              borderRadius: 8,
+              border: `1px solid ${studentAnswer === true ? (correctAnswer === true ? '#52c41a' : '#ff4d4f') : '#d9d9d9'}`,
+              backgroundColor: studentAnswer === true ? (correctAnswer === true ? '#f6ffed' : '#fff2f0') : 'transparent',
+            }}>
+              <Space>
+                {studentAnswer === true && (correctAnswer === true ?
+                  <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
+                  <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                )}
+                {correctAnswer === true && studentAnswer !== true && (
+                  <Tag color="success">Đáp án đúng</Tag>
+                )}
+                <Text>{trueLabel}</Text>
+              </Space>
+            </div>
+
+            {/* False option */}
+            <div style={{
+              padding: '8px 12px',
+              borderRadius: 8,
+              border: `1px solid ${studentAnswer === false ? (correctAnswer === false ? '#52c41a' : '#ff4d4f') : '#d9d9d9'}`,
+              backgroundColor: studentAnswer === false ? (correctAnswer === false ? '#f6ffed' : '#fff2f0') : 'transparent',
+            }}>
+              <Space>
+                {studentAnswer === false && (correctAnswer === false ?
+                  <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
+                  <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                )}
+                {correctAnswer === false && studentAnswer !== false && (
+                  <Tag color="success">Đáp án đúng</Tag>
+                )}
+                <Text>{falseLabel}</Text>
+              </Space>
+            </div>
+
+            {/* Summary */}
+            <Alert
+              message={isAnswerCorrect ? 'Câu trả lời đúng' : 'Câu trả lời sai'}
+              type={isAnswerCorrect ? 'success' : 'error'}
+              showIcon
+            />
+          </Space>
+        );
+
       case QuestionType.Essay:
+        const essayAnswer = answer.answer || '';
+        const essayWordCount = essayAnswer.trim().split(/\s+/).filter(Boolean).length;
+        const essayMinWords = question.content?.min_words;
+        const essayMaxWords = question.content?.max_words;
+        const rubricCriteria = question.content?.rubric_criteria || [];
+        const sampleAnswer = question.content?.sample_answer;
+        const keyWords = question.content?.key_words || [];
+        const autoGrade = question.content?.auto_grade;
+
+        // Check key words presence
+        const foundKeyWords = keyWords.filter((keyword: string) =>
+          essayAnswer.toLowerCase().includes(keyword.toLowerCase())
+        );
+
+        return (
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            {/* Student Answer */}
+            <Card title="Câu trả lời của học sinh" size="small">
+              <Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
+                {essayAnswer || <Text type="secondary">Không có câu trả lời</Text>}
+              </Paragraph>
+            </Card>
+
+            {/* Word Count Analysis */}
+            <Card title="Phân tích số từ" size="small" style={{ backgroundColor: '#fafafa' }}>
+              <Space split={<span>|</span>}>
+                <Text>
+                  <strong>Số từ:</strong>{' '}
+                  <Tag color={
+                    (essayMinWords && essayWordCount < essayMinWords) ||
+                    (essayMaxWords && essayWordCount > essayMaxWords)
+                      ? 'warning'
+                      : 'success'
+                  }>
+                    {essayWordCount}
+                  </Tag>
+                </Text>
+                {essayMinWords && (
+                  <Text type={essayWordCount < essayMinWords ? 'danger' : 'secondary'}>
+                    Yêu cầu tối thiểu: {essayMinWords}
+                  </Text>
+                )}
+                {essayMaxWords && (
+                  <Text type={essayWordCount > essayMaxWords ? 'danger' : 'secondary'}>
+                    Yêu cầu tối đa: {essayMaxWords}
+                  </Text>
+                )}
+              </Space>
+            </Card>
+
+            {/* Rubric Criteria */}
+            {rubricCriteria.length > 0 && (
+              <Card title="Tiêu chí đánh giá (Rubric)" size="small" style={{ backgroundColor: '#fafafa' }}>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  {rubricCriteria.map((criterion: string, idx: number) => (
+                    <div key={idx} style={{ padding: '8px', borderLeft: '3px solid #1890ff', paddingLeft: '12px' }}>
+                      <Text>• {criterion}</Text>
+                    </div>
+                  ))}
+                </Space>
+              </Card>
+            )}
+
+            {/* Auto Grade Analysis */}
+            {autoGrade && keyWords.length > 0 && (
+              <Card
+                title="Phân tích tự động chấm điểm"
+                size="small"
+                style={{ backgroundColor: '#fff7e6', border: '1px solid #ffd666' }}
+              >
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <div>
+                    <Text strong>Từ khóa tìm thấy: </Text>
+                    <Tag color="success">{foundKeyWords.length}/{keyWords.length}</Tag>
+                  </div>
+                  <div>
+                    <Space wrap>
+                      {keyWords.map((keyword: string, idx: number) => {
+                        const found = foundKeyWords.includes(keyword);
+                        return (
+                          <Tag key={idx} color={found ? 'success' : 'default'}>
+                            {found && <CheckCircleOutlined style={{ marginRight: '4px' }} />}
+                            {keyword}
+                          </Tag>
+                        );
+                      })}
+                    </Space>
+                  </div>
+                  <Alert
+                    message="Lưu ý"
+                    description="Đây chỉ là phân tích tự động. Giáo viên nên xem xét toàn bộ bài làm và điều chỉnh điểm phù hợp."
+                    type="warning"
+                    showIcon
+                  />
+                </Space>
+              </Card>
+            )}
+
+            {/* Sample Answer */}
+            {sampleAnswer && (
+              <Card
+                title="Đáp án mẫu tham khảo"
+                size="small"
+                style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}
+              >
+                <Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
+                  {sampleAnswer}
+                </Paragraph>
+              </Card>
+            )}
+          </Space>
+        );
+
       case QuestionType.ShortAnswer:
+        if (question.content?.accepted_answers) {
+          const { accepted_answers, case_sensitive, exact_match, fuzzy_matching } = question.content;
+          const studentAnswer = answer.answer || '';
+
+          // Check if answer is correct
+          const isCorrect = accepted_answers.some((acceptedAns: string) => {
+            if (case_sensitive) {
+              return acceptedAns === studentAnswer;
+            }
+            return acceptedAns.toLowerCase() === studentAnswer.toLowerCase();
+          });
+
+          return (
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              {/* Student Answer */}
+              <Card
+                size="small"
+                style={{
+                  backgroundColor: isCorrect ? '#f6ffed' : '#fff2f0',
+                  border: `2px solid ${isCorrect ? '#52c41a' : '#ff4d4f'}`
+                }}
+              >
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <div>
+                    <Text strong>Câu trả lời của học sinh: </Text>
+                    {isCorrect ? (
+                      <CheckCircleOutlined style={{ color: '#52c41a', marginLeft: '8px' }} />
+                    ) : (
+                      <CloseCircleOutlined style={{ color: '#ff4d4f', marginLeft: '8px' }} />
+                    )}
+                  </div>
+                  <Tag color={isCorrect ? 'success' : 'error'} style={{ fontSize: '14px', padding: '4px 12px' }}>
+                    {studentAnswer || '(không trả lời)'}
+                  </Tag>
+                </Space>
+              </Card>
+
+              {/* Accepted Answers */}
+              <Card size="small" title="Các đáp án được chấp nhận" style={{ backgroundColor: '#fafafa' }}>
+                <Space wrap>
+                  {accepted_answers.map((ans: string, idx: number) => (
+                    <Tag key={idx} color="green">
+                      {ans}
+                    </Tag>
+                  ))}
+                </Space>
+              </Card>
+
+              {/* Matching Settings Info */}
+              <Card size="small" title="Cài đặt so khớp" style={{ backgroundColor: '#fafafa' }}>
+                <Space direction="vertical">
+                  <Text>
+                    <strong>Phân biệt hoa thường:</strong> {case_sensitive ? 'Có' : 'Không'}
+                  </Text>
+                  <Text>
+                    <strong>Khớp chính xác:</strong> {exact_match ? 'Có' : 'Không'}
+                  </Text>
+                  <Text>
+                    <strong>Khớp mờ:</strong> {fuzzy_matching ? 'Có' : 'Không'}
+                  </Text>
+                </Space>
+              </Card>
+            </Space>
+          );
+        }
+
+        // Fallback
         return (
           <Card size="small" style={{ backgroundColor: '#fafafa' }}>
             <Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
@@ -389,6 +631,77 @@ const GradingDetail: React.FC = () => {
         );
 
       case QuestionType.FillBlank:
+        // Check if using new fill_blank structure (fields directly in content)
+        if (question.content?.template && question.content?.blanks) {
+          const { template, blanks } = question.content;
+          const parts = template.split(/(\{blank\d+\})/);
+          const studentAnswers = answer.answer || {};
+
+          return (
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <div style={{ fontSize: '16px', lineHeight: '2', padding: '12px', backgroundColor: '#fafafa', borderRadius: '8px' }}>
+                {parts.map((part, index) => {
+                  const blankMatch = part.match(/\{(blank\d+)\}/);
+                  if (blankMatch) {
+                    const blankId = blankMatch[1];
+                    const blankDef = blanks[blankId];
+                    const studentAnswer = studentAnswers[blankId] || '';
+                    const acceptedAnswers = blankDef?.accepted_answers || [];
+                    const isCorrect = acceptedAnswers.some(ans =>
+                      ans.toLowerCase() === studentAnswer.toLowerCase()
+                    );
+
+                    return (
+                      <Tag
+                        key={index}
+                        color={isCorrect ? 'success' : 'error'}
+                        style={{ fontSize: '14px', padding: '4px 12px', margin: '0 4px' }}
+                      >
+                        {studentAnswer || '(trống)'}
+                      </Tag>
+                    );
+                  }
+                  return <span key={index}>{part}</span>;
+                })}
+              </div>
+
+              {/* Show detailed comparison */}
+              <div>
+                {Object.entries(blanks).map(([blankId, blankDef]: [string, any]) => {
+                  const studentAnswer = studentAnswers[blankId] || '';
+                  const acceptedAnswers = blankDef.accepted_answers || [];
+                  const isCorrect = acceptedAnswers.some((ans: string) =>
+                    ans.toLowerCase() === studentAnswer.toLowerCase()
+                  );
+
+                  return (
+                    <div key={blankId} style={{ marginBottom: '8px' }}>
+                      <Text strong>{blankId}: </Text>
+                      <Tag color={isCorrect ? 'success' : 'error'}>
+                        {studentAnswer || '(không trả lời)'}
+                      </Tag>
+                      {!isCorrect && acceptedAnswers.length > 0 && (
+                        <span style={{ marginLeft: '8px' }}>
+                          <Text type="secondary">Đáp án đúng: </Text>
+                          {acceptedAnswers.map((ans: string, idx: number) => (
+                            <Tag key={idx} color="green" style={{ marginLeft: '4px' }}>
+                              {ans}
+                            </Tag>
+                          ))}
+                        </span>
+                      )}
+                      <Text type="secondary" style={{ marginLeft: '8px' }}>
+                        ({blankDef.points} điểm)
+                      </Text>
+                    </div>
+                  );
+                })}
+              </div>
+            </Space>
+          );
+        }
+
+        // Fallback for old structure
         return (
           <Space direction="vertical" style={{ width: '100%' }}>
             {Object.entries(answer.answer || {}).map(([key, value]) => (
@@ -398,6 +711,205 @@ const GradingDetail: React.FC = () => {
               </div>
             ))}
           </Space>
+        );
+
+      case QuestionType.Matching:
+        if (question.content?.left_items && question.content?.right_items && question.content?.correct_pairs) {
+          const { left_items, right_items, correct_pairs } = question.content;
+          const studentMatches = answer.answer || {};
+
+          // Create a map of correct pairs for easy lookup
+          const correctPairsMap: Record<string, string> = {};
+          correct_pairs.forEach((pair: any) => {
+            correctPairsMap[pair.left_id] = pair.right_id;
+          });
+
+          return (
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              {left_items.map((leftItem: any) => {
+                const studentRightId = studentMatches[leftItem.id];
+                const correctRightId = correctPairsMap[leftItem.id];
+                const isCorrect = studentRightId === correctRightId;
+
+                const studentRightItem = right_items.find((item: any) => item.id === studentRightId);
+                const correctRightItem = right_items.find((item: any) => item.id === correctRightId);
+
+                return (
+                  <div key={leftItem.id} style={{
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: `2px solid ${isCorrect ? '#52c41a' : '#ff4d4f'}`,
+                    backgroundColor: isCorrect ? '#f6ffed' : '#fff2f0'
+                  }}>
+                    <Row gutter={16} align="middle">
+                      <Col span={10}>
+                        <Space direction="vertical">
+                          <Text strong>Bên trái:</Text>
+                          {leftItem.image_url && (
+                            <img
+                              src={leftItem.image_url}
+                              alt={leftItem.text}
+                              style={{ maxWidth: '100px', maxHeight: '60px' }}
+                            />
+                          )}
+                          <Text>{leftItem.text}</Text>
+                        </Space>
+                      </Col>
+                      <Col span={2} style={{ textAlign: 'center' }}>
+                        {isCorrect ?
+                          <CheckCircleOutlined style={{ color: '#52c41a', fontSize: '24px' }} /> :
+                          <CloseCircleOutlined style={{ color: '#ff4d4f', fontSize: '24px' }} />
+                        }
+                      </Col>
+                      <Col span={12}>
+                        <Space direction="vertical">
+                          <div>
+                            <Text strong>Học sinh chọn: </Text>
+                            {studentRightItem ? (
+                              <>
+                                {studentRightItem.image_url && (
+                                  <img
+                                    src={studentRightItem.image_url}
+                                    alt={studentRightItem.text}
+                                    style={{ maxWidth: '100px', maxHeight: '60px', marginLeft: '8px' }}
+                                  />
+                                )}
+                                <Tag color={isCorrect ? 'success' : 'error'}>
+                                  {studentRightItem.text}
+                                </Tag>
+                              </>
+                            ) : (
+                              <Tag color="default">Không trả lời</Tag>
+                            )}
+                          </div>
+                          {!isCorrect && correctRightItem && (
+                            <div>
+                              <Text type="secondary">Đáp án đúng: </Text>
+                              {correctRightItem.image_url && (
+                                <img
+                                  src={correctRightItem.image_url}
+                                  alt={correctRightItem.text}
+                                  style={{ maxWidth: '100px', maxHeight: '60px', marginLeft: '8px' }}
+                                />
+                              )}
+                              <Tag color="green">{correctRightItem.text}</Tag>
+                            </div>
+                          )}
+                        </Space>
+                      </Col>
+                    </Row>
+                  </div>
+                );
+              })}
+            </Space>
+          );
+        }
+        return (
+          <Card size="small" style={{ backgroundColor: '#fafafa' }}>
+            <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+              {JSON.stringify(answer.answer, null, 2)}
+            </pre>
+          </Card>
+        );
+
+      case QuestionType.Ordering:
+        if (question.content?.items && question.content?.correct_order) {
+          const { items, correct_order } = question.content;
+          const studentOrder = answer.answer || [];
+
+          return (
+            <Space direction="vertical" style={{ width: '100%' }} size="large">
+              {/* Student's Order */}
+              <Card title="Thứ tự học sinh sắp xếp" type="inner" size="small">
+                {studentOrder.length > 0 ? (
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    {studentOrder.map((itemId: string, index: number) => {
+                      const item = items.find((i: any) => i.id === itemId);
+                      const isCorrectPosition = correct_order[index] === itemId;
+
+                      return (
+                        <div
+                          key={itemId}
+                          style={{
+                            padding: '8px',
+                            borderRadius: '4px',
+                            border: `2px solid ${isCorrectPosition ? '#52c41a' : '#ff4d4f'}`,
+                            backgroundColor: isCorrectPosition ? '#f6ffed' : '#fff2f0',
+                          }}
+                        >
+                          <Space>
+                            <Tag color={isCorrectPosition ? 'success' : 'error'}>
+                              {index + 1}
+                            </Tag>
+                            {isCorrectPosition ? (
+                              <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                            ) : (
+                              <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                            )}
+                            {item?.image_url && (
+                              <img
+                                src={item.image_url}
+                                alt={item.text}
+                                style={{ maxWidth: '80px', maxHeight: '50px' }}
+                              />
+                            )}
+                            <Text strong>{item?.text || itemId}</Text>
+                            {!isCorrectPosition && (
+                              <Text type="secondary">
+                                (Đúng vị trí: {correct_order.indexOf(itemId) + 1})
+                              </Text>
+                            )}
+                          </Space>
+                        </div>
+                      );
+                    })}
+                  </Space>
+                ) : (
+                  <Text type="secondary">Học sinh không trả lời</Text>
+                )}
+              </Card>
+
+              {/* Correct Order */}
+              <Card title="Thứ tự đúng" type="inner" size="small">
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  {correct_order.map((itemId: string, index: number) => {
+                    const item = items.find((i: any) => i.id === itemId);
+
+                    return (
+                      <div
+                        key={itemId}
+                        style={{
+                          padding: '8px',
+                          borderRadius: '4px',
+                          border: '1px solid #52c41a',
+                          backgroundColor: '#f6ffed',
+                        }}
+                      >
+                        <Space>
+                          <Tag color="success">{index + 1}</Tag>
+                          {item?.image_url && (
+                            <img
+                              src={item.image_url}
+                              alt={item.text}
+                              style={{ maxWidth: '80px', maxHeight: '50px' }}
+                            />
+                          )}
+                          <Text>{item?.text || itemId}</Text>
+                        </Space>
+                      </div>
+                    );
+                  })}
+                </Space>
+              </Card>
+            </Space>
+          );
+        }
+        return (
+          <Card size="small" style={{ backgroundColor: '#fafafa' }}>
+            <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+              {JSON.stringify(answer.answer, null, 2)}
+            </pre>
+          </Card>
         );
 
       default:

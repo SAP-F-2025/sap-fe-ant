@@ -29,6 +29,7 @@ import {
     CheckOutlined,
     CloseOutlined,
     LockOutlined,
+    FileTextOutlined,
 } from '@ant-design/icons';
 import type {ColumnsType} from 'antd/es/table';
 import {
@@ -185,11 +186,16 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                 type: filterType,
                 difficulty: filterDifficulty,
             });
-            setAvailableQuestions(data.questions);
+
+            // Filter out questions already in assessment
+            const existingQuestionIds = new Set(questions.map(q => q.question_id));
+            const filteredQuestions = data.questions.filter(q => !existingQuestionIds.has(q.id));
+
+            setAvailableQuestions(filteredQuestions);
             setPagination({
                 page: data.page > 0 ? data.page : 1,
                 size: data.size,
-                total: data.total
+                total: filteredQuestions.length // Update total to reflect filtered count
             });
         } catch (error) {
             // Error handled by interceptor
@@ -781,6 +787,13 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                 width={900}
                 confirmLoading={addLoading}
                 okButtonProps={{disabled: selectedQuestions.length === 0}}
+                styles={{
+                    body: {
+                        maxHeight: 'calc(100vh - 300px)',
+                        overflowY: 'auto',
+                        overflowX: 'hidden'
+                    }
+                }}
             >
                 <Space direction="vertical" size="middle" style={{width: '100%', marginTop: 16}}>
                     {/* Mode selection */}
@@ -813,6 +826,16 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                             </Radio.Group>
                         </Space>
                     </Card>
+
+                    {/* Filter info */}
+                    {questions.length > 0 && (
+                        <Alert
+                            message={`Danh sách đã lọc bỏ ${questions.length} câu hỏi đã có trong bài thi`}
+                            type="info"
+                            showIcon
+                            closable
+                        />
+                    )}
 
                     {/* Auto-assign preview and warning */}
                     {addMode === 'auto-assign' && selectedQuestions.length > 0 && (
@@ -880,6 +903,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 onPressEnter={() => fetchAvailableQuestions({page: 1, size: 10})}
+                                disabled={fetchingQuestions}
                             />
                         </Col>
                         <Col span={6}>
@@ -889,6 +913,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                                 style={{width: '100%'}}
                                 value={filterType}
                                 onChange={(value) => setFilterType(value)}
+                                disabled={fetchingQuestions}
                             >
                                 {Object.entries(typeLabels).map(([key, label]) => (
                                     <Select.Option key={key} value={key}>
@@ -904,6 +929,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                                 style={{width: '100%'}}
                                 value={filterDifficulty}
                                 onChange={(value) => setFilterDifficulty(value)}
+                                disabled={fetchingQuestions}
                             >
                                 {Object.entries(difficultyLabels).map(([key, label]) => (
                                     <Select.Option key={key} value={key}>
@@ -914,14 +940,31 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                         </Col>
                     </Row>
 
-                    <Button
-                        icon={<FilterOutlined/>}
-                        onClick={() => fetchAvailableQuestions({page: 1, size: 10})}
-                    >
-                        Lọc
-                    </Button>
+                    <Space>
+                        <Button
+                            icon={<FilterOutlined/>}
+                            onClick={() => fetchAvailableQuestions({page: 1, size: 10})}
+                            loading={fetchingQuestions}
+                            disabled={fetchingQuestions}
+                        >
+                            {fetchingQuestions ? 'Đang tìm...' : 'Lọc'}
+                        </Button>
+                        {!fetchingQuestions && availableQuestions.length > 0 && (
+                            <Text type="secondary">
+                                Tìm thấy {availableQuestions.length} câu hỏi
+                            </Text>
+                        )}
+                        {fetchingQuestions && (
+                            <Text type="secondary">
+                                Đang tải danh sách câu hỏi...
+                            </Text>
+                        )}
+                    </Space>
+
+                    <Divider style={{ margin: '12px 0' }} />
 
                     <Table
+                        size="small"
                         columns={availableColumns}
                         dataSource={availableQuestions}
                         rowKey="id"
@@ -948,6 +991,24 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                             onChange: (page, size) => {
                                 fetchAvailableQuestions({page, size});
                             },
+                        }}
+                        locale={{
+                            emptyText: (
+                                <Space direction="vertical" size="middle" style={{ padding: '40px 0' }}>
+                                    <FileTextOutlined style={{ fontSize: 48, color: '#bfbfbf' }} />
+                                    <Text type="secondary">
+                                        {questions.length > 0
+                                            ? 'Tất cả câu hỏi trong kho đã được thêm vào bài thi'
+                                            : 'Không tìm thấy câu hỏi nào'
+                                        }
+                                    </Text>
+                                    {questions.length === 0 && (
+                                        <Text type="secondary" style={{ fontSize: 12 }}>
+                                            Thử thay đổi bộ lọc hoặc tìm kiếm
+                                        </Text>
+                                    )}
+                                </Space>
+                            ),
                         }}
                     />
                 </Space>

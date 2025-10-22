@@ -234,7 +234,7 @@ const MainLayout: React.FC = () => {
           {collapsed ? '🎓' : (
             <Space size={12}>
               <span style={{ fontSize: 24 }}>🎓</span>
-              <span>SAP Assessment</span>
+              <span>SAP</span>
             </Space>
           )}
         </div>

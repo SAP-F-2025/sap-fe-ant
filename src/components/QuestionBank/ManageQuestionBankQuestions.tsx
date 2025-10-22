@@ -12,12 +12,15 @@ import {
   Row,
   Col,
   Typography,
+  Alert,
+  Divider,
 } from 'antd';
 import {
   PlusOutlined,
   DeleteOutlined,
   SearchOutlined,
   FilterOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -70,6 +73,7 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
   const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [addLoading, setAddLoading] = useState(false);
+  const [fetchingQuestions, setFetchingQuestions] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [filterType, setFilterType] = useState<string | undefined>();
   const [filterDifficulty, setFilterDifficulty] = useState<string | undefined>();
@@ -101,6 +105,7 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
   };
 
   const fetchAvailableQuestions = async (params?: PaginationParams) => {
+    setFetchingQuestions(true);
     try {
       const data = await questionService.getQuestions({
         page: params?.page || 1,
@@ -109,10 +114,21 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
         type: filterType,
         difficulty: filterDifficulty,
       });
-      setAvailableQuestions(data.questions);
-      setAvailablePagination({ page: params?.page || 1, size: data.size, total: data.total });
+
+      // Filter out questions already in bank
+      const existingQuestionIds = new Set(questions.map(q => q.id));
+      const filteredQuestions = data.questions.filter(q => !existingQuestionIds.has(q.id));
+
+      setAvailableQuestions(filteredQuestions);
+      setAvailablePagination({
+        page: params?.page || 1,
+        size: data.size,
+        total: filteredQuestions.length, // Update total to reflect filtered count
+      });
     } catch (error) {
       // Error handled by interceptor
+    } finally {
+      setFetchingQuestions(false);
     }
   };
 
@@ -281,8 +297,25 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
         width={900}
         confirmLoading={addLoading}
         okButtonProps={{ disabled: selectedQuestions.length === 0 }}
+        styles={{
+          body: {
+            maxHeight: 'calc(100vh - 300px)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+          },
+        }}
       >
         <Space direction="vertical" size="middle" style={{ width: '100%', marginTop: 16 }}>
+          {/* Filter info */}
+          {questions.length > 0 && (
+            <Alert
+              message={`Danh sách đã lọc bỏ ${questions.length} câu hỏi đã có trong ngân hàng`}
+              type="info"
+              showIcon
+              closable
+            />
+          )}
+
           <Row gutter={[8, 8]}>
             <Col span={12}>
               <Input
@@ -291,6 +324,7 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 onPressEnter={() => fetchAvailableQuestions({ page: 1, size: 10 })}
+                disabled={fetchingQuestions}
               />
             </Col>
             <Col span={6}>
@@ -300,6 +334,7 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
                 style={{ width: '100%' }}
                 value={filterType}
                 onChange={(value) => setFilterType(value)}
+                disabled={fetchingQuestions}
               >
                 {Object.entries(typeLabels).map(([key, label]) => (
                   <Select.Option key={key} value={key}>
@@ -315,6 +350,7 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
                 style={{ width: '100%' }}
                 value={filterDifficulty}
                 onChange={(value) => setFilterDifficulty(value)}
+                disabled={fetchingQuestions}
               >
                 {Object.entries(difficultyLabels).map(([key, label]) => (
                   <Select.Option key={key} value={key}>
@@ -325,17 +361,35 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
             </Col>
           </Row>
 
-          <Button
-            icon={<FilterOutlined />}
-            onClick={() => fetchAvailableQuestions({ page: 1, size: 10 })}
-          >
-            Lọc
-          </Button>
+          <Space>
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => fetchAvailableQuestions({ page: 1, size: 10 })}
+              loading={fetchingQuestions}
+              disabled={fetchingQuestions}
+            >
+              {fetchingQuestions ? 'Đang tìm...' : 'Lọc'}
+            </Button>
+            {!fetchingQuestions && availableQuestions.length > 0 && (
+              <Text type="secondary">
+                Tìm thấy {availableQuestions.length} câu hỏi
+              </Text>
+            )}
+            {fetchingQuestions && (
+              <Text type="secondary">
+                Đang tải danh sách câu hỏi...
+              </Text>
+            )}
+          </Space>
+
+          <Divider style={{ margin: '12px 0' }} />
 
           <Table
+            size="small"
             columns={availableColumns}
             dataSource={availableQuestions}
             rowKey="id"
+            loading={fetchingQuestions}
             rowSelection={{
               selectedRowKeys: selectedQuestions,
               onChange: (keys) => setSelectedQuestions(keys as number[]),
@@ -347,6 +401,23 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({
               onChange: (page, size) => {
                 fetchAvailableQuestions({ page, size });
               },
+            }}
+            locale={{
+              emptyText: (
+                <Space direction="vertical" size="middle" style={{ padding: '40px 0' }}>
+                  <FileTextOutlined style={{ fontSize: 48, color: '#bfbfbf' }} />
+                  <Text type="secondary">
+                    {questions.length > 0
+                      ? 'Tất cả câu hỏi trong kho đã được thêm vào ngân hàng'
+                      : 'Không tìm thấy câu hỏi nào'}
+                  </Text>
+                  {questions.length === 0 && (
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      Thử thay đổi bộ lọc hoặc tìm kiếm
+                    </Text>
+                  )}
+                </Space>
+              ),
             }}
           />
         </Space>

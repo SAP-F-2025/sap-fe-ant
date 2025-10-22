@@ -24,6 +24,8 @@ import {
   Tooltip,
   Modal,
   App,
+  theme,
+  Statistic,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -60,6 +62,7 @@ const GradingDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { modal } = App.useApp();
+  const { token } = theme.useToken();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -361,13 +364,13 @@ const GradingDetail: React.FC = () => {
                 <div key={option.id} style={{
                   padding: '8px 12px',
                   borderRadius: 8,
-                  border: `1px solid ${isSelected ? (isCorrect ? '#52c41a' : '#ff4d4f') : '#d9d9d9'}`,
-                  backgroundColor: isSelected ? (isCorrect ? '#f6ffed' : '#fff2f0') : 'transparent',
+                  border: `1px solid ${isSelected ? (isCorrect ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
+                  backgroundColor: isSelected ? (isCorrect ? token.colorSuccessBg : token.colorErrorBg) : 'transparent',
                 }}>
                   <Space>
                     {isSelected && (isCorrect ?
-                      <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
-                      <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                      <CheckCircleOutlined style={{ color: token.colorSuccess }} /> :
+                      <CloseCircleOutlined style={{ color: token.colorError }} />
                     )}
                     {option.image_url && (
                       <img
@@ -397,13 +400,13 @@ const GradingDetail: React.FC = () => {
             <div style={{
               padding: '8px 12px',
               borderRadius: 8,
-              border: `1px solid ${studentAnswer === true ? (correctAnswer === true ? '#52c41a' : '#ff4d4f') : '#d9d9d9'}`,
-              backgroundColor: studentAnswer === true ? (correctAnswer === true ? '#f6ffed' : '#fff2f0') : 'transparent',
+              border: `1px solid ${studentAnswer === true ? (correctAnswer === true ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
+              backgroundColor: studentAnswer === true ? (correctAnswer === true ? token.colorSuccessBg : token.colorErrorBg) : 'transparent',
             }}>
               <Space>
                 {studentAnswer === true && (correctAnswer === true ?
-                  <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
-                  <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                  <CheckCircleOutlined style={{ color: token.colorSuccess }} /> :
+                  <CloseCircleOutlined style={{ color: token.colorError }} />
                 )}
                 {correctAnswer === true && studentAnswer !== true && (
                   <Tag color="success">Đáp án đúng</Tag>
@@ -416,13 +419,13 @@ const GradingDetail: React.FC = () => {
             <div style={{
               padding: '8px 12px',
               borderRadius: 8,
-              border: `1px solid ${studentAnswer === false ? (correctAnswer === false ? '#52c41a' : '#ff4d4f') : '#d9d9d9'}`,
-              backgroundColor: studentAnswer === false ? (correctAnswer === false ? '#f6ffed' : '#fff2f0') : 'transparent',
+              border: `1px solid ${studentAnswer === false ? (correctAnswer === false ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
+              backgroundColor: studentAnswer === false ? (correctAnswer === false ? token.colorSuccessBg : token.colorErrorBg) : 'transparent',
             }}>
               <Space>
                 {studentAnswer === false && (correctAnswer === false ?
-                  <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
-                  <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                  <CheckCircleOutlined style={{ color: token.colorSuccess }} /> :
+                  <CloseCircleOutlined style={{ color: token.colorError }} />
                 )}
                 {correctAnswer === false && studentAnswer !== false && (
                   <Tag color="success">Đáp án đúng</Tag>
@@ -465,7 +468,7 @@ const GradingDetail: React.FC = () => {
             </Card>
 
             {/* Word Count Analysis */}
-            <Card title="Phân tích số từ" size="small" style={{ backgroundColor: '#fafafa' }}>
+            <Card title="Phân tích số từ" size="small" style={{ backgroundColor: token.colorBgLayout }}>
               <Space split={<span>|</span>}>
                 <Text>
                   <strong>Số từ:</strong>{' '}
@@ -493,10 +496,10 @@ const GradingDetail: React.FC = () => {
 
             {/* Rubric Criteria */}
             {rubricCriteria.length > 0 && (
-              <Card title="Tiêu chí đánh giá (Rubric)" size="small" style={{ backgroundColor: '#fafafa' }}>
+              <Card title="Tiêu chí đánh giá (Rubric)" size="small" style={{ backgroundColor: token.colorBgLayout }}>
                 <Space direction="vertical" style={{ width: '100%' }}>
                   {rubricCriteria.map((criterion: string, idx: number) => (
-                    <div key={idx} style={{ padding: '8px', borderLeft: '3px solid #1890ff', paddingLeft: '12px' }}>
+                    <div key={idx} style={{ padding: '8px', borderLeft: `3px solid ${token.colorPrimary}`, paddingLeft: '12px' }}>
                       <Text>• {criterion}</Text>
                     </div>
                   ))}
@@ -509,7 +512,7 @@ const GradingDetail: React.FC = () => {
               <Card
                 title="Phân tích tự động chấm điểm"
                 size="small"
-                style={{ backgroundColor: '#fff7e6', border: '1px solid #ffd666' }}
+                style={{ backgroundColor: token.colorWarningBg, border: `1px solid ${token.colorWarningBorder}` }}
               >
                 <Space direction="vertical" style={{ width: '100%' }}>
                   <div>
@@ -544,7 +547,7 @@ const GradingDetail: React.FC = () => {
               <Card
                 title="Đáp án mẫu tham khảo"
                 size="small"
-                style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}
+                style={{ backgroundColor: token.colorSuccessBg, border: `1px solid ${token.colorSuccessBorder}` }}
               >
                 <Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
                   {sampleAnswer}
@@ -573,17 +576,17 @@ const GradingDetail: React.FC = () => {
               <Card
                 size="small"
                 style={{
-                  backgroundColor: isCorrect ? '#f6ffed' : '#fff2f0',
-                  border: `2px solid ${isCorrect ? '#52c41a' : '#ff4d4f'}`
+                  backgroundColor: isCorrect ? token.colorSuccessBg : token.colorErrorBg,
+                  border: `2px solid ${isCorrect ? token.colorSuccessBorder : token.colorErrorBorder}`
                 }}
               >
                 <Space direction="vertical" style={{ width: '100%' }}>
                   <div>
                     <Text strong>Câu trả lời của học sinh: </Text>
                     {isCorrect ? (
-                      <CheckCircleOutlined style={{ color: '#52c41a', marginLeft: '8px' }} />
+                      <CheckCircleOutlined style={{ color: token.colorSuccess, marginLeft: '8px' }} />
                     ) : (
-                      <CloseCircleOutlined style={{ color: '#ff4d4f', marginLeft: '8px' }} />
+                      <CloseCircleOutlined style={{ color: token.colorError, marginLeft: '8px' }} />
                     )}
                   </div>
                   <Tag color={isCorrect ? 'success' : 'error'} style={{ fontSize: '14px', padding: '4px 12px' }}>
@@ -593,7 +596,7 @@ const GradingDetail: React.FC = () => {
               </Card>
 
               {/* Accepted Answers */}
-              <Card size="small" title="Các đáp án được chấp nhận" style={{ backgroundColor: '#fafafa' }}>
+              <Card size="small" title="Các đáp án được chấp nhận" style={{ backgroundColor: token.colorBgLayout }}>
                 <Space wrap>
                   {accepted_answers.map((ans: string, idx: number) => (
                     <Tag key={idx} color="green">
@@ -604,7 +607,7 @@ const GradingDetail: React.FC = () => {
               </Card>
 
               {/* Matching Settings Info */}
-              <Card size="small" title="Cài đặt so khớp" style={{ backgroundColor: '#fafafa' }}>
+              <Card size="small" title="Cài đặt so khớp" style={{ backgroundColor: token.colorBgLayout }}>
                 <Space direction="vertical">
                   <Text>
                     <strong>Phân biệt hoa thường:</strong> {case_sensitive ? 'Có' : 'Không'}
@@ -623,7 +626,7 @@ const GradingDetail: React.FC = () => {
 
         // Fallback
         return (
-          <Card size="small" style={{ backgroundColor: '#fafafa' }}>
+          <Card size="small" style={{ backgroundColor: token.colorBgLayout }}>
             <Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
               {answer.answer || <Text type="secondary">Không có câu trả lời</Text>}
             </Paragraph>
@@ -639,7 +642,7 @@ const GradingDetail: React.FC = () => {
 
           return (
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              <div style={{ fontSize: '16px', lineHeight: '2', padding: '12px', backgroundColor: '#fafafa', borderRadius: '8px' }}>
+              <div style={{ fontSize: '16px', lineHeight: '2', padding: '12px', backgroundColor: token.colorBgLayout, borderRadius: '8px' }}>
                 {parts.map((part, index) => {
                   const blankMatch = part.match(/\{(blank\d+)\}/);
                   if (blankMatch) {
@@ -738,8 +741,8 @@ const GradingDetail: React.FC = () => {
                   <div key={leftItem.id} style={{
                     padding: '12px',
                     borderRadius: '8px',
-                    border: `2px solid ${isCorrect ? '#52c41a' : '#ff4d4f'}`,
-                    backgroundColor: isCorrect ? '#f6ffed' : '#fff2f0'
+                    border: `2px solid ${isCorrect ? token.colorSuccessBorder : token.colorErrorBorder}`,
+                    backgroundColor: isCorrect ? token.colorSuccessBg : token.colorErrorBg
                   }}>
                     <Row gutter={16} align="middle">
                       <Col span={10}>
@@ -757,8 +760,8 @@ const GradingDetail: React.FC = () => {
                       </Col>
                       <Col span={2} style={{ textAlign: 'center' }}>
                         {isCorrect ?
-                          <CheckCircleOutlined style={{ color: '#52c41a', fontSize: '24px' }} /> :
-                          <CloseCircleOutlined style={{ color: '#ff4d4f', fontSize: '24px' }} />
+                          <CheckCircleOutlined style={{ color: token.colorSuccess, fontSize: '24px' }} /> :
+                          <CloseCircleOutlined style={{ color: token.colorError, fontSize: '24px' }} />
                         }
                       </Col>
                       <Col span={12}>
@@ -805,7 +808,7 @@ const GradingDetail: React.FC = () => {
           );
         }
         return (
-          <Card size="small" style={{ backgroundColor: '#fafafa' }}>
+          <Card size="small" style={{ backgroundColor: token.colorBgLayout }}>
             <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
               {JSON.stringify(answer.answer, null, 2)}
             </pre>
@@ -833,8 +836,8 @@ const GradingDetail: React.FC = () => {
                           style={{
                             padding: '8px',
                             borderRadius: '4px',
-                            border: `2px solid ${isCorrectPosition ? '#52c41a' : '#ff4d4f'}`,
-                            backgroundColor: isCorrectPosition ? '#f6ffed' : '#fff2f0',
+                            border: `2px solid ${isCorrectPosition ? token.colorSuccessBorder : token.colorErrorBorder}`,
+                            backgroundColor: isCorrectPosition ? token.colorSuccessBg : token.colorErrorBg,
                           }}
                         >
                           <Space>
@@ -842,9 +845,9 @@ const GradingDetail: React.FC = () => {
                               {index + 1}
                             </Tag>
                             {isCorrectPosition ? (
-                              <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                              <CheckCircleOutlined style={{ color: token.colorSuccess }} />
                             ) : (
-                              <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                              <CloseCircleOutlined style={{ color: token.colorError }} />
                             )}
                             {item?.image_url && (
                               <img
@@ -881,8 +884,8 @@ const GradingDetail: React.FC = () => {
                         style={{
                           padding: '8px',
                           borderRadius: '4px',
-                          border: '1px solid #52c41a',
-                          backgroundColor: '#f6ffed',
+                          border: `1px solid ${token.colorSuccessBorder}`,
+                          backgroundColor: token.colorSuccessBg,
                         }}
                       >
                         <Space>
@@ -905,7 +908,7 @@ const GradingDetail: React.FC = () => {
           );
         }
         return (
-          <Card size="small" style={{ backgroundColor: '#fafafa' }}>
+          <Card size="small" style={{ backgroundColor: token.colorBgLayout }}>
             <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
               {JSON.stringify(answer.answer, null, 2)}
             </pre>
@@ -914,7 +917,7 @@ const GradingDetail: React.FC = () => {
 
       default:
         return (
-          <Card size="small" style={{ backgroundColor: '#fafafa' }}>
+          <Card size="small" style={{ backgroundColor: token.colorBgLayout }}>
             <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
               {JSON.stringify(answer.answer, null, 2)}
             </pre>
@@ -983,16 +986,63 @@ const GradingDetail: React.FC = () => {
       </Flex>
 
       {/* Progress */}
-      <Card style={{ ...elevation[1], borderRadius: 16 }}>
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          <Flex justify="space-between">
-            <Text strong>Tiến độ chấm điểm</Text>
-            <Text>{Math.round(progress)}%</Text>
+      <Card
+        className="grading-progress-card"
+        style={{
+          ...elevation[1],
+          borderRadius: 16,
+          background: token.colorBgContainer,
+          border: `1px solid ${token.colorBorder}`,
+        }}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <Flex justify="space-between" align="center">
+            <Space>
+              <div style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: token.colorPrimary,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: `0 4px 12px ${token.colorPrimaryBg}`,
+              }}>
+                <CheckCircleOutlined style={{ fontSize: 18, color: '#fff' }} />
+              </div>
+              <div>
+                <Text strong style={{ fontSize: 15 }}>Tiến độ chấm điểm</Text>
+                <br />
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {attempt.answers.filter(a => a.is_graded || grades.has(a.id)).length} / {attempt.answers.length} câu đã chấm
+                </Text>
+              </div>
+            </Space>
+            <div style={{
+              padding: '6px 16px',
+              borderRadius: 20,
+              background: progress === 100 ? token.colorSuccessBg : token.colorPrimaryBg,
+              border: `1px solid ${progress === 100 ? token.colorSuccessBorder : token.colorPrimaryBorder}`,
+            }}>
+              <Text
+                strong
+                style={{
+                  fontSize: 18,
+                  color: progress === 100 ? token.colorSuccess : token.colorPrimary,
+                }}
+              >
+                {Math.round(progress)}%
+              </Text>
+            </div>
           </Flex>
           <Progress
             percent={progress}
-            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+            strokeWidth={12}
+            strokeColor={progress === 100 ? token.colorSuccess : token.colorPrimary}
+            trailColor={token.colorBgLayout}
             showInfo={false}
+            strokeLinecap="round"
+            className="animated-progress"
           />
         </Space>
       </Card>
@@ -1115,36 +1165,144 @@ const GradingDetail: React.FC = () => {
 
         <Col xs={24} lg={8}>
           <Card
-            title={
-              <Space>
-                <TrophyOutlined />
-                <Text strong>Điểm số</Text>
-              </Space>
-            }
-            style={{ ...elevation[1], borderRadius: 16 }}
+            className="premium-score-card"
+            style={{
+              ...elevation[2],
+              borderRadius: 16,
+              background: token.colorBgContainer,
+              border: `2px solid ${passed ? token.colorSuccessBorder : token.colorErrorBorder}`,
+            }}
           >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              {/* Header with icon and title */}
+              <Flex justify="space-between" align="center">
+                <Space>
+                  <div style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    background: passed ? token.colorSuccess : token.colorError,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: `0 4px 12px ${passed ? token.colorSuccessBg : token.colorErrorBg}`,
+                  }}>
+                    <TrophyOutlined style={{ fontSize: 20, color: '#fff' }} />
+                  </div>
+                  <div>
+                    <Text strong style={{ fontSize: 16 }}>Điểm số</Text>
+                    <br />
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      Kết quả tổng hợp
+                    </Text>
+                  </div>
+                </Space>
+                <Badge
+                  status={passed ? 'success' : 'error'}
+                  text={passed ? 'Đạt' : 'Chưa đạt'}
+                  style={{ fontWeight: 500 }}
+                  className="status-badge"
+                />
+              </Flex>
+
+              <Divider style={{ margin: '12px 0' }} />
+
+              {/* Main score display */}
               <div style={{ textAlign: 'center' }}>
-                <Title level={1} style={{ margin: 0, fontSize: 48 }}>
-                  {totalScore.toFixed(1)}
-                </Title>
-                <Text type="secondary">/ {maxScore} điểm</Text>
+                <Progress
+                  type="circle"
+                  percent={Math.round(percentage)}
+                  strokeWidth={10}
+                  size={200}
+                  strokeColor={passed ? token.colorSuccess : token.colorError}
+                  trailColor={token.colorBgLayout}
+                  format={() => (
+                    <div>
+                      <Statistic
+                        value={Math.round(percentage)}
+                        suffix="%"
+                        valueStyle={{
+                          fontSize: 48,
+                          fontWeight: 700,
+                          color: passed ? token.colorSuccess : token.colorError,
+                          lineHeight: 1,
+                        }}
+                      />
+                      <Text type="secondary" style={{ fontSize: 14, fontWeight: 500, display: 'block', marginTop: 8 }}>
+                        {totalScore.toFixed(1)} / {maxScore} điểm
+                      </Text>
+                    </div>
+                  )}
+                />
+
+                <Divider style={{ margin: '24px 0' }} />
+
+                {/* Score breakdown */}
+                <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+                  <Col span={12}>
+                    <Card
+                      size="small"
+                      style={{
+                        borderRadius: 12,
+                        background: token.colorSuccessBg,
+                        border: `1px solid ${token.colorSuccessBorder}`,
+                        textAlign: 'center',
+                      }}
+                    >
+                      <Statistic
+                        title={<Text type="secondary" style={{ fontSize: 12 }}>Câu đúng</Text>}
+                        value={attempt.answers.filter(a => {
+                          const grade = grades.get(a.id);
+                          const score = grade?.score ?? a.score ?? 0;
+                          return score >= a.max_score;
+                        }).length}
+                        suffix={`/ ${attempt.answers.length}`}
+                        valueStyle={{ fontSize: 20, color: token.colorSuccess }}
+                      />
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card
+                      size="small"
+                      style={{
+                        borderRadius: 12,
+                        background: token.colorErrorBg,
+                        border: `1px solid ${token.colorErrorBorder}`,
+                        textAlign: 'center',
+                      }}
+                    >
+                      <Statistic
+                        title={<Text type="secondary" style={{ fontSize: 12 }}>Câu sai</Text>}
+                        value={attempt.answers.filter(a => {
+                          const grade = grades.get(a.id);
+                          const score = grade?.score ?? a.score ?? 0;
+                          return score < a.max_score;
+                        }).length}
+                        suffix={`/ ${attempt.answers.length}`}
+                        valueStyle={{ fontSize: 20, color: token.colorError }}
+                      />
+                    </Card>
+                  </Col>
+                </Row>
+
+                {/* Passing score indicator */}
+                <Alert
+                  message={
+                    <Flex justify="space-between" align="center" style={{ width: '100%' }}>
+                      <Space>
+                        {passed ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                        <Text strong>{passed ? 'Đạt yêu cầu' : 'Chưa đạt yêu cầu'}</Text>
+                      </Space>
+                      <Text type="secondary">
+                        Điểm chuẩn: {attempt.assessment?.passing_score || 0}%
+                      </Text>
+                    </Flex>
+                  }
+                  type={passed ? 'success' : 'error'}
+                  showIcon={false}
+                  style={{ borderRadius: 12 }}
+                />
               </div>
-
-              <Progress
-                type="circle"
-                percent={Math.round(percentage)}
-                strokeColor={passed ? '#52c41a' : '#ff4d4f'}
-                format={() => `${Math.round(percentage)}%`}
-              />
-
-              <Alert
-                message={passed ? 'Đạt yêu cầu' : 'Chưa đạt'}
-                description={`Điểm chuẩn: ${attempt.assessment?.passing_score || 0}%`}
-                type={passed ? 'success' : 'error'}
-                showIcon
-                icon={passed ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-              />
             </Space>
           </Card>
         </Col>

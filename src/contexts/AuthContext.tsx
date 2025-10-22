@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { CasdoorSdk } from '../config/casdoor';
 import { generateCodeVerifier, generateCodeChallenge, storePKCEVerifier } from '../utils/pkce';
 import { TokenService } from '../services/tokenService';
+import { AuthService } from '../services/authService';
 import { decodeJWT, extractUserInfo } from '../utils/jwt';
 import { handleError, handleErrorSilently } from '../utils/errorHandler';
 
@@ -42,7 +43,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: () => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   setUser: (user: User | null) => void;
   getAccessToken: () => Promise<string | null>;
   refreshToken: () => Promise<string | null>;
@@ -109,13 +110,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.location.href = urlWithPKCE;
   };
 
-  const logout = () => {
-    // Clear all tokens
-    TokenService.clearTokens();
+  const logout = async () => {
+    // Call Casdoor logout API
+    await AuthService.logout();
     setUser(null);
-
-    // Optionally redirect to Casdoor logout
-    // window.location.href = CasdoorSdk.getSignoutUrl();
   };
 
   /**

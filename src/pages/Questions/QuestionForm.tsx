@@ -52,7 +52,12 @@ const QuestionForm: React.FC = () => {
     setLoading(true);
     try {
       const question = await questionService.getQuestion(questionId);
-      form.setFieldsValue(question);
+      // Convert tags array to comma-separated string for display in Input field
+      const formData = {
+        ...question,
+        tags: Array.isArray(question.tags) ? question.tags.join(', ') : question.tags,
+      };
+      form.setFieldsValue(formData);
       setQuestionType(question.type);
     } catch (error) {
       // Error will be handled by axios interceptor
@@ -68,7 +73,9 @@ const QuestionForm: React.FC = () => {
       const data: QuestionCreateRequest = {
         ...values,
         tags: values.tags
-          ? values.tags.split(',').map((tag: string) => tag.trim())
+          ? Array.isArray(values.tags)
+            ? values.tags
+            : values.tags.split(',').map((tag: string) => tag.trim())
           : [],
       };
 

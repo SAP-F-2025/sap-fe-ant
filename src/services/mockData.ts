@@ -31,8 +31,6 @@ export const mockAssessments: Assessment[] = [
     settings: {
       randomize_questions: true,
       randomize_options: true,
-      show_results: true,
-      show_correct_answers: false,
       time_limit_enforced: true,
       auto_submit_on_timeout: true,
     },

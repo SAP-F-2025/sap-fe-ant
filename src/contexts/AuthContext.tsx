@@ -69,12 +69,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (token) {
           // Decode JWT to get full user info
           const decodedToken = decodeJWT(token);
-          console.log('Full decoded token:', decodedToken);
+          // console.log('Full decoded token:', decodedToken);
 
           if (decodedToken) {
             // Extract only essential user info
             const userInfo = extractUserInfo(decodedToken);
-            console.log('Extracted user info:', userInfo);
+          //  console.log('Extracted user info:', userInfo);
             setUser(userInfo);
           } else {
             // Fallback to SDK getUserInfo if decode fails

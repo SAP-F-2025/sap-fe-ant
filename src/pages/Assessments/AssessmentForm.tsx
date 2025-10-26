@@ -119,11 +119,6 @@ const AssessmentForm: React.FC = () => {
             randomize_options: false,
             questions_per_page: 1,
             show_progress_bar: true,
-            show_results: true,
-            show_correct_answers: false,
-            show_score_breakdown: true,
-            allow_retake: true,
-            retake_delay: 0,
             time_limit_enforced: true,
             auto_submit_on_timeout: true,
             require_webcam: false,
@@ -207,6 +202,7 @@ const AssessmentForm: React.FC = () => {
               <Form.Item
                 label="Số lần thử tối đa"
                 name="max_attempts"
+                tooltip="Số lần học sinh có thể làm bài kiểm tra này. Đặt 1 nếu không cho phép làm lại."
               >
                 <InputNumber
                   min={1}
@@ -275,47 +271,11 @@ const AssessmentForm: React.FC = () => {
                 <Switch />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={12} lg={8}>
-              <Form.Item
-                label="Hiển thị kết quả"
-                name={['settings', 'show_results']}
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} lg={8}>
-              <Form.Item
-                label="Hiển thị đáp án đúng"
-                name={['settings', 'show_correct_answers']}
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} lg={8}>
-              <Form.Item
-                label="Hiển thị chi tiết điểm"
-                name={['settings', 'show_score_breakdown']}
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            </Col>
           </Row>
 
           <Divider />
 
           <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} lg={8}>
-              <Form.Item
-                label="Cho phép làm lại"
-                name={['settings', 'allow_retake']}
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            </Col>
             <Col xs={24} sm={12} lg={8}>
               <Form.Item
                 label="Bắt buộc giới hạn thời gian"

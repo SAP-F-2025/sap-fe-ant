@@ -12,26 +12,7 @@ import { mockQuestions, paginateData, delay } from './mockData';
 class QuestionService {
   async getQuestions(
     params?: PaginationParams & { type?: string; difficulty?: string; search?: string }
-  ): Promise<PaginatedQuestionResponse<Question>> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      let filtered = [...mockQuestions];
-
-      if (params?.type) {
-        filtered = filtered.filter((q) => q.type === params.type);
-      }
-
-      if (params?.difficulty) {
-        filtered = filtered.filter((q) => q.difficulty === params.difficulty);
-      }
-
-      if (params?.search) {
-        const search = params.search.toLowerCase();
-        filtered = filtered.filter((q) => q.text.toLowerCase().includes(search));
-      }
-
-      return paginateData(filtered, params?.page, params?.size);
-    }
+  ): Promise<PaginatedResponse<Question>> {
 
     return apiService.get<PaginatedResponse<Question>>(API_ENDPOINTS.QUESTIONS, params);
   }

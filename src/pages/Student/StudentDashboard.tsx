@@ -9,6 +9,8 @@ import {
   RiseOutlined,
   FallOutlined,
   ArrowRightOutlined,
+  HourglassOutlined,
+  CloseCircleOutlined as CloseIcon,
 } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -43,19 +45,39 @@ const StudentDashboard: React.FC = () => {
       title: 'Điểm',
       dataIndex: 'score',
       key: 'score',
-      render: (score: number) => (
-        <Text type={score >= 70 ? 'success' : 'danger'}>{score.toFixed(1)}%</Text>
-      ),
+      render: (score: number, record: any) => {
+        // Check if grading is pending
+        if (!record.is_graded) {
+          return (
+            <Tag icon={<HourglassOutlined />} color="warning">
+              Đang chấm
+            </Tag>
+          );
+        }
+        return (
+          <Text type={score >= 70 ? 'success' : 'danger'}>{score.toFixed(1)}%</Text>
+        );
+      },
     },
     {
       title: 'Trạng thái',
       dataIndex: 'passed',
       key: 'passed',
-      render: (passed: boolean) => (
-        <Tag color={passed ? 'success' : 'error'}>
-          {passed ? 'Đạt' : 'Không đạt'}
-        </Tag>
-      ),
+      render: (passed: boolean, record: any) => {
+        // Check if grading is pending
+        if (!record.is_graded) {
+          return (
+            <Tag icon={<HourglassOutlined />} color="warning">
+              Đang chấm
+            </Tag>
+          );
+        }
+        return (
+          <Tag color={passed ? 'success' : 'error'} icon={passed ? <CheckCircleOutlined /> : <CloseIcon />}>
+            {passed ? 'Đạt' : 'Không đạt'}
+          </Tag>
+        );
+      },
     },
     {
       title: 'Hoàn thành',

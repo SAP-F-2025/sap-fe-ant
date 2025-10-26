@@ -305,20 +305,6 @@ const AssessmentDetail: React.FC = () => {
                 <Tag>Không</Tag>
               )}
             </Descriptions.Item>
-            <Descriptions.Item label="Hiển thị kết quả">
-              {assessment.settings.show_results ? (
-                <Tag color="success">Có</Tag>
-              ) : (
-                <Tag>Không</Tag>
-              )}
-            </Descriptions.Item>
-            <Descriptions.Item label="Hiển thị đáp án đúng">
-              {assessment.settings.show_correct_answers ? (
-                <Tag color="success">Có</Tag>
-              ) : (
-                <Tag>Không</Tag>
-              )}
-            </Descriptions.Item>
             <Descriptions.Item label="Bắt buộc giới hạn thời gian">
               {assessment.settings.time_limit_enforced ? (
                 <Tag color="warning">Có</Tag>

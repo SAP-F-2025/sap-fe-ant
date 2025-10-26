@@ -35,11 +35,9 @@ export interface AssessmentSettings {
   randomize_options?: boolean;
   questions_per_page?: number;
   show_progress_bar?: boolean;
-  show_results?: boolean;
-  show_correct_answers?: boolean;
-  show_score_breakdown?: boolean;
-  allow_retake?: boolean;
-  retake_delay?: number;
+  // NOTE: show_results, show_correct_answers, show_score_breakdown removed
+  // Results visibility is now controlled only by is_pending_grade
+  // NOTE: allow_retake removed - use Assessment.max_attempts instead
   time_limit_enforced?: boolean;
   auto_submit_on_timeout?: boolean;
   require_webcam?: boolean;
@@ -99,6 +97,7 @@ export interface QuestionOption {
   text: string;
   order: number;
   image_url?: string;
+  is_correct?: boolean; // May be undefined if hidden by show_correct_answers setting
 }
 
 export interface BlankDef {
@@ -269,6 +268,14 @@ export interface AttemptStartRequest {
   student_id: string | number;
 }
 
+export interface QuestionScore {
+  question_id: number;
+  score: number;           // Points earned
+  max_score: number;       // Max possible points
+  is_correct: boolean | null;  // Null if ungraded
+  partial_credit: boolean; // True if 0 < score < max_score
+}
+
 export interface Attempt {
   id: number;
   assessment_id: number;
@@ -279,6 +286,9 @@ export interface Attempt {
   time_remaining?: number;
   score?: number;
   passed?: boolean;
+  percentage?: number;
+  max_score?: number;
+  score_breakdown?: QuestionScore[] | null; // May be null if show_score_breakdown is false
 }
 
 export interface StudentAnswer {
@@ -286,6 +296,13 @@ export interface StudentAnswer {
   answer: any;
   time_spent?: number;
   answered_at?: string;
+  is_correct?: boolean;
+  score?: number;
+  max_score?: number;
+  feedback?: string;
+  id?: number;
+  question?: Question; // Nested question object from backend
+  is_graded?: boolean; // Indicates if this answer has been graded
 }
 
 // Grading types
@@ -561,6 +578,7 @@ export interface StudentDashboardStats {
     passed: boolean;
     completed_at: string;
     time_spent: number;
+    is_graded: boolean;
   }>;
   upcoming_assessments: Array<{
     id: number;
@@ -577,18 +595,29 @@ export interface AttemptWithAssessment {
   status: AttemptStatus;
   score?: number;
   max_score?: number;
+  percentage?: number;
   passed?: boolean;
   started_at: string;
   completed_at?: string;
   time_spent?: number; // in seconds
   questions_answered?: number;
   total_questions?: number;
+  score_breakdown?: QuestionScore[] | null;
+  assessment?: {
+    settings?: AssessmentSettings;
+    passing_score?: number;
+    [key: string]: any;
+  };
+  is_pending_grade: boolean;
 }
 
 export interface AttemptDetail extends Attempt {
   answers: StudentAnswer[];
   assessment?: Assessment;
   questions?: AssessmentQuestion[];
+  is_pending_grade?: boolean;
+  // score_breakdown inherited from Attempt interface
+  // percentage, max_score also inherited from Attempt
 }
 
 export interface SubmitAnswerRequest {

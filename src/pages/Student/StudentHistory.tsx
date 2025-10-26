@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { Card, Table, Tag, Button, Space, Typography, Input, Select } from 'antd';
 import {
-  SearchOutlined,
   EyeOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   PlayCircleOutlined,
+  HourglassOutlined,
 } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import studentService from '../../services/studentService';
-import type { AttemptWithAssessment, AttemptStatus } from '../../types';
+import type { AttemptWithAssessment, AttemptStatus, QuestionScore } from '../../types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -37,6 +37,17 @@ const StudentHistory: React.FC = () => {
         status: statusFilter,
       }),
   });
+
+  // Helper function to check if results should be hidden
+  const isPendingGrading = (record: AttemptWithAssessment): boolean => {
+    // Only completed attempts can be pending grading
+    if (record.status !== 'completed') {
+      return false;
+    }
+
+    // Check if there are ungraded questions
+    return record.is_pending_grade ?? false;
+  };
 
   const getStatusTag = (status: string) => {
     const statusMap: Record<string, { color: string; icon: React.ReactNode; text: string }> = {
@@ -104,14 +115,31 @@ const StudentHistory: React.FC = () => {
       title: 'Điểm',
       dataIndex: 'score',
       key: 'score',
-      width: 100,
+      width: 120,
       render: (score: number | undefined, record: AttemptWithAssessment) => {
-        if (record.status !== 'completed' || score === undefined) {
+        // Check if not completed
+        if (record.status !== 'completed') {
           return <Text type="secondary">-</Text>;
         }
+
+        // Check if pending grading
+        if (isPendingGrading(record)) {
+          return (
+            <Tag icon={<HourglassOutlined />} color="warning">
+              Đang chấm
+            </Tag>
+          );
+        }
+
+        // Show score if available
+        if (score === undefined) {
+          return <Text type="secondary">-</Text>;
+        }
+
+        const percentage = record.percentage ?? score;
         return (
           <Text type={record.passed ? 'success' : 'danger'} strong>
-            {score.toFixed(1)}%
+            {percentage.toFixed(1)}%
           </Text>
         );
       },
@@ -122,11 +150,23 @@ const StudentHistory: React.FC = () => {
       title: 'Kết quả',
       dataIndex: 'passed',
       key: 'passed',
-      width: 100,
+      width: 120,
       render: (passed: boolean | undefined, record: AttemptWithAssessment) => {
+        // Check if not completed
         if (record.status !== 'completed') {
           return <Text type="secondary">-</Text>;
         }
+
+        // Check if pending grading
+        if (isPendingGrading(record)) {
+          return (
+            <Tag icon={<HourglassOutlined />} color="warning">
+              Đang chấm
+            </Tag>
+          );
+        }
+
+        // Show pass/fail status
         return passed ? (
           <Tag color="success" icon={<CheckCircleOutlined />}>
             Đạt

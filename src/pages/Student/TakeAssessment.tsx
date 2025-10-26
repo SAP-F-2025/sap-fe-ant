@@ -39,7 +39,7 @@ const TakeAssessment: React.FC = () => {
   const queryClient = useQueryClient();
   const { modal } = App.useApp();
 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, any>>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [autoSaving, setAutoSaving] = useState(false);
@@ -53,7 +53,23 @@ const TakeAssessment: React.FC = () => {
 
   // Questions are included in attempt details
   const questions = attempt?.questions || [];
-  const currentQuestion = questions[currentQuestionIndex];
+
+  // Initialize currentQuestionId when questions load
+  useEffect(() => {
+    if (questions.length > 0 && currentQuestionId === null) {
+      setCurrentQuestionId(questions[0].id);
+    }
+  }, [questions, currentQuestionId]);
+
+  // Get current question by ID (not index)
+  const currentQuestion = currentQuestionId
+    ? questions.find(q => q.id === currentQuestionId)
+    : null;
+
+  // Get current index for display purposes
+  const currentQuestionIndex = currentQuestion
+    ? questions.findIndex(q => q.id === currentQuestion.id)
+    : 0;
 
   // Load existing answers from attempt
   useEffect(() => {
@@ -182,15 +198,21 @@ const TakeAssessment: React.FC = () => {
   };
 
   const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    const currentIndex = questions.findIndex(q => q.id === currentQuestionId);
+    if (currentIndex > 0) {
+      setCurrentQuestionId(questions[currentIndex - 1].id);
     }
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    const currentIndex = questions.findIndex(q => q.id === currentQuestionId);
+    if (currentIndex < questions.length - 1) {
+      setCurrentQuestionId(questions[currentIndex + 1].id);
     }
+  };
+
+  const goToQuestion = (questionId: number) => {
+    setCurrentQuestionId(questionId);
   };
 
   const handleSubmit = () => {
@@ -748,12 +770,12 @@ const TakeAssessment: React.FC = () => {
         <Space wrap>
           {questions.map((q, index) => {
             const isAnswered = !!answers[q.id];
-            const isCurrent = index === currentQuestionIndex;
+            const isCurrent = q.id === currentQuestionId;
             return (
               <Button
                 key={q.id}
                 type={isCurrent ? 'primary' : isAnswered ? 'default' : 'dashed'}
-                onClick={() => setCurrentQuestionIndex(index)}
+                onClick={() => goToQuestion(q.id)}
                 style={{
                   width: '40px',
                   backgroundColor: isAnswered && !isCurrent ? '#52c41a' : undefined,

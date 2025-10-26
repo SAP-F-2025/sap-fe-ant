@@ -20,25 +20,6 @@ class QuestionBankService {
   async getQuestionBanks(
     params?: PaginationParams & { search?: string; is_public?: boolean }
   ): Promise<PaginatedQuestionBankResponse<QuestionBank>> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      let filtered = [...mockQuestionBanks];
-
-      if (params?.is_public !== undefined) {
-        filtered = filtered.filter((qb) => qb.is_public === params.is_public);
-      }
-
-      if (params?.search) {
-        const search = params.search.toLowerCase();
-        filtered = filtered.filter(
-          (qb) =>
-            qb.name.toLowerCase().includes(search) ||
-            qb.description?.toLowerCase().includes(search)
-        );
-      }
-
-      return paginateData(filtered, params?.page, params?.size);
-    }
 
     return apiService.get<PaginatedQuestionBankResponse<QuestionBank>>(API_ENDPOINTS.QUESTION_BANKS, params);
   }
@@ -160,11 +141,6 @@ class QuestionBankService {
   async getPublicQuestionBanks(
     params?: PaginationParams & { search?: string }
   ): Promise<PaginatedQuestionBankResponse<QuestionBank>> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      const publicBanks = mockQuestionBanks.filter((qb) => qb.is_public);
-      return paginateData(publicBanks, params?.page, params?.size);
-    }
 
     return apiService.get<PaginatedQuestionBankResponse<QuestionBank>>(
       API_ENDPOINTS.QUESTION_BANKS_PUBLIC,
@@ -175,10 +151,7 @@ class QuestionBankService {
   async getSharedQuestionBanks(
     params?: PaginationParams
   ): Promise<PaginatedQuestionBankResponse<QuestionBank>> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return paginateData([], params?.page, params?.size);
-    }
+
 
     return apiService.get<PaginatedQuestionBankResponse<QuestionBank>>(
       API_ENDPOINTS.QUESTION_BANKS_SHARED,

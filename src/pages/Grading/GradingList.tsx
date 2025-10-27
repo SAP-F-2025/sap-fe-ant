@@ -100,7 +100,7 @@ const GradingList: React.FC = () => {
     try {
       setLoading(true);
       const response = await gradingService.getAttempts({
-        page: pagination.current - 1, // API uses 0-indexed pages
+        page: pagination.current,
         size: pagination.pageSize,
         status: statusFilter,
         assessment_id: assessmentFilter,

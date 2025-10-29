@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col, Statistic, Table, Typography, Tag, Space, Button } from 'antd';
+import { Card, Row, Col, Statistic, Table, Typography, Tag, Space, Button, Flex } from 'antd';
 import {
   BookOutlined,
   CheckCircleOutlined,
@@ -19,6 +19,7 @@ import studentService from '../../services/studentService';
 import type { StudentDashboardStats } from '../../types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { gradients } from '../../theme/gradients';
 
 dayjs.extend(relativeTime);
 
@@ -143,11 +144,54 @@ const StudentDashboard: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Title level={2}>Bảng điều khiển</Title>
-      <Text type="secondary">Chào mừng trở lại, {user?.displayName}!</Text>
+      <Card
+        bordered={false}
+        style={{
+          background: gradients.primary,
+          borderRadius: 24,
+          padding: '32px',
+          color: '#ffffff',
+          marginBottom: '24px',
+        }}
+        bodyStyle={{ padding: 0 }}
+      >
+        <Flex
+          align="center"
+          justify="space-between"
+          wrap
+          style={{ gap: 24, width: '100%' }}
+        >
+          <Space direction="vertical" size={8} style={{ color: '#ffffff' }}>
+            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16 }}>
+              Chào mừng trở lại
+            </Text>
+            <Title level={2} style={{ color: '#ffffff', margin: 0 }}>
+              {user?.displayName || 'Học viên'}
+            </Title>
+            <Text style={{ color: 'rgba(255,255,255,0.75)' }}>
+              Chúc bạn có một ngày học tập hiệu quả với nhiều kết quả tốt đẹp.
+            </Text>
+          </Space>
+          <Button
+            type="primary"
+            size="large"
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              borderColor: 'rgba(255,255,255,0.4)',
+              color: '#ffffff',
+              backdropFilter: 'blur(2px)',
+              alignSelf: 'flex-start',
+              boxShadow: '0 12px 30px rgba(0, 0, 0, 0.15)',
+            }}
+            onClick={() => navigate('/student/assessments')}
+          >
+            Tiếp tục học
+          </Button>
+        </Flex>
+      </Card>
 
       {/* Overview Stats */}
-      <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic

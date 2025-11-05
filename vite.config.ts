@@ -9,4 +9,7 @@ export default defineConfig({
         allowedHosts: ['sap.m3xd.dev'],
         hmr: false,
     },
+    optimizeDeps: {
+        exclude: ['@mediapipe/camera_utils', '@mediapipe/face_detection'],
+    },
 });

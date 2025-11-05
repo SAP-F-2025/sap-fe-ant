@@ -17,6 +17,7 @@ import {
   Divider,
 } from 'antd';
 import { SimpleCameraTest } from '../../components/Proctoring/SimpleCameraTest';
+import { MediaPipeCameraTest } from '../../components/Proctoring/MediaPipeCameraTest';
 import { useQuery } from '@tanstack/react-query';
 import { getStaggerDelay } from '../../styles/animations';
 import { elevation } from '../../styles/elevation';
@@ -589,8 +590,11 @@ const Dashboard: React.FC = () => {
       </Row>
 
       {/* Camera Test */}
-      {/* <Divider>Camera Test</Divider>
-      <SimpleCameraTest /> */}
+      <Divider>Camera Test</Divider>
+      <SimpleCameraTest />
+      
+      <Divider>MediaPipe Face Detection Test</Divider>
+      <MediaPipeCameraTest />
 
       {/* FloatButton */}
       <FloatButton.Group

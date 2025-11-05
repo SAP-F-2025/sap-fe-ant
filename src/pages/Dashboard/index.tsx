@@ -14,7 +14,9 @@ import {
   FloatButton,
   Skeleton,
   Empty,
+  Divider,
 } from 'antd';
+import { SimpleCameraTest } from '../../components/Proctoring/SimpleCameraTest';
 import { useQuery } from '@tanstack/react-query';
 import { getStaggerDelay } from '../../styles/animations';
 import { elevation } from '../../styles/elevation';
@@ -585,6 +587,10 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Camera Test */}
+      {/* <Divider>Camera Test</Divider>
+      <SimpleCameraTest /> */}
 
       {/* FloatButton */}
       <FloatButton.Group

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { FaceDetector, FilesetResolver } from '@mediapipe/tasks-vision';
+import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export interface ProctoringEvent {
   type: 'face_not_detected' | 'multiple_faces';
@@ -17,7 +17,7 @@ export const useMediaPipeFaceDetection = (
   const [events, setEvents] = useState<ProctoringEvent[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [faceCount, setFaceCount] = useState(0);
-  const faceDetectorRef = useRef<FaceDetector | null>(null);
+  const faceLandmarkerRef = useRef<FaceLandmarker | null>(null);
   const animationFrameRef = useRef<number>();
 
   useEffect(() => {
@@ -31,46 +31,54 @@ export const useMediaPipeFaceDetection = (
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
         );
 
-        const faceDetector = await FaceDetector.createFromOptions(vision, {
+        const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
           baseOptions: {
-            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
             delegate: "GPU"
           },
           runningMode: "VIDEO",
-          minDetectionConfidence: 0.5
+          numFaces: 2,
+          minFaceDetectionConfidence: 0.5,
+          minFacePresenceConfidence: 0.5,
+          minTrackingConfidence: 0.5,
+          outputFaceBlendshapes: false,
+          outputFacialTransformationMatrixes: false
         });
 
-        faceDetectorRef.current = faceDetector;
+        faceLandmarkerRef.current = faceLandmarker;
 
         const detectFaces = async () => {
-          if (!faceDetectorRef.current || !videoElement || !mounted) return;
+          if (!faceLandmarkerRef.current || !videoElement || !mounted) return;
           
           if (videoElement.readyState >= 3) {
             const startTimeMs = performance.now();
-            const results = faceDetectorRef.current.detectForVideo(videoElement, startTimeMs);
+            const results = faceLandmarkerRef.current.detectForVideo(videoElement, startTimeMs);
             
-            const detectionCount = results.detections.length;
+            const detectionCount = results.faceLandmarks.length;
             setFaceCount(detectionCount);
 
-            // Draw on canvas if enabled
-            if (showLandmarks && canvasElement && results.detections.length > 0) {
+            // Draw on canvas
+            if (canvasElement) {
               const ctx = canvasElement.getContext('2d');
               if (ctx) {
                 ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
                 
-                results.detections.forEach((detection) => {
-                  const box = detection.boundingBox;
-                  if (box) {
-                    ctx.strokeStyle = detectionCount > 1 ? '#ff4d4f' : '#52c41a';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(box.originX, box.originY, box.width, box.height);
-                    
+                if (showLandmarks && results.faceLandmarks.length > 0) {
+                  results.faceLandmarks.forEach((landmarks) => {
                     ctx.fillStyle = detectionCount > 1 ? '#ff4d4f' : '#52c41a';
-                    ctx.font = '16px Arial';
-                    const confidence = (detection.categories[0].score * 100).toFixed(0);
-                    ctx.fillText(`${confidence}%`, box.originX, box.originY - 5);
-                  }
-                });
+                    ctx.strokeStyle = detectionCount > 1 ? '#ff4d4f' : '#52c41a';
+                    ctx.lineWidth = 1;
+                    
+                    // Draw landmarks
+                    landmarks.forEach((landmark) => {
+                      const x = landmark.x * canvasElement.width;
+                      const y = landmark.y * canvasElement.height;
+                      ctx.beginPath();
+                      ctx.arc(x, y, 1, 0, 2 * Math.PI);
+                      ctx.fill();
+                    });
+                  });
+                }
               }
             }
 
@@ -85,7 +93,6 @@ export const useMediaPipeFaceDetection = (
               const event: ProctoringEvent = {
                 type: 'multiple_faces',
                 timestamp: Date.now(),
-                confidence: results.detections[0].categories[0].score,
               };
               setEvents(prev => [...prev.slice(-49), event]);
               onViolation?.(event);
@@ -116,8 +123,8 @@ export const useMediaPipeFaceDetection = (
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      faceDetectorRef.current?.close();
-      faceDetectorRef.current = null;
+      faceLandmarkerRef.current?.close();
+      faceLandmarkerRef.current = null;
       setIsProcessing(false);
     };
   }, [enabled, videoElement, canvasElement, showLandmarks, onViolation]);

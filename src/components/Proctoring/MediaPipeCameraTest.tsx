@@ -119,13 +119,13 @@ export const MediaPipeCameraTest: React.FC = () => {
             ref={videoRef}
             autoPlay
             playsInline
-            style={{ width: '100%', height: '100%', backgroundColor: '#000' }}
+            style={{ width: '100%', height: '100%', backgroundColor: '#000', transform: 'scaleX(-1)' }}
           />
           <canvas
             ref={canvasRef}
             width={640}
             height={480}
-            style={{ position: 'absolute', top: 0, left: 0 }}
+            style={{ position: 'absolute', top: 0, left: 0, transform: 'scaleX(-1)' }}
           />
         </div>
 

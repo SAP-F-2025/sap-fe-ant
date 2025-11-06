@@ -16,7 +16,6 @@ import {
   Row,
   Col,
   Statistic,
-  Drawer,
 } from 'antd';
 import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor';
 import type { ProctoringEvent } from '../../hooks/useMediaPipeFaceDetection';
@@ -673,31 +672,6 @@ const TakeAssessment: React.FC = () => {
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Proctoring Drawer */}
-      {requireWebcam && (
-        <Drawer
-          title="Camera giám sát"
-          placement="right"
-          open={true}
-          closable={false}
-          mask={false}
-          width={360}
-          styles={{ body: { padding: 16 } }}
-        >
-          <ProctoringMonitor
-            onViolation={handleProctoringViolation}
-            showLandmarks={false}
-            compact
-          />
-          {proctoringEvents.length > 0 && (
-            <Alert
-              type="warning"
-              message={`${proctoringEvents.length} vi phạm`}
-              style={{ marginTop: 16 }}
-            />
-          )}
-        </Drawer>
-      )}
       {/* Header */}
       <Card style={{ marginBottom: '16px' }}>
         <Row gutter={16} align="middle">
@@ -835,6 +809,16 @@ const TakeAssessment: React.FC = () => {
           })}
         </Space>
       </Card>
+
+      {/* Proctoring Monitor - Floating */}
+      {requireWebcam && (
+        <ProctoringMonitor
+          onViolation={handleProctoringViolation}
+          showLandmarks={false}
+          compact
+          violationCount={proctoringEvents.length}
+        />
+      )}
 
       {/* Warning: Leave page */}
       <Alert

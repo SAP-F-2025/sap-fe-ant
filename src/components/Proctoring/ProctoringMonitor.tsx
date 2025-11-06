@@ -1,19 +1,28 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Alert, Badge } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
+import { Alert, Badge, Card, Tag } from 'antd';
+import { EyeOutlined, DragOutlined } from '@ant-design/icons';
 import { useMediaPipeFaceDetection, ProctoringEvent } from '../../hooks/useMediaPipeFaceDetection';
 
 interface ProctoringMonitorProps {
   onViolation?: (event: ProctoringEvent) => void;
   showLandmarks?: boolean;
   compact?: boolean;
+  violationCount?: number;
 }
 
 export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
   onViolation,
   showLandmarks = false,
-  compact = false
+  compact = false,
+  violationCount = 0
 }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState(() => {
+    const saved = localStorage.getItem('proctoring-position');
+    return saved ? JSON.parse(saved) : { x: 20, y: 20 };
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -92,8 +101,74 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 
   const size = compact ? { width: 320, height: 240 } : { width: 640, height: 480 };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.ant-card-head')) {
+      setIsDragging(true);
+      dragOffset.current = {
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      };
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !cardRef.current) return;
+
+      const cardRect = cardRef.current.getBoundingClientRect();
+      let newX = e.clientX - dragOffset.current.x;
+      let newY = e.clientY - dragOffset.current.y;
+
+      // Keep card inside viewport
+      newX = Math.max(0, Math.min(newX, window.innerWidth - cardRect.width));
+      newY = Math.max(0, Math.min(newY, window.innerHeight - cardRect.height));
+
+      setPosition({ x: newX, y: newY });
+    };
+
+    const handleMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        localStorage.setItem('proctoring-position', JSON.stringify(position));
+      }
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, position]);
+
   return (
-    <div>
+    <div
+      ref={cardRef}
+      style={{
+        position: 'fixed',
+        left: position.x,
+        top: position.y,
+        zIndex: 1000,
+        cursor: isDragging ? 'grabbing' : 'default'
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      <Card
+        title={
+          <span style={{ cursor: 'grab', userSelect: 'none' }}>
+            <DragOutlined /> Camera giám sát
+          </span>
+        }
+        size="small"
+        extra={
+          violationCount > 0 && (
+            <Tag color="error">Vi phạm: {violationCount}</Tag>
+          )
+        }
+      >
       {error && (
         <Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />
       )}
@@ -173,6 +248,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
           style={{ marginTop: 12 }}
         />
       )}
+      </Card>
     </div>
   );
 };

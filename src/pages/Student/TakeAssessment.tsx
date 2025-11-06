@@ -18,7 +18,6 @@ import {
   Statistic,
 } from 'antd';
 import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor';
-import { CameraConsentModal } from '../../components/Proctoring/CameraConsentModal';
 import type { ProctoringEvent } from '../../hooks/useMediaPipeFaceDetection';
 import {
   ClockCircleOutlined,
@@ -47,8 +46,6 @@ const TakeAssessment: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [autoSaving, setAutoSaving] = useState(false);
   const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
-  const [cameraConsentModal, setCameraConsentModal] = useState(false);
-  const [cameraEnabled, setCameraEnabled] = useState(false);
 
   // Fetch attempt details (includes questions)
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
@@ -57,23 +54,7 @@ const TakeAssessment: React.FC = () => {
     enabled: !!attemptId,
   });
 
-  // Check camera consent when assessment loads
-  useEffect(() => {
-    if (attempt?.assessment) {
-      const requireWebcam = attempt.assessment.settings?.require_webcam;
-      if (requireWebcam) {
-        const consent = localStorage.getItem('camera-consent');
-        if (consent === 'always') {
-          setCameraEnabled(true);
-        } else {
-          setCameraConsentModal(true);
-        }
-      } else {
-        // No webcam required, enable immediately
-        setCameraEnabled(true);
-      }
-    }
-  }, [attempt]);
+
 
   // Questions are included in attempt details
   const questions = attempt?.questions || [];
@@ -124,7 +105,6 @@ const TakeAssessment: React.FC = () => {
   const submitAttemptMutation = useMutation({
     mutationFn: (data: CompleteAttemptRequest) => studentService.submitAttempt(data),
     onSuccess: (data) => {
-			setCameraEnabled(false);
       modal.success({
         title: 'Đã nộp bài',
         content: 'Bài kiểm tra của bạn đã được nộp thành công!',
@@ -142,18 +122,14 @@ const TakeAssessment: React.FC = () => {
     },
   });
 
-  // Timer countdown - only start after camera consent if required
+  // Timer countdown
   useEffect(() => {
     if (!attempt) return;
-    
-    // If webcam required, wait for camera consent before starting timer
-    const requireWebcam = attempt.assessment?.settings?.require_webcam;
-    if (requireWebcam && !cameraEnabled) return;
 
     const fetchTimeRemaining = async () => {
       try {
         const timeData = await studentService.getTimeRemaining(Number(attemptId));
-        setTimeRemaining(timeData.data); // Changed from time_remaining to data
+        setTimeRemaining(timeData.data);
       } catch (error) {
         console.error('Error fetching time remaining:', error);
       }
@@ -172,7 +148,7 @@ const TakeAssessment: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [attempt, attemptId, cameraEnabled]);
+  }, [attempt, attemptId]);
 
   // Auto-save answer when changed
   useEffect(() => {
@@ -685,22 +661,7 @@ const TakeAssessment: React.FC = () => {
     console.log('Proctoring violation:', event);
   };
 
-  const handleCameraConsent = async (consent: 'once' | 'always') => {
-    if (consent === 'always') {
-      localStorage.setItem('camera-consent', 'always');
-    }
-    setCameraConsentModal(false);
-    setCameraEnabled(true);
-  };
 
-  const handleCameraReject = () => {
-    setCameraConsentModal(false);
-    modal.warning({
-      title: 'Không thể tiếp tục',
-      content: 'Bài kiểm tra này yêu cầu camera để giám sát. Bạn cần cho phép truy cập camera để tiếp tục.',
-      onOk: () => navigate('/student/assessments'),
-    });
-  };
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -842,15 +803,8 @@ const TakeAssessment: React.FC = () => {
         </Space>
       </Card>
 
-      {/* Camera Consent Modal */}
-      <CameraConsentModal
-        open={cameraConsentModal}
-        onConsent={handleCameraConsent}
-        onReject={handleCameraReject}
-      />
-
       {/* Proctoring Monitor - Floating */}
-      {requireWebcam && cameraEnabled && (
+      {requireWebcam && (
         <ProctoringMonitor
           onViolation={handleProctoringViolation}
           showLandmarks={false}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   Table,
@@ -10,6 +10,7 @@ import {
   App,
   Alert,
 } from 'antd';
+import { CameraConsentModal } from '../../components/Proctoring/CameraConsentModal';
 import {
   SearchOutlined,
   PlayCircleOutlined,
@@ -19,7 +20,7 @@ import {
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import studentService from '../../services/studentService';
 import type { StudentAssessment } from '../../types';
@@ -34,6 +35,8 @@ const AvailableAssessments: React.FC = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [cameraConsentModal, setCameraConsentModal] = useState(false);
+  const [selectedAssessment, setSelectedAssessment] = useState<any>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['student-assessments', page, pageSize, search],
@@ -45,11 +48,16 @@ const AvailableAssessments: React.FC = () => {
       }),
   });
 
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.showStartConfirmation && state?.assessment) {
+      showStartConfirmation(state.assessment);
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
+
   const handleStartAssessment = async (assessment: StudentAssessment) => {
     try {
-      console.log('Starting assessment:', assessment);
-      console.log('Current user:', user);
-
       if (!user?.id) {
         modal.error({
           title: 'Lỗi xác thực',
@@ -58,10 +66,7 @@ const AvailableAssessments: React.FC = () => {
         return;
       }
 
-      // Check if can start
       const canStartResult = await studentService.canStartAssessment(assessment.id);
-      console.log('Can start result:', canStartResult);
-
       if (!canStartResult.can_start) {
         modal.error({
           title: 'Không thể bắt đầu',
@@ -70,9 +75,7 @@ const AvailableAssessments: React.FC = () => {
         return;
       }
 
-      // Check for active attempt
       if (assessment.has_active_attempt) {
-        console.log('Has active attempt, showing resume modal');
         modal.confirm({
           title: 'Tiếp tục làm bài',
           icon: <ExclamationCircleOutlined />,
@@ -80,7 +83,6 @@ const AvailableAssessments: React.FC = () => {
           okText: 'Tiếp tục',
           cancelText: 'Hủy',
           onOk: () => {
-            // Get current attempt and navigate
             studentService.getCurrentAttempt(assessment.id).then((attempt) => {
               if (attempt) {
                 navigate(`/student/take/${attempt.id}`);
@@ -91,56 +93,83 @@ const AvailableAssessments: React.FC = () => {
         return;
       }
 
-      // Show confirmation before starting new attempt
-      console.log('Showing start confirmation modal');
-      modal.confirm({
-        title: 'Bắt đầu làm bài',
-        icon: <PlayCircleOutlined />,
-        content: (
-          <div>
-            <p>
-              <strong>{assessment.title}</strong>
-            </p>
-            <p>Thời gian: {assessment.duration} phút</p>
-            <p>
-              Số lần làm: {assessment.attempts_used} / {assessment.max_attempts}
-            </p>
-            <p>Điểm đạt: {assessment.passing_score}%</p>
-            <Alert
-              message="Khi bạn bắt đầu, đồng hồ sẽ bắt đầu đếm. Hãy đảm bảo kết nối internet ổn định."
-              type="warning"
-              showIcon
-              style={{ marginTop: 16 }}
-            />
-          </div>
-        ),
-        okText: 'Bắt đầu ngay',
-        cancelText: 'Hủy',
-        onOk: async () => {
-          try {
-            console.log('User confirmed, starting attempt...');
-            const attempt = await studentService.startAttempt({
-              assessment_id: assessment.id,
-              student_id: user?.id || '',
-            });
-            console.log('Attempt started:', attempt);
-            navigate(`/student/take/${attempt.id}`);
-          } catch (error: any) {
-            console.error('Error starting attempt:', error);
-            modal.error({
-              title: 'Lỗi',
-              content: error.message || 'Không thể bắt đầu bài kiểm tra',
-            });
-          }
-        },
-      });
+      // Fetch full assessment details
+      const assessmentDetail = await studentService.getAssessmentDetail(assessment.id);
+      const requireWebcam = assessmentDetail.settings?.require_webcam;
+
+      if (requireWebcam) {
+        const consent = localStorage.getItem('camera-consent');
+        if (consent === 'always') {
+          navigate('/student/face-verification', { state: { assessment: assessmentDetail } });
+        } else {
+          setSelectedAssessment(assessmentDetail);
+          setCameraConsentModal(true);
+        }
+      } else {
+        showStartConfirmation(assessmentDetail);
+      }
     } catch (error: any) {
-      console.error('Error in handleStartAssessment:', error);
       modal.error({
         title: 'Lỗi',
         content: error.message || 'Đã có lỗi xảy ra',
       });
     }
+  };
+
+  const handleCameraConsent = (consent: 'once' | 'always') => {
+    if (consent === 'always') {
+      localStorage.setItem('camera-consent', 'always');
+    }
+    setCameraConsentModal(false);
+    if (selectedAssessment) {
+      navigate('/student/face-verification', { state: { assessment: selectedAssessment } });
+    }
+  };
+
+  const handleCameraReject = () => {
+    setCameraConsentModal(false);
+    setSelectedAssessment(null);
+    modal.warning({
+      title: 'Từ chối quyền camera',
+      content: 'Bạn cần cho phép truy cập camera để làm bài kiểm tra này.',
+    });
+  };
+
+  const showStartConfirmation = (assessment: any) => {
+    modal.confirm({
+      title: 'Bắt đầu làm bài',
+      icon: <PlayCircleOutlined />,
+      content: (
+        <div>
+          <p><strong>{assessment.title}</strong></p>
+          <p>Thời gian: {assessment.duration} phút</p>
+          <p>Số lần làm: {assessment.attempts_used} / {assessment.max_attempts}</p>
+          <p>Điểm đạt: {assessment.passing_score}%</p>
+          <Alert
+            message="Khi bạn bắt đầu, đồng hồ sẽ bắt đầu đếm. Hãy đảm bảo kết nối internet ổn định."
+            type="warning"
+            showIcon
+            style={{ marginTop: 16 }}
+          />
+        </div>
+      ),
+      okText: 'Bắt đầu ngay',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          const attempt = await studentService.startAttempt({
+            assessment_id: assessment.id,
+            student_id: user?.id || '',
+          });
+          navigate(`/student/take/${attempt.id}`);
+        } catch (error: any) {
+          modal.error({
+            title: 'Lỗi',
+            content: error.message || 'Không thể bắt đầu bài kiểm tra',
+          });
+        }
+      },
+    });
   };
 
   const columns = [
@@ -284,7 +313,13 @@ const AvailableAssessments: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <>
+      <CameraConsentModal
+        open={cameraConsentModal}
+        onConsent={handleCameraConsent}
+        onReject={handleCameraReject}
+      />
+      <div style={{ padding: '24px' }}>
       <div style={{ marginBottom: '24px' }}>
         <Title level={2}>Bài kiểm tra khả dụng</Title>
         <Text type="secondary">
@@ -326,6 +361,7 @@ const AvailableAssessments: React.FC = () => {
         </Space>
       </Card>
     </div>
+    </>
   );
 };
 

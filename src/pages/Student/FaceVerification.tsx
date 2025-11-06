@@ -1,16 +1,21 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Card, Button, Space, Typography, Alert, Spin } from 'antd';
-import { CameraOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Card, Button, Space, Typography, Alert, Spin, App } from 'antd';
+import { CameraOutlined, CheckCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import studentService from '../../services/studentService';
 
 const { Title, Text } = Typography;
 
 const FaceVerification: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+  const { modal } = App.useApp();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
 
   const assessmentData = location.state?.assessment;
@@ -47,14 +52,47 @@ const FaceVerification: React.FC = () => {
   }, [assessmentData, navigate]);
 
   const handleVerify = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-    navigate('/student/assessments', { 
-      state: { 
-        showStartConfirmation: true,
-        assessment: assessmentData 
-      } 
+    if (!user?.id || !assessmentData?.id) return;
+    
+    modal.confirm({
+      title: 'Bắt đầu làm bài',
+      content: (
+        <div>
+          <p><strong>{assessmentData.title}</strong></p>
+          <p>Thời gian: {assessmentData.duration} phút</p>
+          <p>Số lần làm: {assessmentData.attempts_used} / {assessmentData.max_attempts}</p>
+          <p>Điểm đạt: {assessmentData.passing_score}%</p>
+          <Alert
+            message="Khi bạn bắt đầu, đồng hồ sẽ bắt đầu đếm. Hãy đảm bảo kết nối internet ổn định."
+            type="warning"
+            showIcon
+            style={{ marginTop: 16 }}
+          />
+        </div>
+      ),
+      okText: 'Bắt đầu ngay',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        setIsStarting(true);
+        try {
+          const attempt = await studentService.startAttempt({
+            assessment_id: assessmentData.id,
+            student_id: user.id,
+          });
+          
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+          }
+          
+          navigate(`/student/take/${attempt.id}`);
+        } catch (error: any) {
+          setIsStarting(false);
+          modal.error({
+            title: 'Lỗi',
+            content: error.response?.data?.message || error.message || 'Không thể bắt đầu bài kiểm tra',
+          });
+        }
+      },
     });
   };
 
@@ -129,8 +167,9 @@ const FaceVerification: React.FC = () => {
               icon={<CheckCircleOutlined />}
               onClick={handleVerify}
               disabled={!cameraReady || !!error}
+              loading={isStarting}
             >
-              Xác nhận và tiếp tục
+              {isStarting ? 'Đang bắt đầu...' : 'Xác nhận và bắt đầu'}
             </Button>
           </div>
         </Space>

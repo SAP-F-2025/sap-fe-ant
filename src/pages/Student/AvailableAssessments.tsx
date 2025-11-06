@@ -30,6 +30,7 @@ const { Title, Text } = Typography;
 
 const AvailableAssessments: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { modal } = App.useApp();
   const [search, setSearch] = useState('');
@@ -47,14 +48,6 @@ const AvailableAssessments: React.FC = () => {
         search: search || undefined,
       }),
   });
-
-  useEffect(() => {
-    const state = location.state as any;
-    if (state?.showStartConfirmation && state?.assessment) {
-      showStartConfirmation(state.assessment);
-      window.history.replaceState({}, document.title);
-    }
-  }, []);
 
   const handleStartAssessment = async (assessment: StudentAssessment) => {
     try {
@@ -95,18 +88,22 @@ const AvailableAssessments: React.FC = () => {
 
       // Fetch full assessment details
       const assessmentDetail = await studentService.getAssessmentDetail(assessment.id);
+      
+      // Preserve the original assessment data and merge with details
+      const fullAssessment = { ...assessment, ...assessmentDetail };
+      
+			console.log('Assessment Settings:', assessmentDetail);
       const requireWebcam = assessmentDetail.settings?.require_webcam;
-
       if (requireWebcam) {
         const consent = localStorage.getItem('camera-consent');
         if (consent === 'always') {
-          navigate('/student/face-verification', { state: { assessment: assessmentDetail } });
+          navigate('/student/face-verification', { state: { assessment: fullAssessment } });
         } else {
-          setSelectedAssessment(assessmentDetail);
+          setSelectedAssessment(fullAssessment);
           setCameraConsentModal(true);
         }
       } else {
-        showStartConfirmation(assessmentDetail);
+        showStartConfirmation(fullAssessment);
       }
     } catch (error: any) {
       modal.error({
@@ -165,12 +162,14 @@ const AvailableAssessments: React.FC = () => {
         } catch (error: any) {
           modal.error({
             title: 'Lỗi',
-            content: error.message || 'Không thể bắt đầu bài kiểm tra',
+            content: error.response?.data?.message || error.message || 'Không thể bắt đầu bài kiểm tra',
           });
         }
       },
     });
   };
+
+
 
   const columns = [
     {

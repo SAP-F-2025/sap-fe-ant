@@ -144,6 +144,37 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
     };
   }, [isDragging, position]);
 
+  // Adjust position on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (!cardRef.current) return;
+
+      const cardRect = cardRef.current.getBoundingClientRect();
+      let newX = position.x;
+      let newY = position.y;
+
+      // Adjust if card is outside viewport
+      if (newX + cardRect.width > window.innerWidth) {
+        newX = window.innerWidth - cardRect.width;
+      }
+      if (newY + cardRect.height > window.innerHeight) {
+        newY = window.innerHeight - cardRect.height;
+      }
+      if (newX < 0) newX = 0;
+      if (newY < 0) newY = 0;
+
+      if (newX !== position.x || newY !== position.y) {
+        setPosition({ x: newX, y: newY });
+        localStorage.setItem('proctoring-position', JSON.stringify({ x: newX, y: newY }));
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Check on mount
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [position]);
+
   return (
     <div
       ref={cardRef}

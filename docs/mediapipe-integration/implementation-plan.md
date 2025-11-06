@@ -4,22 +4,22 @@
 
 ### 1.1 Dependencies & Environment
 
-- [ ] Install MediaPipe packages
+- [x] Install MediaPipe packages (@mediapipe/tasks-vision)
 - [ ] Configure HTTPS for development
-- [ ] Update Vite configuration for MediaPipe
-- [ ] Set up CDN access for models
+- [x] Update Vite configuration for MediaPipe
+- [x] Set up CDN access for models
 
 ### 1.2 Core Hook Development
 
-- [ ] Create `useMediaPipe` hook
-- [ ] Implement face detection
-- [ ] Add event logging system
-- [ ] Test camera permissions
+- [x] Create `useMediaPipeFaceDetection` hook
+- [x] Implement face detection with 478 landmarks
+- [x] Add event logging system (duration-based tracking)
+- [x] Test camera permissions
 
 ### 1.3 Type Definitions
 
-- [ ] Extend `AssessmentSettings` interface
-- [ ] Add `ProctoringEvent` types
+- [x] Extend `AssessmentSettings` interface (require_webcam exists)
+- [x] Add `ProctoringEvent` types (startTime, endTime, duration)
 - [ ] Create `ViolationSummary` interface
 - [ ] Update API response types
 
@@ -37,11 +37,16 @@
 ### 2.2 CameraMonitor Component
 
 ```typescript
-// Location: src/components/Proctoring/CameraMonitor.tsx
-- Video stream display
-- Real-time monitoring overlay
-- MediaPipe integration
-- Event emission
+// Location: src/components/Proctoring/ProctoringMonitor.tsx
+- [x] Video stream display (mirrored)
+- [x] Real-time monitoring overlay
+- [x] MediaPipe integration
+- [x] Event emission
+- [x] Draggable floating card
+- [x] Position persistence (localStorage)
+- [x] Viewport boundary detection
+- [x] Violation count display
+- [x] Real-time violation alerts (red during, yellow after)
 ```
 
 ### 2.3 ViolationAlert Component
@@ -68,11 +73,12 @@
 ### 3.2 Assessment Taking Page
 
 ```typescript
-// Location: src/pages/Assessments/TakeAssessment.tsx
-- Integrate CameraMonitor
-- Add proctoring status indicator
-- Handle violation workflows
-- Implement auto-termination
+// Location: src/pages/Student/TakeAssessment.tsx
+- [x] Integrate ProctoringMonitor (floating card)
+- [x] Conditional rendering based on require_webcam
+- [x] Violation event collection
+- [ ] Handle violation workflows
+- [ ] Implement auto-termination
 ```
 
 ### 3.3 Permission Handling
@@ -177,38 +183,44 @@ src/services/__tests__/proctoringService.test.ts
 
 ### Core Features
 
-- [ ] Face detection and tracking
-- [ ] Multiple person detection
+- [x] Face detection and tracking (478 landmarks)
+- [x] Multiple person detection (up to 2 faces)
 - [ ] Attention monitoring (looking away)
-- [ ] Real-time violation alerts
-- [ ] Event logging and storage
+- [x] Real-time violation alerts (with duration tracking)
+- [x] Event logging (frontend only, duration-based)
+- [ ] Event storage (backend)
 - [ ] Assessment auto-termination
 
 ### UI Components
 
-- [ ] Camera preview with overlay
+- [x] Camera preview with overlay (ProctoringMonitor)
+- [x] Draggable floating card with position persistence
+- [x] Landmark visualization toggle (MediaPipeCameraTest)
 - [ ] Proctoring settings form
-- [ ] Violation alert notifications
-- [ ] Permission request dialog
-- [ ] Proctoring status indicator
+- [x] Violation alert notifications (red/yellow based on state)
+- [x] Permission request dialog (browser native)
+- [x] Proctoring status indicator (face count badge)
+- [x] Violation count display (in card header)
 - [ ] Event timeline display
 
 ### Integration Points
 
-- [ ] Assessment creation flow
-- [ ] Assessment taking flow
+- [ ] Assessment creation flow (settings already exist)
+- [x] Assessment taking flow (floating card integration)
 - [ ] Grading and review flow
 - [ ] Reporting dashboard
 - [ ] User management (permissions)
 
 ### Technical Requirements
 
-- [ ] HTTPS configuration
-- [ ] Camera permission handling
-- [ ] MediaPipe model loading
-- [ ] Real-time event processing
+- [ ] HTTPS configuration (dev only)
+- [x] Camera permission handling
+- [x] MediaPipe model loading (CDN)
+- [x] Real-time event processing (60 FPS)
+- [x] Violation duration tracking (start/end)
+- [x] Position persistence (localStorage)
 - [ ] Backend API integration
-- [ ] Data persistence
+- [ ] Data persistence (backend)
 
 ## Success Metrics
 

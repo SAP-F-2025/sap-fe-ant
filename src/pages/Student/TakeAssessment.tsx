@@ -124,11 +124,12 @@ const TakeAssessment: React.FC = () => {
   const submitAttemptMutation = useMutation({
     mutationFn: (data: CompleteAttemptRequest) => studentService.submitAttempt(data),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['attempt-detail', attemptId] });
+			setCameraEnabled(false);
       modal.success({
         title: 'Đã nộp bài',
         content: 'Bài kiểm tra của bạn đã được nộp thành công!',
         onOk: () => {
+          queryClient.invalidateQueries({ queryKey: ['attempt-detail', attemptId] });
           navigate(`/student/results/${attemptId}`);
         },
       });

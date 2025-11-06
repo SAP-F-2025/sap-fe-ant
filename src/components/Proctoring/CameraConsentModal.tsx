@@ -10,19 +10,14 @@ interface CameraConsentModalProps {
   onReject: () => void;
 }
 
-export const CameraConsentModal: React.FC<CameraConsentModalProps> = ({
+export const CameraConsentModal: React.FC<CameraConsentModalProps> = React.memo(({
   open,
   onConsent,
   onReject
 }) => {
   const [choice, setChoice] = React.useState<'once' | 'always'>('once');
-  
-  console.log('=== CAMERA CONSENT MODAL RENDER ===');
-  console.log('Open prop:', open);
 
-  React.useEffect(() => {
-    console.log('CameraConsentModal open changed to:', open);
-  }, [open]);
+  if (!open) return null;
 
   return (
     <Modal
@@ -83,4 +78,4 @@ export const CameraConsentModal: React.FC<CameraConsentModalProps> = ({
       </Space>
     </Modal>
   );
-};
+});

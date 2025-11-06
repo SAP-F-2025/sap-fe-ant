@@ -3,8 +3,9 @@ import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export interface ProctoringEvent {
   type: 'face_not_detected' | 'multiple_faces';
-  timestamp: number;
-  confidence?: number;
+  startTime: number;
+  endTime: number;
+  duration: number;
 }
 
 export const useMediaPipeFaceDetection = (
@@ -19,6 +20,8 @@ export const useMediaPipeFaceDetection = (
   const [faceCount, setFaceCount] = useState(0);
   const faceLandmarkerRef = useRef<FaceLandmarker | null>(null);
   const animationFrameRef = useRef<number>();
+  const noFaceViolationRef = useRef<{ startTime: number } | null>(null);
+  const multipleFacesViolationRef = useRef<{ startTime: number } | null>(null);
 
   useEffect(() => {
     if (!enabled || !videoElement) return;
@@ -82,20 +85,76 @@ export const useMediaPipeFaceDetection = (
               }
             }
 
+            // Track violations - notify on start and end
             if (detectionCount === 0) {
-              const event: ProctoringEvent = {
-                type: 'face_not_detected',
-                timestamp: Date.now(),
-              };
-              setEvents(prev => [...prev.slice(-49), event]);
-              onViolation?.(event);
+              if (!noFaceViolationRef.current) {
+                noFaceViolationRef.current = { startTime: Date.now() };
+                const event: ProctoringEvent = {
+                  type: 'face_not_detected',
+                  startTime: noFaceViolationRef.current.startTime,
+                  endTime: 0,
+                  duration: 0,
+                };
+                setEvents(prev => [...prev, event]);
+                onViolation?.(event);
+              }
+              if (multipleFacesViolationRef.current) {
+                const endTime = Date.now();
+                const event: ProctoringEvent = {
+                  type: 'multiple_faces',
+                  startTime: multipleFacesViolationRef.current.startTime,
+                  endTime,
+                  duration: endTime - multipleFacesViolationRef.current.startTime,
+                };
+                onViolation?.(event);
+                multipleFacesViolationRef.current = null;
+              }
             } else if (detectionCount > 1) {
-              const event: ProctoringEvent = {
-                type: 'multiple_faces',
-                timestamp: Date.now(),
-              };
-              setEvents(prev => [...prev.slice(-49), event]);
-              onViolation?.(event);
+              if (!multipleFacesViolationRef.current) {
+                multipleFacesViolationRef.current = { startTime: Date.now() };
+                const event: ProctoringEvent = {
+                  type: 'multiple_faces',
+                  startTime: multipleFacesViolationRef.current.startTime,
+                  endTime: 0,
+                  duration: 0,
+                };
+                setEvents(prev => [...prev, event]);
+                onViolation?.(event);
+              }
+              if (noFaceViolationRef.current) {
+                const endTime = Date.now();
+                const event: ProctoringEvent = {
+                  type: 'face_not_detected',
+                  startTime: noFaceViolationRef.current.startTime,
+                  endTime,
+                  duration: endTime - noFaceViolationRef.current.startTime,
+                };
+                onViolation?.(event);
+                noFaceViolationRef.current = null;
+              }
+            } else {
+              if (noFaceViolationRef.current) {
+                const endTime = Date.now();
+                const event: ProctoringEvent = {
+                  type: 'face_not_detected',
+                  startTime: noFaceViolationRef.current.startTime,
+                  endTime,
+                  duration: endTime - noFaceViolationRef.current.startTime,
+                };
+                onViolation?.(event);
+                noFaceViolationRef.current = null;
+              }
+              if (multipleFacesViolationRef.current) {
+                const endTime = Date.now();
+                const event: ProctoringEvent = {
+                  type: 'multiple_faces',
+                  startTime: multipleFacesViolationRef.current.startTime,
+                  endTime,
+                  duration: endTime - multipleFacesViolationRef.current.startTime,
+                };
+                onViolation?.(event);
+                multipleFacesViolationRef.current = null;
+              }
             }
           }
 

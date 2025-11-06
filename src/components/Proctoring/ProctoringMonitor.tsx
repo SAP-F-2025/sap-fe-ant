@@ -18,14 +18,34 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [videoReady, setVideoReady] = useState(false);
+  const [lastViolation, setLastViolation] = useState<ProctoringEvent | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const violationTimeoutRef = useRef<NodeJS.Timeout>();
 
   const { isProcessing, faceCount } = useMediaPipeFaceDetection(
     videoRef.current,
     canvasRef.current,
     videoReady,
     showLandmarks,
-    onViolation
+    (event) => {
+      setLastViolation(event);
+      
+      // Only count violation on start (duration === 0)
+      if (event.duration === 0) {
+        onViolation?.(event);
+      }
+      
+      if (violationTimeoutRef.current) {
+        clearTimeout(violationTimeoutRef.current);
+      }
+      
+      // Only set timeout if violation ended (has duration)
+      if (event.duration > 0) {
+        violationTimeoutRef.current = setTimeout(() => {
+          setLastViolation(null);
+        }, 5000);
+      }
+    }
   );
 
   useEffect(() => {
@@ -63,6 +83,9 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
+      }
+      if (violationTimeoutRef.current) {
+        clearTimeout(violationTimeoutRef.current);
       }
     };
   }, []);
@@ -137,6 +160,19 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
           )}
         </div>
       </div>
+
+      {lastViolation && (
+        <Alert
+          type={lastViolation.duration === 0 ? 'error' : 'warning'}
+          message={
+            lastViolation.type === 'face_not_detected'
+              ? 'Không phát hiện khuôn mặt'
+              : 'Phát hiện nhiều khuôn mặt'
+          }
+          showIcon
+          style={{ marginTop: 12 }}
+        />
+      )}
     </div>
   );
 };

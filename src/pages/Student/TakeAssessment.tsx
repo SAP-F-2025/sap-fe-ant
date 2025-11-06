@@ -16,7 +16,10 @@ import {
   Row,
   Col,
   Statistic,
+  Drawer,
 } from 'antd';
+import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor';
+import type { ProctoringEvent } from '../../hooks/useMediaPipeFaceDetection';
 import {
   ClockCircleOutlined,
   CheckOutlined,
@@ -43,6 +46,7 @@ const TakeAssessment: React.FC = () => {
   const [answers, setAnswers] = useState<Record<number, any>>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [autoSaving, setAutoSaving] = useState(false);
+  const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
 
   // Fetch attempt details (includes questions)
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
@@ -50,6 +54,17 @@ const TakeAssessment: React.FC = () => {
     queryFn: () => studentService.getAttemptDetails(Number(attemptId)),
     enabled: !!attemptId,
   });
+
+  // Log assessment settings
+  useEffect(() => {
+    if (attempt?.assessment) {
+      console.log('=== ASSESSMENT SETTINGS ===');
+      console.log('Title:', attempt.assessment.title);
+      console.log('Settings:', attempt.assessment.settings);
+      console.log('Require Webcam:', attempt.assessment.settings?.require_webcam);
+      console.log('===========================');
+    }
+  }, [attempt]);
 
   // Questions are included in attempt details
   const questions = attempt?.questions || [];
@@ -649,9 +664,40 @@ const TakeAssessment: React.FC = () => {
 
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const answeredCount = Object.keys(answers).length;
+  const requireWebcam = attempt?.assessment?.settings?.require_webcam;
+
+  const handleProctoringViolation = (event: ProctoringEvent) => {
+    setProctoringEvents(prev => [...prev, event]);
+    console.log('Proctoring violation:', event);
+  };
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Proctoring Drawer */}
+      {requireWebcam && (
+        <Drawer
+          title="Camera giám sát"
+          placement="right"
+          open={true}
+          closable={false}
+          mask={false}
+          width={360}
+          styles={{ body: { padding: 16 } }}
+        >
+          <ProctoringMonitor
+            onViolation={handleProctoringViolation}
+            showLandmarks={false}
+            compact
+          />
+          {proctoringEvents.length > 0 && (
+            <Alert
+              type="warning"
+              message={`${proctoringEvents.length} vi phạm`}
+              style={{ marginTop: 16 }}
+            />
+          )}
+        </Drawer>
+      )}
       {/* Header */}
       <Card style={{ marginBottom: '16px' }}>
         <Row gutter={16} align="middle">

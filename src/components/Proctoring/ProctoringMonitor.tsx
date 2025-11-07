@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Alert, Badge, Card, Tag } from 'antd';
 import { EyeOutlined, DragOutlined } from '@ant-design/icons';
-import { useMediaPipeFaceDetection, ProctoringEvent } from '../../hooks/useMediaPipeFaceDetection';
+import { useMediaPipeFaceDetection, ProctoringEvent } from '../../hooks/useProctoring';
 
 interface ProctoringMonitorProps {
   onViolation?: (event: ProctoringEvent) => void;
@@ -275,6 +275,8 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
               ? 'Không phát hiện khuôn mặt'
               : lastViolation.type === 'multiple_faces'
               ? 'Phát hiện nhiều khuôn mặt'
+              : lastViolation.type === 'mouth_open'
+              ? 'Phát hiện mở miệng'
               : 'Đang nhìn ra ngoài màn hình'
           }
           showIcon

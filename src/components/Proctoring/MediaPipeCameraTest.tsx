@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Card, Button, Space, Typography, Alert, Switch, Statistic } from 'antd';
 import { CameraOutlined, StopOutlined } from '@ant-design/icons';
-import { useMediaPipeFaceDetection } from '../../hooks/useMediaPipeFaceDetection';
+import { useMediaPipeFaceDetection } from '../../hooks/useProctoring';
 
 const { Text } = Typography;
 

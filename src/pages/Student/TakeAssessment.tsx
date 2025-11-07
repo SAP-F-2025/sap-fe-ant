@@ -18,7 +18,7 @@ import {
   Statistic,
 } from 'antd';
 import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor';
-import type { ProctoringEvent } from '../../hooks/useMediaPipeFaceDetection';
+import type { ProctoringEvent } from '../../hooks/useProctoring';
 import {
   ClockCircleOutlined,
   CheckOutlined,

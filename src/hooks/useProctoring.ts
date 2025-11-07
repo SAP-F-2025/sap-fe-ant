@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export interface ProctoringEvent {
-  type: 'face_not_detected' | 'multiple_faces' | 'looking_away';
+  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 'mouth_open';
   startTime: number;
   endTime: number;
   duration: number;
@@ -23,6 +23,7 @@ export const useMediaPipeFaceDetection = (
   const noFaceViolationRef = useRef<{ startTime: number } | null>(null);
   const multipleFacesViolationRef = useRef<{ startTime: number } | null>(null);
   const lookingAwayViolationRef = useRef<{ startTime: number } | null>(null);
+  const mouthOpenViolationRef = useRef<{ startTime: number } | null>(null);
 
   useEffect(() => {
     if (!enabled || !videoElement) return;
@@ -61,8 +62,9 @@ export const useMediaPipeFaceDetection = (
             const detectionCount = results.faceLandmarks.length;
             setFaceCount(detectionCount);
 
-            // Check if looking away using iris position (more accurate)
+            // Check violations using landmarks
             let isLookingAway = false;
+            let isMouthOpen = false;
             if (detectionCount === 1 && results.faceLandmarks[0]) {
               const landmarks = results.faceLandmarks[0];
               
@@ -100,6 +102,12 @@ export const useMediaPipeFaceDetection = (
                 
                 isLookingAway = lookingLeftRight || lookingUpDown;
               }
+              
+              // Check mouth open (upper lip to lower lip distance)
+              const upperLip = landmarks[13];
+              const lowerLip = landmarks[14];
+              const mouthDistance = Math.abs(lowerLip.y - upperLip.y);
+              isMouthOpen = mouthDistance > 0.03; // Threshold for open mouth
             }
 
             // Draw on canvas
@@ -152,16 +160,45 @@ export const useMediaPipeFaceDetection = (
                 setEvents(prev => [...prev, event]);
                 onViolation?.(event);
               }
+              // Clear other violations when no face
               if (multipleFacesViolationRef.current) {
                 const endTime = Date.now();
+                const duration = endTime - multipleFacesViolationRef.current.startTime;
                 const event: ProctoringEvent = {
                   type: 'multiple_faces',
                   startTime: multipleFacesViolationRef.current.startTime,
                   endTime,
-                  duration: endTime - multipleFacesViolationRef.current.startTime,
+                  duration,
                 };
+                console.log(`Violation ended: multiple_faces (${duration}ms)`);
                 onViolation?.(event);
                 multipleFacesViolationRef.current = null;
+              }
+              if (lookingAwayViolationRef.current) {
+                const endTime = Date.now();
+                const duration = endTime - lookingAwayViolationRef.current.startTime;
+                const event: ProctoringEvent = {
+                  type: 'looking_away',
+                  startTime: lookingAwayViolationRef.current.startTime,
+                  endTime,
+                  duration,
+                };
+                console.log(`Violation ended: looking_away (${duration}ms)`);
+                onViolation?.(event);
+                lookingAwayViolationRef.current = null;
+              }
+              if (mouthOpenViolationRef.current) {
+                const endTime = Date.now();
+                const duration = endTime - mouthOpenViolationRef.current.startTime;
+                const event: ProctoringEvent = {
+                  type: 'mouth_open',
+                  startTime: mouthOpenViolationRef.current.startTime,
+                  endTime,
+                  duration,
+                };
+                console.log(`Violation ended: mouth_open (${duration}ms)`);
+                onViolation?.(event);
+                mouthOpenViolationRef.current = null;
               }
             } else if (detectionCount > 1) {
               if (!multipleFacesViolationRef.current) {
@@ -175,37 +212,70 @@ export const useMediaPipeFaceDetection = (
                 setEvents(prev => [...prev, event]);
                 onViolation?.(event);
               }
+              // Clear other violations when multiple faces
               if (noFaceViolationRef.current) {
                 const endTime = Date.now();
+                const duration = endTime - noFaceViolationRef.current.startTime;
                 const event: ProctoringEvent = {
                   type: 'face_not_detected',
                   startTime: noFaceViolationRef.current.startTime,
                   endTime,
-                  duration: endTime - noFaceViolationRef.current.startTime,
+                  duration,
                 };
+                console.log(`Violation ended: face_not_detected (${duration}ms)`);
                 onViolation?.(event);
                 noFaceViolationRef.current = null;
+              }
+              if (lookingAwayViolationRef.current) {
+                const endTime = Date.now();
+                const duration = endTime - lookingAwayViolationRef.current.startTime;
+                const event: ProctoringEvent = {
+                  type: 'looking_away',
+                  startTime: lookingAwayViolationRef.current.startTime,
+                  endTime,
+                  duration,
+                };
+                console.log(`Violation ended: looking_away (${duration}ms)`);
+                onViolation?.(event);
+                lookingAwayViolationRef.current = null;
+              }
+              if (mouthOpenViolationRef.current) {
+                const endTime = Date.now();
+                const duration = endTime - mouthOpenViolationRef.current.startTime;
+                const event: ProctoringEvent = {
+                  type: 'mouth_open',
+                  startTime: mouthOpenViolationRef.current.startTime,
+                  endTime,
+                  duration,
+                };
+                console.log(`Violation ended: mouth_open (${duration}ms)`);
+                onViolation?.(event);
+                mouthOpenViolationRef.current = null;
               }
             } else {
               if (noFaceViolationRef.current) {
                 const endTime = Date.now();
+                const duration = endTime - noFaceViolationRef.current.startTime;
                 const event: ProctoringEvent = {
                   type: 'face_not_detected',
                   startTime: noFaceViolationRef.current.startTime,
                   endTime,
-                  duration: endTime - noFaceViolationRef.current.startTime,
+                  duration,
                 };
+                console.log(`Violation ended: face_not_detected (${duration}ms)`);
                 onViolation?.(event);
                 noFaceViolationRef.current = null;
               }
               if (multipleFacesViolationRef.current) {
                 const endTime = Date.now();
+                const duration = endTime - multipleFacesViolationRef.current.startTime;
                 const event: ProctoringEvent = {
                   type: 'multiple_faces',
                   startTime: multipleFacesViolationRef.current.startTime,
                   endTime,
-                  duration: endTime - multipleFacesViolationRef.current.startTime,
+                  duration,
                 };
+                console.log(`Violation ended: multiple_faces (${duration}ms)`);
                 onViolation?.(event);
                 multipleFacesViolationRef.current = null;
               }
@@ -226,14 +296,45 @@ export const useMediaPipeFaceDetection = (
               } else {
                 if (lookingAwayViolationRef.current) {
                   const endTime = Date.now();
+                  const duration = endTime - lookingAwayViolationRef.current.startTime;
                   const event: ProctoringEvent = {
                     type: 'looking_away',
                     startTime: lookingAwayViolationRef.current.startTime,
                     endTime,
-                    duration: endTime - lookingAwayViolationRef.current.startTime,
+                    duration,
                   };
+                  console.log(`Violation ended: looking_away (${duration}ms)`);
                   onViolation?.(event);
                   lookingAwayViolationRef.current = null;
+                }
+              }
+              
+              // Check mouth open
+              if (isMouthOpen) {
+                if (!mouthOpenViolationRef.current) {
+                  mouthOpenViolationRef.current = { startTime: Date.now() };
+                  const event: ProctoringEvent = {
+                    type: 'mouth_open',
+                    startTime: mouthOpenViolationRef.current.startTime,
+                    endTime: 0,
+                    duration: 0,
+                  };
+                  setEvents(prev => [...prev, event]);
+                  onViolation?.(event);
+                }
+              } else {
+                if (mouthOpenViolationRef.current) {
+                  const endTime = Date.now();
+                  const duration = endTime - mouthOpenViolationRef.current.startTime;
+                  const event: ProctoringEvent = {
+                    type: 'mouth_open',
+                    startTime: mouthOpenViolationRef.current.startTime,
+                    endTime,
+                    duration,
+                  };
+                  console.log(`Violation ended: mouth_open (${duration}ms)`);
+                  onViolation?.(event);
+                  mouthOpenViolationRef.current = null;
                 }
               }
             }

@@ -602,6 +602,27 @@ const TakeAssessment: React.FC = () => {
     return '#f5222d';
   };
 
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const answeredCount = Object.keys(answers).length;
+  const settings = attempt?.assessment?.settings;
+  const requireWebcam = settings?.require_webcam;
+
+  useEffect(() => {
+    if (settings) {
+      console.log('Assessment proctoring settings:', {
+        require_webcam: settings.require_webcam,
+        require_full_screen: settings.require_full_screen,
+        prevent_tab_switching: settings.prevent_tab_switching,
+        prevent_copy_paste: settings.prevent_copy_paste
+      });
+    }
+  }, [settings]);
+
+  const handleProctoringViolation = (event: ProctoringEvent) => {
+    setProctoringEvents(prev => [...prev, event]);
+    console.log('Proctoring violation:', event);
+  };
+
   if (isLoading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
@@ -651,18 +672,6 @@ const TakeAssessment: React.FC = () => {
       </div>
     );
   }
-
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const answeredCount = Object.keys(answers).length;
-  const settings = attempt?.assessment?.settings;
-  const requireWebcam = settings?.require_webcam;
-
-  const handleProctoringViolation = (event: ProctoringEvent) => {
-    setProctoringEvents(prev => [...prev, event]);
-    console.log('Proctoring violation:', event);
-  };
-
-
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>

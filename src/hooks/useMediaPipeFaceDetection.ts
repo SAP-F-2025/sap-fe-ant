@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export interface ProctoringEvent {
-  type: 'face_not_detected' | 'multiple_faces';
+  type: 'face_not_detected' | 'multiple_faces' | 'looking_away';
   startTime: number;
   endTime: number;
   duration: number;
@@ -22,6 +22,7 @@ export const useMediaPipeFaceDetection = (
   const animationFrameRef = useRef<number>();
   const noFaceViolationRef = useRef<{ startTime: number } | null>(null);
   const multipleFacesViolationRef = useRef<{ startTime: number } | null>(null);
+  const lookingAwayViolationRef = useRef<{ startTime: number } | null>(null);
 
   useEffect(() => {
     if (!enabled || !videoElement) return;
@@ -44,7 +45,7 @@ export const useMediaPipeFaceDetection = (
           minFaceDetectionConfidence: 0.5,
           minFacePresenceConfidence: 0.5,
           minTrackingConfidence: 0.5,
-          outputFaceBlendshapes: false,
+          outputFaceBlendshapes: true,
           outputFacialTransformationMatrixes: false
         });
 
@@ -60,6 +61,35 @@ export const useMediaPipeFaceDetection = (
             const detectionCount = results.faceLandmarks.length;
             setFaceCount(detectionCount);
 
+            // Check if looking away using iris position (more accurate)
+            let isLookingAway = false;
+            if (detectionCount === 1 && results.faceLandmarks[0]) {
+              const landmarks = results.faceLandmarks[0];
+              
+              // Eye corners and iris positions
+              const leftEyeOuter = landmarks[33];
+              const leftEyeInner = landmarks[133];
+              const leftIris = landmarks[468];
+              
+              const rightEyeOuter = landmarks[263];
+              const rightEyeInner = landmarks[362];
+              const rightIris = landmarks[473];
+              
+              if (leftIris && rightIris) {
+                // Calculate normalized iris positions
+                const leftEyeWidth = leftEyeInner.x - leftEyeOuter.x;
+                const leftIrisPos = leftEyeWidth !== 0 ? (leftIris.x - leftEyeOuter.x) / leftEyeWidth : 0.5;
+                
+                const rightEyeWidth = rightEyeInner.x - rightEyeOuter.x;
+                const rightIrisPos = rightEyeWidth !== 0 ? (rightIris.x - rightEyeOuter.x) / rightEyeWidth : 0.5;
+                
+                console.log('Left eye:', leftIrisPos.toFixed(2), '| Right eye:', rightIrisPos.toFixed(2));
+                
+                // Looking away if EITHER eye is not centered (threshold: 0.3-0.7)
+                isLookingAway = leftIrisPos < 0.3 || leftIrisPos > 0.7 || rightIrisPos < 0.3 || rightIrisPos > 0.7;
+              }
+            }
+
             // Draw on canvas
             if (canvasElement) {
               const ctx = canvasElement.getContext('2d');
@@ -72,13 +102,25 @@ export const useMediaPipeFaceDetection = (
                     ctx.strokeStyle = detectionCount > 1 ? '#ff4d4f' : '#52c41a';
                     ctx.lineWidth = 1;
                     
-                    // Draw landmarks
-                    landmarks.forEach((landmark) => {
+                    // Draw all landmarks
+                    landmarks.forEach((landmark, idx) => {
                       const x = landmark.x * canvasElement.width;
                       const y = landmark.y * canvasElement.height;
                       ctx.beginPath();
                       ctx.arc(x, y, 1, 0, 2 * Math.PI);
                       ctx.fill();
+                    });
+                    
+                    // Highlight iris landmarks (468 = left, 473 = right)
+                    [468, 473].forEach(idx => {
+                      if (landmarks[idx]) {
+                        const x = landmarks[idx].x * canvasElement.width;
+                        const y = landmarks[idx].y * canvasElement.height;
+                        ctx.fillStyle = '#1890ff';
+                        ctx.beginPath();
+                        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                        ctx.fill();
+                      }
                     });
                   });
                 }
@@ -154,6 +196,33 @@ export const useMediaPipeFaceDetection = (
                 };
                 onViolation?.(event);
                 multipleFacesViolationRef.current = null;
+              }
+
+              // Check looking away for single face
+              if (isLookingAway) {
+                if (!lookingAwayViolationRef.current) {
+                  lookingAwayViolationRef.current = { startTime: Date.now() };
+                  const event: ProctoringEvent = {
+                    type: 'looking_away',
+                    startTime: lookingAwayViolationRef.current.startTime,
+                    endTime: 0,
+                    duration: 0,
+                  };
+                  setEvents(prev => [...prev, event]);
+                  onViolation?.(event);
+                }
+              } else {
+                if (lookingAwayViolationRef.current) {
+                  const endTime = Date.now();
+                  const event: ProctoringEvent = {
+                    type: 'looking_away',
+                    startTime: lookingAwayViolationRef.current.startTime,
+                    endTime,
+                    duration: endTime - lookingAwayViolationRef.current.startTime,
+                  };
+                  onViolation?.(event);
+                  lookingAwayViolationRef.current = null;
+                }
               }
             }
           }

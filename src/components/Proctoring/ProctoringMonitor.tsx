@@ -273,7 +273,9 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
           message={
             lastViolation.type === 'face_not_detected'
               ? 'Không phát hiện khuôn mặt'
-              : 'Phát hiện nhiều khuôn mặt'
+              : lastViolation.type === 'multiple_faces'
+              ? 'Phát hiện nhiều khuôn mặt'
+              : 'Đang nhìn ra ngoài màn hình'
           }
           showIcon
           style={{ marginTop: 12 }}

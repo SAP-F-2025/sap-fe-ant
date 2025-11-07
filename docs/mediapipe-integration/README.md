@@ -39,33 +39,59 @@ docs/mediapipe-integration/
 └── deployment.md               # Production deployment
 ```
 
-## Key Features to Implement
+## Implementation Status
 
-### Core Proctoring Features
+### ✅ Completed Features
 
-- ✅ Face detection and tracking
-- ✅ Multiple person detection
-- ✅ Attention monitoring (looking away detection)
-- ✅ Event logging and reporting
-- ✅ Real-time violation alerts
+**Core Proctoring (MediaPipe FaceLandmarker)**
+- ✅ Face detection (no face/multiple faces)
+- ✅ Gaze tracking (looking away - iris-based)
+- ✅ Mouth open detection
+- ✅ Head turned detection
+- ✅ Eyes closed detection
+- ✅ Real-time violation alerts (red → yellow transition)
+- ✅ Draggable camera monitor with position persistence
+- ✅ Violation event tracking (start/end timestamps)
 
-### Assessment Integration
+**Assessment Integration**
+- ✅ Camera consent modal (allow once/always)
+- ✅ Face verification page
+- ✅ Proctoring monitor in assessment taking
+- ✅ Camera lifecycle management
+- ✅ Violation count tracking
 
-- ✅ Proctoring settings in assessment configuration
-- ✅ Camera permission handling
-- ✅ Violation threshold configuration
-- ✅ Automatic assessment termination on violations
+### 🚧 Not Implemented
 
-### Reporting & Analytics
+**Additional Violations (Require Different Approaches)**
+- ❌ Hand detection (needs MediaPipe HandLandmarker)
+- ❌ Phone detection (needs MediaPipe ObjectDetector)
+- ❌ Face verification/mismatch (needs face-api.js or backend)
+- ❌ Tab switching (needs Page Visibility API)
+- ❌ Copy/paste detection (needs Clipboard API)
+- ❌ Fullscreen exit (needs Fullscreen API)
+- ❌ Voice/audio detection (needs Web Audio API)
+- ❌ Browser DevTools detection
 
-- ✅ Proctoring event dashboard
-- ✅ Violation reports for instructors
-- ✅ Student behavior analytics
-- ✅ Export capabilities for compliance
+**Backend Integration**
+- ❌ Violation storage to database
+- ❌ Proctoring event API endpoints
+- ❌ Instructor review dashboard
+- ❌ Analytics and reporting
+
+## Technical Details
+
+**MediaPipe Package**: `@mediapipe/tasks-vision`
+**Model**: FaceLandmarker (478 landmarks + iris)
+**Detection Thresholds**:
+- Looking away: Iris position outside 0.3-0.7 (horizontal), 0.35-0.65 (vertical)
+- Mouth open: Lip distance > 0.03
+- Head turned: Nose offset > 0.15 from face center
+- Eyes closed: Eye aspect ratio < 0.18
 
 ## Next Steps
 
-1. Review [Installation Guide](./installation.md)
-2. Study [Architecture Design](./architecture.md)
-3. Follow [Implementation Plan](./implementation-plan.md)
-4. Set up [Testing Environment](./testing-strategy.md)
+1. Implement backend API for violation storage
+2. Add hand detection (MediaPipe HandLandmarker)
+3. Add face verification (face-api.js)
+4. Implement browser-level violations (tab switch, fullscreen, etc.)
+5. Build instructor review dashboard

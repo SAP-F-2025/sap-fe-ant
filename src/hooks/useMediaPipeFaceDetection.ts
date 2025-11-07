@@ -76,17 +76,29 @@ export const useMediaPipeFaceDetection = (
               const rightIris = landmarks[473];
               
               if (leftIris && rightIris) {
-                // Calculate normalized iris positions
+                // Horizontal: Check left/right gaze
                 const leftEyeWidth = leftEyeInner.x - leftEyeOuter.x;
-                const leftIrisPos = leftEyeWidth !== 0 ? (leftIris.x - leftEyeOuter.x) / leftEyeWidth : 0.5;
+                const leftIrisPosX = leftEyeWidth !== 0 ? (leftIris.x - leftEyeOuter.x) / leftEyeWidth : 0.5;
                 
                 const rightEyeWidth = rightEyeInner.x - rightEyeOuter.x;
-                const rightIrisPos = rightEyeWidth !== 0 ? (rightIris.x - rightEyeOuter.x) / rightEyeWidth : 0.5;
+                const rightIrisPosX = rightEyeWidth !== 0 ? (rightIris.x - rightEyeOuter.x) / rightEyeWidth : 0.5;
                 
-                console.log('Left eye:', leftIrisPos.toFixed(2), '| Right eye:', rightIrisPos.toFixed(2));
+                // Vertical: Check up/down gaze (using eye top/bottom landmarks)
+                const leftEyeTop = landmarks[159];
+                const leftEyeBottom = landmarks[145];
+                const leftEyeHeight = leftEyeBottom.y - leftEyeTop.y;
+                const leftIrisPosY = leftEyeHeight !== 0 ? (leftIris.y - leftEyeTop.y) / leftEyeHeight : 0.5;
                 
-                // Looking away if EITHER eye is not centered (threshold: 0.3-0.7)
-                isLookingAway = leftIrisPos < 0.3 || leftIrisPos > 0.7 || rightIrisPos < 0.3 || rightIrisPos > 0.7;
+                const rightEyeTop = landmarks[386];
+                const rightEyeBottom = landmarks[374];
+                const rightEyeHeight = rightEyeBottom.y - rightEyeTop.y;
+                const rightIrisPosY = rightEyeHeight !== 0 ? (rightIris.y - rightEyeTop.y) / rightEyeHeight : 0.5;
+                
+                // Looking away if eyes are not centered (horizontal: 0.3-0.7, vertical: 0.35-0.65)
+                const lookingLeftRight = leftIrisPosX < 0.3 || leftIrisPosX > 0.7 || rightIrisPosX < 0.3 || rightIrisPosX > 0.7;
+                const lookingUpDown = leftIrisPosY < 0.35 || leftIrisPosY > 0.65 || rightIrisPosY < 0.35 || rightIrisPosY > 0.65;
+                
+                isLookingAway = lookingLeftRight || lookingUpDown;
               }
             }
 

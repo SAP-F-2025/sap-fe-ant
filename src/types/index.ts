@@ -556,21 +556,21 @@ export interface StudentAssessment {
 	best_score?: number;
 	last_attempt_date?: string;
 	settings: {
-		"assessment_id": number,
-		"created_at": Date,
-		"updated_at": Date,
-		"randomize_questions": boolean,
-		"randomize_options": boolean,
-		"show_progress_bar": boolean,
-		"require_webcam": boolean,
-		"prevent_tab_switching": boolean,
-		"prevent_right_click": boolean,
-		"prevent_copy_paste": boolean,
-		"require_identity_verification": boolean,
-		"require_full_screen": boolean,
-		"allow_screen_reader": boolean,
-		"font_size_adjustment": number,
-		"high_contrast_mode": boolean
+		assessment_id: number;
+		created_at: Date;
+		updated_at: Date;
+		randomize_questions: boolean;
+		randomize_options: boolean;
+		show_progress_bar: boolean;
+		require_webcam: boolean;
+		prevent_tab_switching: boolean;
+		prevent_right_click: boolean;
+		prevent_copy_paste: boolean;
+		require_identity_verification: boolean;
+		require_full_screen: boolean;
+		allow_screen_reader: boolean;
+		font_size_adjustment: number;
+		high_contrast_mode: boolean
 	}
 }
 

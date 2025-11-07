@@ -2,10 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export interface ProctoringEvent {
-  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 'mouth_open' | 'head_turned' | 'eyes_closed';
+  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 'mouth_open' | 'head_turned' | 'eyes_closed' | 'tab_switch' | 'fullscreen_exit' | 'copy_paste';
   startTime: number;
   endTime: number;
   duration: number;
+  metadata?: {
+    action?: 'copy' | 'paste' | 'cut';
+    hidden?: boolean;
+  };
 }
 
 export const useMediaPipeFaceDetection = (

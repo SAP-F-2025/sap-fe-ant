@@ -2,19 +2,26 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Alert, Badge, Card, Tag } from 'antd';
 import { EyeOutlined, DragOutlined } from '@ant-design/icons';
 import { useMediaPipeFaceDetection, ProctoringEvent } from '../../hooks/useProctoring';
+import { useBrowserProctoring } from '../../hooks/useBrowserProctoring';
 
 interface ProctoringMonitorProps {
 	onViolation?: (event: ProctoringEvent) => void;
 	showLandmarks?: boolean;
 	compact?: boolean;
 	violationCount?: number;
+	requireFullscreen?: boolean;
+	preventTabSwitching?: boolean;
+	preventCopyPaste?: boolean;
 }
 
 export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	onViolation,
 	showLandmarks = false,
 	compact = false,
-	violationCount = 0
+	violationCount = 0,
+	requireFullscreen = false,
+	preventTabSwitching = true,
+	preventCopyPaste = true
 }) => {
 	const cardRef = useRef<HTMLDivElement>(null);
 	const [position, setPosition] = useState(() => {
@@ -31,36 +38,46 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	const streamRef = useRef<MediaStream | null>(null);
 	const violationTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
+	const handleViolation = (event: ProctoringEvent) => {
+		const key = event.type;
+
+		if (event.duration === 0) {
+			setActiveViolations(prev => new Map(prev).set(key, event));
+			onViolation?.(event);
+		} else {
+			setActiveViolations(prev => new Map(prev).set(key, event));
+
+			const existingTimeout = violationTimeoutsRef.current.get(key);
+			if (existingTimeout) clearTimeout(existingTimeout);
+
+			const timeout = setTimeout(() => {
+				setActiveViolations(prev => {
+					const next = new Map(prev);
+					next.delete(key);
+					return next;
+				});
+					violationTimeoutsRef.current.delete(key);
+			}, 3000);
+
+			violationTimeoutsRef.current.set(key, timeout);
+		}
+	};
+
 	const { isProcessing, faceCount } = useMediaPipeFaceDetection(
 		videoRef.current,
 		canvasRef.current,
 		videoReady,
 		showLandmarks,
-		(event) => {
-			const key = event.type;
-
-			if (event.duration === 0) {
-				setActiveViolations(prev => new Map(prev).set(key, event));
-				onViolation?.(event);
-			} else {
-				setActiveViolations(prev => new Map(prev).set(key, event));
-
-				const existingTimeout = violationTimeoutsRef.current.get(key);
-				if (existingTimeout) clearTimeout(existingTimeout);
-
-				const timeout = setTimeout(() => {
-					setActiveViolations(prev => {
-						const next = new Map(prev);
-						next.delete(key);
-						return next;
-					});
-					violationTimeoutsRef.current.delete(key);
-				}, 3000);
-
-				violationTimeoutsRef.current.set(key, timeout);
-			}
-		}
+		handleViolation
 	);
+
+	useBrowserProctoring({
+		enabled: true,
+		requireFullscreen,
+		preventTabSwitching,
+		preventCopyPaste,
+		onViolation: handleViolation
+	});
 
 	useEffect(() => {
 		if (!videoRef.current) return;
@@ -272,7 +289,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 				</div>
 
 				{Array.from(activeViolations.values()).map((violation, index) => {
-					const getMessage = (type: string) => {
+					const getMessage = (type: string, metadata?: any) => {
 						switch (type) {
 							case 'face_not_detected': return 'Không phát hiện khuôn mặt';
 							case 'multiple_faces': return 'Phát hiện nhiều khuôn mặt';
@@ -280,6 +297,9 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 							case 'head_turned': return 'Đầu quay đi';
 							case 'eyes_closed': return 'Nhắm mắt';
 							case 'looking_away': return 'Đang nhìn ra ngoài màn hình';
+							case 'tab_switch': return metadata?.hidden ? 'Chuyển tab/cửa sổ' : 'Quay lại tab';
+							case 'fullscreen_exit': return 'Thoát chế độ toàn màn hình';
+							case 'copy_paste': return `Phát hiện ${metadata?.action === 'copy' ? 'sao chép' : metadata?.action === 'paste' ? 'dán' : 'cắt'}`;
 							default: return 'Vi phạm';
 						}
 					};
@@ -288,7 +308,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 						<Alert
 							key={violation.type}
 							type={violation.duration === 0 ? 'error' : 'warning'}
-							message={getMessage(violation.type)}
+							message={getMessage(violation.type, violation.metadata)}
 							showIcon
 							style={{ marginTop: index === 0 ? 12 : 8 }}
 						/>

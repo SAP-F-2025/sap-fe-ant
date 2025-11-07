@@ -654,7 +654,8 @@ const TakeAssessment: React.FC = () => {
 
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const answeredCount = Object.keys(answers).length;
-  const requireWebcam = attempt?.assessment?.settings?.require_webcam;
+  const settings = attempt?.assessment?.settings;
+  const requireWebcam = settings?.require_webcam;
 
   const handleProctoringViolation = (event: ProctoringEvent) => {
     setProctoringEvents(prev => [...prev, event]);
@@ -810,6 +811,9 @@ const TakeAssessment: React.FC = () => {
           showLandmarks={false}
           compact
           violationCount={proctoringEvents.length}
+          requireFullscreen={settings?.require_full_screen}
+          preventTabSwitching={settings?.prevent_tab_switching}
+          preventCopyPaste={settings?.prevent_copy_paste}
         />
       )}
 

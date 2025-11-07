@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export interface ProctoringEvent {
-  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 'mouth_open';
+  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 'mouth_open' | 'head_turned';
   startTime: number;
   endTime: number;
   duration: number;
@@ -24,6 +24,7 @@ export const useMediaPipeFaceDetection = (
   const multipleFacesViolationRef = useRef<{ startTime: number } | null>(null);
   const lookingAwayViolationRef = useRef<{ startTime: number } | null>(null);
   const mouthOpenViolationRef = useRef<{ startTime: number } | null>(null);
+  const headTurnedViolationRef = useRef<{ startTime: number } | null>(null);
 
   useEffect(() => {
     if (!enabled || !videoElement) return;
@@ -65,6 +66,7 @@ export const useMediaPipeFaceDetection = (
             // Check violations using landmarks
             let isLookingAway = false;
             let isMouthOpen = false;
+            let isHeadTurned = false;
             if (detectionCount === 1 && results.faceLandmarks[0]) {
               const landmarks = results.faceLandmarks[0];
               
@@ -108,6 +110,15 @@ export const useMediaPipeFaceDetection = (
               const lowerLip = landmarks[14];
               const mouthDistance = Math.abs(lowerLip.y - upperLip.y);
               isMouthOpen = mouthDistance > 0.03; // Threshold for open mouth
+              
+              // Check head turned (using nose and face width)
+              const nose = landmarks[1];
+              const leftCheek = landmarks[234];
+              const rightCheek = landmarks[454];
+              const faceWidth = Math.abs(rightCheek.x - leftCheek.x);
+              const noseToCenterX = Math.abs(nose.x - (leftCheek.x + rightCheek.x) / 2);
+              const headTurnRatio = faceWidth > 0 ? noseToCenterX / faceWidth : 0;
+              isHeadTurned = headTurnRatio > 0.15; // Threshold for head turned
             }
 
             // Draw on canvas
@@ -200,6 +211,19 @@ export const useMediaPipeFaceDetection = (
                 onViolation?.(event);
                 mouthOpenViolationRef.current = null;
               }
+              if (headTurnedViolationRef.current) {
+                const endTime = Date.now();
+                const duration = endTime - headTurnedViolationRef.current.startTime;
+                const event: ProctoringEvent = {
+                  type: 'head_turned',
+                  startTime: headTurnedViolationRef.current.startTime,
+                  endTime,
+                  duration,
+                };
+                console.log(`Violation ended: head_turned (${duration}ms)`);
+                onViolation?.(event);
+                headTurnedViolationRef.current = null;
+              }
             } else if (detectionCount > 1) {
               if (!multipleFacesViolationRef.current) {
                 multipleFacesViolationRef.current = { startTime: Date.now() };
@@ -251,6 +275,19 @@ export const useMediaPipeFaceDetection = (
                 console.log(`Violation ended: mouth_open (${duration}ms)`);
                 onViolation?.(event);
                 mouthOpenViolationRef.current = null;
+              }
+              if (headTurnedViolationRef.current) {
+                const endTime = Date.now();
+                const duration = endTime - headTurnedViolationRef.current.startTime;
+                const event: ProctoringEvent = {
+                  type: 'head_turned',
+                  startTime: headTurnedViolationRef.current.startTime,
+                  endTime,
+                  duration,
+                };
+                console.log(`Violation ended: head_turned (${duration}ms)`);
+                onViolation?.(event);
+                headTurnedViolationRef.current = null;
               }
             } else {
               if (noFaceViolationRef.current) {
@@ -335,6 +372,35 @@ export const useMediaPipeFaceDetection = (
                   console.log(`Violation ended: mouth_open (${duration}ms)`);
                   onViolation?.(event);
                   mouthOpenViolationRef.current = null;
+                }
+              }
+              
+              // Check head turned
+              if (isHeadTurned) {
+                if (!headTurnedViolationRef.current) {
+                  headTurnedViolationRef.current = { startTime: Date.now() };
+                  const event: ProctoringEvent = {
+                    type: 'head_turned',
+                    startTime: headTurnedViolationRef.current.startTime,
+                    endTime: 0,
+                    duration: 0,
+                  };
+                  setEvents(prev => [...prev, event]);
+                  onViolation?.(event);
+                }
+              } else {
+                if (headTurnedViolationRef.current) {
+                  const endTime = Date.now();
+                  const duration = endTime - headTurnedViolationRef.current.startTime;
+                  const event: ProctoringEvent = {
+                    type: 'head_turned',
+                    startTime: headTurnedViolationRef.current.startTime,
+                    endTime,
+                    duration,
+                  };
+                  console.log(`Violation ended: head_turned (${duration}ms)`);
+                  onViolation?.(event);
+                  headTurnedViolationRef.current = null;
                 }
               }
             }

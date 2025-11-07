@@ -27,9 +27,9 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [videoReady, setVideoReady] = useState(false);
-  const [lastViolation, setLastViolation] = useState<ProctoringEvent | null>(null);
+  const [activeViolations, setActiveViolations] = useState<Map<string, ProctoringEvent>>(new Map());
   const streamRef = useRef<MediaStream | null>(null);
-  const violationTimeoutRef = useRef<NodeJS.Timeout>();
+  const violationTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const { isProcessing, faceCount } = useMediaPipeFaceDetection(
     videoRef.current,
@@ -37,22 +37,29 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
     videoReady,
     showLandmarks,
     (event) => {
-      setLastViolation(event);
+      const key = event.type;
       
-      // Only count violation on start (duration === 0)
       if (event.duration === 0) {
+        // Violation started - add to active list
+        setActiveViolations(prev => new Map(prev).set(key, event));
         onViolation?.(event);
-      }
-      
-      if (violationTimeoutRef.current) {
-        clearTimeout(violationTimeoutRef.current);
-      }
-      
-      // Only set timeout if violation ended (has duration)
-      if (event.duration > 0) {
-        violationTimeoutRef.current = setTimeout(() => {
-          setLastViolation(null);
-        }, 5000);
+      } else {
+        // Violation ended - schedule removal after 3 seconds
+        setActiveViolations(prev => new Map(prev).set(key, event));
+        
+        const existingTimeout = violationTimeoutsRef.current.get(key);
+        if (existingTimeout) clearTimeout(existingTimeout);
+        
+        const timeout = setTimeout(() => {
+          setActiveViolations(prev => {
+            const next = new Map(prev);
+            next.delete(key);
+            return next;
+          });
+          violationTimeoutsRef.current.delete(key);
+        }, 3000);
+        
+        violationTimeoutsRef.current.set(key, timeout);
       }
     }
   );
@@ -93,9 +100,8 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
       }
-      if (violationTimeoutRef.current) {
-        clearTimeout(violationTimeoutRef.current);
-      }
+      violationTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+      violationTimeoutsRef.current.clear();
     };
   }, []);
 
@@ -267,22 +273,28 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
         </div>
       </div>
 
-      {lastViolation && (
-        <Alert
-          type={lastViolation.duration === 0 ? 'error' : 'warning'}
-          message={
-            lastViolation.type === 'face_not_detected'
-              ? 'Không phát hiện khuôn mặt'
-              : lastViolation.type === 'multiple_faces'
-              ? 'Phát hiện nhiều khuôn mặt'
-              : lastViolation.type === 'mouth_open'
-              ? 'Phát hiện mở miệng'
-              : 'Đang nhìn ra ngoài màn hình'
+      {Array.from(activeViolations.values()).map((violation, index) => {
+        const getMessage = (type: string) => {
+          switch (type) {
+            case 'face_not_detected': return 'Không phát hiện khuôn mặt';
+            case 'multiple_faces': return 'Phát hiện nhiều khuôn mặt';
+            case 'mouth_open': return 'Phát hiện mở miệng';
+            case 'head_turned': return 'Đầu quay đi';
+            case 'looking_away': return 'Đang nhìn ra ngoài màn hình';
+            default: return 'Vi phạm';
           }
-          showIcon
-          style={{ marginTop: 12 }}
-        />
-      )}
+        };
+        
+        return (
+          <Alert
+            key={violation.type}
+            type={violation.duration === 0 ? 'error' : 'warning'}
+            message={getMessage(violation.type)}
+            showIcon
+            style={{ marginTop: index === 0 ? 12 : 8 }}
+          />
+        );
+      })}
       </Card>
     </div>
   );

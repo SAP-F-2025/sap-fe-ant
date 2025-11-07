@@ -70,7 +70,8 @@ export const useBrowserProctoring = ({
 
     const handleBlur = () => {
       if (!preventTabSwitching) return;
-      console.log('Window blur');
+      console.log('Window blur, current violation:', !!tabSwitchViolationRef.current);
+      // Always trigger violation on blur if not already tracking
       if (!tabSwitchViolationRef.current) {
         tabSwitchViolationRef.current = { startTime: Date.now() };
         const event: BrowserProctoringEvent = {
@@ -87,7 +88,8 @@ export const useBrowserProctoring = ({
 
     const handleFocus = () => {
       if (!preventTabSwitching) return;
-      console.log('Window focus');
+      console.log('Window focus, current violation:', !!tabSwitchViolationRef.current);
+      // Always end violation on focus if tracking
       if (tabSwitchViolationRef.current) {
         const endTime = Date.now();
         const duration = endTime - tabSwitchViolationRef.current.startTime;

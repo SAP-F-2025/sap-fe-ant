@@ -5,7 +5,7 @@
 ### NPM Packages
 
 ```bash
-npm install @mediapipe/camera_utils @mediapipe/control_utils @mediapipe/drawing_utils @mediapipe/face_detection @mediapipe/face_mesh @mediapipe/hands @mediapipe/pose
+npm install @mediapipe/tasks-vision
 ```
 
 ### Package.json Additions
@@ -13,16 +13,12 @@ npm install @mediapipe/camera_utils @mediapipe/control_utils @mediapipe/drawing_
 ```json
 {
   "dependencies": {
-    "@mediapipe/camera_utils": "^0.3.1675466862",
-    "@mediapipe/control_utils": "^0.6.1675466862", 
-    "@mediapipe/drawing_utils": "^0.3.1675466862",
-    "@mediapipe/face_detection": "^0.4.1675466862",
-    "@mediapipe/face_mesh": "^0.4.1675466862",
-    "@mediapipe/hands": "^0.4.1675466862",
-    "@mediapipe/pose": "^0.5.1675466862"
+    "@mediapipe/tasks-vision": "^0.10.20"
   }
 }
 ```
+
+**Note**: Migrated from deprecated packages (@mediapipe/face_detection, @mediapipe/camera_utils) to the new @mediapipe/tasks-vision package.
 
 ## Browser Requirements
 
@@ -71,10 +67,8 @@ export default defineConfig({
 MediaPipe models are loaded from CDN:
 
 ```
-https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/
-https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/
-https://cdn.jsdelivr.net/npm/@mediapipe/hands/
-https://cdn.jsdelivr.net/npm/@mediapipe/pose/
+https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm
+https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
 ```
 
 ## Security Considerations

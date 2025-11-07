@@ -11,9 +11,16 @@
 
 ### 1.2 Core Hook Development
 
-- [x] Create `useMediaPipeFaceDetection` hook
-- [x] Implement face detection with 478 landmarks
-- [x] Add event logging system (duration-based tracking)
+- [x] Create `useMediaPipeFaceDetection` hook (renamed to useProctoring)
+- [x] Implement FaceLandmarker with 478 landmarks + iris (468, 473)
+- [x] Add event logging system (duration-based tracking with start/end)
+- [x] Implement 6 violation types:
+  - [x] face_not_detected
+  - [x] multiple_faces
+  - [x] looking_away (iris-based gaze tracking)
+  - [x] mouth_open
+  - [x] head_turned
+  - [x] eyes_closed
 - [x] Test camera permissions
 
 ### 1.3 Type Definitions
@@ -74,11 +81,14 @@
 
 ```typescript
 // Location: src/pages/Student/TakeAssessment.tsx
-- [x] Integrate ProctoringMonitor (floating card)
+- [x] Integrate ProctoringMonitor (floating draggable card)
 - [x] Conditional rendering based on require_webcam
-- [x] Violation event collection
-- [ ] Handle violation workflows
-- [ ] Implement auto-termination
+- [x] Violation event collection (frontend only)
+- [x] Camera consent modal (CameraConsentModal.tsx)
+- [x] Face verification page (FaceVerification.tsx)
+- [x] Camera lifecycle management (stop on submit)
+- [ ] Handle violation workflows (backend integration needed)
+- [ ] Implement auto-termination (backend integration needed)
 ```
 
 ### 3.3 Permission Handling
@@ -183,30 +193,39 @@ src/services/__tests__/proctoringService.test.ts
 
 ### Core Features
 
-- [x] Face detection and tracking (478 landmarks)
+- [x] Face detection and tracking (478 landmarks + iris)
 - [x] Multiple person detection (up to 2 faces)
-- [ ] Attention monitoring (looking away)
-- [x] Real-time violation alerts (with duration tracking)
+- [x] Gaze tracking (iris-based looking away detection)
+- [x] Mouth open detection
+- [x] Head turned detection
+- [x] Eyes closed detection
+- [x] Real-time violation alerts (red → yellow transition)
 - [x] Event logging (frontend only, duration-based)
 - [ ] Event storage (backend)
 - [ ] Assessment auto-termination
 
 ### UI Components
 
-- [x] Camera preview with overlay (ProctoringMonitor)
-- [x] Draggable floating card with position persistence
-- [x] Landmark visualization toggle (MediaPipeCameraTest)
-- [ ] Proctoring settings form
-- [x] Violation alert notifications (red/yellow based on state)
-- [x] Permission request dialog (browser native)
+- [x] Camera preview with overlay (ProctoringMonitor.tsx)
+- [x] Draggable floating card with position persistence (localStorage)
+- [x] Landmark visualization toggle (showLandmarks prop)
+- [x] Camera consent modal (CameraConsentModal.tsx)
+- [x] Face verification page (FaceVerification.tsx)
+- [x] Violation alert notifications (Map-based multi-violation display)
+- [x] Permission request dialog (CameraConsentModal)
 - [x] Proctoring status indicator (face count badge)
 - [x] Violation count display (in card header)
+- [x] Mirrored video display (transform: scaleX(-1))
+- [ ] Proctoring settings form
 - [ ] Event timeline display
 
 ### Integration Points
 
-- [ ] Assessment creation flow (settings already exist)
+- [ ] Assessment creation flow (require_webcam exists in backend)
 - [x] Assessment taking flow (floating card integration)
+- [x] Camera consent flow (modal with allow once/always)
+- [x] Face verification flow (placeholder page)
+- [x] Assessment detail API (getAssessmentDetail in studentService)
 - [ ] Grading and review flow
 - [ ] Reporting dashboard
 - [ ] User management (permissions)

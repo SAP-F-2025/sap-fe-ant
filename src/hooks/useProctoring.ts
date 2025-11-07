@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export interface ProctoringEvent {
-  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 'mouth_open' | 'head_turned';
+  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 'mouth_open' | 'head_turned' | 'eyes_closed';
   startTime: number;
   endTime: number;
   duration: number;
@@ -25,6 +25,7 @@ export const useMediaPipeFaceDetection = (
   const lookingAwayViolationRef = useRef<{ startTime: number } | null>(null);
   const mouthOpenViolationRef = useRef<{ startTime: number } | null>(null);
   const headTurnedViolationRef = useRef<{ startTime: number } | null>(null);
+  const eyesClosedViolationRef = useRef<{ startTime: number } | null>(null);
 
   useEffect(() => {
     if (!enabled || !videoElement) return;
@@ -67,6 +68,7 @@ export const useMediaPipeFaceDetection = (
             let isLookingAway = false;
             let isMouthOpen = false;
             let isHeadTurned = false;
+            let areEyesClosed = false;
             if (detectionCount === 1 && results.faceLandmarks[0]) {
               const landmarks = results.faceLandmarks[0];
               
@@ -79,6 +81,12 @@ export const useMediaPipeFaceDetection = (
               const rightEyeInner = landmarks[362];
               const rightIris = landmarks[473];
               
+              // Eye dimensions for gaze and closed eye detection
+              const leftEyeTop = landmarks[159];
+              const leftEyeBottom = landmarks[145];
+              const rightEyeTop = landmarks[386];
+              const rightEyeBottom = landmarks[374];
+              
               if (leftIris && rightIris) {
                 // Horizontal: Check left/right gaze
                 const leftEyeWidth = leftEyeInner.x - leftEyeOuter.x;
@@ -87,14 +95,10 @@ export const useMediaPipeFaceDetection = (
                 const rightEyeWidth = rightEyeInner.x - rightEyeOuter.x;
                 const rightIrisPosX = rightEyeWidth !== 0 ? (rightIris.x - rightEyeOuter.x) / rightEyeWidth : 0.5;
                 
-                // Vertical: Check up/down gaze (using eye top/bottom landmarks)
-                const leftEyeTop = landmarks[159];
-                const leftEyeBottom = landmarks[145];
+                // Vertical: Check up/down gaze
                 const leftEyeHeight = leftEyeBottom.y - leftEyeTop.y;
                 const leftIrisPosY = leftEyeHeight !== 0 ? (leftIris.y - leftEyeTop.y) / leftEyeHeight : 0.5;
                 
-                const rightEyeTop = landmarks[386];
-                const rightEyeBottom = landmarks[374];
                 const rightEyeHeight = rightEyeBottom.y - rightEyeTop.y;
                 const rightIrisPosY = rightEyeHeight !== 0 ? (rightIris.y - rightEyeTop.y) / rightEyeHeight : 0.5;
                 
@@ -103,6 +107,12 @@ export const useMediaPipeFaceDetection = (
                 const lookingUpDown = leftIrisPosY < 0.35 || leftIrisPosY > 0.65 || rightIrisPosY < 0.35 || rightIrisPosY > 0.65;
                 
                 isLookingAway = lookingLeftRight || lookingUpDown;
+                
+                // Check eyes closed (using eye aspect ratio)
+                const leftEyeOpenRatio = Math.abs(leftEyeHeight) / Math.abs(leftEyeWidth);
+                const rightEyeOpenRatio = Math.abs(rightEyeHeight) / Math.abs(rightEyeWidth);
+                const avgEyeOpenRatio = (leftEyeOpenRatio + rightEyeOpenRatio) / 2;
+                areEyesClosed = avgEyeOpenRatio < 0.18; // Threshold for closed eyes
               }
               
               // Check mouth open (upper lip to lower lip distance)
@@ -224,6 +234,19 @@ export const useMediaPipeFaceDetection = (
                 onViolation?.(event);
                 headTurnedViolationRef.current = null;
               }
+              if (eyesClosedViolationRef.current) {
+                const endTime = Date.now();
+                const duration = endTime - eyesClosedViolationRef.current.startTime;
+                const event: ProctoringEvent = {
+                  type: 'eyes_closed',
+                  startTime: eyesClosedViolationRef.current.startTime,
+                  endTime,
+                  duration,
+                };
+                console.log(`Violation ended: eyes_closed (${duration}ms)`);
+                onViolation?.(event);
+                eyesClosedViolationRef.current = null;
+              }
             } else if (detectionCount > 1) {
               if (!multipleFacesViolationRef.current) {
                 multipleFacesViolationRef.current = { startTime: Date.now() };
@@ -288,6 +311,19 @@ export const useMediaPipeFaceDetection = (
                 console.log(`Violation ended: head_turned (${duration}ms)`);
                 onViolation?.(event);
                 headTurnedViolationRef.current = null;
+              }
+              if (eyesClosedViolationRef.current) {
+                const endTime = Date.now();
+                const duration = endTime - eyesClosedViolationRef.current.startTime;
+                const event: ProctoringEvent = {
+                  type: 'eyes_closed',
+                  startTime: eyesClosedViolationRef.current.startTime,
+                  endTime,
+                  duration,
+                };
+                console.log(`Violation ended: eyes_closed (${duration}ms)`);
+                onViolation?.(event);
+                eyesClosedViolationRef.current = null;
               }
             } else {
               if (noFaceViolationRef.current) {
@@ -401,6 +437,34 @@ export const useMediaPipeFaceDetection = (
                   console.log(`Violation ended: head_turned (${duration}ms)`);
                   onViolation?.(event);
                   headTurnedViolationRef.current = null;
+                }
+              }
+              
+              // Check eyes closed
+              if (areEyesClosed) {
+                if (!eyesClosedViolationRef.current) {
+                  eyesClosedViolationRef.current = { startTime: Date.now() };
+                  const event: ProctoringEvent = {
+                    type: 'eyes_closed',
+                    startTime: eyesClosedViolationRef.current.startTime,
+                    endTime: 0,
+                    duration: 0,
+                  };
+                  setEvents(prev => [...prev, event]);
+                  onViolation?.(event);
+                }
+              } else {
+                if (eyesClosedViolationRef.current) {
+                  const endTime = Date.now();
+                  const duration = endTime - eyesClosedViolationRef.current.startTime;
+                  const event: ProctoringEvent = {
+                    type: 'eyes_closed',
+                    startTime: eyesClosedViolationRef.current.startTime,
+                    endTime,
+                    duration,
+                  };
+                  onViolation?.(event);
+                  eyesClosedViolationRef.current = null;
                 }
               }
             }

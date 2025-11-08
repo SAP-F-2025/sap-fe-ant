@@ -45,6 +45,14 @@ class StudentService {
   }
 
   /**
+   * Get assessment detail with settings
+   * Uses GET /api/v1/students/me/assessments/:id
+   */
+  async getAssessmentDetail(assessmentId: number): Promise<StudentAssessment> {
+    return apiService.get<StudentAssessment>(API_ENDPOINTS.STUDENT_ASSESSMENT_DETAIL(assessmentId));
+  }
+
+  /**
    * Get student dashboard stats
    * Uses new GET /api/v1/students/me/stats endpoint
    */

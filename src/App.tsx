@@ -32,6 +32,7 @@ import Callback from './pages/Auth/Callback';
 // Student Pages
 import StudentDashboard from './pages/Student/StudentDashboard';
 import AvailableAssessments from './pages/Student/AvailableAssessments';
+import FaceVerification from './pages/Student/FaceVerification';
 import TakeAssessment from './pages/Student/TakeAssessment';
 import AssessmentResults from './pages/Student/AssessmentResults';
 import StudentHistory from './pages/Student/StudentHistory';
@@ -245,6 +246,7 @@ const App: React.FC = () => {
                       <Route index element={<Navigate to="/student/dashboard" replace />} />
                       <Route path="dashboard" element={<StudentDashboard />} />
                       <Route path="assessments" element={<AvailableAssessments />} />
+                      <Route path="face-verification" element={<FaceVerification />} />
                       <Route path="take/:attemptId" element={<TakeAssessment />} />
                       <Route path="results/:attemptId" element={<AssessmentResults />} />
                       <Route path="history" element={<StudentHistory />} />

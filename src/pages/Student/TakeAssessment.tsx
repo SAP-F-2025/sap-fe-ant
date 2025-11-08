@@ -17,6 +17,8 @@ import {
   Col,
   Statistic,
 } from 'antd';
+import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor';
+import type { ProctoringEvent } from '../../hooks/useProctoring';
 import {
   ClockCircleOutlined,
   CheckOutlined,
@@ -43,6 +45,7 @@ const TakeAssessment: React.FC = () => {
   const [answers, setAnswers] = useState<Record<number, any>>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [autoSaving, setAutoSaving] = useState(false);
+  const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
 
   // Fetch attempt details (includes questions)
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
@@ -50,6 +53,8 @@ const TakeAssessment: React.FC = () => {
     queryFn: () => studentService.getAttemptDetails(Number(attemptId)),
     enabled: !!attemptId,
   });
+
+
 
   // Questions are included in attempt details
   const questions = attempt?.questions || [];
@@ -100,11 +105,11 @@ const TakeAssessment: React.FC = () => {
   const submitAttemptMutation = useMutation({
     mutationFn: (data: CompleteAttemptRequest) => studentService.submitAttempt(data),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['attempt-detail', attemptId] });
       modal.success({
         title: 'Đã nộp bài',
         content: 'Bài kiểm tra của bạn đã được nộp thành công!',
         onOk: () => {
+          queryClient.invalidateQueries({ queryKey: ['attempt-detail', attemptId] });
           navigate(`/student/results/${attemptId}`);
         },
       });
@@ -124,7 +129,7 @@ const TakeAssessment: React.FC = () => {
     const fetchTimeRemaining = async () => {
       try {
         const timeData = await studentService.getTimeRemaining(Number(attemptId));
-        setTimeRemaining(timeData.data); // Changed from time_remaining to data
+        setTimeRemaining(timeData.data);
       } catch (error) {
         console.error('Error fetching time remaining:', error);
       }
@@ -597,6 +602,27 @@ const TakeAssessment: React.FC = () => {
     return '#f5222d';
   };
 
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const answeredCount = Object.keys(answers).length;
+  const settings = attempt?.assessment?.settings;
+  const requireWebcam = settings?.require_webcam;
+
+  useEffect(() => {
+    if (settings) {
+      console.log('Assessment proctoring settings:', {
+        require_webcam: settings.require_webcam,
+        require_full_screen: settings.require_full_screen,
+        prevent_tab_switching: settings.prevent_tab_switching,
+        prevent_copy_paste: settings.prevent_copy_paste
+      });
+    }
+  }, [settings]);
+
+  const handleProctoringViolation = (event: ProctoringEvent) => {
+    setProctoringEvents(prev => [...prev, event]);
+    console.log('Proctoring violation:', event);
+  };
+
   if (isLoading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
@@ -646,9 +672,6 @@ const TakeAssessment: React.FC = () => {
       </div>
     );
   }
-
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const answeredCount = Object.keys(answers).length;
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -789,6 +812,19 @@ const TakeAssessment: React.FC = () => {
           })}
         </Space>
       </Card>
+
+      {/* Proctoring Monitor - Floating */}
+      {requireWebcam && (
+        <ProctoringMonitor
+          onViolation={handleProctoringViolation}
+          showLandmarks={false}
+          compact
+          violationCount={proctoringEvents.length}
+          requireFullscreen={settings?.require_full_screen}
+          preventTabSwitching={settings?.prevent_tab_switching}
+          preventCopyPaste={settings?.prevent_copy_paste}
+        />
+      )}
 
       {/* Warning: Leave page */}
       <Alert

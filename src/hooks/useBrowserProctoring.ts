@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 
 export interface BrowserProctoringEvent {
-  type: 'tab_switch' | 'fullscreen_exit' | 'copy_paste';
+  type: 'tab_switch' | 'fullscreen_exit' | 'copy_paste' | 'browser_tamper';
   startTime: number;
   endTime: number;
   duration: number;
   metadata?: {
     action?: 'copy' | 'paste' | 'cut';
     hidden?: boolean;
+    tamperType?: 'devtools' | 'console' | 'extension';
   };
 }
 
@@ -16,6 +17,7 @@ interface UseBrowserProctoringProps {
   requireFullscreen?: boolean;
   preventTabSwitching?: boolean;
   preventCopyPaste?: boolean;
+  detectTampering?: boolean;
   onViolation?: (event: BrowserProctoringEvent) => void;
 }
 
@@ -24,9 +26,11 @@ export const useBrowserProctoring = ({
   requireFullscreen = false,
   preventTabSwitching = true,
   preventCopyPaste = true,
+  detectTampering = false,
   onViolation
 }: UseBrowserProctoringProps) => {
   const tabSwitchViolationRef = useRef<{ startTime: number } | null>(null);
+  const tamperViolationRef = useRef<{ startTime: number } | null>(null);
 
   useEffect(() => {
     if (!enabled) return;
@@ -166,6 +170,45 @@ export const useBrowserProctoring = ({
     document.addEventListener('paste', handlePaste);
     document.addEventListener('cut', handleCut);
 
+    // Tamper detection (DevTools monitoring)
+    let tamperInterval: NodeJS.Timeout | null = null;
+    if (detectTampering) {
+      const checkDevTools = () => {
+        const widthDiff = window.outerWidth - window.innerWidth;
+        const heightDiff = window.outerHeight - window.innerHeight;
+        const isDevToolsOpen = widthDiff > 160 || heightDiff > 160;
+
+        if (isDevToolsOpen && !tamperViolationRef.current) {
+          // DevTools opened - start violation
+          tamperViolationRef.current = { startTime: Date.now() };
+          const event: BrowserProctoringEvent = {
+            type: 'browser_tamper',
+            startTime: tamperViolationRef.current.startTime,
+            endTime: 0,
+            duration: 0,
+            metadata: { tamperType: 'devtools' }
+          };
+          console.log('Browser tamper detected (DevTools opened):', event);
+          onViolation?.(event);
+        } else if (!isDevToolsOpen && tamperViolationRef.current) {
+          // DevTools closed - end violation
+          const endTime = Date.now();
+          const duration = endTime - tamperViolationRef.current.startTime;
+          const event: BrowserProctoringEvent = {
+            type: 'browser_tamper',
+            startTime: tamperViolationRef.current.startTime,
+            endTime,
+            duration,
+            metadata: { tamperType: 'devtools' }
+          };
+          console.log('Browser tamper stopped (DevTools closed):', event, `Duration: ${duration}ms`);
+          onViolation?.(event);
+          tamperViolationRef.current = null;
+        }
+      };
+      tamperInterval = setInterval(checkDevTools, 2000);
+    }
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
@@ -174,6 +217,7 @@ export const useBrowserProctoring = ({
       document.removeEventListener('copy', handleCopy);
       document.removeEventListener('paste', handlePaste);
       document.removeEventListener('cut', handleCut);
+      if (tamperInterval) clearInterval(tamperInterval);
     };
   }, [enabled, requireFullscreen, preventTabSwitching, preventCopyPaste]);
 

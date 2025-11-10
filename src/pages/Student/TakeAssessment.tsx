@@ -19,6 +19,7 @@ import {
 } from 'antd';
 import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor';
 import type { ProctoringEvent } from '../../hooks/useProctoring';
+import { useBrowserProctoring, type BrowserProctoringEvent } from '../../hooks/useBrowserProctoring';
 import {
   ClockCircleOutlined,
   CheckOutlined,
@@ -46,6 +47,7 @@ const TakeAssessment: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [autoSaving, setAutoSaving] = useState(false);
   const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
+  const [browserViolations, setBrowserViolations] = useState<Map<string, BrowserProctoringEvent>>(new Map());
 
   // Fetch attempt details (includes questions)
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
@@ -637,6 +639,33 @@ const TakeAssessment: React.FC = () => {
     console.log('Proctoring violation:', event);
   };
 
+  const handleBrowserViolation = (event: BrowserProctoringEvent) => {
+    const key = event.type;
+    if (event.duration === 0) {
+      setBrowserViolations(prev => new Map(prev).set(key, event));
+    } else {
+      setBrowserViolations(prev => new Map(prev).set(key, event));
+      setTimeout(() => {
+        setBrowserViolations(prev => {
+          const next = new Map(prev);
+          next.delete(key);
+          return next;
+        });
+      }, 3000);
+    }
+    console.log('Browser violation:', event);
+  };
+
+  // Browser proctoring for ALL tests (not just webcam tests)
+  useBrowserProctoring({
+    enabled: true,
+    requireFullscreen: settings?.require_full_screen,
+    preventTabSwitching: settings?.prevent_tab_switching,
+    preventCopyPaste: settings?.prevent_copy_paste,
+    detectTampering: true,
+    onViolation: handleBrowserViolation
+  });
+
   if (isLoading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
@@ -837,7 +866,34 @@ const TakeAssessment: React.FC = () => {
           requireFullscreen={settings?.require_full_screen}
           preventTabSwitching={settings?.prevent_tab_switching}
           preventCopyPaste={settings?.prevent_copy_paste}
+          detectTampering={true}
         />
+      )}
+
+      {/* Browser Violations (for non-webcam tests) */}
+      {!requireWebcam && browserViolations.size > 0 && (
+        <Card title="Cảnh báo vi phạm" style={{ marginTop: '16px' }}>
+          {Array.from(browserViolations.values()).map((violation) => {
+            const getMessage = (type: string, metadata?: any) => {
+              switch (type) {
+                case 'tab_switch': return metadata?.hidden ? 'Chuyển tab/cửa sổ' : 'Quay lại tab';
+                case 'fullscreen_exit': return 'Thoát chế độ toàn màn hình';
+                case 'copy_paste': return `Phát hiện ${metadata?.action === 'copy' ? 'sao chép' : metadata?.action === 'paste' ? 'dán' : 'cắt'}`;
+                case 'browser_tamper': return 'Phát hiện DevTools';
+                default: return 'Vi phạm';
+              }
+            };
+            return (
+              <Alert
+                key={violation.type}
+                type={violation.duration === 0 ? 'error' : 'warning'}
+                message={getMessage(violation.type, violation.metadata)}
+                showIcon
+                style={{ marginBottom: 8 }}
+              />
+            );
+          })}
+        </Card>
       )}
 
       {/* Warning: Leave page */}

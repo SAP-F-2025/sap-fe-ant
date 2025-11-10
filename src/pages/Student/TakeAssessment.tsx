@@ -20,6 +20,7 @@ import {
 import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor';
 import type { ProctoringEvent } from '../../hooks/useProctoring';
 import { useBrowserProctoring, type BrowserProctoringEvent } from '../../hooks/useBrowserProctoring';
+import { useDevToolsBlocker } from '../../hooks/useDevToolsBlocker';
 import {
   ClockCircleOutlined,
   CheckOutlined,
@@ -665,6 +666,9 @@ const TakeAssessment: React.FC = () => {
     detectTampering: true,
     onViolation: handleBrowserViolation
   });
+
+  // Block DevTools shortcuts (F12, right-click, etc.) - bypassed in dev mode
+  useDevToolsBlocker(true);
 
   if (isLoading) {
     return (

@@ -1,4 +1,4 @@
-import { API_CONFIG } from '../config/api';
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
 import apiService from './api';
 import type { ProctoringEvent } from '../hooks/useProctoring';
 import type { BrowserProctoringEvent } from '../hooks/useBrowserProctoring';
@@ -125,14 +125,10 @@ class ViolationService {
     assessmentId: number,
     snapshotUrl?: string
   ): Promise<void> {
-    // Only submit if:
-    // 1. Instant violation (duration === 0, endTime === 0)
-    // 2. Prolonged violation ended (duration > 0, endTime > 0)
     const isInstant = event.duration === 0 && event.endTime === 0;
     const isProlongedEnded = event.duration > 0 && event.endTime > 0;
     
     if (!isInstant && !isProlongedEnded) {
-      // Violation started but not ended yet - don't submit
       return;
     }
 
@@ -145,7 +141,7 @@ class ViolationService {
       snapshotUrl
     );
 
-    await apiService.post('/api/v1/violations', payload);
+    await apiService.post(API_ENDPOINTS.VIOLATIONS, payload);
   }
 
   /**
@@ -159,14 +155,10 @@ class ViolationService {
     attemptId: number,
     assessmentId: number
   ): Promise<void> {
-    // Only submit if:
-    // 1. Instant violation (duration === 0, endTime === 0)
-    // 2. Prolonged violation ended (duration > 0, endTime > 0)
     const isInstant = event.duration === 0 && event.endTime === 0;
     const isProlongedEnded = event.duration > 0 && event.endTime > 0;
     
     if (!isInstant && !isProlongedEnded) {
-      // Violation started but not ended yet - don't submit
       return;
     }
 
@@ -178,7 +170,7 @@ class ViolationService {
       1.0
     );
 
-    await apiService.post('/api/v1/violations', payload);
+    await apiService.post(API_ENDPOINTS.VIOLATIONS, payload);
   }
 
   /**
@@ -243,13 +235,7 @@ class ViolationService {
       );
     });
 
-    try {
-      await apiService.post('/api/v1/violations/batch', { violations: payloads });
-      console.log(`Submitted ${payloads.length} violations in batch`);
-    } catch (error) {
-      console.error('Failed to submit violations batch:', error);
-      throw error;
-    }
+    await apiService.post(API_ENDPOINTS.VIOLATIONS_BATCH, { violations: payloads });
   }
 }
 

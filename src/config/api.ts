@@ -83,4 +83,8 @@ export const API_ENDPOINTS = {
   STUDENT_ASSESSMENTS: '/api/v1/students/me/assessments',
   STUDENT_ASSESSMENT_DETAIL: (id: number) => `/api/v1/students/me/assessments/${id}`,
   STUDENT_ATTEMPTS: '/api/v1/students/me/attempts',
+
+  // Violations
+  VIOLATIONS: '/api/v1/violations',
+  VIOLATIONS_BATCH: '/api/v1/violations/batch',
 };

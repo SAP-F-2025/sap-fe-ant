@@ -32,6 +32,8 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import studentService from '../../services/studentService';
+import violationService from '../../services/violationService';
+import { useAuth } from '../../hooks/useAuth';
 import type { AttemptDetail, SubmitAnswerRequest, CompleteAttemptRequest } from '../../types';
 
 const { Title, Text, Paragraph } = Typography;
@@ -42,6 +44,7 @@ const TakeAssessment: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { modal } = App.useApp();
+  const { user } = useAuth();
 
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, any>>({});
@@ -106,7 +109,30 @@ const TakeAssessment: React.FC = () => {
 
   // Submit attempt mutation
   const submitAttemptMutation = useMutation({
-    mutationFn: (data: CompleteAttemptRequest) => studentService.submitAttempt(data),
+    mutationFn: async (data: CompleteAttemptRequest) => {
+      // Submit all violations before submitting attempt
+      if (user && attempt) {
+        const allViolations = [
+          ...proctoringEvents.map(event => ({ event, type: 'camera' as const })),
+          ...Array.from(browserViolations.values()).map(event => ({ event, type: 'browser' as const }))
+        ];
+        
+        if (allViolations.length > 0) {
+          try {
+            await violationService.submitViolationsBatch(
+              allViolations,
+              user.id,
+              attempt.id,
+              attempt.assessment_id
+            );
+          } catch (error) {
+            console.error('Failed to submit violations batch:', error);
+          }
+        }
+      }
+      
+      return studentService.submitAttempt(data);
+    },
     onSuccess: (data) => {
       // Exit fullscreen after submission
       if (document.fullscreenElement) {
@@ -640,12 +666,26 @@ const TakeAssessment: React.FC = () => {
     }
   }, [settings]);
 
-  const handleProctoringViolation = (event: ProctoringEvent) => {
+  const handleProctoringViolation = async (event: ProctoringEvent) => {
     setProctoringEvents(prev => [...prev, event]);
     console.log('Proctoring violation:', event);
+
+    // Submit to backend if violation ended
+    if (user && attempt && (event.duration > 0 && event.endTime > 0)) {
+      try {
+        await violationService.submitCameraViolation(
+          event,
+          user.id,
+          attempt.id,
+          attempt.assessment_id
+        );
+      } catch (error) {
+        console.error('Failed to submit camera violation:', error);
+      }
+    }
   };
 
-  const handleBrowserViolation = (event: BrowserProctoringEvent) => {
+  const handleBrowserViolation = async (event: BrowserProctoringEvent) => {
     const key = event.type;
     if (event.duration === 0) {
       setBrowserViolations(prev => new Map(prev).set(key, event));
@@ -660,6 +700,20 @@ const TakeAssessment: React.FC = () => {
       }, 3000);
     }
     console.log('Browser violation:', event);
+
+    // Submit to backend
+    if (user && attempt) {
+      try {
+        await violationService.submitBrowserViolation(
+          event,
+          user.id,
+          attempt.id,
+          attempt.assessment_id
+        );
+      } catch (error) {
+        console.error('Failed to submit browser violation:', error);
+      }
+    }
   };
 
   // Browser proctoring for ALL tests (not just webcam tests)

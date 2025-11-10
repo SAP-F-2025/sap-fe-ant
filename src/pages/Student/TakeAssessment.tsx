@@ -19,6 +19,8 @@ import {
 } from 'antd';
 import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor';
 import type { ProctoringEvent } from '../../hooks/useProctoring';
+import { useBrowserProctoring, type BrowserProctoringEvent } from '../../hooks/useBrowserProctoring';
+import { useDevToolsBlocker } from '../../hooks/useDevToolsBlocker';
 import {
   ClockCircleOutlined,
   CheckOutlined,
@@ -46,6 +48,7 @@ const TakeAssessment: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [autoSaving, setAutoSaving] = useState(false);
   const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
+  const [browserViolations, setBrowserViolations] = useState<Map<string, BrowserProctoringEvent>>(new Map());
 
   // Fetch attempt details (includes questions)
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
@@ -105,6 +108,11 @@ const TakeAssessment: React.FC = () => {
   const submitAttemptMutation = useMutation({
     mutationFn: (data: CompleteAttemptRequest) => studentService.submitAttempt(data),
     onSuccess: (data) => {
+      // Exit fullscreen after submission
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => console.error('Failed to exit fullscreen:', err));
+      }
+      
       modal.success({
         title: 'Đã nộp bài',
         content: 'Bài kiểm tra của bạn đã được nộp thành công!',
@@ -129,7 +137,21 @@ const TakeAssessment: React.FC = () => {
     const fetchTimeRemaining = async () => {
       try {
         const timeData = await studentService.getTimeRemaining(Number(attemptId));
-        setTimeRemaining(timeData.data);
+        const remainingSeconds = timeData.data;
+        
+        // Check if attempt has already expired
+        if (remainingSeconds <= 0) {
+          modal.warning({
+            title: 'Hết giờ!',
+            content: 'Thời gian làm bài đã hết. Bài kiểm tra sẽ được nộp tự động.',
+            onOk: () => {
+              submitAttemptMutation.mutate(buildCompleteAttemptRequest('timeout'));
+            },
+          });
+          return;
+        }
+        
+        setTimeRemaining(remainingSeconds);
       } catch (error) {
         console.error('Error fetching time remaining:', error);
       }
@@ -602,6 +624,104 @@ const TakeAssessment: React.FC = () => {
     return '#f5222d';
   };
 
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const answeredCount = Object.keys(answers).length;
+  const settings = attempt?.assessment?.settings;
+  const requireWebcam = settings?.require_webcam;
+
+  useEffect(() => {
+    if (settings) {
+      console.log('Assessment proctoring settings:', {
+        require_webcam: settings.require_webcam,
+        require_full_screen: settings.require_full_screen,
+        prevent_tab_switching: settings.prevent_tab_switching,
+        prevent_copy_paste: settings.prevent_copy_paste
+      });
+    }
+  }, [settings]);
+
+  const handleProctoringViolation = (event: ProctoringEvent) => {
+    setProctoringEvents(prev => [...prev, event]);
+    console.log('Proctoring violation:', event);
+  };
+
+  const handleBrowserViolation = (event: BrowserProctoringEvent) => {
+    const key = event.type;
+    if (event.duration === 0) {
+      setBrowserViolations(prev => new Map(prev).set(key, event));
+    } else {
+      setBrowserViolations(prev => new Map(prev).set(key, event));
+      setTimeout(() => {
+        setBrowserViolations(prev => {
+          const next = new Map(prev);
+          next.delete(key);
+          return next;
+        });
+      }, 3000);
+    }
+    console.log('Browser violation:', event);
+  };
+
+  // Browser proctoring for ALL tests (not just webcam tests)
+  useBrowserProctoring({
+    enabled: true,
+    requireFullscreen: settings?.require_full_screen,
+    preventTabSwitching: settings?.prevent_tab_switching,
+    preventCopyPaste: settings?.prevent_copy_paste,
+    detectTampering: true,
+    onViolation: handleBrowserViolation
+  });
+
+  // Block DevTools shortcuts (F12, right-click, etc.) - bypassed in dev mode
+  useDevToolsBlocker(true);
+
+  // Auto-enter fullscreen when test loads (if required)
+  useEffect(() => {
+    if (!attempt || !settings) return;
+    
+    const enterFullscreen = async () => {
+      if (settings.require_full_screen && !document.fullscreenElement) {
+        try {
+          await document.documentElement.requestFullscreen();
+          console.log('Entered fullscreen mode');
+        } catch (err) {
+          console.error('Failed to enter fullscreen:', err);
+          modal.warning({
+            title: 'Yêu cầu toàn màn hình',
+            content: 'Bài kiểm tra này yêu cầu chế độ toàn màn hình. Vui lòng cho phép.',
+          });
+        }
+      }
+    };
+
+    enterFullscreen();
+  }, [attempt, settings]);
+
+  // Prevent exiting fullscreen during test
+  useEffect(() => {
+    if (!settings?.require_full_screen) return;
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        // User exited fullscreen - try to re-enter
+        modal.warning({
+          title: 'Yêu cầu toàn màn hình',
+          content: 'Bạn không thể thoát chế độ toàn màn hình trong khi làm bài.',
+          onOk: async () => {
+            try {
+              await document.documentElement.requestFullscreen();
+            } catch (err) {
+              console.error('Failed to re-enter fullscreen:', err);
+            }
+          },
+        });
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [settings]);
+
   if (isLoading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
@@ -651,17 +771,6 @@ const TakeAssessment: React.FC = () => {
       </div>
     );
   }
-
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const answeredCount = Object.keys(answers).length;
-  const requireWebcam = attempt?.assessment?.settings?.require_webcam;
-
-  const handleProctoringViolation = (event: ProctoringEvent) => {
-    setProctoringEvents(prev => [...prev, event]);
-    console.log('Proctoring violation:', event);
-  };
-
-
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -810,7 +919,37 @@ const TakeAssessment: React.FC = () => {
           showLandmarks={false}
           compact
           violationCount={proctoringEvents.length}
+          requireFullscreen={settings?.require_full_screen}
+          preventTabSwitching={settings?.prevent_tab_switching}
+          preventCopyPaste={settings?.prevent_copy_paste}
+          detectTampering={true}
         />
+      )}
+
+      {/* Browser Violations (for non-webcam tests) */}
+      {!requireWebcam && browserViolations.size > 0 && (
+        <Card title="Cảnh báo vi phạm" style={{ marginTop: '16px' }}>
+          {Array.from(browserViolations.values()).map((violation) => {
+            const getMessage = (type: string, metadata?: any) => {
+              switch (type) {
+                case 'tab_switch': return metadata?.hidden ? 'Chuyển tab/cửa sổ' : 'Quay lại tab';
+                case 'fullscreen_exit': return 'Thoát chế độ toàn màn hình';
+                case 'copy_paste': return `Phát hiện ${metadata?.action === 'copy' ? 'sao chép' : metadata?.action === 'paste' ? 'dán' : 'cắt'}`;
+                case 'browser_tamper': return 'Phát hiện DevTools';
+                default: return 'Vi phạm';
+              }
+            };
+            return (
+              <Alert
+                key={violation.type}
+                type={violation.duration === 0 ? 'error' : 'warning'}
+                message={getMessage(violation.type, violation.metadata)}
+                showIcon
+                style={{ marginBottom: 8 }}
+              />
+            );
+          })}
+        </Card>
       )}
 
       {/* Warning: Leave page */}

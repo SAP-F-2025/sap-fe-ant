@@ -11,6 +11,7 @@ import {
   Alert,
 } from 'antd';
 import { CameraConsentModal } from '../../components/Proctoring/CameraConsentModal';
+import { TamperCheckModal } from '../../components/Proctoring/TamperCheckModal';
 import {
   SearchOutlined,
   PlayCircleOutlined,
@@ -37,6 +38,7 @@ const AvailableAssessments: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [cameraConsentModal, setCameraConsentModal] = useState(false);
+  const [tamperCheckModal, setTamperCheckModal] = useState(false);
   const [selectedAssessment, setSelectedAssessment] = useState<any>(null);
 
   const { data, isLoading } = useQuery({
@@ -160,15 +162,23 @@ const AvailableAssessments: React.FC = () => {
   };
 
   const showStartConfirmation = (assessment: any) => {
+    setSelectedAssessment(assessment);
+    setTamperCheckModal(true);
+  };
+
+  const handleTamperCheckPass = () => {
+    setTamperCheckModal(false);
+    if (!selectedAssessment) return;
+
     modal.confirm({
       title: 'Bắt đầu làm bài',
       icon: <PlayCircleOutlined />,
       content: (
         <div>
-          <p><strong>{assessment.title}</strong></p>
-          <p>Thời gian: {assessment.duration} phút</p>
-          <p>Số lần làm: {assessment.attempts_used} / {assessment.max_attempts}</p>
-          <p>Điểm đạt: {assessment.passing_score}%</p>
+          <p><strong>{selectedAssessment.title}</strong></p>
+          <p>Thời gian: {selectedAssessment.duration} phút</p>
+          <p>Số lần làm: {selectedAssessment.attempts_used} / {selectedAssessment.max_attempts}</p>
+          <p>Điểm đạt: {selectedAssessment.passing_score}%</p>
           <Alert
             message="Khi bạn bắt đầu, đồng hồ sẽ bắt đầu đếm. Hãy đảm bảo kết nối internet ổn định."
             type="warning"
@@ -182,7 +192,7 @@ const AvailableAssessments: React.FC = () => {
       onOk: async () => {
         try {
           const attempt = await studentService.startAttempt({
-            assessment_id: assessment.id,
+            assessment_id: selectedAssessment.id,
             student_id: user?.id || '',
           });
           navigate(`/student/take/${attempt.id}`);
@@ -344,6 +354,11 @@ const AvailableAssessments: React.FC = () => {
         open={cameraConsentModal}
         onConsent={handleCameraConsent}
         onReject={handleCameraReject}
+      />
+      <TamperCheckModal
+        open={tamperCheckModal}
+        onPass={handleTamperCheckPass}
+        onCancel={() => setTamperCheckModal(false)}
       />
       <div style={{ padding: '24px' }}>
       <div style={{ marginBottom: '24px' }}>

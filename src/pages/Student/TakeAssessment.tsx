@@ -108,6 +108,11 @@ const TakeAssessment: React.FC = () => {
   const submitAttemptMutation = useMutation({
     mutationFn: (data: CompleteAttemptRequest) => studentService.submitAttempt(data),
     onSuccess: (data) => {
+      // Exit fullscreen after submission
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => console.error('Failed to exit fullscreen:', err));
+      }
+      
       modal.success({
         title: 'Đã nộp bài',
         content: 'Bài kiểm tra của bạn đã được nộp thành công!',
@@ -669,6 +674,53 @@ const TakeAssessment: React.FC = () => {
 
   // Block DevTools shortcuts (F12, right-click, etc.) - bypassed in dev mode
   useDevToolsBlocker(true);
+
+  // Auto-enter fullscreen when test loads (if required)
+  useEffect(() => {
+    if (!attempt || !settings) return;
+    
+    const enterFullscreen = async () => {
+      if (settings.require_full_screen && !document.fullscreenElement) {
+        try {
+          await document.documentElement.requestFullscreen();
+          console.log('Entered fullscreen mode');
+        } catch (err) {
+          console.error('Failed to enter fullscreen:', err);
+          modal.warning({
+            title: 'Yêu cầu toàn màn hình',
+            content: 'Bài kiểm tra này yêu cầu chế độ toàn màn hình. Vui lòng cho phép.',
+          });
+        }
+      }
+    };
+
+    enterFullscreen();
+  }, [attempt, settings]);
+
+  // Prevent exiting fullscreen during test
+  useEffect(() => {
+    if (!settings?.require_full_screen) return;
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        // User exited fullscreen - try to re-enter
+        modal.warning({
+          title: 'Yêu cầu toàn màn hình',
+          content: 'Bạn không thể thoát chế độ toàn màn hình trong khi làm bài.',
+          onOk: async () => {
+            try {
+              await document.documentElement.requestFullscreen();
+            } catch (err) {
+              console.error('Failed to re-enter fullscreen:', err);
+            }
+          },
+        });
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [settings]);
 
   if (isLoading) {
     return (

@@ -3,44 +3,50 @@ import { TokenService } from './tokenService';
 
 export class AuthService {
   /**
-   * Logout from Casdoor
+   * Logout from Casdoor using Single Sign-Out (SSO)
+   * Implements best practices from Casdoor SSO documentation
    */
   static async logout(): Promise<void> {
     try {
       const accessToken = TokenService.getAccessToken();
-      const sessionId = this.getSessionId();
-      
-      if (accessToken) {
-        const logoutUrl = `${CasdoorConfig.serverUrl}/api/logout`;
-        const headers: Record<string, string> = {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        };
 
-        if (sessionId) {
-          headers['casdoor_session_id'] = sessionId;
+      if (accessToken) {
+        // Use the SSO logout endpoint as per Casdoor documentation
+        const logoutUrl = `${CasdoorConfig.serverUrl}/api/sso-logout`;
+
+        // Create abort controller for 5-second timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        try {
+          await fetch(logoutUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include', // Include cookies for session handling
+            signal: controller.signal,
+          });
+        } catch (fetchError) {
+          // Log error but don't throw - we'll clear local state anyway
+          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            console.warn('Logout request timed out after 5 seconds');
+          } else {
+            console.error('Logout API error:', fetchError);
+          }
+        } finally {
+          clearTimeout(timeoutId);
         }
-        
-        await fetch(logoutUrl, {
-          method: 'POST',
-          headers,
-        });
       }
     } catch (error) {
-      console.error('Logout API error:', error);
+      // Log unexpected errors but continue to clear local state
+      console.error('Unexpected logout error:', error);
     } finally {
+      // Always clear local authentication state regardless of API success
+      // This ensures the user appears logged out even if the endpoint fails
       TokenService.clearTokens();
-      this.clearSessionId();
+      sessionStorage.clear()
     }
-  }
-
-  private static getSessionId(): string | null {
-    const cookies = document.cookie.split('; ');
-    const sessionCookie = cookies.find(c => c.startsWith('casdoor_session_id='));
-    return sessionCookie ? sessionCookie.split('=')[1] : null;
-  }
-
-  private static clearSessionId(): void {
-    document.cookie = 'casdoor_session_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   }
 }

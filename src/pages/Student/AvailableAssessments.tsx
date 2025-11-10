@@ -59,15 +59,7 @@ const AvailableAssessments: React.FC = () => {
         return;
       }
 
-      const canStartResult = await studentService.canStartAssessment(assessment.id);
-      if (!canStartResult.can_start) {
-        modal.error({
-          title: 'Không thể bắt đầu',
-          content: canStartResult.message || 'Bạn không thể bắt đầu bài kiểm tra này lúc này.',
-        });
-        return;
-      }
-
+      // Handle active attempt first (skip canStartAssessment check)
       if (assessment.has_active_attempt) {
         modal.confirm({
           title: 'Tiếp tục làm bài',
@@ -75,13 +67,48 @@ const AvailableAssessments: React.FC = () => {
           content: 'Bạn đang có một lần làm bài chưa hoàn thành. Bạn có muốn tiếp tục?',
           okText: 'Tiếp tục',
           cancelText: 'Hủy',
-          onOk: () => {
-            studentService.getCurrentAttempt(assessment.id).then((attempt) => {
+          onOk: async () => {
+            try {
+              const attempt = await studentService.getCurrentAttempt(assessment.id);
               if (attempt) {
-                navigate(`/student/take/${attempt.id}`);
+                // Check if attempt has expired
+                const timeData = await studentService.getTimeRemaining(attempt.id);
+                if (timeData.data <= 0) {
+                  // Auto-submit expired attempt
+                  modal.warning({
+                    title: 'Hết giờ',
+                    content: 'Bài kiểm tra đã hết thời gian và sẽ được nộp tự động.',
+                    onOk: async () => {
+                      await studentService.submitAttempt({
+                        attempt_id: attempt.id,
+                        answers: [],
+                        end_reason: 'timeout',
+                      });
+                      // Refresh the list
+                      window.location.reload();
+                    },
+                  });
+                } else {
+                  navigate(`/student/take/${attempt.id}`);
+                }
               }
-            });
+            } catch (error: any) {
+              modal.error({
+                title: 'Lỗi',
+                content: error.message || 'Không thể tiếp tục bài kiểm tra',
+              });
+            }
           },
+        });
+        return;
+      }
+
+      // Check if student can start a new attempt
+      const canStartResult = await studentService.canStartAssessment(assessment.id);
+      if (!canStartResult.can_start) {
+        modal.error({
+          title: 'Không thể bắt đầu',
+          content: canStartResult.message || 'Bạn không thể bắt đầu bài kiểm tra này lúc này.',
         });
         return;
       }

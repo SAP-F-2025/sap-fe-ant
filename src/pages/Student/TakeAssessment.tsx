@@ -129,7 +129,21 @@ const TakeAssessment: React.FC = () => {
     const fetchTimeRemaining = async () => {
       try {
         const timeData = await studentService.getTimeRemaining(Number(attemptId));
-        setTimeRemaining(timeData.data);
+        const remainingSeconds = timeData.data;
+        
+        // Check if attempt has already expired
+        if (remainingSeconds <= 0) {
+          modal.warning({
+            title: 'Hết giờ!',
+            content: 'Thời gian làm bài đã hết. Bài kiểm tra sẽ được nộp tự động.',
+            onOk: () => {
+              submitAttemptMutation.mutate(buildCompleteAttemptRequest('timeout'));
+            },
+          });
+          return;
+        }
+        
+        setTimeRemaining(remainingSeconds);
       } catch (error) {
         console.error('Error fetching time remaining:', error);
       }

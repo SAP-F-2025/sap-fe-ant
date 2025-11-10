@@ -120,9 +120,9 @@ const AvailableAssessments: React.FC = () => {
       
       // Preserve the original assessment data and merge with details
       const fullAssessment = { ...assessment, ...assessmentDetail };
-      
-			console.log('Assessment Settings:', assessmentDetail);
-      const requireWebcam = assessmentDetail.settings?.require_webcam;
+      // console.log('Assessment Settings:', assessmentDetail);
+      // console.log('Assessment:', assessment);
+      const requireWebcam = assessment.settings?.require_webcam;
       if (requireWebcam) {
         const consent = localStorage.getItem('camera-consent');
         if (consent === 'always') {

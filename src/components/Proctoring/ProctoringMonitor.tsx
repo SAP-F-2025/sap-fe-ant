@@ -12,6 +12,7 @@ interface ProctoringMonitorProps {
 	requireFullscreen?: boolean;
 	preventTabSwitching?: boolean;
 	preventCopyPaste?: boolean;
+	detectTampering?: boolean;
 }
 
 export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
@@ -21,7 +22,8 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	violationCount = 0,
 	requireFullscreen = false,
 	preventTabSwitching = true,
-	preventCopyPaste = true
+	preventCopyPaste = true,
+	detectTampering = false
 }) => {
 	const cardRef = useRef<HTMLDivElement>(null);
 	const [position, setPosition] = useState(() => {
@@ -76,6 +78,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		requireFullscreen,
 		preventTabSwitching,
 		preventCopyPaste,
+		detectTampering,
 		onViolation: handleViolation
 	});
 
@@ -300,6 +303,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 							case 'tab_switch': return metadata?.hidden ? 'Chuyển tab/cửa sổ' : 'Quay lại tab';
 							case 'fullscreen_exit': return 'Thoát chế độ toàn màn hình';
 							case 'copy_paste': return `Phát hiện ${metadata?.action === 'copy' ? 'sao chép' : metadata?.action === 'paste' ? 'dán' : 'cắt'}`;
+							case 'browser_tamper': return 'Phát hiện DevTools';
 							default: return 'Vi phạm';
 						}
 					};

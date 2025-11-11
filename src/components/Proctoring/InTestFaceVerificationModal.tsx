@@ -98,12 +98,10 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
       } else {
         const similarity = (result.similarity * 100).toFixed(1);
         setError(`Xác thực thất bại. Độ tương đồng: ${similarity}%. ${result.reason || 'Vui lòng thử lại.'}`);
-        onFail();
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.');
       console.error('Verification error:', err);
-      onFail();
     } finally {
       setVerifying(false);
     }
@@ -122,11 +120,19 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
           icon={<CheckCircleOutlined />}
           onClick={handleVerify}
           loading={verifying}
-          disabled={!cameraReady}
+          disabled={!cameraReady || !!error}
         >
           Xác thực
         </Button>,
-      ]}
+        error && (
+          <Button
+            key="retry"
+            onClick={() => setError(null)}
+          >
+            Thử lại
+          </Button>
+        ),
+      ].filter(Boolean)}
       width={600}
     >
       <Space direction="vertical" style={{ width: '100%' }} size="large">

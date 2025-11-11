@@ -54,7 +54,6 @@ const TakeAssessment: React.FC = () => {
   const [browserViolations, setBrowserViolations] = useState<Map<string, BrowserProctoringEvent>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch attempt details (includes questions)
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
     queryKey: ['attempt-detail', attemptId],
     queryFn: () => studentService.getAttemptDetails(Number(attemptId)),

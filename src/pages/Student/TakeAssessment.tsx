@@ -52,6 +52,7 @@ const TakeAssessment: React.FC = () => {
   const [autoSaving, setAutoSaving] = useState(false);
   const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
   const [browserViolations, setBrowserViolations] = useState<Map<string, BrowserProctoringEvent>>(new Map());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch attempt details (includes questions)
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
@@ -110,6 +111,8 @@ const TakeAssessment: React.FC = () => {
   // Submit attempt mutation
   const submitAttemptMutation = useMutation({
     mutationFn: async (data: CompleteAttemptRequest) => {
+      setIsSubmitting(true);
+      
       // Submit all violations before submitting attempt
       if (user && attempt) {
         const allViolations = [
@@ -756,6 +759,9 @@ const TakeAssessment: React.FC = () => {
     if (!settings?.require_full_screen) return;
 
     const handleFullscreenChange = () => {
+      // Don't show warning if test is being submitted
+      if (isSubmitting) return;
+      
       if (!document.fullscreenElement) {
         // User exited fullscreen - try to re-enter
         modal.warning({
@@ -774,7 +780,7 @@ const TakeAssessment: React.FC = () => {
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, [settings]);
+  }, [settings, isSubmitting]);
 
   if (isLoading) {
     return (

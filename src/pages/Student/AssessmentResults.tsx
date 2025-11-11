@@ -277,7 +277,15 @@ const AssessmentResults: React.FC = () => {
                             </Tag>
                         )}
                         <Text strong>Câu {questionNumber}</Text>
-                        <Tag color="blue">{questionType === 'multiple_choice' ? 'Trắc nghiệm' : questionType === 'essay' ? 'Tự luận' : questionType === 'true_false' ? 'Đúng/Sai' : questionType}</Tag>
+                        <Tag color="blue">
+                            {questionType === 'multiple_choice' ? 'Trắc nghiệm' : 
+                             questionType === 'essay' ? 'Tự luận' : 
+                             questionType === 'true_false' ? 'Đúng/Sai' : 
+                             questionType === 'short_answer' ? 'Trả lời ngắn' :
+                             questionType === 'fill_blank' ? 'Điền khuyết' :
+                             questionType === 'matching' ? 'Nối cặp' :
+                             questionType === 'ordering' ? 'Sắp xếp' : questionType}
+                        </Tag>
                         {answer.score !== undefined && answer.max_score !== undefined && (
                             <Text type="secondary">
                                 {answer.score} / {answer.max_score} điểm

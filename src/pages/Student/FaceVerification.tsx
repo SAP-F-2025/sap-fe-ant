@@ -91,10 +91,13 @@ const FaceVerification: React.FC = () => {
     try {
       const imageBlob = await captureFrame();
       const result = await faceVerificationService.verifyFace(imageBlob);
+      
+      // console.log('Verification result:', result);
 
-      if (!result.match) {
+      if (!result.verified) {
         setVerifying(false);
-        setError(`Xác thực khuôn mặt thất bại. Độ tin cậy: ${(result.confidence * 100).toFixed(1)}%. Vui lòng thử lại.`);
+        const similarity = (result.similarity * 100).toFixed(1);
+        setError(`Xác thực khuôn mặt thất bại. Độ tương đồng: ${similarity}%. ${result.reason || 'Vui lòng thử lại.'}`);
         return;
       }
 
@@ -142,8 +145,10 @@ const FaceVerification: React.FC = () => {
     });
     } catch (err: any) {
       setVerifying(false);
-      setError(err.response?.data?.detail || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.');
       console.error('Verification error:', err);
+      console.error('Error response:', err.response?.data);
+      const errorMsg = err.response?.data?.detail || err.response?.data?.message || err.message || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.';
+      setError(errorMsg);
     }
   };
 

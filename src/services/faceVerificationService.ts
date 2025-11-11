@@ -3,9 +3,13 @@ import { API_CONFIG, API_ENDPOINTS } from '../config/api';
 import { TokenService } from './tokenService';
 
 export interface VerifyResponse {
-  match: boolean;
-  confidence: number;
-  message?: string;
+  verified: boolean;
+  similarity: number;
+  liveness_score: number;
+  det_score: number;
+  threshold_used: number;
+  reason: string | null;
+  timestamp: string;
 }
 
 export interface RegistrationStatusResponse {

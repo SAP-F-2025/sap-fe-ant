@@ -6,6 +6,7 @@ import { useBrowserProctoring } from '../../hooks/useBrowserProctoring';
 
 interface ProctoringMonitorProps {
 	onViolation?: (event: ProctoringEvent) => void;
+	onFaceCountChange?: (count: number) => void;
 	showLandmarks?: boolean;
 	compact?: boolean;
 	violationCount?: number;
@@ -17,6 +18,7 @@ interface ProctoringMonitorProps {
 
 export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	onViolation,
+	onFaceCountChange,
 	showLandmarks = false,
 	compact = false,
 	violationCount = 0,
@@ -95,6 +97,12 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		showLandmarks,
 		handleViolation
 	);
+
+	useEffect(() => {
+		if (faceCount !== undefined) {
+			onFaceCountChange?.(faceCount);
+		}
+	}, [faceCount, onFaceCountChange]);
 
 	useBrowserProctoring({
 		enabled: true,

@@ -21,6 +21,7 @@ import { ProctoringMonitor } from '../../components/Proctoring/ProctoringMonitor
 import type { ProctoringEvent } from '../../hooks/useProctoring';
 import { useBrowserProctoring, type BrowserProctoringEvent } from '../../hooks/useBrowserProctoring';
 import { useDevToolsBlocker } from '../../hooks/useDevToolsBlocker';
+import { InTestFaceVerificationModal } from '../../components/Proctoring/InTestFaceVerificationModal';
 import {
   ClockCircleOutlined,
   CheckOutlined,
@@ -53,8 +54,10 @@ const TakeAssessment: React.FC = () => {
   const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
   const [browserViolations, setBrowserViolations] = useState<Map<string, BrowserProctoringEvent>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showFaceVerifyModal, setShowFaceVerifyModal] = useState(false);
+  const [prevFaceCount, setPrevFaceCount] = useState<number | null>(null);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  // Fetch attempt details (includes questions)
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
     queryKey: ['attempt-detail', attemptId],
     queryFn: () => studentService.getAttemptDetails(Number(attemptId)),
@@ -65,6 +68,12 @@ const TakeAssessment: React.FC = () => {
 
   // Questions are included in attempt details
   const questions = attempt?.questions || [];
+
+  // Mark initial load complete after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => setInitialLoadComplete(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Initialize currentQuestionId when questions load
   useEffect(() => {
@@ -974,16 +983,40 @@ const TakeAssessment: React.FC = () => {
 
       {/* Proctoring Monitor - Floating */}
       {requireWebcam && (
-        <ProctoringMonitor
-          onViolation={handleProctoringViolation}
-          showLandmarks={false}
-          compact
-          violationCount={proctoringEvents.length}
-          requireFullscreen={settings?.require_full_screen}
-          preventTabSwitching={settings?.prevent_tab_switching}
-          preventCopyPaste={settings?.prevent_copy_paste}
-          detectTampering={true}
-        />
+        <>
+          <ProctoringMonitor
+            onViolation={handleProctoringViolation}
+            onFaceCountChange={(count) => {
+              // Trigger verification if:
+              // 1. Face count returns to 1 from 0 or 2+ (normal case)
+              // 2. First face detected after initial load period (prevents cheating)
+              if (prevFaceCount !== null && (prevFaceCount === 0 || prevFaceCount >= 2) && count === 1) {
+                setShowFaceVerifyModal(true);
+              } else if (prevFaceCount === null && count === 1 && initialLoadComplete) {
+                // First face detected after initial load - could be cheating
+                setShowFaceVerifyModal(true);
+              }
+              setPrevFaceCount(count);
+            }}
+            showLandmarks={false}
+            compact
+            violationCount={proctoringEvents.length}
+            requireFullscreen={settings?.require_full_screen}
+            preventTabSwitching={settings?.prevent_tab_switching}
+            preventCopyPaste={settings?.prevent_copy_paste}
+            detectTampering={true}
+          />
+          <InTestFaceVerificationModal
+            open={showFaceVerifyModal}
+            onSuccess={() => {
+              setShowFaceVerifyModal(false);
+              setPrevFaceCount(1);
+            }}
+            onFail={() => {
+              setShowFaceVerifyModal(false);
+            }}
+          />
+        </>
       )}
 
       {/* Browser Violations (for non-webcam tests) */}

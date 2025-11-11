@@ -1,5 +1,6 @@
 export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8888',
+  VERIFICATION_BASE_URL: import.meta.env.VITE_VERIFICATION_API_BASE_URL || 'http://localhost:8000',
   TIMEOUT: 30000,
   USE_MOCK: import.meta.env.VITE_USE_MOCK === 'true', // Read from environment variable
 };
@@ -87,4 +88,10 @@ export const API_ENDPOINTS = {
   // Violations
   VIOLATIONS: '/api/v1/violations',
   VIOLATIONS_BATCH: '/api/v1/violations/batch',
+
+  // Face Verification (uses VERIFICATION_BASE_URL)
+  FACE_REGISTRATION_STATUS: '/api/v1/face/registration-status',
+  FACE_REGISTER: '/api/v1/face/register',
+  FACE_VERIFY: '/api/v1/face/verify',
+  FACE_DELETE: '/api/v1/face/user',
 };

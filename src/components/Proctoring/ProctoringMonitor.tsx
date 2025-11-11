@@ -31,7 +31,12 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		return saved ? JSON.parse(saved) : { x: 20, y: 20 };
 	});
 	const [isDragging, setIsDragging] = useState(false);
+	const [isResizing, setIsResizing] = useState(false);
 	const dragOffset = useRef({ x: 0, y: 0 });
+	const [scale, setScale] = useState(() => {
+		const saved = localStorage.getItem('proctoring-scale');
+		return saved ? parseFloat(saved) : 1;
+	});
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -45,6 +50,8 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	const isDesktop = windowWidth >= 1200;
 	
 	const [isExpanded, setIsExpanded] = useState(!isMobile);
+	const startXRef = useRef(0);
+	const startScaleRef = useRef(scale);
 
 	useEffect(() => {
 		const handleResize = () => setWindowWidth(window.innerWidth);
@@ -132,24 +139,31 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	}, []);
 
 	useEffect(() => {
-		if (videoRef.current && streamRef.current) {
+		if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
 			videoRef.current.srcObject = streamRef.current;
 			videoRef.current.onloadedmetadata = () => {
 				setVideoReady(true);
 			};
 			videoRef.current.play().catch(err => console.error('Video play failed:', err));
 		}
-	}, [streamRef.current]);
+	}, [isExpanded, isMobile]);
 
 	const getSize = () => {
-		if (isMobile) return { width: 240, height: 180 };
-		if (isTablet) return { width: 320, height: 240 };
-		return compact ? { width: 320, height: 240 } : { width: 640, height: 480 };
+		const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;
+		const baseHeight = isMobile ? 180 : isTablet ? 240 : compact ? 240 : 480;
+		return { 
+			width: Math.round(baseWidth * scale), 
+			height: Math.round(baseHeight * scale) 
+		};
 	};
 	const size = getSize();
 
 	const handleMouseDown = (e: React.MouseEvent) => {
-		if ((e.target as HTMLElement).closest('.ant-card-head')) {
+		const target = e.target as HTMLElement;
+		if (target.classList.contains('resize-handle')) {
+			setIsResizing(true);
+			e.stopPropagation();
+		} else if (target.closest('.ant-card-head')) {
 			setIsDragging(true);
 			dragOffset.current = {
 				x: e.clientX - position.x,
@@ -160,17 +174,25 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
-			if (!isDragging || !cardRef.current) return;
+			if (isDragging && cardRef.current) {
+				const cardRect = cardRef.current.getBoundingClientRect();
+				let newX = e.clientX - dragOffset.current.x;
+				let newY = e.clientY - dragOffset.current.y;
 
-			const cardRect = cardRef.current.getBoundingClientRect();
-			let newX = e.clientX - dragOffset.current.x;
-			let newY = e.clientY - dragOffset.current.y;
+				newX = Math.max(0, Math.min(newX, window.innerWidth - cardRect.width));
+				newY = Math.max(0, Math.min(newY, window.innerHeight - cardRect.height));
 
-			// Keep card inside viewport
-			newX = Math.max(0, Math.min(newX, window.innerWidth - cardRect.width));
-			newY = Math.max(0, Math.min(newY, window.innerHeight - cardRect.height));
-
-			setPosition({ x: newX, y: newY });
+				setPosition({ x: newX, y: newY });
+			} else if (isResizing) {
+				if (startXRef.current === 0) {
+					startXRef.current = e.clientX;
+					startScaleRef.current = scale;
+				}
+				const deltaX = e.clientX - startXRef.current;
+				const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;
+				const newScale = Math.max(0.5, Math.min(2, startScaleRef.current + deltaX / baseWidth));
+				setScale(newScale);
+			}
 		};
 
 		const handleMouseUp = () => {
@@ -178,9 +200,14 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 				setIsDragging(false);
 				localStorage.setItem('proctoring-position', JSON.stringify(position));
 			}
+			if (isResizing) {
+				setIsResizing(false);
+				startXRef.current = 0;
+				localStorage.setItem('proctoring-scale', scale.toString());
+			}
 		};
 
-		if (isDragging) {
+		if (isDragging || isResizing) {
 			document.addEventListener('mousemove', handleMouseMove);
 			document.addEventListener('mouseup', handleMouseUp);
 		}
@@ -189,7 +216,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseup', handleMouseUp);
 		};
-	}, [isDragging, position]);
+	}, [isDragging, isResizing, position, scale, isMobile, isTablet, compact]);
 
 	// Adjust position on window resize
 	useEffect(() => {
@@ -222,54 +249,67 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		return () => window.removeEventListener('resize', handleResize);
 	}, [position]);
 
-	if (!isExpanded && isMobile) {
-		return (
+	return (
+		<>
+			{!isExpanded && isMobile && (
+				<div
+					style={{
+						position: 'fixed',
+						bottom: 20,
+						right: 20,
+						zIndex: 1000
+					}}
+				>
+					<Badge count={violationCount} offset={[-5, 5]}>
+						<Button
+							type="primary"
+							shape="circle"
+							size="large"
+							icon={<VideoCameraOutlined />}
+							onClick={() => setIsExpanded(true)}
+							style={{ width: 56, height: 56 }}
+						/>
+					</Badge>
+				</div>
+			)}
 			<div
+				ref={cardRef}
 				style={{
 					position: 'fixed',
-					bottom: 20,
-					right: 20,
-					zIndex: 1000
+					left: isMobile ? 10 : position.x,
+					top: isMobile ? 10 : position.y,
+					zIndex: 1000,
+					cursor: isDragging ? 'grabbing' : isResizing ? 'ew-resize' : 'default',
+					maxWidth: isMobile ? 'calc(100vw - 20px)' : 'none',
+					display: (!isExpanded && isMobile) ? 'none' : 'block'
 				}}
+				onMouseDown={handleMouseDown}
 			>
-				<Badge count={violationCount} offset={[-5, 5]}>
-					<Button
-						type="primary"
-						shape="circle"
-						size="large"
-						icon={<VideoCameraOutlined />}
-						onClick={() => setIsExpanded(true)}
-						style={{ width: 56, height: 56 }}
-					/>
-				</Badge>
-			</div>
-		);
-	}
-
-	return (
-		<div
-			ref={cardRef}
-			style={{
-				position: 'fixed',
-				left: isMobile ? 10 : position.x,
-				top: isMobile ? 10 : position.y,
-				zIndex: 1000,
-				cursor: isDragging ? 'grabbing' : 'default',
-				maxWidth: isMobile ? 'calc(100vw - 20px)' : 'none'
-			}}
-			onMouseDown={handleMouseDown}
-		>
+			{isExpanded && !isMobile && (
+				<div
+					className="resize-handle"
+					style={{
+						position: 'absolute',
+						right: -4,
+						top: 0,
+						width: 8,
+						height: '100%',
+						cursor: 'ew-resize',
+						zIndex: 10
+					}}
+				/>
+			)}
 			<Card
 				title={
-					<span style={{ cursor: isMobile ? 'default' : 'grab', userSelect: 'none', fontSize: isMobile ? 12 : 14 }}>
+					<span style={{ cursor: isMobile ? 'default' : 'grab', userSelect: 'none', fontSize: Math.round((isMobile ? 12 : 14) * scale) }}>
 						{!isMobile && <DragOutlined />} {isMobile ? '📹' : 'Camera giám sát'}
 					</span>
 				}
 				size="small"
 				extra={
-					<div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+					<div style={{ display: 'flex', gap: 8 * scale, alignItems: 'center' }}>
 						{violationCount > 0 && (
-							<Tag color="error" style={{ margin: 0, fontSize: isMobile ? 10 : 12 }}>
+							<Tag color="error" style={{ margin: 0, fontSize: Math.round((isMobile ? 10 : 12) * scale) }}>
 								{isMobile ? violationCount : `Vi phạm: ${violationCount}`}
 							</Tag>
 						)}
@@ -278,12 +318,13 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 							size="small"
 							icon={isExpanded ? <MinusOutlined /> : <PlusOutlined />}
 							onClick={() => setIsExpanded(!isExpanded)}
+							style={{ fontSize: Math.round(14 * scale) }}
 						/>
 					</div>
 				}
 			>
 				{error && isExpanded && (
-					<Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />
+					<Alert type="error" message={error} showIcon style={{ marginBottom: 16 * scale, fontSize: Math.round(14 * scale) }} />
 				)}
 
 				<div style={{ position: 'relative', width: size.width, height: size.height, display: isExpanded ? 'block' : 'none' }}>
@@ -312,41 +353,20 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 						}}
 					/>
 
-								<div style={{
-									position: 'absolute',
-									top: 8,
-									right: 8,
-									display: 'flex',
-									gap: 8
-								}}>
-									<Badge
-										count={faceCount}
-										showZero
-										style={{ backgroundColor: faceCount === 1 ? '#52c41a' : '#ff4d4f' }}
-									>
-										<div style={{
-											background: 'rgba(0,0,0,0.6)',
-											padding: '4px 8px',
-											borderRadius: 4,
-											color: 'white',
-											fontSize: 12
-										}}>
-											<EyeOutlined /> Faces
-										</div>
-									</Badge>
-
-									{isProcessing && (
-										<div style={{
-											background: 'rgba(82, 196, 26, 0.8)',
-											padding: '4px 8px',
-											borderRadius: 4,
-											color: 'white',
-											fontSize: 12
-										}}>
-											Monitoring
-										</div>
-									)}
-								</div>
+								{isProcessing && (
+									<div style={{
+										position: 'absolute',
+										top: 8 * scale,
+										right: 8 * scale,
+										background: 'rgba(82, 196, 26, 0.8)',
+										padding: `${4 * scale}px ${8 * scale}px`,
+										borderRadius: 4 * scale,
+										color: 'white',
+										fontSize: Math.round(12 * scale)
+									}}>
+										Monitoring
+									</div>
+								)}
 					</div>
 
 				{Array.from(activeViolations.values()).map((violation, index) => {
@@ -372,11 +392,12 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 									type={violation.duration === 0 ? 'error' : 'warning'}
 									message={getMessage(violation.type, violation.metadata)}
 									showIcon
-									style={{ marginTop: index === 0 ? 12 : 8, fontSize: isMobile ? 11 : 14 }}
+									style={{ marginTop: (index === 0 ? 12 : 8) * scale, fontSize: Math.round((isMobile ? 11 : 14) * scale) }}
 								/>
 						);
 					})}
 			</Card>
-		</div>
+			</div>
+		</>
 	);
 };

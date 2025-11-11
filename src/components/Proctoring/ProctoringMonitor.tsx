@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Alert, Badge, Card, Tag } from 'antd';
-import { EyeOutlined, DragOutlined } from '@ant-design/icons';
+import { Alert, Badge, Card, Tag, Button } from 'antd';
+import { EyeOutlined, DragOutlined, MinusOutlined, PlusOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { useMediaPipeFaceDetection, ProctoringEvent } from '../../hooks/useProctoring';
 import { useBrowserProctoring } from '../../hooks/useBrowserProctoring';
 
@@ -39,6 +39,22 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	const [activeViolations, setActiveViolations] = useState<Map<string, ProctoringEvent>>(new Map());
 	const streamRef = useRef<MediaStream | null>(null);
 	const violationTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+	const isMobile = windowWidth < 768;
+	const isTablet = windowWidth >= 768 && windowWidth < 1200;
+	const isDesktop = windowWidth >= 1200;
+	
+	const [isExpanded, setIsExpanded] = useState(!isMobile);
+
+	useEffect(() => {
+		const handleResize = () => setWindowWidth(window.innerWidth);
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
+
+	useEffect(() => {
+		if (isMobile && isExpanded) setIsExpanded(false);
+	}, [isMobile]);
 
 	const handleViolation = (event: ProctoringEvent) => {
 		const key = event.type;
@@ -83,8 +99,6 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	});
 
 	useEffect(() => {
-		if (!videoRef.current) return;
-
 		let mounted = true;
 
 		const startCamera = async () => {
@@ -93,14 +107,9 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 					video: { width: 640, height: 480 }
 				});
 
-				if (mounted && videoRef.current) {
-					videoRef.current.srcObject = stream;
+				if (mounted) {
 					streamRef.current = stream;
 					setError(null);
-
-					videoRef.current.onloadedmetadata = () => {
-						setVideoReady(true);
-					};
 				}
 			} catch (err: any) {
 				if (mounted) {
@@ -113,7 +122,6 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 
 		return () => {
 			mounted = false;
-			setVideoReady(false);
 			if (streamRef.current) {
 				streamRef.current.getTracks().forEach(track => track.stop());
 				streamRef.current = null;
@@ -123,7 +131,24 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		};
 	}, []);
 
-	const size = compact ? { width: 320, height: 240 } : { width: 640, height: 480 };
+	useEffect(() => {
+		if (isExpanded && videoRef.current && streamRef.current) {
+			videoRef.current.srcObject = streamRef.current;
+			videoRef.current.onloadedmetadata = () => {
+				setVideoReady(true);
+			};
+			videoRef.current.play().catch(err => console.error('Video play failed:', err));
+		} else if (!isExpanded) {
+			setVideoReady(false);
+		}
+	}, [isExpanded, streamRef.current]);
+
+	const getSize = () => {
+		if (isMobile) return { width: 240, height: 180 };
+		if (isTablet) return { width: 320, height: 240 };
+		return compact ? { width: 320, height: 240 } : { width: 640, height: 480 };
+	};
+	const size = getSize();
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if ((e.target as HTMLElement).closest('.ant-card-head')) {
@@ -199,125 +224,165 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		return () => window.removeEventListener('resize', handleResize);
 	}, [position]);
 
+	if (!isExpanded && isMobile) {
+		return (
+			<div
+				style={{
+					position: 'fixed',
+					bottom: 20,
+					right: 20,
+					zIndex: 1000
+				}}
+			>
+				<Badge count={violationCount} offset={[-5, 5]}>
+					<Button
+						type="primary"
+						shape="circle"
+						size="large"
+						icon={<VideoCameraOutlined />}
+						onClick={() => setIsExpanded(true)}
+						style={{ width: 56, height: 56 }}
+					/>
+				</Badge>
+			</div>
+		);
+	}
+
 	return (
 		<div
 			ref={cardRef}
 			style={{
 				position: 'fixed',
-				left: position.x,
-				top: position.y,
+				left: isMobile ? 10 : position.x,
+				top: isMobile ? 10 : position.y,
 				zIndex: 1000,
-				cursor: isDragging ? 'grabbing' : 'default'
+				cursor: isDragging ? 'grabbing' : 'default',
+				maxWidth: isMobile ? 'calc(100vw - 20px)' : 'none'
 			}}
 			onMouseDown={handleMouseDown}
 		>
 			<Card
 				title={
-					<span style={{ cursor: 'grab', userSelect: 'none' }}>
-						<DragOutlined /> Camera giám sát
+					<span style={{ cursor: isMobile ? 'default' : 'grab', userSelect: 'none', fontSize: isMobile ? 12 : 14 }}>
+						{!isMobile && <DragOutlined />} {isMobile ? '📹' : 'Camera giám sát'}
 					</span>
 				}
 				size="small"
 				extra={
-					violationCount > 0 && (
-						<Tag color="error">Vi phạm: {violationCount}</Tag>
-					)
+					<div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+						{violationCount > 0 && (
+							<Tag color="error" style={{ margin: 0, fontSize: isMobile ? 10 : 12 }}>
+								{isMobile ? violationCount : `Vi phạm: ${violationCount}`}
+							</Tag>
+						)}
+						<Button
+							type="text"
+							size="small"
+							icon={isExpanded ? <MinusOutlined /> : <PlusOutlined />}
+							onClick={() => setIsExpanded(!isExpanded)}
+						/>
+					</div>
 				}
 			>
-				{error && (
-					<Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />
-				)}
-
-				<div style={{ position: 'relative', width: size.width, height: size.height }}>
-					<video
-						ref={videoRef}
-						autoPlay
-						playsInline
-						muted
-						style={{
-							width: '100%',
-							height: '100%',
-							backgroundColor: '#000',
-							borderRadius: 8,
-							transform: 'scaleX(-1)'
-						}}
-					/>
-					<canvas
-						ref={canvasRef}
-						width={size.width}
-						height={size.height}
-						style={{
-							position: 'absolute',
-							top: 0,
-							left: 0,
-							transform: 'scaleX(-1)'
-						}}
-					/>
-
-					<div style={{
-						position: 'absolute',
-						top: 8,
-						right: 8,
-						display: 'flex',
-						gap: 8
-					}}>
-						<Badge
-							count={faceCount}
-							showZero
-							style={{ backgroundColor: faceCount === 1 ? '#52c41a' : '#ff4d4f' }}
-						>
-							<div style={{
-								background: 'rgba(0,0,0,0.6)',
-								padding: '4px 8px',
-								borderRadius: 4,
-								color: 'white',
-								fontSize: 12
-							}}>
-								<EyeOutlined /> Faces
-							</div>
-						</Badge>
-
-						{isProcessing && (
-							<div style={{
-								background: 'rgba(82, 196, 26, 0.8)',
-								padding: '4px 8px',
-								borderRadius: 4,
-								color: 'white',
-								fontSize: 12
-							}}>
-								Monitoring
-							</div>
+				{isExpanded && (
+					<>
+						{error && (
+							<Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />
 						)}
-					</div>
-				</div>
 
-				{Array.from(activeViolations.values()).map((violation, index) => {
-					const getMessage = (type: string, metadata?: any) => {
-						switch (type) {
-							case 'face_not_detected': return 'Không phát hiện khuôn mặt';
-							case 'multiple_faces': return 'Phát hiện nhiều khuôn mặt';
-							case 'mouth_open': return 'Phát hiện mở miệng';
-							case 'head_turned': return 'Đầu quay đi';
-							case 'eyes_closed': return 'Nhắm mắt';
-							case 'looking_away': return 'Đang nhìn ra ngoài màn hình';
-							case 'tab_switch': return metadata?.hidden ? 'Chuyển tab/cửa sổ' : 'Quay lại tab';
-							case 'fullscreen_exit': return 'Thoát chế độ toàn màn hình';
-							case 'copy_paste': return `Phát hiện ${metadata?.action === 'copy' ? 'sao chép' : metadata?.action === 'paste' ? 'dán' : 'cắt'}`;
-							case 'browser_tamper': return 'Phát hiện DevTools';
-							default: return 'Vi phạm';
-						}
-					};
+						<div style={{ position: 'relative', width: size.width, height: size.height }}>
+							<video
+								ref={videoRef}
+								autoPlay
+								playsInline
+								muted
+								style={{
+									width: '100%',
+									height: '100%',
+									backgroundColor: '#000',
+									borderRadius: 8,
+									transform: 'scaleX(-1)'
+								}}
+							/>
+							<canvas
+								ref={canvasRef}
+								width={size.width}
+								height={size.height}
+								style={{
+									position: 'absolute',
+									top: 0,
+									left: 0,
+									transform: 'scaleX(-1)',
+									display: isExpanded ? 'block' : 'none'
+								}}
+							/>
 
-					return (
-						<Alert
-							key={violation.type}
-							type={violation.duration === 0 ? 'error' : 'warning'}
-							message={getMessage(violation.type, violation.metadata)}
-							showIcon
-							style={{ marginTop: index === 0 ? 12 : 8 }}
-						/>
-					);
-				})}
+								<div style={{
+									position: 'absolute',
+									top: 8,
+									right: 8,
+									display: 'flex',
+									gap: 8
+								}}>
+									<Badge
+										count={faceCount}
+										showZero
+										style={{ backgroundColor: faceCount === 1 ? '#52c41a' : '#ff4d4f' }}
+									>
+										<div style={{
+											background: 'rgba(0,0,0,0.6)',
+											padding: '4px 8px',
+											borderRadius: 4,
+											color: 'white',
+											fontSize: 12
+										}}>
+											<EyeOutlined /> Faces
+										</div>
+									</Badge>
+
+									{isProcessing && (
+										<div style={{
+											background: 'rgba(82, 196, 26, 0.8)',
+											padding: '4px 8px',
+											borderRadius: 4,
+											color: 'white',
+											fontSize: 12
+										}}>
+											Monitoring
+										</div>
+									)}
+								</div>
+							</div>
+
+						{Array.from(activeViolations.values()).map((violation, index) => {
+							const getMessage = (type: string, metadata?: any) => {
+								switch (type) {
+									case 'face_not_detected': return 'Không phát hiện khuôn mặt';
+									case 'multiple_faces': return 'Phát hiện nhiều khuôn mặt';
+									case 'mouth_open': return 'Phát hiện mở miệng';
+									case 'head_turned': return 'Đầu quay đi';
+									case 'eyes_closed': return 'Nhắm mắt';
+									case 'looking_away': return 'Đang nhìn ra ngoài màn hình';
+									case 'tab_switch': return metadata?.hidden ? 'Chuyển tab/cửa sổ' : 'Quay lại tab';
+									case 'fullscreen_exit': return 'Thoát chế độ toàn màn hình';
+									case 'copy_paste': return `Phát hiện ${metadata?.action === 'copy' ? 'sao chép' : metadata?.action === 'paste' ? 'dán' : 'cắt'}`;
+									case 'browser_tamper': return 'Phát hiện DevTools';
+									default: return 'Vi phạm';
+								}
+							};
+
+							return (
+								<Alert
+									key={violation.type}
+									type={violation.duration === 0 ? 'error' : 'warning'}
+									message={getMessage(violation.type, violation.metadata)}
+									showIcon
+									style={{ marginTop: index === 0 ? 12 : 8, fontSize: isMobile ? 11 : 14 }}
+								/>
+							);
+						})}
+					</>
+				)}
 			</Card>
 		</div>
 	);

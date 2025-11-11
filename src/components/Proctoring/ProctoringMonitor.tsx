@@ -146,7 +146,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 			};
 			videoRef.current.play().catch(err => console.error('Video play failed:', err));
 		}
-	}, [isExpanded, isMobile]);
+	}, [streamRef.current, isExpanded, isMobile]);
 
 	const getSize = () => {
 		const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;

@@ -1,5 +1,6 @@
+import axios, { AxiosInstance } from 'axios';
 import { API_CONFIG, API_ENDPOINTS } from '../config/api';
-import apiService from './api';
+import { TokenService } from './tokenService';
 import type { ProctoringEvent } from '../hooks/useProctoring';
 import type { BrowserProctoringEvent } from '../hooks/useBrowserProctoring';
 
@@ -75,6 +76,23 @@ interface ViolationPayload {
 }
 
 class ViolationService {
+  private instance: AxiosInstance;
+
+  constructor() {
+    this.instance = axios.create({
+      baseURL: API_CONFIG.PROCTORING_BASE_URL,
+      timeout: API_CONFIG.TIMEOUT,
+    });
+
+    this.instance.interceptors.request.use(async (config) => {
+      const token = await TokenService.getValidAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+  }
+
   /**
    * Generate device fingerprint
    */
@@ -141,7 +159,7 @@ class ViolationService {
       snapshotUrl
     );
 
-    await apiService.post(API_ENDPOINTS.VIOLATIONS, payload);
+    await this.instance.post(API_ENDPOINTS.PROCTORING_VIOLATIONS, payload);
   }
 
   /**
@@ -170,7 +188,7 @@ class ViolationService {
       1.0
     );
 
-    await apiService.post(API_ENDPOINTS.VIOLATIONS, payload);
+    await this.instance.post(API_ENDPOINTS.PROCTORING_VIOLATIONS, payload);
   }
 
   /**
@@ -235,7 +253,7 @@ class ViolationService {
       );
     });
 
-    await apiService.post(API_ENDPOINTS.VIOLATIONS_BATCH, { violations: payloads });
+    await this.instance.post(API_ENDPOINTS.PROCTORING_VIOLATIONS_BATCH, { violations: payloads });
   }
 }
 

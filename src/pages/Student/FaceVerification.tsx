@@ -4,6 +4,7 @@ import { CameraOutlined, CheckCircleOutlined, PlayCircleOutlined } from '@ant-de
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import studentService from '../../services/studentService';
+import faceVerificationService from '../../services/faceVerificationService';
 
 const { Title, Text } = Typography;
 
@@ -16,6 +17,7 @@ const FaceVerification: React.FC = () => {
   const [cameraReady, setCameraReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
 
   const assessmentData = location.state?.assessment;
@@ -51,10 +53,56 @@ const FaceVerification: React.FC = () => {
     };
   }, [assessmentData, navigate]);
 
-  const handleVerify = () => {
+  const captureFrame = (): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      if (!videoRef.current) {
+        reject(new Error('Video not ready'));
+        return;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+
+      ctx.scale(-1, 1);
+      ctx.drawImage(videoRef.current, -canvas.width, 0);
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Failed to capture image'));
+        }
+      }, 'image/jpeg', 0.95);
+    });
+  };
+
+  const handleVerify = async () => {
     if (!user?.id || !assessmentData?.id) return;
     
-    modal.confirm({
+    setVerifying(true);
+    setError(null);
+
+    try {
+      const imageBlob = await captureFrame();
+      const result = await faceVerificationService.verifyFace(imageBlob);
+      
+      // console.log('Verification result:', result);
+
+      if (!result.verified) {
+        setVerifying(false);
+        const similarity = (result.similarity * 100).toFixed(1);
+        setError(`Xác thực khuôn mặt thất bại. Độ tương đồng: ${similarity}%. ${result.reason || 'Vui lòng thử lại.'}`);
+        return;
+      }
+
+      setVerifying(false);
+      modal.confirm({
       title: 'Bắt đầu làm bài',
       content: (
         <div>
@@ -73,6 +121,7 @@ const FaceVerification: React.FC = () => {
       okText: 'Bắt đầu ngay',
       cancelText: 'Hủy',
       onOk: async () => {
+        setVerifying(false);
         setIsStarting(true);
         try {
           const attempt = await studentService.startAttempt({
@@ -94,6 +143,13 @@ const FaceVerification: React.FC = () => {
         }
       },
     });
+    } catch (err: any) {
+      setVerifying(false);
+      console.error('Verification error:', err);
+      console.error('Error response:', err.response?.data);
+      const errorMsg = err.response?.data?.detail || err.response?.data?.message || err.message || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.';
+      setError(errorMsg);
+    }
   };
 
   if (!assessmentData) return null;
@@ -118,8 +174,8 @@ const FaceVerification: React.FC = () => {
           </div>
 
           <Alert
-            message="Đây là tính năng xác thực khuôn mặt (placeholder)"
-            description="Tính năng này sẽ được triển khai đầy đủ trong tương lai"
+            message="Xác thực khuôn mặt"
+            description="Hệ thống sẽ so sánh khuôn mặt của bạn với ảnh đã đăng ký để xác thực danh tính."
             type="info"
             showIcon
           />
@@ -161,16 +217,26 @@ const FaceVerification: React.FC = () => {
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            <Button
-              type="primary"
-              size="large"
-              icon={<CheckCircleOutlined />}
-              onClick={handleVerify}
-              disabled={!cameraReady || !!error}
-              loading={isStarting}
-            >
-              {isStarting ? 'Đang bắt đầu...' : 'Xác nhận và bắt đầu'}
-            </Button>
+            <Space>
+              <Button
+                type="primary"
+                size="large"
+                icon={<CheckCircleOutlined />}
+                onClick={handleVerify}
+                disabled={!cameraReady || !!error}
+                loading={verifying || isStarting}
+              >
+                {verifying ? 'Đang xác thực...' : isStarting ? 'Đang bắt đầu...' : 'Xác thực và bắt đầu'}
+              </Button>
+              {error && (
+                <Button
+                  size="large"
+                  onClick={() => setError(null)}
+                >
+                  Thử lại
+                </Button>
+              )}
+            </Space>
           </div>
         </Space>
       </Card>

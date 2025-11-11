@@ -1,0 +1,1067 @@
+{
+	"openapi": "3.1.0",
+	"info": {
+		"title": "Identity Verification Services",
+		"description": "\n    Identity Verification Service using Face Recognition with Liveness Detection.\n\n    ## Features\n    * Face Registration (enroll new users)\n    * Face Verification (1:1 matching)\n    * Face Identification (1:N search)\n    * Liveness Detection (anti-spoofing)\n    * Face Detection\n\n    ## Technology\n    * **InsightFace** - State-of-the-art face recognition\n    * **Redis** - Fast embedding storage\n\n    ## Performance\n    * Latency: 150-250ms per request (CPU)\n    * Throughput: 40-60 req/s (4 workers)\n    * Accuracy: 99.5%+ face matching\n    ",
+		"version": "1.0.0"
+	},
+	"paths": {
+		"/api/v1/face/register": {
+			"post": {
+				"tags": [
+					"Face Recognition"
+				],
+				"summary": "Register a new face",
+				"description": "Register a face for the authenticated user. The image should contain exactly one face.",
+				"operationId": "register_face_api_v1_face_register_post",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"$ref": "#/components/schemas/Body_register_face_api_v1_face_register_post"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"201": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RegisterResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/face/verify": {
+			"post": {
+				"tags": [
+					"Face Recognition"
+				],
+				"summary": "Verify face (1:1)",
+				"description": "Verify if a face image matches the authenticated user (1:1 verification)",
+				"operationId": "verify_face_api_v1_face_verify_post",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"$ref": "#/components/schemas/Body_verify_face_api_v1_face_verify_post"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/app__schemas__requests__VerifyResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/face/identify": {
+			"post": {
+				"tags": [
+					"Face Recognition"
+				],
+				"summary": "Identify face (1:N)",
+				"description": "Identify a person from face (search in all registered users)",
+				"operationId": "identify_face_api_v1_face_identify_post",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"$ref": "#/components/schemas/Body_identify_face_api_v1_face_identify_post"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IdentifyResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/face/detect": {
+			"post": {
+				"tags": [
+					"Face Recognition"
+				],
+				"summary": "Detect faces",
+				"description": "Detect all faces in an image",
+				"operationId": "detect_faces_api_v1_face_detect_post",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"$ref": "#/components/schemas/Body_detect_faces_api_v1_face_detect_post"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FaceDetectionResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/face/liveness": {
+			"post": {
+				"tags": [
+					"Face Recognition"
+				],
+				"summary": "Check liveness",
+				"description": "Perform liveness detection on a face image",
+				"operationId": "check_liveness_api_v1_face_liveness_post",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"$ref": "#/components/schemas/Body_check_liveness_api_v1_face_liveness_post"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/LivenessCheckResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/face/user": {
+			"delete": {
+				"tags": [
+					"Face Recognition"
+				],
+				"summary": "Delete user",
+				"description": "Delete the authenticated user and their face data",
+				"operationId": "delete_user_api_v1_face_user_delete",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/face/users": {
+			"get": {
+				"tags": [
+					"Face Recognition"
+				],
+				"summary": "List users",
+				"description": "Get list of all registered users",
+				"operationId": "list_users_api_v1_face_users_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/face/registration-status": {
+			"get": {
+				"tags": [
+					"Face Recognition"
+				],
+				"summary": "Check registration status",
+				"description": "Check if the authenticated user has registered their face",
+				"operationId": "check_registration_status_api_v1_face_registration_status_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/active-liveness/challenge": {
+			"get": {
+				"tags": [
+					"Active Liveness"
+				],
+				"summary": "Generate liveness challenge",
+				"description": "Generate a random liveness challenge (to be verified client-side with MediaPipe)",
+				"operationId": "generate_challenge_api_v1_active_liveness_challenge_get",
+				"parameters": [
+					{
+						"name": "num_actions",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "integer"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": 2,
+							"title": "Num Actions"
+						}
+					},
+					{
+						"name": "timeout",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "integer"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": 60,
+							"title": "Timeout"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ChallengeResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/active-liveness/verify-challenge": {
+			"post": {
+				"tags": [
+					"Active Liveness"
+				],
+				"summary": "Verify challenge completion",
+				"description": "Mark challenge as completed (client verifies actions with MediaPipe)",
+				"operationId": "verify_challenge_api_v1_active_liveness_verify_challenge_post",
+				"requestBody": {
+					"content": {
+						"application/x-www-form-urlencoded": {
+							"schema": {
+								"$ref": "#/components/schemas/Body_verify_challenge_api_v1_active_liveness_verify_challenge_post"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/app__api__v1__endpoints__active_liveness__VerifyResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/active-liveness/challenge/{challenge_id}": {
+			"get": {
+				"tags": [
+					"Active Liveness"
+				],
+				"summary": "Get challenge status",
+				"description": "Get the current status of a challenge with remaining time",
+				"operationId": "get_challenge_status_api_v1_active_liveness_challenge__challenge_id__get",
+				"parameters": [
+					{
+						"name": "challenge_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Challenge Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": [
+					"Active Liveness"
+				],
+				"summary": "Delete challenge",
+				"description": "Delete a challenge from the system",
+				"operationId": "delete_challenge_api_v1_active_liveness_challenge__challenge_id__delete",
+				"parameters": [
+					{
+						"name": "challenge_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Challenge Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/active-liveness/cleanup-expired": {
+			"post": {
+				"tags": [
+					"Active Liveness"
+				],
+				"summary": "Cleanup expired challenges",
+				"description": "Manually cleanup expired challenges from memory storage",
+				"operationId": "cleanup_expired_challenges_api_v1_active_liveness_cleanup_expired_post",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/active-liveness/stats": {
+			"get": {
+				"tags": [
+					"Active Liveness"
+				],
+				"summary": "Get challenge statistics",
+				"description": "Get statistics about liveness challenges",
+				"operationId": "get_challenge_stats_api_v1_active_liveness_stats_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/health": {
+			"get": {
+				"tags": [
+					"Health"
+				],
+				"summary": "Health check",
+				"description": "Check if the service is running and models are loaded",
+				"operationId": "health_check_health_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HealthResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/": {
+			"get": {
+				"tags": [
+					"Root"
+				],
+				"summary": "Root endpoint",
+				"description": "Get service information",
+				"operationId": "root__get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/debug/config": {
+			"get": {
+				"tags": [
+					"Debug"
+				],
+				"summary": "Debug config",
+				"description": "Show current configuration (only available in DEBUG mode)",
+				"operationId": "debug_config_debug_config_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"Body_check_liveness_api_v1_face_liveness_post": {
+				"properties": {
+					"image": {
+						"type": "string",
+						"format": "binary",
+						"title": "Image",
+						"description": "Face image"
+					}
+				},
+				"type": "object",
+				"required": [
+					"image"
+				],
+				"title": "Body_check_liveness_api_v1_face_liveness_post"
+			},
+			"Body_detect_faces_api_v1_face_detect_post": {
+				"properties": {
+					"image": {
+						"type": "string",
+						"format": "binary",
+						"title": "Image",
+						"description": "Image file"
+					}
+				},
+				"type": "object",
+				"required": [
+					"image"
+				],
+				"title": "Body_detect_faces_api_v1_face_detect_post"
+			},
+			"Body_identify_face_api_v1_face_identify_post": {
+				"properties": {
+					"image": {
+						"type": "string",
+						"format": "binary",
+						"title": "Image",
+						"description": "Face image to identify"
+					},
+					"check_liveness": {
+						"type": "boolean",
+						"title": "Check Liveness",
+						"description": "Enable liveness detection",
+						"default": true
+					},
+					"threshold": {
+						"anyOf": [
+							{
+								"type": "number",
+								"maximum": 1.0,
+								"minimum": 0.0
+							},
+							{
+								"type": "null"
+							}
+						],
+						"title": "Threshold",
+						"description": "Custom similarity threshold"
+					},
+					"top_k": {
+						"type": "integer",
+						"maximum": 20.0,
+						"minimum": 1.0,
+						"title": "Top K",
+						"description": "Number of top candidates to return",
+						"default": 5
+					}
+				},
+				"type": "object",
+				"required": [
+					"image"
+				],
+				"title": "Body_identify_face_api_v1_face_identify_post"
+			},
+			"Body_register_face_api_v1_face_register_post": {
+				"properties": {
+					"image": {
+						"type": "string",
+						"format": "binary",
+						"title": "Image",
+						"description": "Face image file (JPG, PNG)"
+					}
+				},
+				"type": "object",
+				"required": [
+					"image"
+				],
+				"title": "Body_register_face_api_v1_face_register_post"
+			},
+			"Body_verify_challenge_api_v1_active_liveness_verify_challenge_post": {
+				"properties": {
+					"challenge_id": {
+						"type": "string",
+						"title": "Challenge Id"
+					}
+				},
+				"type": "object",
+				"required": [
+					"challenge_id"
+				],
+				"title": "Body_verify_challenge_api_v1_active_liveness_verify_challenge_post"
+			},
+			"Body_verify_face_api_v1_face_verify_post": {
+				"properties": {
+					"image": {
+						"type": "string",
+						"format": "binary",
+						"title": "Image",
+						"description": "Face image to verify"
+					},
+					"check_liveness": {
+						"type": "boolean",
+						"title": "Check Liveness",
+						"description": "Enable liveness detection",
+						"default": true
+					},
+					"threshold": {
+						"anyOf": [
+							{
+								"type": "number",
+								"maximum": 1.0,
+								"minimum": 0.0
+							},
+							{
+								"type": "null"
+							}
+						],
+						"title": "Threshold",
+						"description": "Custom similarity threshold"
+					}
+				},
+				"type": "object",
+				"required": [
+					"image"
+				],
+				"title": "Body_verify_face_api_v1_face_verify_post"
+			},
+			"ChallengeResponse": {
+				"properties": {
+					"challenge_id": {
+						"type": "string",
+						"title": "Challenge Id"
+					},
+					"required_actions": {
+						"items": {},
+						"type": "array",
+						"title": "Required Actions"
+					},
+					"timeout": {
+						"type": "integer",
+						"title": "Timeout"
+					},
+					"instructions": {
+						"type": "string",
+						"title": "Instructions"
+					}
+				},
+				"type": "object",
+				"required": [
+					"challenge_id",
+					"required_actions",
+					"timeout",
+					"instructions"
+				],
+				"title": "ChallengeResponse",
+				"description": "Response model for challenge generation."
+			},
+			"FaceDetectionResponse": {
+				"properties": {
+					"faces_detected": {
+						"type": "integer",
+						"title": "Faces Detected"
+					},
+					"faces": {
+						"items": {
+							"type": "object"
+						},
+						"type": "array",
+						"title": "Faces"
+					},
+					"timestamp": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Timestamp"
+					}
+				},
+				"type": "object",
+				"required": [
+					"faces_detected",
+					"faces"
+				],
+				"title": "FaceDetectionResponse",
+				"description": "Face detection response."
+			},
+			"HTTPValidationError": {
+				"properties": {
+					"detail": {
+						"items": {
+							"$ref": "#/components/schemas/ValidationError"
+						},
+						"type": "array",
+						"title": "Detail"
+					}
+				},
+				"type": "object",
+				"title": "HTTPValidationError"
+			},
+			"HealthResponse": {
+				"properties": {
+					"status": {
+						"type": "string",
+						"title": "Status",
+						"default": "healthy"
+					},
+					"version": {
+						"type": "string",
+						"title": "Version"
+					},
+					"models_loaded": {
+						"type": "boolean",
+						"title": "Models Loaded"
+					},
+					"timestamp": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Timestamp"
+					}
+				},
+				"type": "object",
+				"required": [
+					"version",
+					"models_loaded"
+				],
+				"title": "HealthResponse",
+				"description": "Health check response."
+			},
+			"IdentifyResponse": {
+				"properties": {
+					"found": {
+						"type": "boolean",
+						"title": "Found"
+					},
+					"user_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"title": "User Id"
+					},
+					"similarity": {
+						"anyOf": [
+							{
+								"type": "number"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"title": "Similarity"
+					},
+					"liveness_score": {
+						"type": "number",
+						"title": "Liveness Score"
+					},
+					"candidates": {
+						"items": {
+							"type": "object"
+						},
+						"type": "array",
+						"title": "Candidates"
+					},
+					"timestamp": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Timestamp"
+					}
+				},
+				"type": "object",
+				"required": [
+					"found",
+					"liveness_score"
+				],
+				"title": "IdentifyResponse",
+				"description": "Face identification response (1:N search)."
+			},
+			"LivenessCheckResponse": {
+				"properties": {
+					"is_live": {
+						"type": "boolean",
+						"title": "Is Live"
+					},
+					"liveness_score": {
+						"type": "number",
+						"maximum": 1.0,
+						"minimum": 0.0,
+						"title": "Liveness Score"
+					},
+					"det_score": {
+						"type": "number",
+						"title": "Det Score"
+					},
+					"bbox": {
+						"items": {
+							"type": "number"
+						},
+						"type": "array",
+						"title": "Bbox"
+					},
+					"timestamp": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Timestamp"
+					}
+				},
+				"type": "object",
+				"required": [
+					"is_live",
+					"liveness_score",
+					"det_score",
+					"bbox"
+				],
+				"title": "LivenessCheckResponse",
+				"description": "Liveness detection response."
+			},
+			"RegisterResponse": {
+				"properties": {
+					"user_id": {
+						"type": "string",
+						"title": "User Id"
+					},
+					"embedding_dim": {
+						"type": "integer",
+						"title": "Embedding Dim"
+					},
+					"bbox": {
+						"items": {
+							"type": "number"
+						},
+						"type": "array",
+						"title": "Bbox"
+					},
+					"det_score": {
+						"type": "number",
+						"title": "Det Score"
+					},
+					"timestamp": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Timestamp"
+					},
+					"message": {
+						"type": "string",
+						"title": "Message",
+						"default": "Face registered successfully"
+					}
+				},
+				"type": "object",
+				"required": [
+					"user_id",
+					"embedding_dim",
+					"bbox",
+					"det_score"
+				],
+				"title": "RegisterResponse",
+				"description": "Face registration response."
+			},
+			"ValidationError": {
+				"properties": {
+					"loc": {
+						"items": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "integer"
+								}
+							]
+						},
+						"type": "array",
+						"title": "Location"
+					},
+					"msg": {
+						"type": "string",
+						"title": "Message"
+					},
+					"type": {
+						"type": "string",
+						"title": "Error Type"
+					}
+				},
+				"type": "object",
+				"required": [
+					"loc",
+					"msg",
+					"type"
+				],
+				"title": "ValidationError"
+			},
+			"app__api__v1__endpoints__active_liveness__VerifyResponse": {
+				"properties": {
+					"verified": {
+						"type": "boolean",
+						"title": "Verified"
+					},
+					"status": {
+						"type": "string",
+						"title": "Status"
+					},
+					"message": {
+						"type": "string",
+						"title": "Message"
+					},
+					"challenge": {
+						"anyOf": [
+							{
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"title": "Challenge"
+					}
+				},
+				"type": "object",
+				"required": [
+					"verified",
+					"status",
+					"message"
+				],
+				"title": "VerifyResponse",
+				"description": "Response model for challenge verification."
+			},
+			"app__schemas__requests__VerifyResponse": {
+				"properties": {
+					"verified": {
+						"type": "boolean",
+						"title": "Verified"
+					},
+					"similarity": {
+						"type": "number",
+						"maximum": 1.0,
+						"minimum": 0.0,
+						"title": "Similarity"
+					},
+					"liveness_score": {
+						"type": "number",
+						"maximum": 1.0,
+						"minimum": 0.0,
+						"title": "Liveness Score"
+					},
+					"det_score": {
+						"type": "number",
+						"title": "Det Score"
+					},
+					"threshold_used": {
+						"type": "number",
+						"title": "Threshold Used"
+					},
+					"timestamp": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Timestamp"
+					},
+					"reason": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"title": "Reason"
+					}
+				},
+				"type": "object",
+				"required": [
+					"verified",
+					"similarity",
+					"liveness_score",
+					"det_score",
+					"threshold_used"
+				],
+				"title": "VerifyResponse",
+				"description": "Face verification response."
+			}
+		}
+	}
+}

@@ -132,16 +132,14 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	}, []);
 
 	useEffect(() => {
-		if (isExpanded && videoRef.current && streamRef.current) {
+		if (videoRef.current && streamRef.current) {
 			videoRef.current.srcObject = streamRef.current;
 			videoRef.current.onloadedmetadata = () => {
 				setVideoReady(true);
 			};
 			videoRef.current.play().catch(err => console.error('Video play failed:', err));
-		} else if (!isExpanded) {
-			setVideoReady(false);
 		}
-	}, [isExpanded, streamRef.current]);
+	}, [streamRef.current]);
 
 	const getSize = () => {
 		if (isMobile) return { width: 240, height: 180 };
@@ -284,38 +282,35 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 					</div>
 				}
 			>
-				{isExpanded && (
-					<>
-						{error && (
-							<Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />
-						)}
+				{error && isExpanded && (
+					<Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />
+				)}
 
-						<div style={{ position: 'relative', width: size.width, height: size.height }}>
-							<video
-								ref={videoRef}
-								autoPlay
-								playsInline
-								muted
-								style={{
-									width: '100%',
-									height: '100%',
-									backgroundColor: '#000',
-									borderRadius: 8,
-									transform: 'scaleX(-1)'
-								}}
-							/>
-							<canvas
-								ref={canvasRef}
-								width={size.width}
-								height={size.height}
-								style={{
-									position: 'absolute',
-									top: 0,
-									left: 0,
-									transform: 'scaleX(-1)',
-									display: isExpanded ? 'block' : 'none'
-								}}
-							/>
+				<div style={{ position: 'relative', width: size.width, height: size.height, display: isExpanded ? 'block' : 'none' }}>
+					<video
+						ref={videoRef}
+						autoPlay
+						playsInline
+						muted
+						style={{
+							width: '100%',
+							height: '100%',
+							backgroundColor: '#000',
+							borderRadius: 8,
+							transform: 'scaleX(-1)'
+						}}
+					/>
+					<canvas
+						ref={canvasRef}
+						width={size.width}
+						height={size.height}
+						style={{
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							transform: 'scaleX(-1)'
+						}}
+					/>
 
 								<div style={{
 									position: 'absolute',
@@ -352,9 +347,9 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 										</div>
 									)}
 								</div>
-							</div>
+					</div>
 
-						{Array.from(activeViolations.values()).map((violation, index) => {
+				{Array.from(activeViolations.values()).map((violation, index) => {
 							const getMessage = (type: string, metadata?: any) => {
 								switch (type) {
 									case 'face_not_detected': return 'Không phát hiện khuôn mặt';
@@ -379,10 +374,8 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 									showIcon
 									style={{ marginTop: index === 0 ? 12 : 8, fontSize: isMobile ? 11 : 14 }}
 								/>
-							);
-						})}
-					</>
-				)}
+						);
+					})}
 			</Card>
 		</div>
 	);

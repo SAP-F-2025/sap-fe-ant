@@ -1,6 +1,7 @@
 export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8888',
   VERIFICATION_BASE_URL: import.meta.env.VITE_VERIFICATION_API_BASE_URL || 'http://localhost:8000',
+  PROCTORING_BASE_URL: import.meta.env.VITE_PROCTORING_API_BASE_URL || 'http://localhost:8889',
   TIMEOUT: 30000,
   USE_MOCK: import.meta.env.VITE_USE_MOCK === 'true', // Read from environment variable
 };
@@ -85,7 +86,7 @@ export const API_ENDPOINTS = {
   STUDENT_ASSESSMENT_DETAIL: (id: number) => `/api/v1/students/me/assessments/${id}`,
   STUDENT_ATTEMPTS: '/api/v1/students/me/attempts',
 
-  // Violations
+  // Violations (uses PROCTORING_BASE_URL)
   VIOLATIONS: '/api/v1/violations',
   VIOLATIONS_BATCH: '/api/v1/violations/batch',
 
@@ -94,4 +95,8 @@ export const API_ENDPOINTS = {
   FACE_REGISTER: '/api/v1/face/register',
   FACE_VERIFY: '/api/v1/face/verify',
   FACE_DELETE: '/api/v1/face/user',
+
+  // Proctoring (uses PROCTORING_BASE_URL)
+  PROCTORING_VIOLATIONS: '/api/v1/violations',
+  PROCTORING_VIOLATIONS_BATCH: '/api/v1/violations/batch',
 };

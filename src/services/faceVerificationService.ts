@@ -1,4 +1,6 @@
-import api from './api';
+import axios, { AxiosInstance } from 'axios';
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+import { TokenService } from './tokenService';
 
 export interface VerifyResponse {
   match: boolean;
@@ -11,25 +13,57 @@ export interface RegistrationStatusResponse {
   user_id: string;
 }
 
-const faceVerificationService = {
-  // Check if user has registered their face
-  checkRegistrationStatus: async (): Promise<RegistrationStatusResponse> => {
-    const response = await api.get('/api/v1/face/registration-status');
-    return response.data;
-  },
+class FaceVerificationService {
+  private instance: AxiosInstance;
 
-  // Verify face against registered face (1:1)
-  verifyFace: async (imageBlob: Blob): Promise<VerifyResponse> => {
+  constructor() {
+    this.instance = axios.create({
+      baseURL: API_CONFIG.VERIFICATION_BASE_URL,
+      timeout: API_CONFIG.TIMEOUT,
+    });
+
+    this.instance.interceptors.request.use(async (config) => {
+      const token = await TokenService.getValidAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+  }
+
+  async checkRegistrationStatus(): Promise<RegistrationStatusResponse> {
+    const response = await this.instance.get<RegistrationStatusResponse>(API_ENDPOINTS.FACE_REGISTRATION_STATUS);
+    return response.data;
+  }
+
+  async registerFace(imageBlob: Blob): Promise<void> {
     const formData = new FormData();
     formData.append('image', imageBlob, 'face.jpg');
     
-    const response = await api.post('/api/v1/face/verify', formData, {
+    await this.instance.post(API_ENDPOINTS.FACE_REGISTER, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
+
+  async verifyFace(imageBlob: Blob): Promise<VerifyResponse> {
+    const formData = new FormData();
+    formData.append('image', imageBlob, 'face.jpg');
+    
+    const response = await this.instance.post<VerifyResponse>(API_ENDPOINTS.FACE_VERIFY, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
     return response.data;
-  },
-};
+  }
+
+  async deleteFace(): Promise<void> {
+    await this.instance.delete(API_ENDPOINTS.FACE_DELETE);
+  }
+}
+
+export const faceVerificationService = new FaceVerificationService();
 
 export default faceVerificationService;

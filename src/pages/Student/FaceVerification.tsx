@@ -217,16 +217,26 @@ const FaceVerification: React.FC = () => {
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            <Button
-              type="primary"
-              size="large"
-              icon={<CheckCircleOutlined />}
-              onClick={handleVerify}
-              disabled={!cameraReady || !!error}
-              loading={verifying || isStarting}
-            >
-              {verifying ? 'Đang xác thực...' : isStarting ? 'Đang bắt đầu...' : 'Xác thực và bắt đầu'}
-            </Button>
+            <Space>
+              <Button
+                type="primary"
+                size="large"
+                icon={<CheckCircleOutlined />}
+                onClick={handleVerify}
+                disabled={!cameraReady || !!error}
+                loading={verifying || isStarting}
+              >
+                {verifying ? 'Đang xác thực...' : isStarting ? 'Đang bắt đầu...' : 'Xác thực và bắt đầu'}
+              </Button>
+              {error && (
+                <Button
+                  size="large"
+                  onClick={() => setError(null)}
+                >
+                  Thử lại
+                </Button>
+              )}
+            </Space>
           </div>
         </Space>
       </Card>

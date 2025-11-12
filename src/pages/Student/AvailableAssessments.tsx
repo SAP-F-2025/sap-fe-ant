@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Card,
   Table,
@@ -134,7 +134,7 @@ const AvailableAssessments: React.FC = () => {
               okText: 'Đăng ký ngay',
               cancelText: 'Hủy',
               onOk: () => {
-                navigate('/profile');
+                navigate('/profile', { state: { returnToAssessment: assessment.id } });
               },
             });
             return;

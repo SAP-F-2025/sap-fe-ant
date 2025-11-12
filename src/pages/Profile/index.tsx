@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Card,
   Typography,
@@ -43,7 +44,10 @@ const Profile: React.FC = () => {
   const { user } = useAuth();
   const { modal, message } = App.useApp();
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
+  const returnToAssessmentId = (location.state as any)?.returnToAssessment;
   const [cameraReady, setCameraReady] = useState(false);
   const [registering, setRegistering] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -53,6 +57,14 @@ const Profile: React.FC = () => {
     queryKey: ['face-registration-status'],
     queryFn: () => faceVerificationService.checkRegistrationStatus(),
   });
+
+  // Auto-open registration modal if redirected from assessment page
+  useEffect(() => {
+    if (returnToAssessmentId && registrationStatus && !registrationStatus.registered) {
+      setRegisterModalOpen(true);
+      setTimeout(startCamera, 100);
+    }
+  }, [returnToAssessmentId, registrationStatus]);
 
   const deleteFaceMutation = useMutation({
     mutationFn: () => faceVerificationService.deleteFace(),
@@ -144,6 +156,14 @@ const Profile: React.FC = () => {
       setRegisterModalOpen(false);
       stopCamera();
       queryClient.invalidateQueries({ queryKey: ['face-registration-status'] });
+      
+      // Redirect back to assessment if came from there
+      if (returnToAssessmentId) {
+        message.info('Quay lại trang bài kiểm tra...');
+        setTimeout(() => {
+          navigate('/student/assessments');
+        }, 1000);
+      }
     } catch (err: any) {
       message.error(err.response?.data?.detail || 'Lỗi đăng ký khuôn mặt');
     } finally {

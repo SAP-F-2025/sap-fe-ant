@@ -124,6 +124,25 @@ const AvailableAssessments: React.FC = () => {
       // console.log('Assessment:', assessment);
       const requireWebcam = assessment.settings?.require_webcam;
       if (requireWebcam) {
+        // Check if user has registered face
+        try {
+          const registrationStatus = await studentService.checkFaceRegistrationStatus();
+          if (!registrationStatus.registered) {
+            modal.confirm({
+              title: 'Chưa đăng ký khuôn mặt',
+              content: 'Bài kiểm tra này yêu cầu xác thực khuôn mặt. Bạn cần đăng ký khuôn mặt trước khi bắt đầu. Bạn có muốn đăng ký ngay không?',
+              okText: 'Đăng ký ngay',
+              cancelText: 'Hủy',
+              onOk: () => {
+                navigate('/profile');
+              },
+            });
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to check face registration status:', error);
+        }
+
         const consent = localStorage.getItem('camera-consent');
         if (consent === 'always') {
           navigate('/student/face-verification', { state: { assessment: fullAssessment } });

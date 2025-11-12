@@ -1,5 +1,6 @@
 import { API_CONFIG, API_ENDPOINTS } from '../config/api';
 import apiService from './api';
+import faceVerificationService from './faceVerificationService';
 import {
   Assessment,
   AssessmentStatus,
@@ -247,6 +248,10 @@ class StudentService {
     }
 
     return apiService.get<CanStartAttemptResponse>(API_ENDPOINTS.ATTEMPT_CAN_START(assessmentId));
+  }
+
+  async checkFaceRegistrationStatus() {
+    return faceVerificationService.checkRegistrationStatus();
   }
 }
 

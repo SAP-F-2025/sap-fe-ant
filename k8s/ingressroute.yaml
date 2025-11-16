@@ -1,0 +1,73 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sap-frontend
+  labels:
+    app: sap-frontend
+spec:
+  entryPoints:
+    - websecure  # HTTPS traffic
+  routes:
+    - match: Host(`sap.yourdomain.com`)  # Thay thế bằng domain của bạn
+      kind: Rule
+      services:
+        - name: sap-frontend
+          port: 80
+      middlewares:
+        - name: sap-frontend-headers
+  tls:
+    # Option 1: Sử dụng cert-manager
+    certResolver: letsencrypt  # Thay thế bằng cert resolver của bạn
+    # Option 2: Sử dụng secret có sẵn
+    # secretName: sap-frontend-tls
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: sap-frontend-headers
+  labels:
+    app: sap-frontend
+spec:
+  headers:
+    customResponseHeaders:
+      X-Frame-Options: "SAMEORIGIN"
+      X-Content-Type-Options: "nosniff"
+      X-XSS-Protection: "1; mode=block"
+      Referrer-Policy: "no-referrer-when-downgrade"
+    sslRedirect: true
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
+
+---
+# Optional: HTTP to HTTPS redirect
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sap-frontend-http-redirect
+  labels:
+    app: sap-frontend
+spec:
+  entryPoints:
+    - web  # HTTP traffic
+  routes:
+    - match: Host(`sap.yourdomain.com`)  # Thay thế bằng domain của bạn
+      kind: Rule
+      services:
+        - name: sap-frontend
+          port: 80
+      middlewares:
+        - name: https-redirect
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: https-redirect
+  labels:
+    app: sap-frontend
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

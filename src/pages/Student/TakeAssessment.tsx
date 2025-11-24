@@ -29,7 +29,27 @@ import {
   ExclamationCircleOutlined,
   LeftOutlined,
   RightOutlined,
+  UpOutlined,
+  DownOutlined,
+  HolderOutlined,
 } from '@ant-design/icons';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import studentService from '../../services/studentService';
@@ -40,6 +60,101 @@ import type { AttemptDetail, SubmitAnswerRequest, CompleteAttemptRequest } from 
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
+
+// Sortable Item Component for Ordering Questions
+interface SortableOrderItemProps {
+  id: string;
+  item: { id: string; text: string; image_url?: string };
+  index: number;
+  totalItems: number;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+}
+
+const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
+  id,
+  item,
+  index,
+  totalItems,
+  onMoveUp,
+  onMoveDown,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+    setActivatorNodeRef,
+  } = useSortable({ id });
+
+  const { token } = useThemeToken();
+  const isDark = document.body.classList.contains('dark-mode');
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    marginBottom: '8px',
+    cursor: isDragging ? 'grabbing' : 'grab',
+    boxShadow: isDragging 
+      ? `0 4px 12px ${isDark ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.15)'}`
+      : undefined,
+    border: isDragging 
+      ? `2px solid ${token.colorPrimary}` 
+      : undefined,
+  };
+
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      size="small"
+      {...attributes}
+      {...listeners}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        {/* Content - Left side */}
+        <Space style={{ flex: 1, minWidth: 0 }}>
+          <Tag color="blue">{index + 1}</Tag>
+          {item.image_url && (
+            <img
+              src={item.image_url}
+              alt={item.text}
+              style={{ maxWidth: '100px', maxHeight: '60px', borderRadius: '4px' }}
+            />
+          )}
+          <Text style={{ wordBreak: 'break-word' }}>{item.text}</Text>
+        </Space>
+
+        {/* Right side - Fallback Buttons */}
+        <div
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Space>
+            <Button
+              size="small"
+              icon={<UpOutlined />}
+              disabled={index === 0}
+              onClick={onMoveUp}
+              title="Di chuyển lên"
+            />
+            <Button
+              size="small"
+              icon={<DownOutlined />}
+              disabled={index === totalItems - 1}
+              onClick={onMoveDown}
+              title="Di chuyển xuống"
+            />
+          </Space>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
 
 const TakeAssessment: React.FC = () => {
   const { attemptId } = useParams<{ attemptId: string }>();
@@ -60,6 +175,14 @@ const TakeAssessment: React.FC = () => {
   const [prevFaceCount, setPrevFaceCount] = useState<number | null>(null);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [hoveredOption, setHoveredOption] = useState<string | null>(null); // Add hover state at top level
+
+  // Setup sensors for drag-and-drop at top level (for ordering questions)
+  const dndSensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
 
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
@@ -711,6 +834,19 @@ const TakeAssessment: React.FC = () => {
           const { items } = question.content;
           const currentOrder = currentAnswer || items.map((item: any) => item.id);
 
+          // dndSensors is now from component top level
+
+          const handleDragEnd = (event: DragEndEvent) => {
+            const { active, over } = event;
+
+            if (over && active.id !== over.id) {
+              const oldIndex = currentOrder.indexOf(active.id as string);
+              const newIndex = currentOrder.indexOf(over.id as string);
+              const newOrder = arrayMove(currentOrder, oldIndex, newIndex);
+              handleAnswerChange(questionId, newOrder);
+            }
+          };
+
           const moveItem = (fromIndex: number, toIndex: number) => {
             const newOrder = [...currentOrder];
             const [removed] = newOrder.splice(fromIndex, 1);
@@ -721,52 +857,38 @@ const TakeAssessment: React.FC = () => {
           return (
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
               <Alert
-                message="Kéo thả hoặc dùng nút ↑↓ để sắp xếp các items theo thứ tự đúng"
+                message="Kéo thả các items hoặc dùng nút ↑↓ để sắp xếp theo thứ tự đúng"
                 type="info"
                 showIcon
               />
-              <div>
-                {currentOrder.map((itemId: string, index: number) => {
-                  const item = items.find((i: any) => i.id === itemId);
-                  if (!item) return null;
 
-                  return (
-                    <Card
-                      key={itemId}
-                      size="small"
-                      style={{ marginBottom: '8px' }}
-                      extra={
-                        <Space>
-                          <Button
-                            size="small"
-                            icon={<span>↑</span>}
-                            disabled={index === 0}
-                            onClick={() => moveItem(index, index - 1)}
-                          />
-                          <Button
-                            size="small"
-                            icon={<span>↓</span>}
-                            disabled={index === currentOrder.length - 1}
-                            onClick={() => moveItem(index, index + 1)}
-                          />
-                        </Space>
-                      }
-                    >
-                      <Space>
-                        <Tag color="blue">{index + 1}</Tag>
-                        {item.image_url && (
-                          <img
-                            src={item.image_url}
-                            alt={item.text}
-                            style={{ maxWidth: '100px', maxHeight: '60px' }}
-                          />
-                        )}
-                        <Text>{item.text}</Text>
-                      </Space>
-                    </Card>
-                  );
-                })}
-              </div>
+              <DndContext
+                sensors={dndSensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={currentOrder}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {currentOrder.map((itemId: string, index: number) => {
+                    const item = items.find((i: any) => i.id === itemId);
+                    if (!item) return null;
+
+                    return (
+                      <SortableOrderItem
+                        key={itemId}
+                        id={itemId}
+                        item={item}
+                        index={index}
+                        totalItems={currentOrder.length}
+                        onMoveUp={() => moveItem(index, index - 1)}
+                        onMoveDown={() => moveItem(index, index + 1)}
+                      />
+                    );
+                  })}
+                </SortableContext>
+              </DndContext>
             </Space>
           );
         }

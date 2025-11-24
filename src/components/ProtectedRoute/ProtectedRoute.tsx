@@ -18,7 +18,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         alignItems: 'center',
         minHeight: '100vh'
       }}>
-        <Spin size="large" tip="Loading..." />
+        <Spin size="large" tip="Loading...">
+          <div style={{ padding: 50 }} />
+        </Spin>
       </div>
     );
   }

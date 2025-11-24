@@ -12,7 +12,7 @@ import {
   Statistic,
   Spin,
   message,
-  Modal,
+  App,
 } from 'antd';
 import {
   EditOutlined,
@@ -38,6 +38,7 @@ const AssessmentDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [stats, setStats] = useState<AssessmentStats | null>(null);
+  const { modal } = App.useApp();
 
   useEffect(() => {
     if (id) {
@@ -88,7 +89,7 @@ const AssessmentDetail: React.FC = () => {
     const hasValidPoints = totalPoints === 100;
 
     // Show warning modal
-    Modal.confirm({
+    modal.confirm({
       title: 'Xuất bản Assessment',
       icon: <ExclamationCircleOutlined />,
       content: (

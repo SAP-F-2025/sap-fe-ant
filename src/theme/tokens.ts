@@ -186,14 +186,7 @@ export const darkTheme: ThemeConfig = {
       itemBorderRadius: 10,
       itemHeight: 44,
     },
-    Table: {
-      headerBg: '#1f1f1f',
-      headerSortActiveBg: '#262626',
-      headerSortHoverBg: '#262626',
-      rowHoverBg: '#262626',
-      rowSelectedBg: '#111b26',
-      rowSelectedHoverBg: '#0e161f',
-    },
+
     Card: {
       headerBg: 'transparent',
       boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.15)',
@@ -241,8 +234,7 @@ export const highContrastTheme: ThemeConfig = {
   components: {
     Button: {
       // Higher contrast buttons
-      primaryColor: '#ffffff',
-      primaryBg: '#000000',
+      colorPrimary: '#000000',
       defaultBorderColor: '#000000',
       defaultColor: '#000000',
     },

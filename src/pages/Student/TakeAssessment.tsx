@@ -35,6 +35,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import studentService from '../../services/studentService';
 import violationService from '../../services/violationService';
 import { useAuth } from '../../hooks/useAuth';
+import { useThemeToken } from '../../theme/ThemeProvider';
 import type { AttemptDetail, SubmitAnswerRequest, CompleteAttemptRequest } from '../../types';
 
 const { Title, Text, Paragraph } = Typography;
@@ -46,6 +47,7 @@ const TakeAssessment: React.FC = () => {
   const queryClient = useQueryClient();
   const { modal } = App.useApp();
   const { user } = useAuth();
+  const { token } = useThemeToken(); // Move to top level to follow Rules of Hooks
 
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, any>>({});
@@ -57,6 +59,8 @@ const TakeAssessment: React.FC = () => {
   const [showFaceVerifyModal, setShowFaceVerifyModal] = useState(false);
   const [prevFaceCount, setPrevFaceCount] = useState<number | null>(null);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [hoveredOption, setHoveredOption] = useState<string | null>(null); // Add hover state at top level
+
 
   const { data: attempt, isLoading } = useQuery<AttemptDetail>({
     queryKey: ['attempt-detail', attemptId],
@@ -81,6 +85,11 @@ const TakeAssessment: React.FC = () => {
       setCurrentQuestionId(questions[0].id);
     }
   }, [questions, currentQuestionId]);
+
+  // Reset hover state when question changes
+  useEffect(() => {
+    setHoveredOption(null);
+  }, [currentQuestionId]);
 
   // Get current question by ID (not index)
   const currentQuestion = currentQuestionId
@@ -318,27 +327,152 @@ const TakeAssessment: React.FC = () => {
 
     switch (question.type) {
       case 'multiple_choice':
+        const isMultipleCorrect = question.content?.multiple_correct;
+        // token is now from component top level
+        
+        // Get theme-aware colors
+        const getOptionStyle = (isSelected: boolean, isHovered: boolean) => {
+          const isDark = document.body.classList.contains('dark-mode');
+          
+          if (isSelected) {
+            return {
+              border: `2px solid ${token.colorPrimary}`,
+              backgroundColor: isDark ? 'rgba(24, 144, 255, 0.15)' : '#e6f7ff',
+              boxShadow: `0 0 0 2px ${isDark ? 'rgba(24, 144, 255, 0.2)' : 'rgba(24, 144, 255, 0.1)'}`,
+            };
+          }
+          
+          if (isHovered) {
+            return {
+              border: `1px solid ${isDark ? '#434343' : '#d9d9d9'}`,
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)',
+              boxShadow: `0 2px 8px ${isDark ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.08)'}`,
+              transform: 'translateY(-2px)',
+            };
+          }
+          
+          return {
+            border: `1px solid ${isDark ? '#303030' : '#d9d9d9'}`,
+            backgroundColor: isDark ? '#141414' : '#ffffff',
+            boxShadow: 'none',
+            transform: 'translateY(0)',
+          };
+        };
+
+        // For multiple correct answers
+        if (isMultipleCorrect) {
+          const selectedValues = Array.isArray(currentAnswer) ? currentAnswer : [];
+          // hoveredOption and setHoveredOption are now from component top level
+
+          return (
+            <Checkbox.Group
+              value={selectedValues}
+              onChange={(values) => handleAnswerChange(questionId, values)}
+              style={{ width: '100%' }}
+            >
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                {question.content.options?.map((option: any) => {
+                  const isSelected = selectedValues.includes(option.id);
+                  const isHovered = hoveredOption === option.id;
+                  const optionStyle = getOptionStyle(isSelected, isHovered);
+
+                  return (
+                    <Card
+                      key={option.id}
+                      size="small"
+                      hoverable
+                      onMouseEnter={() => setHoveredOption(option.id)}
+                      onMouseLeave={() => setHoveredOption(null)}
+                      style={{
+                        ...optionStyle,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        width: '100%',
+                      }}
+                      bodyStyle={{ padding: '16px' }}
+                      onClick={() => {
+                        const newValues = isSelected
+                          ? selectedValues.filter((v) => v !== option.id)
+                          : [...selectedValues, option.id];
+                        handleAnswerChange(questionId, newValues);
+                      }}
+                    >
+                      <Checkbox value={option.id} style={{ width: '100%' }}>
+                        <Space direction="vertical" style={{ width: '100%', marginLeft: '8px' }}>
+                          {option.image_url && (
+                            <img
+                              src={option.image_url}
+                              alt={option.text}
+                              style={{
+                                maxWidth: '100%',
+                                maxHeight: '200px',
+                                borderRadius: '4px',
+                                marginTop: '8px',
+                              }}
+                            />
+                          )}
+                          <Text style={{ fontSize: '15px' }}>{option.text}</Text>
+                        </Space>
+                      </Checkbox>
+                    </Card>
+                  );
+                })}
+              </Space>
+            </Checkbox.Group>
+          );
+        }
+
+        // For single correct answer
+        // hoveredOption and setHoveredOption are now from component top level
+
         return (
           <Radio.Group
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(questionId, e.target.value)}
             style={{ width: '100%' }}
           >
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {question.content.options?.map((option: any) => (
-                <Radio key={option.id} value={option.id} style={{ padding: '8px' }}>
-                  <Space direction="vertical">
-                    {option.image_url && (
-                      <img
-                        src={option.image_url}
-                        alt={option.text}
-                        style={{ maxWidth: '200px', maxHeight: '150px', marginBottom: '4px' }}
-                      />
-                    )}
-                    <Text>{option.text}</Text>
-                  </Space>
-                </Radio>
-              ))}
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              {question.content.options?.map((option: any) => {
+                const isSelected = currentAnswer === option.id;
+                const isHovered = hoveredOption === option.id;
+                const optionStyle = getOptionStyle(isSelected, isHovered);
+
+                return (
+                  <Card
+                    key={option.id}
+                    size="small"
+                    hoverable
+                    onMouseEnter={() => setHoveredOption(option.id)}
+                    onMouseLeave={() => setHoveredOption(null)}
+                    style={{
+                      ...optionStyle,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      width: '100%',
+                    }}
+                    bodyStyle={{ padding: '16px' }}
+                    onClick={() => handleAnswerChange(questionId, option.id)}
+                  >
+                    <Radio value={option.id} style={{ width: '100%' }}>
+                      <Space direction="vertical" style={{ width: '100%', marginLeft: '8px' }}>
+                        {option.image_url && (
+                          <img
+                            src={option.image_url}
+                            alt={option.text}
+                            style={{
+                              maxWidth: '100%',
+                              maxHeight: '200px',
+                              borderRadius: '4px',
+                              marginTop: '8px',
+                            }}
+                          />
+                        )}
+                        <Text style={{ fontSize: '15px' }}>{option.text}</Text>
+                      </Space>
+                    </Radio>
+                  </Card>
+                );
+              })}
             </Space>
           </Radio.Group>
         );

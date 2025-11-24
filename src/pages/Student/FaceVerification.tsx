@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Card, Button, Space, Typography, Alert, Spin, App } from 'antd';
+import { Card, Button, Space, Typography, Alert, Spin, App, theme } from 'antd';
 import { CameraOutlined, CheckCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -7,12 +7,14 @@ import studentService from '../../services/studentService';
 import faceVerificationService from '../../services/faceVerificationService';
 
 const { Title, Text } = Typography;
+const { useToken } = theme;
 
 const FaceVerification: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const { modal } = App.useApp();
+  const { token } = useToken();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -161,12 +163,12 @@ const FaceVerification: React.FC = () => {
       alignItems: 'center', 
       justifyContent: 'center',
       padding: 24,
-      background: '#f0f2f5'
+      background: token.colorBgLayout
     }}>
       <Card style={{ maxWidth: 800, width: '100%' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div style={{ textAlign: 'center' }}>
-            <CameraOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+            <CameraOutlined style={{ fontSize: 48, color: token.colorPrimary }} />
             <Title level={3}>Xác thực khuôn mặt</Title>
             <Text type="secondary">
               Vui lòng nhìn thẳng vào camera để xác thực danh tính

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Card, Button, Space, Typography, Alert, Spin, App, theme } from 'antd';
-import { CameraOutlined, CheckCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import { Card, Button, Space, Typography, Alert, Spin, App, theme, Steps, Row, Col, Tag } from 'antd';
+import { CameraOutlined, CheckCircleOutlined, PlayCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import studentService from '../../services/studentService';
@@ -13,7 +13,7 @@ const FaceVerification: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const { token } = useToken();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraReady, setCameraReady] = useState(false);
@@ -21,9 +21,33 @@ const FaceVerification: React.FC = () => {
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [registering, setRegistering] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+  const [isRegistered, setIsRegistered] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
 
   const assessmentData = location.state?.assessment;
+
+  useEffect(() => {
+    if (!assessmentData) {
+      navigate('/student/assessments');
+      return;
+    }
+    checkRegistration();
+  }, [assessmentData, navigate]);
+
+  const checkRegistration = async () => {
+    try {
+      const status = await faceVerificationService.checkRegistrationStatus();
+      setIsRegistered(status.registered);
+    } catch (err) {
+      console.error('Failed to check registration:', err);
+      // Assume not registered or error, but let's try to proceed to camera to at least show something
+    } finally {
+      setCheckingStatus(false);
+      startCamera();
+    }
+  };
 
   const startCamera = async () => {
     setError(null);
@@ -52,19 +76,12 @@ const FaceVerification: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!assessmentData) {
-      navigate('/student/assessments');
-      return;
-    }
-
-    startCamera();
-
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
-  }, [assessmentData, navigate]);
+  }, []);
 
   const captureFrame = (): Promise<Blob> => {
     return new Promise((resolve, reject) => {
@@ -95,6 +112,22 @@ const FaceVerification: React.FC = () => {
     });
   };
 
+  const handleRegister = async () => {
+    setRegistering(true);
+    setError(null);
+    try {
+      const imageBlob = await captureFrame();
+      await faceVerificationService.registerFace(imageBlob);
+      message.success('Đăng ký khuôn mặt thành công!');
+      setIsRegistered(true);
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+    } finally {
+      setRegistering(false);
+    }
+  };
+
   const handleVerify = async () => {
     if (!user?.id || !assessmentData?.id) return;
     
@@ -113,17 +146,26 @@ const FaceVerification: React.FC = () => {
       }
 
       setVerifying(false);
-      modal.confirm({
+      // Proceed to start
+      startAssessment();
+    } catch (err: any) {
+      setVerifying(false);
+      console.error('Verification error:', err);
+      const errorMsg = err.message || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.';
+      setError(errorMsg);
+    }
+  };
+
+  const startAssessment = () => {
+    modal.confirm({
       title: 'Bắt đầu làm bài',
       content: (
         <div>
           <p><strong>{assessmentData.title}</strong></p>
           <p>Thời gian: {assessmentData.duration} phút</p>
-          <p>Số lần làm: {assessmentData.attempts_used} / {assessmentData.max_attempts}</p>
-          <p>Điểm đạt: {assessmentData.passing_score}%</p>
           <Alert
-            message="Khi bạn bắt đầu, đồng hồ sẽ bắt đầu đếm. Hãy đảm bảo kết nối internet ổn định."
-            type="warning"
+            message="Chúc bạn làm bài tốt!"
+            type="success"
             showIcon
             style={{ marginTop: 16 }}
           />
@@ -132,12 +174,11 @@ const FaceVerification: React.FC = () => {
       okText: 'Bắt đầu ngay',
       cancelText: 'Hủy',
       onOk: async () => {
-        setVerifying(false);
         setIsStarting(true);
         try {
           const attempt = await studentService.startAttempt({
             assessment_id: assessmentData.id,
-            student_id: user.id,
+            student_id: user?.id || '',
           });
           
           if (streamRef.current) {
@@ -154,12 +195,6 @@ const FaceVerification: React.FC = () => {
         }
       },
     });
-    } catch (err: any) {
-      setVerifying(false);
-      console.error('Verification error:', err);
-      const errorMsg = err.message || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.';
-      setError(errorMsg);
-    }
   };
 
   if (!assessmentData) return null;
@@ -173,106 +208,164 @@ const FaceVerification: React.FC = () => {
       padding: 24,
       background: token.colorBgLayout
     }}>
-      <Card style={{ maxWidth: 800, width: '100%' }}>
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <div style={{ textAlign: 'center' }}>
-            <CameraOutlined style={{ fontSize: 48, color: token.colorPrimary }} />
-            <Title level={3}>Xác thực khuôn mặt</Title>
-            <Text type="secondary">
-              Vui lòng nhìn thẳng vào camera để xác thực danh tính
-            </Text>
-          </div>
-
-          <Alert
-            message="Xác thực khuôn mặt"
-            description="Hệ thống sẽ so sánh khuôn mặt của bạn với ảnh đã đăng ký để xác thực danh tính."
-            type="info"
-            showIcon
-          />
-
-          <div style={{ 
-            position: 'relative', 
-            width: '100%', 
-            maxWidth: 640,
-            margin: '0 auto',
-            background: '#000',
-            borderRadius: 8,
-            overflow: 'hidden',
-            aspectRatio: '4/3',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            {permissionDenied ? (
-              <div style={{ textAlign: 'center', padding: 20, color: '#fff' }}>
-                <Title level={4} style={{ color: '#fff' }}>Quyền truy cập bị từ chối</Title>
-                <Text style={{ color: 'rgba(255,255,255,0.8)' }}>
-                  Vui lòng cho phép trình duyệt truy cập camera để tiếp tục.
-                </Text>
-                <div style={{ marginTop: 16 }}>
-                  <Button type="primary" onClick={startCamera}>Thử lại</Button>
-                </div>
+      <Card style={{ maxWidth: 900, width: '100%' }}>
+        <Row gutter={[24, 24]}>
+          {/* Left Side: Instructions & Status */}
+          <Col xs={24} md={10}>
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <div>
+                <Title level={3} style={{ marginBottom: 0 }}>{assessmentData.title}</Title>
+                <Text type="secondary">Chuẩn bị vào phòng thi</Text>
               </div>
-            ) : error && !cameraReady ? (
-              <div style={{ textAlign: 'center', padding: 20, color: '#fff' }}>
-                <Title level={4} style={{ color: '#ff4d4f' }}>Lỗi Camera</Title>
-                <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{error}</Text>
-                <div style={{ marginTop: 16 }}>
-                  <Button type="primary" onClick={startCamera}>Thử lại</Button>
-                </div>
-              </div>
-            ) : !cameraReady ? (
-              <div style={{ textAlign: 'center' }}>
-                <Spin size="large" />
-                <div style={{ marginTop: 16, color: '#fff' }}>Đang khởi động camera...</div>
-              </div>
-            ) : null}
-            
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transform: 'scaleX(-1)',
-                display: cameraReady && !permissionDenied ? 'block' : 'none'
-              }}
-            />
-          </div>
 
-          {error && cameraReady && (
-            <Alert type="error" message={error} showIcon />
-          )}
+              <Card size="small" style={{ background: token.colorFillAlter }}>
+                <Space direction="vertical" size="small">
+                  <Space>
+                    <Text type="secondary">Thời gian:</Text>
+                    <Text strong>{assessmentData.duration} phút</Text>
+                  </Space>
+                  <Space>
+                    <Text type="secondary">Số lần làm:</Text>
+                    <Text strong>{assessmentData.attempts_used} / {assessmentData.max_attempts}</Text>
+                  </Space>
+                  <Space>
+                    <Text type="secondary">Điểm đạt:</Text>
+                    <Text strong>{assessmentData.passing_score}%</Text>
+                  </Space>
+                </Space>
+              </Card>
 
-          <div style={{ textAlign: 'center' }}>
-            <Space>
-              <Button
-                type="primary"
-                size="large"
-                icon={<CheckCircleOutlined />}
-                onClick={handleVerify}
-                disabled={!cameraReady || !!permissionDenied || !!error}
-                loading={verifying || isStarting}
+              <div style={{ padding: '0 12px' }}>
+                <Steps
+                  direction="vertical"
+                  current={checkingStatus ? 0 : isRegistered ? 2 : 1}
+                  items={[
+                    {
+                      title: 'Kiểm tra thiết bị',
+                      description: 'Đảm bảo camera hoạt động tốt',
+                      status: cameraReady ? 'finish' : 'process',
+                    },
+                    {
+                      title: 'Đăng ký khuôn mặt',
+                      description: 'Tạo dữ liệu nhận diện (chỉ lần đầu)',
+                      status: isRegistered ? 'finish' : checkingStatus ? 'wait' : 'process',
+                    },
+                    {
+                      title: 'Xác thực danh tính',
+                      description: 'Đối chiếu khuôn mặt để vào thi',
+                      status: isRegistered ? 'process' : 'wait',
+                    },
+                  ]}
+                />
+              </div>
+
+              <Button 
+                icon={<ArrowLeftOutlined />} 
+                onClick={() => navigate('/student/assessments')}
               >
-                {verifying ? 'Đang xác thực...' : isStarting ? 'Đang bắt đầu...' : 'Xác thực và bắt đầu'}
+                Quay lại danh sách
               </Button>
-              {error && cameraReady && (
-                <Button
-                  size="large"
-                  onClick={() => {
-                    setError(null);
-                    handleVerify();
-                  }}
-                >
-                  Thử lại ngay
-                </Button>
-              )}
             </Space>
-          </div>
-        </Space>
+          </Col>
+
+          {/* Right Side: Camera & Actions */}
+          <Col xs={24} md={14}>
+            <Card 
+              title={isRegistered ? "Xác thực danh tính" : "Đăng ký khuôn mặt"}
+              extra={isRegistered ? <Tag color="blue">Bước 3/3</Tag> : <Tag color="orange">Bước 2/3</Tag>}
+            >
+              <div style={{ 
+                position: 'relative', 
+                width: '100%', 
+                background: '#000',
+                borderRadius: 8,
+                overflow: 'hidden',
+                aspectRatio: '4/3',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 16
+              }}>
+                {permissionDenied ? (
+                  <div style={{ textAlign: 'center', padding: 20, color: '#fff' }}>
+                    <Title level={4} style={{ color: '#fff' }}>Quyền truy cập bị từ chối</Title>
+                    <Text style={{ color: 'rgba(255,255,255,0.8)' }}>
+                      Vui lòng cho phép trình duyệt truy cập camera.
+                    </Text>
+                    <Button type="primary" onClick={startCamera} style={{ marginTop: 16 }}>Thử lại</Button>
+                  </div>
+                ) : error && !cameraReady ? (
+                  <div style={{ textAlign: 'center', padding: 20, color: '#fff' }}>
+                    <Title level={4} style={{ color: '#ff4d4f' }}>Lỗi Camera</Title>
+                    <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{error}</Text>
+                    <Button type="primary" onClick={startCamera} style={{ marginTop: 16 }}>Thử lại</Button>
+                  </div>
+                ) : !cameraReady ? (
+                  <div style={{ textAlign: 'center' }}>
+                    <Spin size="large" />
+                    <div style={{ marginTop: 16, color: '#fff' }}>Đang khởi động camera...</div>
+                  </div>
+                ) : null}
+                
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transform: 'scaleX(-1)',
+                    display: cameraReady && !permissionDenied ? 'block' : 'none'
+                  }}
+                />
+              </div>
+
+              {error && cameraReady && (
+                <Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />
+              )}
+
+              <div style={{ textAlign: 'center' }}>
+                {checkingStatus ? (
+                  <Spin tip="Đang kiểm tra trạng thái..." />
+                ) : isRegistered ? (
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<CheckCircleOutlined />}
+                    onClick={handleVerify}
+                    disabled={!cameraReady || !!error}
+                    loading={verifying || isStarting}
+                    block
+                  >
+                    {verifying ? 'Đang xác thực...' : 'Xác thực và vào thi'}
+                  </Button>
+                ) : (
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Alert 
+                      type="info" 
+                      message="Bạn chưa có dữ liệu khuôn mặt. Vui lòng chụp ảnh để đăng ký." 
+                      showIcon 
+                      style={{ textAlign: 'left' }}
+                    />
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<CameraOutlined />}
+                      onClick={handleRegister}
+                      disabled={!cameraReady || !!error}
+                      loading={registering}
+                      block
+                    >
+                      {registering ? 'Đang đăng ký...' : 'Chụp ảnh đăng ký'}
+                    </Button>
+                  </Space>
+                )}
+              </div>
+            </Card>
+          </Col>
+        </Row>
       </Card>
     </div>
   );

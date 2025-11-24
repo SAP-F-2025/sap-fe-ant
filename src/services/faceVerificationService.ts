@@ -55,12 +55,22 @@ class FaceVerificationService {
     const formData = new FormData();
     formData.append('image', imageBlob, 'face.jpg');
     
-    const response = await this.instance.post<VerifyResponse>(API_ENDPOINTS.FACE_VERIFY, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      const response = await this.instance.post<VerifyResponse>(API_ENDPOINTS.FACE_VERIFY, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.data?.detail) {
+        throw new Error(error.response.data.detail);
+      }
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw error;
+    }
   }
 
   async deleteFace(): Promise<void> {

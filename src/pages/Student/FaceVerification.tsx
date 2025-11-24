@@ -18,33 +18,44 @@ const FaceVerification: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
 
   const assessmentData = location.state?.assessment;
 
+  const startCamera = async () => {
+    setError(null);
+    setPermissionDenied(false);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480 }
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setCameraReady(true);
+      }
+    } catch (err: any) {
+      console.error('Camera error:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setPermissionDenied(true);
+        setError('Vui lòng cấp quyền truy cập camera để tiếp tục.');
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setError('Không tìm thấy camera. Vui lòng kiểm tra kết nối thiết bị.');
+      } else {
+        setError(err.message || 'Không thể truy cập camera. Vui lòng thử lại.');
+      }
+    }
+  };
+
   useEffect(() => {
     if (!assessmentData) {
       navigate('/student/assessments');
       return;
     }
-
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480 }
-        });
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          streamRef.current = stream;
-          setCameraReady(true);
-        }
-      } catch (err: any) {
-        setError(err.message || 'Không thể truy cập camera');
-      }
-    };
 
     startCamera();
 
@@ -94,12 +105,10 @@ const FaceVerification: React.FC = () => {
       const imageBlob = await captureFrame();
       const result = await faceVerificationService.verifyFace(imageBlob);
       
-      // console.log('Verification result:', result);
-
       if (!result.verified) {
         setVerifying(false);
         const similarity = (result.similarity * 100).toFixed(1);
-        setError(`Xác thực khuôn mặt thất bại. Độ tương đồng: ${similarity}%. ${result.reason || 'Vui lòng thử lại.'}`);
+        setError(`Xác thực thất bại (${similarity}%). ${result.reason || 'Vui lòng giữ yên và nhìn thẳng vào camera.'}`);
         return;
       }
 
@@ -148,8 +157,7 @@ const FaceVerification: React.FC = () => {
     } catch (err: any) {
       setVerifying(false);
       console.error('Verification error:', err);
-      console.error('Error response:', err.response?.data);
-      const errorMsg = err.response?.data?.detail || err.response?.data?.message || err.message || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.';
+      const errorMsg = err.message || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.';
       setError(errorMsg);
     }
   };
@@ -189,18 +197,34 @@ const FaceVerification: React.FC = () => {
             margin: '0 auto',
             background: '#000',
             borderRadius: 8,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            aspectRatio: '4/3',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            {error ? (
-              <Alert type="error" message={error} />
+            {permissionDenied ? (
+              <div style={{ textAlign: 'center', padding: 20, color: '#fff' }}>
+                <Title level={4} style={{ color: '#fff' }}>Quyền truy cập bị từ chối</Title>
+                <Text style={{ color: 'rgba(255,255,255,0.8)' }}>
+                  Vui lòng cho phép trình duyệt truy cập camera để tiếp tục.
+                </Text>
+                <div style={{ marginTop: 16 }}>
+                  <Button type="primary" onClick={startCamera}>Thử lại</Button>
+                </div>
+              </div>
+            ) : error && !cameraReady ? (
+              <div style={{ textAlign: 'center', padding: 20, color: '#fff' }}>
+                <Title level={4} style={{ color: '#ff4d4f' }}>Lỗi Camera</Title>
+                <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{error}</Text>
+                <div style={{ marginTop: 16 }}>
+                  <Button type="primary" onClick={startCamera}>Thử lại</Button>
+                </div>
+              </div>
             ) : !cameraReady ? (
-              <div style={{ 
-                height: 480, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center' 
-              }}>
+              <div style={{ textAlign: 'center' }}>
                 <Spin size="large" />
+                <div style={{ marginTop: 16, color: '#fff' }}>Đang khởi động camera...</div>
               </div>
             ) : null}
             
@@ -211,12 +235,17 @@ const FaceVerification: React.FC = () => {
               muted
               style={{
                 width: '100%',
-                height: 'auto',
+                height: '100%',
+                objectFit: 'cover',
                 transform: 'scaleX(-1)',
-                display: cameraReady && !error ? 'block' : 'none'
+                display: cameraReady && !permissionDenied ? 'block' : 'none'
               }}
             />
           </div>
+
+          {error && cameraReady && (
+            <Alert type="error" message={error} showIcon />
+          )}
 
           <div style={{ textAlign: 'center' }}>
             <Space>
@@ -225,17 +254,20 @@ const FaceVerification: React.FC = () => {
                 size="large"
                 icon={<CheckCircleOutlined />}
                 onClick={handleVerify}
-                disabled={!cameraReady || !!error}
+                disabled={!cameraReady || !!permissionDenied || !!error}
                 loading={verifying || isStarting}
               >
                 {verifying ? 'Đang xác thực...' : isStarting ? 'Đang bắt đầu...' : 'Xác thực và bắt đầu'}
               </Button>
-              {error && (
+              {error && cameraReady && (
                 <Button
                   size="large"
-                  onClick={() => setError(null)}
+                  onClick={() => {
+                    setError(null);
+                    handleVerify();
+                  }}
                 >
-                  Thử lại
+                  Thử lại ngay
                 </Button>
               )}
             </Space>

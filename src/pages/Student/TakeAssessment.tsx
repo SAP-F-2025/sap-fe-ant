@@ -721,14 +721,81 @@ const TakeAssessment: React.FC = () => {
         const trueLabel = question.content?.true_label || 'Đúng';
         const falseLabel = question.content?.false_label || 'Sai';
 
+        // Get theme-aware colors (reuse from multiple choice)
+        const getTrueFalseStyle = (isSelected: boolean, isHovered: boolean) => {
+          const isDark = document.body.classList.contains('dark-mode');
+          
+          if (isSelected) {
+            return {
+              border: `2px solid ${token.colorPrimary}`,
+              backgroundColor: isDark ? 'rgba(24, 144, 255, 0.15)' : '#e6f7ff',
+              boxShadow: `0 0 0 2px ${isDark ? 'rgba(24, 144, 255, 0.2)' : 'rgba(24, 144, 255, 0.1)'}`,
+            };
+          }
+          
+          if (isHovered) {
+            return {
+              border: `1px solid ${isDark ? '#434343' : '#d9d9d9'}`,
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)',
+              boxShadow: `0 2px 8px ${isDark ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.08)'}`,
+              transform: 'translateY(-2px)',
+            };
+          }
+          
+          return {
+            border: `1px solid ${isDark ? '#303030' : '#d9d9d9'}`,
+            backgroundColor: isDark ? '#141414' : '#ffffff',
+            boxShadow: 'none',
+            transform: 'translateY(0)',
+          };
+        };
+
         return (
           <Radio.Group
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(questionId, e.target.value)}
+            style={{ width: '100%' }}
           >
-            <Space direction="vertical">
-              <Radio value={true}>{trueLabel}</Radio>
-              <Radio value={false}>{falseLabel}</Radio>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              {/* True Option */}
+              <Card
+                size="small"
+                hoverable
+                onMouseEnter={() => setHoveredOption('true')}
+                onMouseLeave={() => setHoveredOption(null)}
+                style={{
+                  ...getTrueFalseStyle(currentAnswer === true, hoveredOption === 'true'),
+                  cursor: 'pointer',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  width: '100%',
+                }}
+                bodyStyle={{ padding: '16px' }}
+                onClick={() => handleAnswerChange(questionId, true)}
+              >
+                <Radio value={true} style={{ width: '100%' }}>
+                  <Text style={{ fontSize: '15px', marginLeft: '8px' }}>{trueLabel}</Text>
+                </Radio>
+              </Card>
+
+              {/* False Option */}
+              <Card
+                size="small"
+                hoverable
+                onMouseEnter={() => setHoveredOption('false')}
+                onMouseLeave={() => setHoveredOption(null)}
+                style={{
+                  ...getTrueFalseStyle(currentAnswer === false, hoveredOption === 'false'),
+                  cursor: 'pointer',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  width: '100%',
+                }}
+                bodyStyle={{ padding: '16px' }}
+                onClick={() => handleAnswerChange(questionId, false)}
+              >
+                <Radio value={false} style={{ width: '100%' }}>
+                  <Text style={{ fontSize: '15px', marginLeft: '8px' }}>{falseLabel}</Text>
+                </Radio>
+              </Card>
             </Space>
           </Radio.Group>
         );

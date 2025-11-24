@@ -32,6 +32,7 @@ import {
   UpOutlined,
   DownOutlined,
   HolderOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
 import {
   DndContext,
@@ -41,6 +42,9 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  useDroppable,
+  useDraggable,
+  DragOverlay,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -155,6 +159,117 @@ const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
   );
 };
 
+// Droppable Zone Component for Matching Questions
+interface DroppableMatchZoneProps {
+  id: string;
+  matchedItem: { id: string; text: string; image_url?: string } | null;
+  onRemove: () => void;
+}
+
+const DroppableMatchZone: React.FC<DroppableMatchZoneProps> = ({ id, matchedItem, onRemove }) => {
+  const { isOver, setNodeRef } = useDroppable({ id });
+  const { token } = useThemeToken();
+  const isDark = document.body.classList.contains('dark-mode');
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        minHeight: '80px',
+        border: isOver
+          ? `2px dashed ${token.colorPrimary}`
+          : matchedItem
+          ? `2px solid ${token.colorSuccess}`
+          : `2px dashed ${isDark ? '#434343' : '#d9d9d9'}`,
+        borderRadius: '8px',
+        padding: '12px',
+        marginTop: '8px',
+        backgroundColor: isOver
+          ? isDark ? 'rgba(24, 144, 255, 0.15)' : 'rgba(24, 144, 255, 0.1)'
+          : matchedItem
+          ? isDark ? 'rgba(82, 196, 26, 0.15)' : 'rgba(82, 196, 26, 0.1)'
+          : 'transparent',
+        transition: 'all 0.3s',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {matchedItem ? (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <Space>
+            {matchedItem.image_url && (
+              <img
+                src={matchedItem.image_url}
+                alt={matchedItem.text}
+                style={{ maxHeight: '40px', borderRadius: '4px' }}
+              />
+            )}
+            <Text>{matchedItem.text}</Text>
+          </Space>
+          <Button
+            type="text"
+            size="small"
+            icon={<CloseOutlined />}
+            onClick={onRemove}
+            title="Xóa"
+          />
+        </div>
+      ) : (
+        <Text type="secondary" style={{ textAlign: 'center' }}>
+          Kéo thả câu trả lời vào đây
+        </Text>
+      )}
+    </div>
+  );
+};
+
+// Draggable Answer Component for Matching Questions
+interface DraggableMatchAnswerProps {
+  id: string;
+  item: { id: string; text: string; image_url?: string };
+  isUsed: boolean;
+}
+
+const DraggableMatchAnswer: React.FC<DraggableMatchAnswerProps> = ({ id, item, isUsed }) => {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id,
+    disabled: isUsed,
+  });
+  const { token } = useThemeToken();
+  const isDark = document.body.classList.contains('dark-mode');
+
+  return (
+    <div style={{ minHeight: '64px', marginBottom: '8px' }}>
+      {!isUsed && (
+        <Card
+          ref={setNodeRef}
+          {...attributes}
+          {...listeners}
+          size="small"
+          style={{
+            cursor: isDragging ? 'grabbing' : 'grab',
+            opacity: isDragging ? 0.5 : 1,
+            border: `1px solid ${isDark ? '#434343' : '#d9d9d9'}`,
+            transition: 'opacity 0.3s',
+          }}
+        >
+          <Space>
+            {item.image_url && (
+              <img
+                src={item.image_url}
+                alt={item.text}
+                style={{ maxHeight: '50px', borderRadius: '4px' }}
+              />
+            )}
+            <Text>{item.text}</Text>
+          </Space>
+        </Card>
+      )}
+    </div>
+  );
+};
+
 
 const TakeAssessment: React.FC = () => {
   const { attemptId } = useParams<{ attemptId: string }>();
@@ -175,6 +290,8 @@ const TakeAssessment: React.FC = () => {
   const [prevFaceCount, setPrevFaceCount] = useState<number | null>(null);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [hoveredOption, setHoveredOption] = useState<string | null>(null); // Add hover state at top level
+  const [activeMatchingId, setActiveMatchingId] = useState<string | null>(null); // For matching drag overlay
+
 
   // Setup sensors for drag-and-drop at top level (for ordering questions)
   const dndSensors = useSensors(
@@ -768,63 +885,146 @@ const TakeAssessment: React.FC = () => {
         if (question.content?.left_items && question.content?.right_items) {
           const { left_items, right_items } = question.content;
           const currentMatches = currentAnswer || {};
+          const usedRightIds = Object.values(currentMatches);
+
+          const handleMatchDragEnd = (event: DragEndEvent) => {
+            const { active, over } = event;
+
+            if (over) {
+              const rightItemId = active.id as string;
+              const leftItemId = over.id as string;
+
+              // Remove previous match if this right item was already matched
+              const newMatches = { ...currentMatches };
+              Object.keys(newMatches).forEach((key) => {
+                if (newMatches[key] === rightItemId) {
+                  delete newMatches[key];
+                }
+              });
+
+              // Add new match
+              newMatches[leftItemId] = rightItemId;
+              handleAnswerChange(questionId, newMatches);
+            }
+            
+            // Reset active dragging state
+            setActiveMatchingId(null);
+          };
+
+          const removeMatch = (leftItemId: string) => {
+            const newMatches = { ...currentMatches };
+            delete newMatches[leftItemId];
+            handleAnswerChange(questionId, newMatches);
+          };
 
           return (
-            <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              <Row gutter={[16, 16]}>
-                <Col span={12}>
-                  <Card title="Danh sách bên trái" size="small">
-                    <Space direction="vertical" style={{ width: '100%' }}>
-                      {left_items.map((leftItem: any) => (
-                        <div key={leftItem.id} style={{ marginBottom: '12px' }}>
-                          <div style={{ marginBottom: '8px' }}>
-                            {leftItem.image_url && (
+            <DndContext
+              sensors={dndSensors}
+              onDragStart={(e) => setActiveMatchingId(e.active.id as string)}
+              onDragEnd={handleMatchDragEnd}
+              onDragCancel={() => setActiveMatchingId(null)}
+            >
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                <Alert
+                  message={`Đã ghép: ${Object.keys(currentMatches).length}/${left_items.length}`}
+                  type="info"
+                  showIcon
+                />
+
+                <Row gutter={16}>
+                  {/* Left Column - Questions with Drop Zones */}
+                  <Col span={12}>
+                    <Card title="Câu hỏi" size="small">
+                      <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                        {left_items.map((leftItem: any) => {
+                          const matchedRightId = currentMatches[leftItem.id];
+                          const matchedRightItem = right_items.find(
+                            (r: any) => r.id === matchedRightId
+                          );
+
+                          return (
+                            <div key={leftItem.id}>
+                              {/* Question */}
+                              <div style={{ marginBottom: '8px' }}>
+                                {leftItem.image_url && (
+                                  <img
+                                    src={leftItem.image_url}
+                                    alt={leftItem.text}
+                                    style={{
+                                      maxWidth: '100%',
+                                      maxHeight: '100px',
+                                      marginBottom: '8px',
+                                      borderRadius: '4px',
+                                    }}
+                                  />
+                                )}
+                                <Text strong>{leftItem.text}</Text>
+                              </div>
+
+                              {/* Drop Zone */}
+                              <DroppableMatchZone
+                                id={leftItem.id}
+                                matchedItem={matchedRightItem || null}
+                                onRemove={() => removeMatch(leftItem.id)}
+                              />
+                            </div>
+                          );
+                        })}
+                      </Space>
+                    </Card>
+                  </Col>
+
+                  {/* Right Column - Draggable Answers */}
+                  <Col span={12}>
+                    <Card title="Câu trả lời" size="small">
+                      <Space direction="vertical" style={{ width: '100%' }}>
+                        {right_items.map((rightItem: any) => (
+                          <DraggableMatchAnswer
+                            key={rightItem.id}
+                            id={rightItem.id}
+                            item={rightItem}
+                            isUsed={usedRightIds.includes(rightItem.id)}
+                          />
+                        ))}
+                      </Space>
+                    </Card>
+                  </Col>
+                </Row>
+              </Space>
+
+              {/* Drag Overlay - shows card following cursor */}
+              <DragOverlay>
+                {activeMatchingId ? (
+                  <Card
+                    size="small"
+                    style={{
+                      cursor: 'grabbing',
+                      border: '1px solid #d9d9d9',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    }}
+                  >
+                    <Space>
+                      {(() => {
+                        const item = right_items.find((r: any) => r.id === activeMatchingId);
+                        if (!item) return null;
+                        return (
+                          <>
+                            {item.image_url && (
                               <img
-                                src={leftItem.image_url}
-                                alt={leftItem.text}
-                                style={{ maxWidth: '100%', maxHeight: '100px', marginBottom: '8px' }}
+                                src={item.image_url}
+                                alt={item.text}
+                                style={{ maxHeight: '50px', borderRadius: '4px' }}
                               />
                             )}
-                            <Text strong>{leftItem.text}</Text>
-                          </div>
-                          <Select
-                            placeholder="Chọn cặp ghép"
-                            style={{ width: '100%' }}
-                            value={currentMatches[leftItem.id] || undefined}
-                            onChange={(value) => {
-                              const newMatches = { ...currentMatches, [leftItem.id]: value };
-                              handleAnswerChange(questionId, newMatches);
-                            }}
-                            options={right_items.map((rightItem: any) => ({
-                              label: rightItem.text,
-                              value: rightItem.id,
-                            }))}
-                          />
-                        </div>
-                      ))}
+                            <Text>{item.text}</Text>
+                          </>
+                        );
+                      })()}
                     </Space>
                   </Card>
-                </Col>
-                <Col span={12}>
-                  <Card title="Danh sách bên phải" size="small">
-                    <Space direction="vertical" style={{ width: '100%' }}>
-                      {right_items.map((rightItem: any) => (
-                        <div key={rightItem.id} style={{ padding: '8px', border: '1px solid #d9d9d9', borderRadius: '4px' }}>
-                          {rightItem.image_url && (
-                            <img
-                              src={rightItem.image_url}
-                              alt={rightItem.text}
-                              style={{ maxWidth: '100%', maxHeight: '100px', marginBottom: '8px' }}
-                            />
-                          )}
-                          <Text>{rightItem.text}</Text>
-                        </div>
-                      ))}
-                    </Space>
-                  </Card>
-                </Col>
-              </Row>
-            </Space>
+                ) : null}
+              </DragOverlay>
+            </DndContext>
           );
         }
         return <Text type="secondary">Câu hỏi ghép cặp không hợp lệ</Text>;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Card,
   Button,
@@ -459,16 +459,42 @@ const TakeAssessment: React.FC = () => {
     return () => clearInterval(interval);
   }, [attempt, attemptId]);
 
-  // Auto-save answer when changed
-  useEffect(() => {
-    if (!currentQuestion || !answers[currentQuestion.id]) return;
+  // Save queue to track pending auto-saves
+  const saveQueueRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
+  const pendingSavesRef = useRef<Set<number>>(new Set());
 
-    const timer = setTimeout(() => {
-      handleSaveAnswer(currentQuestion.id, answers[currentQuestion.id]);
-    }, 2000); // Auto-save after 2 seconds of inactivity
+  // Flush all pending saves before submission
+  const flushPendingSaves = async () => {
+    const pendingQuestions = Array.from(pendingSavesRef.current);
+    if (pendingQuestions.length === 0) return;
 
-    return () => clearTimeout(timer);
-  }, [answers, currentQuestion]);
+    console.log('Flushing pending saves for questions:', pendingQuestions);
+    
+    const savePromises = pendingQuestions.map(questionId => {
+      return submitAnswerMutation.mutateAsync({
+        question_id: questionId,
+        answer: answers[questionId],
+      }).then(() => {
+        // Only remove on success
+        pendingSavesRef.current.delete(questionId);
+      }).catch(err => {
+        console.error(`Failed to save question ${questionId}:`, err);
+        // Keep in pending set for potential retry
+        throw err; // Re-throw to track failures
+      });
+    });
+
+    try {
+      await Promise.all(savePromises);
+    } catch (error) {
+      // Some saves failed, warn the user
+      modal.error({
+        title: 'Lỗi lưu câu trả lời',
+        content: 'Một số câu trả lời chưa được lưu. Vui lòng kiểm tra kết nối mạng và thử lại.',
+      });
+      throw error; // Prevent submission if saves failed
+    }
+  };
 
   const buildCompleteAttemptRequest = (endReason?: string): CompleteAttemptRequest => {
     // Convert answers from Record<number, any> to SubmitAnswerRequest[]
@@ -486,7 +512,10 @@ const TakeAssessment: React.FC = () => {
     };
   };
 
-  const handleTimeUp = () => {
+  const handleTimeUp = async () => {
+    // Flush any pending auto-saves first
+    await flushPendingSaves();
+    
     modal.warning({
       title: 'Hết giờ!',
       content: 'Thời gian làm bài đã hết. Câu trả lời của bạn sẽ được nộp tự động.',
@@ -505,10 +534,45 @@ const TakeAssessment: React.FC = () => {
   };
 
   const handleAnswerChange = (questionId: number, answer: any) => {
+    // Update local state immediately
     setAnswers((prev) => ({
       ...prev,
       [questionId]: answer,
     }));
+
+    // Clear existing timeout for this question
+    const existingTimeout = saveQueueRef.current.get(questionId);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+    }
+
+    // Mark as pending
+    pendingSavesRef.current.add(questionId);
+
+    // Set new debounced save
+    const timeout = setTimeout(() => {
+      setAutoSaving(true);
+      submitAnswerMutation.mutate(
+        {
+          question_id: questionId,
+          answer,
+        },
+        {
+          onSuccess: () => {
+            // Only remove from pending on success
+            pendingSavesRef.current.delete(questionId);
+            setAutoSaving(false);
+          },
+          onError: () => {
+            // Keep in pending set for flush retry
+            setAutoSaving(false);
+          },
+        }
+      );
+      saveQueueRef.current.delete(questionId);
+    }, 2000);
+
+    saveQueueRef.current.set(questionId, timeout);
   };
 
   const handlePreviousQuestion = () => {
@@ -529,7 +593,10 @@ const TakeAssessment: React.FC = () => {
     setCurrentQuestionId(questionId);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // Flush pending saves before showing confirmation
+    await flushPendingSaves();
+    
     const answeredCount = Object.keys(answers).length;
     const totalQuestions = questions.length;
 

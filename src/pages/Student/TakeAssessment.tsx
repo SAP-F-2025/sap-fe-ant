@@ -27,6 +27,7 @@ import {
   CheckOutlined,
   SaveOutlined,
   ExclamationCircleOutlined,
+  CheckCircleOutlined,
   LeftOutlined,
   RightOutlined,
   UpOutlined,
@@ -291,6 +292,7 @@ const TakeAssessment: React.FC = () => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [hoveredOption, setHoveredOption] = useState<string | null>(null); // Add hover state at top level
   const [activeMatchingId, setActiveMatchingId] = useState<string | null>(null); // For matching drag overlay
+  const [lastSavedTime, setLastSavedTime] = useState<number | null>(null); // Track last successful save
 
 
   // Setup sensors for drag-and-drop at top level (for ordering questions)
@@ -562,6 +564,7 @@ const TakeAssessment: React.FC = () => {
             // Only remove from pending on success
             pendingSavesRef.current.delete(questionId);
             setAutoSaving(false);
+            setLastSavedTime(Date.now()); // Track save time
           },
           onError: () => {
             // Keep in pending set for flush retry
@@ -900,7 +903,7 @@ const TakeAssessment: React.FC = () => {
               onChange={(e) => handleAnswerChange(questionId, e.target.value)}
             />
 
-            {/* Word Counter */}
+            {/* Word & Character Counter */}
             <Card size="small" style={{ backgroundColor: '#fafafa' }}>
               <Space split={<span>|</span>}>
                 <Text>
@@ -913,9 +916,15 @@ const TakeAssessment: React.FC = () => {
                     {wordCount}
                   </Tag>
                 </Text>
+                <Text>
+                  <strong>Ký tự:</strong>{' '}
+                  <Tag color="blue">
+                    {currentText.length}
+                  </Tag>
+                </Text>
                 {minWords && (
                   <Text type={wordCount < minWords ? 'danger' : 'secondary'}>
-                    Tối thiểu: {minWords}
+                    Tối thiểu: {minWords} từ
                   </Text>
                 )}
                 {maxWords && (
@@ -1448,9 +1457,16 @@ const TakeAssessment: React.FC = () => {
               )}
             </Space>
             <div style={{ marginTop: '4px' }}>
-              <Text type="secondary">
-                Câu {currentQuestionIndex + 1} / {questions.length}
-              </Text>
+              <Space size="small">
+                <Text type="secondary">
+                  Câu {currentQuestionIndex + 1} / {questions.length}
+                </Text>
+                {!autoSaving && lastSavedTime && (
+                  <Text type="success" style={{ fontSize: '12px' }}>
+                    <CheckCircleOutlined /> Đã lưu
+                  </Text>
+                )}
+              </Space>
             </div>
           </Col>
           <Col>

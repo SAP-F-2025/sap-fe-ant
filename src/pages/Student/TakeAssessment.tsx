@@ -1370,12 +1370,21 @@ const TakeAssessment: React.FC = () => {
       <Card style={{ marginBottom: '16px' }}>
         <Row gutter={16} align="middle">
           <Col flex="auto">
-            <Title level={3} style={{ margin: 0 }}>
-              {attempt.assessment?.title}
-            </Title>
-            <Text type="secondary">
-              Câu {currentQuestionIndex + 1} / {questions.length}
-            </Text>
+            <Space align="center">
+              <Title level={3} style={{ margin: 0 }}>
+                {attempt.assessment?.title}
+              </Title>
+              {autoSaving && (
+                <Tag color="processing" icon={<SaveOutlined />}>
+                  Đang lưu...
+                </Tag>
+              )}
+            </Space>
+            <div style={{ marginTop: '4px' }}>
+              <Text type="secondary">
+                Câu {currentQuestionIndex + 1} / {questions.length}
+              </Text>
+            </div>
           </Col>
           <Col>
             <Statistic
@@ -1400,11 +1409,6 @@ const TakeAssessment: React.FC = () => {
           strokeColor="#1890ff"
           style={{ marginTop: '16px' }}
         />
-        {autoSaving && (
-          <Tag color="processing" style={{ marginTop: '8px' }}>
-            <SaveOutlined /> Đang lưu...
-          </Tag>
-        )}
       </Card>
 
       {/* Question Card */}

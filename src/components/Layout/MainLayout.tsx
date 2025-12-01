@@ -196,7 +196,7 @@ const MainLayout: React.FC = () => {
 	};
 
 	// Calculate sider width based on collapsed state
-	const siderWidth = collapsed ? 80 : 200;
+	const siderWidth = collapsed ? 80 : 240;
 
 	return (
 		<Layout style={{ minHeight: '100vh' }}>
@@ -205,6 +205,7 @@ const MainLayout: React.FC = () => {
 				collapsible
 				collapsed={collapsed}
 				breakpoint="lg"
+				width={240}
 				collapsedWidth={80}
 				style={{
 					overflow: 'auto',

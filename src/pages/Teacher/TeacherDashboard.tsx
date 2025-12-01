@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col, Statistic, Table, Typography, Tag, Space, Button } from 'antd';
+import { Card, Row, Col, Statistic, Table, Typography, Tag, Space, Button, theme } from 'antd';
 import {
   BookOutlined,
   FileTextOutlined,
@@ -21,10 +21,12 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 const { Title, Text } = Typography;
+const { useToken } = theme;
 
 const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { token } = useToken();
 
   // Fetch dashboard stats
   const { data: stats, isLoading } = useQuery<DashboardStats>({
@@ -100,7 +102,7 @@ const TeacherDashboard: React.FC = () => {
               title="Tổng bài thi"
               value={stats?.overview.total_assessments || 0}
               prefix={<BookOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: token.colorPrimary }}
             />
           </Card>
         </Col>
@@ -110,7 +112,7 @@ const TeacherDashboard: React.FC = () => {
               title="Tổng câu hỏi"
               value={stats?.overview.total_questions || 0}
               prefix={<QuestionCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>
@@ -120,7 +122,7 @@ const TeacherDashboard: React.FC = () => {
               title="Ngân hàng câu hỏi"
               value={stats?.overview.total_question_banks || 0}
               prefix={<FileTextOutlined />}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: token.colorWarning }}
             />
           </Card>
         </Col>
@@ -145,7 +147,7 @@ const TeacherDashboard: React.FC = () => {
               precision={1}
               suffix="%"
               prefix={<TrophyOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: token.colorPrimary }}
             />
           </Card>
         </Col>
@@ -157,7 +159,7 @@ const TeacherDashboard: React.FC = () => {
               precision={1}
               suffix="%"
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>
@@ -169,7 +171,7 @@ const TeacherDashboard: React.FC = () => {
               precision={1}
               suffix="%"
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col, Statistic, Table, Typography, Tag, Space, Button } from 'antd';
+import { Card, Row, Col, Statistic, Table, Typography, Tag, Space, Button, theme } from 'antd';
 import {
   BookOutlined,
   CheckCircleOutlined,
@@ -23,10 +23,12 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 const { Title, Text } = Typography;
+const { useToken } = theme;
 
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { token } = useToken();
 
   // Fetch dashboard stats
   const { data: stats, isLoading } = useQuery<StudentDashboardStats>({
@@ -154,7 +156,7 @@ const StudentDashboard: React.FC = () => {
               title="Bài kiểm tra khả dụng"
               value={stats?.overview.total_assessments_available || 0}
               prefix={<BookOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: token.colorPrimary }}
             />
           </Card>
         </Col>
@@ -164,7 +166,7 @@ const StudentDashboard: React.FC = () => {
               title="Đã hoàn thành"
               value={stats?.overview.total_assessments_completed || 0}
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>
@@ -174,7 +176,7 @@ const StudentDashboard: React.FC = () => {
               title="Đang làm"
               value={stats?.overview.total_assessments_in_progress || 0}
               prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: token.colorWarning }}
             />
           </Card>
         </Col>
@@ -199,7 +201,7 @@ const StudentDashboard: React.FC = () => {
               precision={1}
               suffix="%"
               prefix={<TrophyOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: token.colorPrimary }}
             />
           </Card>
         </Col>
@@ -218,7 +220,7 @@ const StudentDashboard: React.FC = () => {
                 )
               }
               valueStyle={{
-                color: (stats?.performance.pass_rate || 0) >= 50 ? '#52c41a' : '#f5222d',
+                color: (stats?.performance.pass_rate || 0) >= 50 ? token.colorSuccess : token.colorError,
               }}
             />
           </Card>
@@ -230,7 +232,7 @@ const StudentDashboard: React.FC = () => {
               value={stats?.performance.highest_score || 0}
               precision={1}
               suffix="%"
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>
@@ -241,7 +243,7 @@ const StudentDashboard: React.FC = () => {
               value={stats?.performance.lowest_score || 0}
               precision={1}
               suffix="%"
-              valueStyle={{ color: '#f5222d' }}
+              valueStyle={{ color: token.colorError }}
             />
           </Card>
         </Col>

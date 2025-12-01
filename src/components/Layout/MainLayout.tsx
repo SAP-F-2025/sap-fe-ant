@@ -208,10 +208,8 @@ const MainLayout: React.FC = () => {
           top: 0,
           bottom: 0,
           zIndex: 1000,
-          background: mode === 'dark' ? '#1a1a1a' : '#ffffff',
-          borderRight: mode === 'dark'
-            ? '1px solid rgba(255, 255, 255, 0.08)'
-            : '1px solid rgba(0, 0, 0, 0.06)',
+          background: token.colorBgContainer,
+          borderRight: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
         {/* Logo */}
@@ -221,13 +219,11 @@ const MainLayout: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: collapsed ? 'center' : 'flex-start',
-            color: mode === 'dark' ? '#ffffff' : token.colorPrimary,
+            color: token.colorPrimary,
             fontSize: collapsed ? 24 : 18,
             fontWeight: 700,
             padding: `0 ${token.paddingLG}px`,
-            borderBottom: mode === 'dark'
-              ? '1px solid rgba(255, 255, 255, 0.08)'
-              : '1px solid rgba(0, 0, 0, 0.06)',
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
             letterSpacing: '-0.5px',
           }}
         >
@@ -258,19 +254,18 @@ const MainLayout: React.FC = () => {
         style={{
           marginLeft: siderWidth,
           transition: 'margin-left 0.2s',
+          background: token.colorBgLayout,
         }}
       >
         {/* Header */}
         <Header
           style={{
             padding: `0 ${token.paddingLG}px`,
-            background: mode === 'dark' ? '#1a1a1a' : '#ffffff',
+            background: token.colorBgContainer,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: mode === 'dark'
-              ? '1px solid rgba(255, 255, 255, 0.08)'
-              : '1px solid rgba(0, 0, 0, 0.06)',
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
             position: 'sticky',
             top: 0,
             zIndex: 999,
@@ -314,9 +309,7 @@ const MainLayout: React.FC = () => {
                   transition: 'background 0.2s',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = mode === 'dark'
-                    ? 'rgba(255, 255, 255, 0.08)'
-                    : 'rgba(0, 0, 0, 0.04)';
+                  e.currentTarget.style.background = token.colorFillTertiary;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'transparent';
@@ -327,7 +320,7 @@ const MainLayout: React.FC = () => {
                   icon={<UserOutlined />}
                   src={user?.avatar}
                   style={{
-                    backgroundColor: '#1890ff',
+                    backgroundColor: token.colorPrimary,
                     flexShrink: 0,
                   }}
                 />
@@ -349,9 +342,7 @@ const MainLayout: React.FC = () => {
             minHeight: 280,
             background: token.colorBgContainer,
             borderRadius: 20,
-            border: mode === 'dark'
-              ? '1px solid rgba(255, 255, 255, 0.08)'
-              : '1px solid rgba(0, 0, 0, 0.06)',
+            border: `1px solid ${token.colorBorderSecondary}`,
             ...elevation[0],
           }}
         >

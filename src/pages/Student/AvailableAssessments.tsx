@@ -10,7 +10,7 @@ import {
   App,
   Alert,
 } from 'antd';
-import { CameraConsentModal } from '../../components/Proctoring/CameraConsentModal';
+
 import { TamperCheckModal } from '../../components/Proctoring/TamperCheckModal';
 import {
   SearchOutlined,
@@ -37,7 +37,7 @@ const AvailableAssessments: React.FC = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [cameraConsentModal, setCameraConsentModal] = useState(false);
+
   const [tamperCheckModal, setTamperCheckModal] = useState(false);
   const [selectedAssessment, setSelectedAssessment] = useState<any>(null);
 
@@ -124,32 +124,7 @@ const AvailableAssessments: React.FC = () => {
       // console.log('Assessment:', assessment);
       const requireWebcam = assessment.settings?.require_webcam;
       if (requireWebcam) {
-        // Check if user has registered face
-        try {
-          const registrationStatus = await studentService.checkFaceRegistrationStatus();
-          if (!registrationStatus.registered) {
-            modal.confirm({
-              title: 'Chưa đăng ký khuôn mặt',
-              content: 'Bài kiểm tra này yêu cầu xác thực khuôn mặt. Bạn cần đăng ký khuôn mặt trước khi bắt đầu. Bạn có muốn đăng ký ngay không?',
-              okText: 'Đăng ký ngay',
-              cancelText: 'Hủy',
-              onOk: () => {
-                navigate('/profile', { state: { returnToAssessment: assessment.id } });
-              },
-            });
-            return;
-          }
-        } catch (error) {
-          console.error('Failed to check face registration status:', error);
-        }
-
-        const consent = localStorage.getItem('camera-consent');
-        if (consent === 'always') {
-          navigate('/student/face-verification', { state: { assessment: fullAssessment } });
-        } else {
-          setSelectedAssessment(fullAssessment);
-          setCameraConsentModal(true);
-        }
+        navigate('/student/face-verification', { state: { assessment: fullAssessment } });
       } else {
         showStartConfirmation(fullAssessment);
       }
@@ -159,25 +134,6 @@ const AvailableAssessments: React.FC = () => {
         content: error.message || 'Đã có lỗi xảy ra',
       });
     }
-  };
-
-  const handleCameraConsent = (consent: 'once' | 'always') => {
-    if (consent === 'always') {
-      localStorage.setItem('camera-consent', 'always');
-    }
-    setCameraConsentModal(false);
-    if (selectedAssessment) {
-      navigate('/student/face-verification', { state: { assessment: selectedAssessment } });
-    }
-  };
-
-  const handleCameraReject = () => {
-    setCameraConsentModal(false);
-    setSelectedAssessment(null);
-    modal.warning({
-      title: 'Từ chối quyền camera',
-      content: 'Bạn cần cho phép truy cập camera để làm bài kiểm tra này.',
-    });
   };
 
   const showStartConfirmation = (assessment: any) => {
@@ -369,11 +325,7 @@ const AvailableAssessments: React.FC = () => {
 
   return (
     <>
-      <CameraConsentModal
-        open={cameraConsentModal}
-        onConsent={handleCameraConsent}
-        onReject={handleCameraReject}
-      />
+
       <TamperCheckModal
         open={tamperCheckModal}
         onPass={handleTamperCheckPass}

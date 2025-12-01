@@ -45,6 +45,7 @@ const QuestionList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [total, setTotal] = useState(0);
+    const [allQuestionsStats, setAllQuestionsStats] = useState<Question[]>([]);
     const [filters, setFilters] = useState({
         page: 1,
         size: 10,
@@ -53,30 +54,46 @@ const QuestionList: React.FC = () => {
         search: '',
     });
 
-    // Calculate statistics
+    // Calculate statistics from ALL questions, not just current page
     const stats = useMemo(() => {
         return {
-            total: questions.length,
-            easy: questions.filter((q) => q.difficulty === DifficultyLevel.Easy).length,
-            medium: questions.filter((q) => q.difficulty === DifficultyLevel.Medium).length,
-            hard: questions.filter((q) => q.difficulty === DifficultyLevel.Hard).length,
+            total: total, // Use total from API
+            easy: allQuestionsStats?.filter((q) => q.difficulty === DifficultyLevel.Easy).length || 0,
+            medium: allQuestionsStats?.filter((q) => q.difficulty === DifficultyLevel.Medium).length || 0,
+            hard: allQuestionsStats?.filter((q) => q.difficulty === DifficultyLevel.Hard).length || 0,
         };
-    }, [questions]);
+    }, [allQuestionsStats, total]);
 
     useEffect(() => {
         fetchQuestions();
     }, [filters]);
 
+    // Fetch all questions for statistics (only once on mount)
+    useEffect(() => {
+        fetchAllQuestionsForStats();
+    }, []);
+
     const fetchQuestions = async () => {
         setLoading(true);
         try {
             const response = await questionService.getQuestions(filters);
-            setQuestions(response.questions);
+            setQuestions(response.questions || []);
             setTotal(response.total);
         } catch (error) {
             message.error('Không thể tải danh sách câu hỏi');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Fetch all questions for statistics calculation
+    const fetchAllQuestionsForStats = async () => {
+        try {
+            // Fetch all questions with a large page size to get accurate difficulty counts
+            const response = await questionService.getQuestions({ page: 1, size: 10000 });
+            setAllQuestionsStats(response.questions || []);
+        } catch (error) {
+            console.error('Failed to fetch question statistics:', error);
         }
     };
 
@@ -245,75 +262,6 @@ const QuestionList: React.FC = () => {
                 </Button>
             </Flex>
 
-            {/* Statistics Cards */}
-            <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card bordered={false} style={{background: cardColors.purple, borderRadius: 16, ...elevation[1]}}
-                          styles={{body: {padding: 20}}}>
-                        <Flex vertical align="center" gap={12}>
-                            <Avatar size={44} icon={<QuestionCircleOutlined style={{fontSize: 20}}/>}
-                                    style={{backgroundColor: 'rgba(255,255,255,0.2)', border: 'none'}}/>
-                            <Title level={3} style={{
-                                color: 'white',
-                                margin: 0,
-                                fontSize: 32,
-                                fontWeight: 700
-                            }}>{stats.total}</Title>
-                            <Text style={{color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500}}>Tổng câu
-                                hỏi</Text>
-                        </Flex>
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card bordered={false} style={{background: cardColors.green, borderRadius: 16, ...elevation[1]}}
-                          styles={{body: {padding: 20}}}>
-                        <Flex vertical align="center" gap={12}>
-                            <Avatar size={44} icon={<BulbOutlined style={{fontSize: 20}}/>}
-                                    style={{backgroundColor: 'rgba(255,255,255,0.2)', border: 'none'}}/>
-                            <Title level={3} style={{
-                                color: 'white',
-                                margin: 0,
-                                fontSize: 32,
-                                fontWeight: 700
-                            }}>{stats.easy}</Title>
-                            <Text style={{color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500}}>Dễ</Text>
-                        </Flex>
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card bordered={false} style={{background: cardColors.orange, borderRadius: 16, ...elevation[1]}}
-                          styles={{body: {padding: 20}}}>
-                        <Flex vertical align="center" gap={12}>
-                            <Avatar size={44} icon={<ThunderboltOutlined style={{fontSize: 20}}/>}
-                                    style={{backgroundColor: 'rgba(255,255,255,0.2)', border: 'none'}}/>
-                            <Title level={3} style={{
-                                color: 'white',
-                                margin: 0,
-                                fontSize: 32,
-                                fontWeight: 700
-                            }}>{stats.medium}</Title>
-                            <Text style={{color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500}}>Trung
-                                bình</Text>
-                        </Flex>
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card bordered={false} style={{background: cardColors.red, borderRadius: 16, ...elevation[1]}}
-                          styles={{body: {padding: 20}}}>
-                        <Flex vertical align="center" gap={12}>
-                            <Avatar size={44} icon={<FireOutlined style={{fontSize: 20}}/>}
-                                    style={{backgroundColor: 'rgba(255,255,255,0.2)', border: 'none'}}/>
-                            <Title level={3} style={{
-                                color: 'white',
-                                margin: 0,
-                                fontSize: 32,
-                                fontWeight: 700
-                            }}>{stats.hard}</Title>
-                            <Text style={{color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500}}>Khó</Text>
-                        </Flex>
-                    </Card>
-                </Col>
-            </Row>
 
             <Card style={{...elevation[1], borderRadius: 16}}>
                 <Space direction="vertical" size="middle" style={{width: '100%'}}>
@@ -383,6 +331,55 @@ const QuestionList: React.FC = () => {
                                 setFilters({...filters, page, size}),
                         }}
                     />
+                </Space>
+            </Card>
+
+            {/* Statistics Summary - Moved to bottom */}
+            <Card bordered={false} style={{...elevation[1], borderRadius: 16, background: '#f5f5f5'}}>
+                <Space direction="vertical" size={8} style={{width: '100%'}}>
+                    <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>Thống kê tổng quan</Text>
+                    <Row gutter={[12, 12]}>
+                        <Col xs={12} sm={6}>
+                            <Flex align="center" gap={8}>
+                                <Avatar size={36} icon={<QuestionCircleOutlined style={{fontSize: 16}}/>}
+                                        style={{backgroundColor: cardColors.purple, flexShrink: 0}}/>
+                                <Space direction="vertical" size={0}>
+                                    <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.total}</Text>
+                                    <Text type="secondary" style={{fontSize: 12}}>Tổng câu hỏi</Text>
+                                </Space>
+                            </Flex>
+                        </Col>
+                        <Col xs={12} sm={6}>
+                            <Flex align="center" gap={8}>
+                                <Avatar size={36} icon={<BulbOutlined style={{fontSize: 16}}/>}
+                                        style={{backgroundColor: cardColors.green, flexShrink: 0}}/>
+                                <Space direction="vertical" size={0}>
+                                    <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.easy}</Text>
+                                    <Text type="secondary" style={{fontSize: 12}}>Dễ</Text>
+                                </Space>
+                            </Flex>
+                        </Col>
+                        <Col xs={12} sm={6}>
+                            <Flex align="center" gap={8}>
+                                <Avatar size={36} icon={<ThunderboltOutlined style={{fontSize: 16}}/>}
+                                        style={{backgroundColor: cardColors.orange, flexShrink: 0}}/>
+                                <Space direction="vertical" size={0}>
+                                    <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.medium}</Text>
+                                    <Text type="secondary" style={{fontSize: 12}}>Trung bình</Text>
+                                </Space>
+                            </Flex>
+                        </Col>
+                        <Col xs={12} sm={6}>
+                            <Flex align="center" gap={8}>
+                                <Avatar size={36} icon={<FireOutlined style={{fontSize: 16}}/>}
+                                        style={{backgroundColor: cardColors.red, flexShrink: 0}}/>
+                                <Space direction="vertical" size={0}>
+                                    <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.hard}</Text>
+                                    <Text type="secondary" style={{fontSize: 12}}>Khó</Text>
+                                </Space>
+                            </Flex>
+                        </Col>
+                    </Row>
                 </Space>
             </Card>
         </Space>

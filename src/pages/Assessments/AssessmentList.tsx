@@ -50,6 +50,7 @@ const AssessmentList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [total, setTotal] = useState(0);
+  const [allAssessmentsStats, setAllAssessmentsStats] = useState<Assessment[]>([]);
   const [filters, setFilters] = useState({
     page: 1,
     size: 10,
@@ -57,19 +58,24 @@ const AssessmentList: React.FC = () => {
     search: '',
   });
 
-  // Calculate statistics
+  // Calculate statistics from ALL assessments, not just current page
   const stats = useMemo(() => {
     return {
-      total: assessments.length,
-      active: assessments.filter((a) => a.status === AssessmentStatus.Active).length,
-      draft: assessments.filter((a) => a.status === AssessmentStatus.Draft).length,
-      archived: assessments.filter((a) => a.status === AssessmentStatus.Archived).length,
+      total: total,
+      active: allAssessmentsStats?.filter((a) => a.status === AssessmentStatus.Active).length || 0,
+      draft: allAssessmentsStats?.filter((a) => a.status === AssessmentStatus.Draft).length || 0,
+      archived: allAssessmentsStats?.filter((a) => a.status === AssessmentStatus.Archived).length || 0,
     };
-  }, [assessments]);
+  }, [allAssessmentsStats, total]);
 
   useEffect(() => {
     fetchAssessments();
   }, [filters]);
+
+  // Fetch all assessments for statistics (only once on mount)
+  useEffect(() => {
+    fetchAllAssessmentsForStats();
+  }, []);
 
   const fetchAssessments = async () => {
     setLoading(true);
@@ -81,6 +87,16 @@ const AssessmentList: React.FC = () => {
       // showError('Không thể tải danh sách bài thi');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch all assessments for statistics calculation
+  const fetchAllAssessmentsForStats = async () => {
+    try {
+      const response = await assessmentService.getAssessments({ page: 1, size: 10000 });
+      setAllAssessmentsStats(response.assessments || []);
+    } catch (error) {
+      console.error('Failed to fetch assessment statistics:', error);
     }
   };
 
@@ -162,7 +178,7 @@ const AssessmentList: React.FC = () => {
       render: (_, record) => (
         <Space direction="vertical" size={0}>
           <Typography.Text style={{ fontSize: 12 }}>
-            {record.question_count || 0} câu hỏi
+            {record.questions_count || 0} câu hỏi
           </Typography.Text>
           <Typography.Text style={{ fontSize: 12 }}>
             Thời gian: {record.duration} phút
@@ -281,121 +297,7 @@ const AssessmentList: React.FC = () => {
         </Button>
       </Flex>
 
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card
-            bordered={false}
-            style={{
-              background: cardColors.blue,
-              borderRadius: 16,
-              border: 'none',
-              ...elevation[1],
-            }}
-            styles={{
-              body: { padding: 20 },
-            }}
-          >
-            <Flex vertical align="center" gap={12}>
-              <Avatar
-                size={44}
-                icon={<FileTextOutlined style={{ fontSize: 20 }} />}
-                style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }}
-              />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>
-                {stats.total}
-              </Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>
-                Tổng số bài thi
-              </Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card
-            bordered={false}
-            style={{
-              background: cardColors.green,
-              borderRadius: 16,
-              border: 'none',
-              ...elevation[1],
-            }}
-            styles={{
-              body: { padding: 20 },
-            }}
-          >
-            <Flex vertical align="center" gap={12}>
-              <Avatar
-                size={44}
-                icon={<CheckCircleOutlined style={{ fontSize: 20 }} />}
-                style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }}
-              />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>
-                {stats.active}
-              </Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>
-                Đang hoạt động
-              </Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card
-            bordered={false}
-            style={{
-              background: cardColors.cyan,
-              borderRadius: 16,
-              border: 'none',
-              ...elevation[1],
-            }}
-            styles={{
-              body: { padding: 20 },
-            }}
-          >
-            <Flex vertical align="center" gap={12}>
-              <Avatar
-                size={44}
-                icon={<EditOutlined style={{ fontSize: 20 }} />}
-                style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }}
-              />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>
-                {stats.draft}
-              </Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>
-                Nháp
-              </Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card
-            bordered={false}
-            style={{
-              background: cardColors.orange,
-              borderRadius: 16,
-              border: 'none',
-              ...elevation[1],
-            }}
-            styles={{
-              body: { padding: 20 },
-            }}
-          >
-            <Flex vertical align="center" gap={12}>
-              <Avatar
-                size={44}
-                icon={<InboxOutlined style={{ fontSize: 20 }} />}
-                style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }}
-              />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>
-                {stats.archived}
-              </Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>
-                Đã lưu trữ
-              </Text>
-            </Flex>
-          </Card>
-        </Col>
-      </Row>
+
 
       <Card style={{ ...elevation[1], borderRadius: 16 }}>
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -446,6 +348,55 @@ const AssessmentList: React.FC = () => {
                 setFilters({ ...filters, page, size }),
             }}
           />
+        </Space>
+      </Card>
+
+      {/* Statistics Summary - Moved to bottom */}
+      <Card bordered={false} style={{...elevation[1], borderRadius: 16, background: '#f5f5f5'}}>
+        <Space direction="vertical" size={8} style={{width: '100%'}}>
+          <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>Thống kê tổng quan</Text>
+          <Row gutter={[12, 12]}>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<FileTextOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.blue, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.total}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Tổng số bài thi</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<CheckCircleOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.green, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.active}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Đang hoạt động</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<EditOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.cyan, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.draft}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Nháp</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<InboxOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.orange, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.archived}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Đã lưu trữ</Text>
+                </Space>
+              </Flex>
+            </Col>
+          </Row>
         </Space>
       </Card>
     </Space>

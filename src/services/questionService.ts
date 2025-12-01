@@ -12,9 +12,9 @@ import { mockQuestions, paginateData, delay } from './mockData';
 class QuestionService {
   async getQuestions(
     params?: PaginationParams & { type?: string; difficulty?: string; search?: string }
-  ): Promise<PaginatedResponse<Question>> {
+  ): Promise<PaginatedQuestionResponse<Question>> {
 
-    return apiService.get<PaginatedResponse<Question>>(API_ENDPOINTS.QUESTIONS, params);
+    return apiService.get<PaginatedQuestionResponse<Question>>(API_ENDPOINTS.QUESTIONS, params);
   }
 
   async getQuestion(id: number): Promise<Question> {

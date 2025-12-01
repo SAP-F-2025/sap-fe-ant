@@ -50,6 +50,7 @@ const QuestionBankList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
   const [total, setTotal] = useState(0);
+  const [allBanksStats, setAllBanksStats] = useState<QuestionBank[]>([]);
   const [filters, setFilters] = useState({
     page: 1,
     size: 10,
@@ -58,23 +59,28 @@ const QuestionBankList: React.FC = () => {
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [selectedBank, setSelectedBank] = useState<QuestionBank | null>(null);
 
-  // Calculate statistics
+  // Calculate statistics from ALL banks, not just current page
   const stats = useMemo(() => {
-    const totalQuestions = questionBanks.reduce(
+    const totalQuestions = allBanksStats.reduce(
       (sum, bank) => sum + (bank.question_count || 0),
       0
     );
     return {
-      total: questionBanks.length,
-      public: questionBanks.filter((b) => b.is_public).length,
-      private: questionBanks.filter((b) => !b.is_public).length,
+      total: total,
+      public: allBanksStats?.filter((b) => b.is_public).length || 0,
+      private: allBanksStats?.filter((b) => !b.is_public).length || 0,
       totalQuestions,
     };
-  }, [questionBanks]);
+  }, [allBanksStats, total]);
 
   useEffect(() => {
     fetchQuestionBanks();
   }, [filters]);
+
+  // Fetch all banks for statistics (only once on mount)
+  useEffect(() => {
+    fetchAllBanksForStats();
+  }, []);
 
   const fetchQuestionBanks = async () => {
     setLoading(true);
@@ -86,6 +92,16 @@ const QuestionBankList: React.FC = () => {
       message.error('Không thể tải danh sách ngân hàng câu hỏi');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch all banks for statistics calculation
+  const fetchAllBanksForStats = async () => {
+    try {
+      const response = await questionBankService.getQuestionBanks({ page: 1, size: 10000 });
+      setAllBanksStats(response.banks || []);
+    } catch (error) {
+      console.error('Failed to fetch question bank statistics:', error);
     }
   };
 
@@ -253,45 +269,7 @@ const QuestionBankList: React.FC = () => {
         </Space>
       </Flex>
 
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.cyan, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<BankOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.total}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Tổng ngân hàng</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.blue, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<GlobalOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.public}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Công khai</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.magenta, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<LockOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.private}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Riêng tư</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.gold, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<FolderOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.totalQuestions}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Tổng câu hỏi</Text>
-            </Flex>
-          </Card>
-        </Col>
-      </Row>
+
 
       <Card style={{ ...elevation[1], borderRadius: 16 }}>
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -321,6 +299,55 @@ const QuestionBankList: React.FC = () => {
                 setFilters({ ...filters, page, size }),
             }}
           />
+        </Space>
+      </Card>
+
+      {/* Statistics Summary - Moved to bottom */}
+      <Card bordered={false} style={{...elevation[1], borderRadius: 16, background: '#f5f5f5'}}>
+        <Space direction="vertical" size={8} style={{width: '100%'}}>
+          <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>Thống kê tổng quan</Text>
+          <Row gutter={[12, 12]}>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<BankOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.cyan, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.total}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Tổng ngân hàng</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<GlobalOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.blue, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.public}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Công khai</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<LockOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.magenta, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.private}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Riêng tư</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<FolderOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.gold, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.totalQuestions}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Tổng câu hỏi</Text>
+                </Space>
+              </Flex>
+            </Col>
+          </Row>
         </Space>
       </Card>
 

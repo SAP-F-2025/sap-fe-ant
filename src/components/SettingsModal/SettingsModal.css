@@ -1,0 +1,29 @@
+/* Settings Modal - Override Ant Design default styles */
+
+.settings-modal-root .ant-modal-content {
+	padding: 0 !important;
+	border: none !important;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.settings-modal-root .ant-modal {
+	transform-origin: center center !important;
+}
+
+.settings-modal-root .ant-modal-body {
+	padding: 0 !important;
+	border: none !important;
+}
+
+/* Ensure the modal animates from center */
+.settings-modal-root.ant-modal-wrap {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Remove any default borders */
+.settings-modal-root .ant-modal-content::before,
+.settings-modal-root .ant-modal-content::after {
+	display: none !important;
+}

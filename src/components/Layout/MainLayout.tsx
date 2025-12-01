@@ -189,51 +189,52 @@ const MainLayout: React.FC = () => {
     return path;
   };
 
-  // Calculate sider width based on collapsed state
-  const siderWidth = collapsed ? 80 : 200;
+	// Calculate sider width based on collapsed state
+	const siderWidth = collapsed ? 80 : 240;
 
-  return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        breakpoint="lg"
-        collapsedWidth={80}
-        style={{
-          overflow: 'auto',
-          height: '100vh',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 1000,
-          background: token.colorBgContainer,
-          borderRight: `1px solid ${token.colorBorderSecondary}`,
-        }}
-      >
-        {/* Logo */}
-        <div
-          style={{
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            color: token.colorPrimary,
-            fontSize: collapsed ? 24 : 18,
-            fontWeight: 700,
-            padding: `0 ${token.paddingLG}px`,
-            borderBottom: `1px solid ${token.colorBorderSecondary}`,
-            letterSpacing: '-0.5px',
-          }}
-        >
-          {collapsed ? '🎓' : (
-            <Space size={12}>
-              <span style={{ fontSize: 24 }}>🎓</span>
-              <span>SAP</span>
-            </Space>
-          )}
-        </div>
+	return (
+		<Layout style={{ minHeight: '100vh' }}>
+			<Sider
+				trigger={null}
+				collapsible
+				collapsed={collapsed}
+				breakpoint="lg"
+				width={240}
+				collapsedWidth={80}
+				style={{
+					overflow: 'auto',
+					height: '100vh',
+					position: 'fixed',
+					left: 0,
+					top: 0,
+					bottom: 0,
+					zIndex: 1000,
+					background: token.colorBgContainer,
+					borderRight: `1px solid ${token.colorBorderSecondary}`,
+				}}
+			>
+				{/* Logo */}
+				<div
+					style={{
+						height: 64,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: collapsed ? 'center' : 'flex-start',
+						color: token.colorPrimary,
+						fontSize: collapsed ? 24 : 18,
+						fontWeight: 700,
+						padding: `0 ${token.paddingLG}px`,
+						borderBottom: `1px solid ${token.colorBorderSecondary}`,
+						letterSpacing: '-0.5px',
+					}}
+				>
+					{collapsed ? '🎓' : (
+						<Space size={12}>
+							<span style={{ fontSize: 24 }}>🎓</span>
+							<span>SAP</span>
+						</Space>
+					)}
+				</div>
 
         {/* Menu */}
         <Menu

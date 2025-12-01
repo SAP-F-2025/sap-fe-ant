@@ -46,6 +46,7 @@ const GradingList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [attempts, setAttempts] = useState<AttemptListItem[]>([]);
   const [total, setTotal] = useState(0);
+  const [allAttemptsStats, setAllAttemptsStats] = useState<AttemptListItem[]>([]);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -57,27 +58,27 @@ const GradingList: React.FC = () => {
   const [assessmentFilter, setAssessmentFilter] = useState<number | undefined>(undefined);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
 
-  // Calculate statistics
+  // Calculate statistics from ALL attempts, not just current page
   const stats = useMemo(() => {
-    const graded = attempts.filter((a) => a.score !== undefined).length;
-    const pending = attempts.filter(
+    const graded = allAttemptsStats.filter((a) => a.score !== undefined).length;
+    const pending = allAttemptsStats.filter(
       (a) => a.status === 'completed' && a.score === undefined
     ).length;
     const avgScore =
       graded > 0
         ? Math.round(
-            attempts
+            allAttemptsStats
               .filter((a) => a.score !== undefined)
               .reduce((sum, a) => sum + (a.score || 0), 0) / graded
           )
         : 0;
     return {
-      total: attempts.length,
+      total: total,
       graded,
       pending,
       avgScore,
     };
-  }, [attempts]);
+  }, [allAttemptsStats, total]);
 
   useEffect(() => {
     fetchAttempts();
@@ -85,6 +86,11 @@ const GradingList: React.FC = () => {
 
   useEffect(() => {
     fetchAssessments();
+  }, []);
+
+  // Fetch all attempts for statistics (only once on mount)
+  useEffect(() => {
+    fetchAllAttemptsForStats();
   }, []);
 
   const fetchAssessments = async () => {
@@ -112,6 +118,16 @@ const GradingList: React.FC = () => {
       message.error('Không thể tải danh sách bài làm');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch all attempts for statistics calculation
+  const fetchAllAttemptsForStats = async () => {
+    try {
+      const response = await gradingService.getAttempts({ page: 1, size: 10000 });
+      setAllAttemptsStats(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch grading statistics:', error);
     }
   };
 
@@ -380,45 +396,7 @@ const GradingList: React.FC = () => {
         </Row>
       </Card>
 
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.geekblue, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<FileSearchOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.total}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Tổng bài làm</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.green, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<CheckCircleOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.graded}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Đã chấm</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.orange, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<ClockCircleOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.pending}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Chờ chấm</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.volcano, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<TrophyOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.avgScore}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Điểm trung bình</Text>
-            </Flex>
-          </Card>
-        </Col>
-      </Row>
+
 
       <Card style={{ ...elevation[1], borderRadius: 16 }}>
         <Table
@@ -437,6 +415,55 @@ const GradingList: React.FC = () => {
           }}
           onChange={handleTableChange}
         />
+      </Card>
+
+      {/* Statistics Summary - Moved to bottom */}
+      <Card bordered={false} style={{...elevation[1], borderRadius: 16, background: '#f5f5f5'}}>
+        <Space direction="vertical" size={8} style={{width: '100%'}}>
+          <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>Thống kê tổng quan</Text>
+          <Row gutter={[12, 12]}>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<FileSearchOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.geekblue, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.total}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Tổng bài làm</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<CheckCircleOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.green, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.graded}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Đã chấm</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<ClockCircleOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.orange, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.pending}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Chờ chấm</Text>
+                </Space>
+              </Flex>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Flex align="center" gap={8}>
+                <Avatar size={36} icon={<TrophyOutlined style={{fontSize: 16}}/>}
+                        style={{backgroundColor: cardColors.volcano, flexShrink: 0}}/>
+                <Space direction="vertical" size={0}>
+                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.avgScore}</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>Điểm trung bình</Text>
+                </Space>
+              </Flex>
+            </Col>
+          </Row>
+        </Space>
       </Card>
     </Space>
   );

@@ -30,6 +30,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { elevation } from '../../styles/elevation';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
+import { NotificationDropdown } from '../NotificationDropdown';
 import { useSettingsModal } from '../SettingsModal';
 
 const { Header, Sider, Content } = Layout;
@@ -300,6 +301,9 @@ const MainLayout: React.FC = () => {
 								borderRadius: token.borderRadius,
 							}}
 						/>
+
+						{/* Notifications */}
+						<NotificationDropdown />
 
 						{/* User dropdown */}
 						<Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }} placement="bottomRight">

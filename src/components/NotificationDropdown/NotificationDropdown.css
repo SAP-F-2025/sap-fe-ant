@@ -1,0 +1,32 @@
+/* Notification Dropdown Styles */
+
+.notification-modal-root .ant-modal-content {
+	padding: 0 !important;
+	border: none !important;
+}
+
+.notification-modal-root .ant-modal-body {
+	padding: 0 !important;
+}
+
+.notification-item:last-child {
+	border-bottom: none !important;
+}
+
+/* Custom scrollbar for notification list */
+.notification-list::-webkit-scrollbar {
+	width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+	background: rgba(128, 128, 128, 0.3);
+	border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+	background: rgba(128, 128, 128, 0.5);
+}

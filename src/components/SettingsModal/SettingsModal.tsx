@@ -112,6 +112,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const { user, logout } = useAuth();
 	const [activeSection, setActiveSection] = useState<SettingsSection>(defaultSection);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	const [blinkRed, setBlinkRed] = useState(false);
 
 	// Reset to default section when modal opens
 	useEffect(() => {
@@ -203,12 +205,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	];
 
 	const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+		if (hasUnsavedChanges) {
+			setBlinkRed(true);
+			setTimeout(() => setBlinkRed(false), 300);
+			return;
+		}
 		if (key === 'logout') {
 			logout();
 			onClose();
 		} else {
 			setActiveSection(key as SettingsSection);
 		}
+	};
+
+	const handleClose = () => {
+		if (hasUnsavedChanges) {
+			setBlinkRed(true);
+			setTimeout(() => setBlinkRed(false), 300);
+			return;
+		}
+		onClose();
 	};
 
 	// Get Casdoor account URL for editing profile
@@ -227,7 +243,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 			case 'security':
 				return <SecuritySection user={user} onEditProfile={() => window.location.href = getCasdoorAccountUrl()} />;
 			case 'notifications':
-				return <NotificationsSection />;
+				return <NotificationsSection onChangesStateChange={setHasUnsavedChanges} blinkRed={blinkRed} />;
 			case 'appearance':
 				return <AppearanceSection mode={mode} setMode={setMode} toggleDark={toggleDark} />;
 			case 'accessibility':
@@ -255,7 +271,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	return (
 		<Modal
 			open={open}
-			onCancel={onClose}
+			onCancel={handleClose}
 			footer={null}
 			closable={false}
 			width="90%"
@@ -357,7 +373,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						<Button
 							type="text"
 							icon={<CloseOutlined />}
-							onClick={onClose}
+							onClick={handleClose}
 							style={{ fontSize: 18 }}
 						/>
 					</div>
@@ -458,7 +474,7 @@ const MyAccountSection: React.FC<MyAccountSectionProps> = ({ user, onEditProfile
 				<SettingItem title="Email" description={user?.email || '-'}>
 					<Button size="small" onClick={onEditProfile}>Sửa</Button>
 				</SettingItem>
-				<SettingItem title="Số điện thoại" description={user?.phone || 'Chưa thêm'}>
+				<SettingItem title="Số điện thoại" description={user?.phone || 'Chưa thêm'} noBorder>
 					<Button size="small" onClick={onEditProfile}>Sửa</Button>
 				</SettingItem>
 			</div>
@@ -503,7 +519,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 				<SettingItem title="Avatar" description="Ảnh đại diện của bạn">
 					<Avatar size={64} src={user?.avatar} icon={<UserOutlined />} />
 				</SettingItem>
-				<SettingItem title="Vai trò">
+				<SettingItem title="Vai trò" noBorder>
 					<Space>
 						{userRole === 'admin' && (
 							<Tag color="red" icon={<SafetyOutlined />}>Admin</Tag>
@@ -711,7 +727,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 					marginBottom: 24,
 				}}
 			>
-				<SettingItem title="Đổi mật khẩu" description="Cập nhật mật khẩu của bạn để bảo vệ tài khoản">
+				<SettingItem title="Đổi mật khẩu" description="Cập nhật mật khẩu của bạn để bảo vệ tài khoản" noBorder>
 					<Button type="primary" ghost onClick={onEditProfile}>
 						Đổi mật khẩu
 					</Button>
@@ -839,16 +855,64 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 	);
 };
 
-const NotificationsSection: React.FC = () => {
+interface NotificationsSectionProps {
+	onChangesStateChange: (hasChanges: boolean) => void;
+	blinkRed: boolean;
+}
+
+const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesStateChange, blinkRed }) => {
 	const { token } = useThemeToken();
+	const [enableNotifications, setEnableNotifications] = useState(true);
 	const [settings, setSettings] = useState({
-		enableNotifications: true,
-		emailNotifications: true,
-		pushNotifications: true,
-		assessmentReminders: true,
-		gradeNotifications: true,
-		systemUpdates: false,
+		assessmentAssigned: { enabled: true, email: true, push: true },
+		assessmentReminders: { enabled: true, email: true, push: true },
+		gradeNotifications: { enabled: true, email: true, push: true },
+		comments: { enabled: true, email: false, push: true },
+		systemUpdates: { enabled: false, email: false, push: false },
 	});
+	const [originalSettings, setOriginalSettings] = useState({ enableNotifications, settings });
+	const [hasChanges, setHasChanges] = useState(false);
+	const [saving, setSaving] = useState(false);
+
+	useEffect(() => {
+		const changed = JSON.stringify({ enableNotifications, settings }) !== JSON.stringify(originalSettings);
+		setHasChanges(changed);
+		onChangesStateChange(changed);
+	}, [enableNotifications, settings, originalSettings, onChangesStateChange]);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (!hasChanges) return;
+			if (e.ctrlKey && e.key === 'Enter') {
+				e.preventDefault();
+				handleSave();
+			} else if (e.ctrlKey && e.key === 'Escape') {
+				e.preventDefault();
+				handleReset();
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [hasChanges]);
+
+	const handleSave = async () => {
+		setSaving(true);
+		try {
+			// TODO: API call to save notification settings
+			// await notificationService.updateSettings({ enableNotifications, ...settings });
+			await new Promise(resolve => setTimeout(resolve, 500));
+			setOriginalSettings({ enableNotifications, settings });
+			setHasChanges(false);
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const handleReset = () => {
+		setEnableNotifications(originalSettings.enableNotifications);
+		setSettings(originalSettings.settings);
+		setHasChanges(false);
+	};
 
 	return (
 		<div>
@@ -868,68 +932,214 @@ const NotificationsSection: React.FC = () => {
 				<SettingItem
 					title="Bật thông báo"
 					description="Nhận tất cả thông báo từ ứng dụng"
+					noBorder
 				>
 					<Switch
-						checked={settings.enableNotifications}
-						onChange={(checked) => setSettings({ ...settings, enableNotifications: checked })}
-					/>
-				</SettingItem>
-				<SettingItem
-					title="Thông báo qua Email"
-					description="Nhận thông báo qua email"
-				>
-					<Switch
-						checked={settings.emailNotifications}
-						onChange={(checked) => setSettings({ ...settings, emailNotifications: checked })}
-					/>
-				</SettingItem>
-				<SettingItem
-					title="Thông báo đẩy"
-					description="Nhận thông báo đẩy trên trình duyệt"
-				>
-					<Switch
-						checked={settings.pushNotifications}
-						onChange={(checked) => setSettings({ ...settings, pushNotifications: checked })}
+						checked={enableNotifications}
+						onChange={setEnableNotifications}
 					/>
 				</SettingItem>
 			</div>
 
-			<Title level={5}>Loại thông báo</Title>
 			<div
 				style={{
-					background: token.colorBgElevated,
-					borderRadius: 8,
-					padding: 16,
+					maxHeight: enableNotifications ? '1000px' : '0',
+					opacity: enableNotifications ? 1 : 0,
+					overflow: 'hidden',
+					transition: 'max-height 0.3s ease, opacity 0.3s ease',
 				}}
 			>
-				<SettingItem
-					title="Nhắc nhở bài kiểm tra"
-					description="Thông báo khi có bài kiểm tra sắp diễn ra"
+				<Title level={5}>Loại thông báo</Title>
+				<div
+					style={{
+						background: token.colorBgElevated,
+						borderRadius: 8,
+						padding: 16,
+					}}
 				>
-					<Switch
-						checked={settings.assessmentReminders}
-						onChange={(checked) => setSettings({ ...settings, assessmentReminders: checked })}
-					/>
-				</SettingItem>
-				<SettingItem
-					title="Thông báo điểm số"
-					description="Thông báo khi có điểm mới"
-				>
-					<Switch
-						checked={settings.gradeNotifications}
-						onChange={(checked) => setSettings({ ...settings, gradeNotifications: checked })}
-					/>
-				</SettingItem>
-				<SettingItem
-					title="Cập nhật hệ thống"
-					description="Thông báo về các cập nhật và bảo trì"
-				>
-					<Switch
-						checked={settings.systemUpdates}
-						onChange={(checked) => setSettings({ ...settings, systemUpdates: checked })}
-					/>
-				</SettingItem>
+					{/* Assessment Assigned */}
+					<div style={{ paddingBottom: 12, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+							<div style={{ flex: 1 }}>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>Được giao bài kiểm tra</Text>
+								<Text type="secondary" style={{ fontSize: 13 }}>
+									Thông báo khi được giao bài kiểm tra mới
+								</Text>
+							</div>
+							<Switch
+								checked={settings.assessmentAssigned.enabled}
+								onChange={(checked) => setSettings({ ...settings, assessmentAssigned: { ...settings.assessmentAssigned, enabled: checked } })}
+								disabled={!enableNotifications}
+							/>
+						</div>
+						<div style={{ maxHeight: settings.assessmentAssigned.enabled ? '100px' : '0', opacity: settings.assessmentAssigned.enabled ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.3s ease, opacity 0.3s ease' }}>
+							<Space size="middle" style={{ marginTop: 8 }}>
+								<Space size="small">
+									<Text>Email</Text>
+									<Switch size="small" checked={settings.assessmentAssigned.email} onChange={(checked) => setSettings({ ...settings, assessmentAssigned: { ...settings.assessmentAssigned, email: checked } })} disabled={!enableNotifications || !settings.assessmentAssigned.enabled} />
+								</Space>
+								<Space size="small">
+									<Text>Push</Text>
+									<Switch size="small" checked={settings.assessmentAssigned.push} onChange={(checked) => setSettings({ ...settings, assessmentAssigned: { ...settings.assessmentAssigned, push: checked } })} disabled={!enableNotifications || !settings.assessmentAssigned.enabled} />
+								</Space>
+							</Space>
+						</div>
+					</div>
+
+					{/* Assessment Reminders */}
+					<div style={{ paddingTop: 12, paddingBottom: 12, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+							<div style={{ flex: 1 }}>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>Nhắc nhở bài kiểm tra</Text>
+								<Text type="secondary" style={{ fontSize: 13 }}>
+									Thông báo khi có bài kiểm tra sắp diễn ra
+								</Text>
+							</div>
+							<Switch
+								checked={settings.assessmentReminders.enabled}
+								onChange={(checked) => setSettings({ ...settings, assessmentReminders: { ...settings.assessmentReminders, enabled: checked } })}
+								disabled={!enableNotifications}
+							/>
+						</div>
+						<div style={{ maxHeight: settings.assessmentReminders.enabled ? '100px' : '0', opacity: settings.assessmentReminders.enabled ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.3s ease, opacity 0.3s ease' }}>
+							<Space size="middle" style={{ marginTop: 8 }}>
+								<Space size="small">
+									<Text>Email</Text>
+									<Switch size="small" checked={settings.assessmentReminders.email} onChange={(checked) => setSettings({ ...settings, assessmentReminders: { ...settings.assessmentReminders, email: checked } })} disabled={!enableNotifications || !settings.assessmentReminders.enabled} />
+								</Space>
+								<Space size="small">
+									<Text>Push</Text>
+									<Switch size="small" checked={settings.assessmentReminders.push} onChange={(checked) => setSettings({ ...settings, assessmentReminders: { ...settings.assessmentReminders, push: checked } })} disabled={!enableNotifications || !settings.assessmentReminders.enabled} />
+								</Space>
+							</Space>
+						</div>
+					</div>
+
+					{/* Grade Notifications */}
+					<div style={{ paddingTop: 12, paddingBottom: 12, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+							<div style={{ flex: 1 }}>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>Thông báo điểm số</Text>
+								<Text type="secondary" style={{ fontSize: 13 }}>
+									Thông báo khi có điểm mới
+								</Text>
+							</div>
+							<Switch
+								checked={settings.gradeNotifications.enabled}
+								onChange={(checked) => setSettings({ ...settings, gradeNotifications: { ...settings.gradeNotifications, enabled: checked } })}
+								disabled={!enableNotifications}
+							/>
+						</div>
+						<div style={{ maxHeight: settings.gradeNotifications.enabled ? '100px' : '0', opacity: settings.gradeNotifications.enabled ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.3s ease, opacity 0.3s ease' }}>
+							<Space size="middle" style={{ marginTop: 8 }}>
+								<Space size="small">
+									<Text>Email</Text>
+									<Switch size="small" checked={settings.gradeNotifications.email} onChange={(checked) => setSettings({ ...settings, gradeNotifications: { ...settings.gradeNotifications, email: checked } })} disabled={!enableNotifications || !settings.gradeNotifications.enabled} />
+								</Space>
+								<Space size="small">
+									<Text>Push</Text>
+									<Switch size="small" checked={settings.gradeNotifications.push} onChange={(checked) => setSettings({ ...settings, gradeNotifications: { ...settings.gradeNotifications, push: checked } })} disabled={!enableNotifications || !settings.gradeNotifications.enabled} />
+								</Space>
+							</Space>
+						</div>
+					</div>
+
+					{/* Comments */}
+					<div style={{ paddingTop: 12, paddingBottom: 12, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+							<div style={{ flex: 1 }}>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>Nhận xét & Phản hồi</Text>
+								<Text type="secondary" style={{ fontSize: 13 }}>
+									Thông báo khi giáo viên nhận xét bài làm
+								</Text>
+							</div>
+							<Switch
+								checked={settings.comments.enabled}
+								onChange={(checked) => setSettings({ ...settings, comments: { ...settings.comments, enabled: checked } })}
+								disabled={!enableNotifications}
+							/>
+						</div>
+						<div style={{ maxHeight: settings.comments.enabled ? '100px' : '0', opacity: settings.comments.enabled ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.3s ease, opacity 0.3s ease' }}>
+							<Space size="middle" style={{ marginTop: 8 }}>
+								<Space size="small">
+									<Text>Email</Text>
+									<Switch size="small" checked={settings.comments.email} onChange={(checked) => setSettings({ ...settings, comments: { ...settings.comments, email: checked } })} disabled={!enableNotifications || !settings.comments.enabled} />
+								</Space>
+								<Space size="small">
+									<Text>Push</Text>
+									<Switch size="small" checked={settings.comments.push} onChange={(checked) => setSettings({ ...settings, comments: { ...settings.comments, push: checked } })} disabled={!enableNotifications || !settings.comments.enabled} />
+								</Space>
+							</Space>
+						</div>
+					</div>
+
+					{/* System Updates */}
+					<div style={{ paddingTop: 12 }}>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+							<div style={{ flex: 1 }}>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>Cập nhật hệ thống</Text>
+								<Text type="secondary" style={{ fontSize: 13 }}>
+									Thông báo về các cập nhật và bảo trì
+								</Text>
+							</div>
+							<Switch
+								checked={settings.systemUpdates.enabled}
+								onChange={(checked) => setSettings({ ...settings, systemUpdates: { ...settings.systemUpdates, enabled: checked } })}
+								disabled={!enableNotifications}
+							/>
+						</div>
+						<div style={{ maxHeight: settings.systemUpdates.enabled ? '100px' : '0', opacity: settings.systemUpdates.enabled ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.3s ease, opacity 0.3s ease' }}>
+							<Space size="middle" style={{ marginTop: 8 }}>
+								<Space size="small">
+									<Text>Email</Text>
+									<Switch size="small" checked={settings.systemUpdates.email} onChange={(checked) => setSettings({ ...settings, systemUpdates: { ...settings.systemUpdates, email: checked } })} disabled={!enableNotifications || !settings.systemUpdates.enabled} />
+								</Space>
+								<Space size="small">
+									<Text>Push</Text>
+									<Switch size="small" checked={settings.systemUpdates.push} onChange={(checked) => setSettings({ ...settings, systemUpdates: { ...settings.systemUpdates, push: checked } })} disabled={!enableNotifications || !settings.systemUpdates.enabled} />
+								</Space>
+							</Space>
+						</div>
+					</div>
+				</div>
 			</div>
+
+			{hasChanges && (
+				<div
+					style={{
+						position: 'fixed',
+						bottom: 24,
+						left: '50%',
+						transform: 'translateX(-50%)',
+						background: blinkRed ? 'rgba(255, 77, 79, 0.95)' : token.colorBgElevated,
+						border: `1px solid ${blinkRed ? '#ff4d4f' : token.colorBorder}`,
+						borderRadius: 8,
+						padding: '14px 20px',
+						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+						zIndex: 1000,
+						display: 'flex',
+						alignItems: 'center',
+						gap: 16,
+						animation: blinkRed ? 'shake 0.3s ease' : 'none',
+						transition: 'all 0.3s ease',
+					}}
+				>
+					<Text style={{ color: blinkRed ? '#fff' : undefined, fontSize: 14 }}>Có thay đổi chưa lưu</Text>
+					<Space size="middle">
+						<Button onClick={handleReset}>Hủy</Button>
+						<Button type="primary" onClick={handleSave} loading={saving}>
+							Lưu thay đổi
+						</Button>
+					</Space>
+				</div>
+			)}
+			<style>{`
+				@keyframes shake {
+					0%, 100% { transform: translateX(-50%) translateY(0); }
+					10%, 30%, 50%, 70%, 90% { transform: translateX(-50%) translateY(-4px) scale(1.05); }
+					20%, 40%, 60%, 80% { transform: translateX(-50%) translateY(4px) scale(1.05); }
+				}
+			`}</style>
 		</div>
 	);
 };
@@ -1004,6 +1214,7 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({ mode, setMode, to
 				<SettingItem
 					title="Chế độ tối"
 					description="Bật hoặc tắt chế độ tối"
+					noBorder
 				>
 					<Switch
 						checked={mode === 'dark'}
@@ -1059,6 +1270,7 @@ const AccessibilitySection: React.FC = () => {
 				<SettingItem
 					title="Chữ lớn hơn"
 					description="Tăng kích thước văn bản"
+					noBorder
 				>
 					<Switch
 						checked={settings.largeText}
@@ -1154,7 +1366,7 @@ const AboutSection: React.FC = () => {
 						Xem
 					</Button>
 				</SettingItem>
-				<SettingItem title="Chính sách bảo mật" description="Xem chính sách bảo mật">
+				<SettingItem title="Chính sách bảo mật" description="Xem chính sách bảo mật" noBorder>
 					<Button size="small" type="link">
 						Xem
 					</Button>

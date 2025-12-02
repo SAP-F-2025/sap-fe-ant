@@ -38,6 +38,7 @@ import faceVerificationService from '../../services/faceVerificationService';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
 import type { ThemeMode } from '../../theme/tokens';
 import { getUserRole } from '../../utils/roleChecker';
+import { ShortcutsModal } from '../ShortcutsModal';
 import './SettingsModal.css';
 
 const { Title, Text, Paragraph } = Typography;
@@ -112,6 +113,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const { user, logout } = useAuth();
 	const [activeSection, setActiveSection] = useState<SettingsSection>(defaultSection);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	const [blinkRed, setBlinkRed] = useState(false);
+	const [shortcutContext, setShortcutContext] = useState<string | undefined>();
 
 	// Reset to default section when modal opens
 	useEffect(() => {
@@ -216,6 +220,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		const { serverUrl, appName, organizationName } = CasdoorConfig;
 		return `${serverUrl}/account?app=${appName}&organization=${organizationName}`;
 	};
+
+	useEffect(() => {
+		if (activeSection === 'notifications' && hasUnsavedChanges) {
+			setShortcutContext('settings-notifications');
+		} else {
+			setShortcutContext(undefined);
+		}
+	}, [activeSection, hasUnsavedChanges]);
 
 	// Render content based on active section
 	const renderContent = () => {
@@ -378,6 +390,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					</div>
 				</div>
 			</div>
+			<ShortcutsModal activeContext={shortcutContext} />
 		</Modal>
 	);
 };

@@ -24,14 +24,28 @@ const allShortcuts: Record<string, ShortcutSection> = {
 		title: 'Cài đặt - Thông báo',
 		shortcuts: [
 			{ keys: ['Ctrl', 'Enter'], description: 'Lưu thay đổi' },
-			{ keys: ['Ctrl', 'Esc'], description: 'Hủy thay đổi' },
+			{ keys: ['Ctrl', 'Backspace'], description: 'Hủy thay đổi' },
+		],
+	},
+	settings: {
+		title: 'Cài đặt',
+		shortcuts: [
+			{ keys: ['Alt', '↑/↓'], description: 'Chuyển tab cài đặt' },
+			{ keys: ['Shift', '↑/↓'], description: 'Điều hướng trong tab' },
+		],
+	},
+	navigation: {
+		title: 'Điều hướng',
+		shortcuts: [
+			{ keys: ['Alt', '↑/↓'], description: 'Chuyển tab menu' },
+			{ keys: ['Ctrl', 'B'], description: 'Ẩn/Hiện thanh bên' },
 		],
 	},
 	global: {
 		title: 'Toàn cục',
 		shortcuts: [
 			{ keys: ['Ctrl', '/'], description: 'Mở/Đóng danh sách phím tắt' },
-			{ keys: ['Ctrl', ','], description: 'Mở cài đặt' },
+			{ keys: ['Ctrl', ','], description: 'Mở/Đóng cài đặt' },
 			{ keys: ['Ctrl', 'Shift', 'T'], description: 'Chuyển đổi chủ đề' },
 			{ keys: ['Esc'], description: 'Đóng modal' },
 		],
@@ -47,12 +61,30 @@ export interface ShortcutsModalHandle {
 const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, ShortcutsModalProps>(({ activeContext }, ref) => {
 	const { token } = useThemeToken();
 	const [open, setOpen] = useState(false);
+	const contentRef = React.useRef<HTMLDivElement>(null);
 
 	React.useImperativeHandle(ref, () => ({
 		open: () => setOpen(true),
 		close: () => setOpen(false),
 		toggle: () => setOpen(prev => !prev),
 	}));
+
+	useEffect(() => {
+		if (!open) return;
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+				e.stopPropagation();
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown, true);
+		return () => window.removeEventListener('keydown', handleKeyDown, true);
+	}, [open]);
+
+	useEffect(() => {
+		if (open && contentRef.current) {
+			setTimeout(() => contentRef.current?.focus(), 100);
+		}
+	}, [open]);
 
 	const getSortedSections = () => {
 		const sections = Object.entries(allShortcuts);
@@ -111,7 +143,11 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 				</div>
 
 				{/* Content */}
-				<div style={{ padding: '16px 24px 24px', maxHeight: '60vh', overflow: 'auto' }}>
+				<div 
+					ref={contentRef}
+					tabIndex={0}
+					style={{ padding: '16px 24px 24px', maxHeight: '60vh', overflow: 'auto', outline: 'none' }}
+				>
 					{getSortedSections().map(([key, section], sectionIndex) => (
 						<div key={key} style={{ marginBottom: sectionIndex < getSortedSections().length - 1 ? 24 : 0 }}>
 							<Text

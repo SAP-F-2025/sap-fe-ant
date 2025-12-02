@@ -25,7 +25,7 @@ import {
 	Space,
 	Switch
 } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { elevation } from '../../styles/elevation';
@@ -176,6 +176,36 @@ const MainLayout: React.FC = () => {
 	const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
 		navigate(key);
 	};
+
+	// Keyboard shortcuts
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Ctrl+B: Toggle sidebar
+			if (e.ctrlKey && e.key === 'b') {
+				e.preventDefault();
+				setCollapsed(prev => !prev);
+			}
+
+			// Alt+Arrow: Navigate menu items
+			if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+				e.preventDefault();
+				const flatMenuItems = menuItems.flatMap(item => {
+					if (!item || typeof item !== 'object') return [];
+					const menuItem = item as any;
+					return menuItem.children ? menuItem.children.map((child: any) => child.key) : [menuItem.key];
+				}).filter(key => key && key !== 'logout');
+				const currentKey = getSelectedKey();
+				const currentIndex = flatMenuItems.indexOf(currentKey);
+				if (currentIndex === -1) return;
+				const nextIndex = e.key === 'ArrowDown'
+					? (currentIndex + 1) % flatMenuItems.length
+					: (currentIndex - 1 + flatMenuItems.length) % flatMenuItems.length;
+				navigate(flatMenuItems[nextIndex] as string);
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [location.pathname, menuItems, navigate]);
 
 	// Get selected menu key based on current path
 	const getSelectedKey = () => {

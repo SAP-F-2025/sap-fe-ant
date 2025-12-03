@@ -13,8 +13,8 @@ export const useGlobalShortcuts = ({ onOpenShortcuts, onOpenSettings, onToggleTh
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			// Ctrl+/ - Open shortcuts (disabled on exam page)
-			if (e.ctrlKey && e.key === '/' && !isExamPage) {
+			// Ctrl+/ - Open shortcuts (now works everywhere including exam page)
+			if (e.ctrlKey && e.key === '/') {
 				e.preventDefault();
 				onOpenShortcuts();
 			}

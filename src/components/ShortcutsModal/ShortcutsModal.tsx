@@ -41,6 +41,14 @@ const allShortcuts: Record<string, ShortcutSection> = {
 			{ keys: ['Ctrl', 'B'], description: 'Ẩn/Hiện thanh bên' },
 		],
 	},
+	exam: {
+		title: 'Trang làm bài thi',
+		shortcuts: [
+			{ keys: ['Ctrl', 'Shift', 'T'], description: 'Chuyển đổi chủ đề' },
+			{ keys: ['Ctrl', '/'], description: 'Mở/Đóng danh sách phím tắt' },
+			// Add more exam-specific shortcuts here as needed
+		],
+	},
 	global: {
 		title: 'Toàn cục',
 		shortcuts: [

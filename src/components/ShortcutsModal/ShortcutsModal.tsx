@@ -10,9 +10,15 @@ interface Shortcut {
 	description: string;
 }
 
+interface ShortcutSubsection {
+	title?: string;
+	shortcuts: Shortcut[];
+}
+
 interface ShortcutSection {
 	title: string;
-	shortcuts: Shortcut[];
+	subsections?: ShortcutSubsection[];
+	shortcuts?: Shortcut[];
 }
 
 interface ShortcutsModalProps {
@@ -41,28 +47,33 @@ const allShortcuts: Record<string, ShortcutSection> = {
 			{ keys: ['Ctrl', 'B'], description: 'Ẩn/Hiện thanh bên' },
 		],
 	},
-	'exam-general': {
-		title: 'Trang làm bài thi - Chung',
-		shortcuts: [
-			{ keys: ['←', '→'], description: 'Câu trước/sau' },
-			{ keys: ['Shift', 'Enter'], description: 'Thoát khỏi ô nhập liệu' },
-			{ keys: ['Ctrl', 'Enter'], description: 'Mở hộp thoại nộp bài' },
-			{ keys: ['Ctrl', 'Shift', 'Enter'], description: 'Xác nhận nộp bài (khi modal mở)' },
-			{ keys: ['Ctrl', 'Shift', 'T'], description: 'Chuyển đổi chủ đề' },
-			{ keys: ['Ctrl', '/'], description: 'Mở/Đóng danh sách phím tắt' },
-		],
-	},
-	'exam-mcq': {
-		title: 'Trang làm bài thi - Trắc nghiệm',
-		shortcuts: [
-			{ keys: ['1' ,'9'], description: 'Chọn đáp án tương ứng' },
-		],
-	},
-	'exam-tf': {
-		title: 'Trang làm bài thi - Đúng/Sai',
-		shortcuts: [
-			{ keys: ['1'], description: 'Chọn Đúng' },
-			{ keys: ['2'], description: 'Chọn Sai' },
+	exam: {
+		title: 'Trang làm bài thi',
+		subsections: [
+			{
+				title: 'Chung',
+				shortcuts: [
+					{ keys: ['←', '→'], description: 'Câu trước/sau' },
+					{ keys: ['Shift', 'Enter'], description: 'Thoát khỏi ô nhập liệu' },
+					{ keys: ['Ctrl', 'Enter'], description: 'Mở hộp thoại nộp bài' },
+					{ keys: ['Ctrl', 'Shift', 'Enter'], description: 'Xác nhận nộp bài (khi modal mở)' },
+					{ keys: ['Ctrl', 'Shift', 'T'], description: 'Chuyển đổi chủ đề' },
+					{ keys: ['Ctrl', '/'], description: 'Mở/Đóng danh sách phím tắt' },
+				],
+			},
+			{
+				title: 'Trắc nghiệm',
+				shortcuts: [
+					{ keys: ['1', '9'], description: 'Chọn đáp án tương ứng' },
+				],
+			},
+			{
+				title: 'Đúng/Sai',
+				shortcuts: [
+					{ keys: ['1'], description: 'Chọn Đúng' },
+					{ keys: ['2'], description: 'Chọn Sai' },
+				],
+			},
 		],
 	},
 	global: {
@@ -112,20 +123,58 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 
 	const getSortedSections = () => {
 		const sections = Object.entries(allShortcuts);
-		if (activeContext) {
-			if (activeContext === 'exam') {
-				// Group all exam related sections at the top
-				const examSections = sections.filter(([key]) => key.startsWith('exam-'));
-				const otherSections = sections.filter(([key]) => !key.startsWith('exam-'));
-				return [...examSections, ...otherSections];
-			}
-			
+		if (activeContext && allShortcuts[activeContext]) {
 			const activeSection = sections.find(([key]) => key === activeContext);
 			const otherSections = sections.filter(([key]) => key !== activeContext);
 			return activeSection ? [activeSection, ...otherSections] : sections;
 		}
 		return sections;
 	};
+
+	const renderShortcutsList = (shortcuts: Shortcut[]) => (
+		<div style={{ display: 'grid', gap: 4 }}>
+			{shortcuts.map((shortcut, index) => (
+				<div
+					key={index}
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						padding: '10px 12px',
+						background: token.colorBgContainer,
+						borderRadius: 4,
+					}}
+				>
+					<Text style={{ fontSize: 14 }}>{shortcut.description}</Text>
+					<div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+						{shortcut.keys.map((key, i) => (
+							<React.Fragment key={i}>
+								<kbd
+									style={{
+										padding: '6px 10px',
+										background: token.colorBgLayout,
+										border: `1px solid ${token.colorBorder}`,
+										borderRadius: 4,
+										fontSize: 13,
+										fontWeight: 600,
+										fontFamily: 'monospace',
+										boxShadow: `0 2px 0 ${token.colorBorder}`,
+										minWidth: 32,
+										textAlign: 'center',
+									}}
+								>
+									{key}
+								</kbd>
+								{i < shortcut.keys.length - 1 && (
+									<Text type="secondary" style={{ fontSize: 12, fontWeight: 600 }}>+</Text>
+								)}
+							</React.Fragment>
+						))}
+					</div>
+				</div>
+			))}
+		</div>
+	);
 
 	return (
 		<Modal
@@ -194,48 +243,32 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 							>
 								{section.title}
 							</Text>
-							<div style={{ display: 'grid', gap: 4 }}>
-								{section.shortcuts.map((shortcut, index) => (
-									<div
-										key={index}
-										style={{
-											display: 'flex',
-											justifyContent: 'space-between',
-											alignItems: 'center',
-											padding: '10px 12px',
-											background: token.colorBgContainer,
-											borderRadius: 4,
-										}}
-									>
-										<Text style={{ fontSize: 14 }}>{shortcut.description}</Text>
-										<div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-											{shortcut.keys.map((key, i) => (
-												<React.Fragment key={i}>
-													<kbd
-														style={{
-															padding: '6px 10px',
-															background: token.colorBgLayout,
-															border: `1px solid ${token.colorBorder}`,
-															borderRadius: 4,
-															fontSize: 13,
-															fontWeight: 600,
-															fontFamily: 'monospace',
-															boxShadow: `0 2px 0 ${token.colorBorder}`,
-															minWidth: 32,
-															textAlign: 'center',
-														}}
-													>
-														{key}
-													</kbd>
-													{i < shortcut.keys.length - 1 && (
-														<Text type="secondary" style={{ fontSize: 12, fontWeight: 600 }}>+</Text>
-													)}
-												</React.Fragment>
-											))}
+							
+							{section.subsections ? (
+								<div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+									{section.subsections.map((subsection, subIndex) => (
+										<div key={subIndex}>
+											{subsection.title && (
+												<Text
+													type="secondary"
+													style={{
+														display: 'block',
+														marginBottom: 8,
+														fontSize: 12,
+														fontWeight: 600,
+														marginLeft: 4
+													}}
+												>
+													{subsection.title}
+												</Text>
+											)}
+											{renderShortcutsList(subsection.shortcuts)}
 										</div>
-									</div>
-								))}
-							</div>
+									))}
+								</div>
+							) : (
+								renderShortcutsList(section.shortcuts || [])
+							)}
 						</div>
 					))}
 				</div>

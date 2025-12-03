@@ -1404,9 +1404,11 @@ const TakeAssessment: React.FC = () => {
       }
       
       // Auto-focus text fields for text-based question types when typing
-      const isTextQuestion = currentQuestion?.type === 'essay' || 
-                             currentQuestion?.type === 'fill_in_blank' || 
-                             currentQuestion?.type === 'short_answer';
+      // @ts-ignore - Runtime object structure differs from type definition
+      const questionType = currentQuestion?.type;
+      const isTextQuestion = questionType === 'essay' || 
+                             questionType === 'fill_blank' || 
+                             questionType === 'short_answer';
       
       if (isTextQuestion && target.tagName !== 'TEXTAREA' && target.tagName !== 'INPUT') {
         // Check if user pressed a printable character (letters, numbers, symbols, space)
@@ -1416,7 +1418,7 @@ const TakeAssessment: React.FC = () => {
           let inputField: HTMLTextAreaElement | HTMLInputElement | null = null;
           
           // Find the appropriate input field
-          if (currentQuestion.type === 'essay') {
+          if (questionType === 'essay') {
             inputField = document.querySelector('textarea') as HTMLTextAreaElement;
           } else {
             // For fill_in_blank and short_answer, find the text input
@@ -1476,33 +1478,38 @@ const TakeAssessment: React.FC = () => {
       // Number keys for Multiple Choice and True/False
       if (/^[1-9]$/.test(e.key) && !e.ctrlKey && !e.altKey && !e.metaKey) {
         const index = parseInt(e.key) - 1;
+        // @ts-ignore - Runtime object structure differs from type definition
+        const qType = currentQuestion?.type;
         
-        if (currentQuestion?.type === 'multiple_choice') {
-          const options = currentQuestion.content.options || [];
+        if (qType === 'multiple_choice') {
+          // @ts-ignore - Runtime object structure differs from type definition
+          const options = currentQuestion?.content?.options || [];
           if (index >= 0 && index < options.length) {
             e.preventDefault();
             const option = options[index];
-            const isMultiple = currentQuestion.content.allow_multiple_answers;
+            // @ts-ignore - Runtime object structure differs from type definition
+            const isMultiple = currentQuestion?.content?.allow_multiple_answers;
             
             if (isMultiple) {
               // Toggle selection for multiple choice
-              const currentSelected = (answers[currentQuestion.id] as number[]) || [];
+              // Cast to any[] to handle both number[] and string[] IDs
+              const currentSelected = (answers[currentQuestion!.id] as any[]) || [];
               const newSelected = currentSelected.includes(option.id)
-                ? currentSelected.filter(id => id !== option.id)
+                ? currentSelected.filter((id: any) => id !== option.id)
                 : [...currentSelected, option.id];
-              handleAnswerChange(currentQuestion.id, newSelected);
+              handleAnswerChange(currentQuestion!.id, newSelected);
             } else {
               // Select for single choice
-              handleAnswerChange(currentQuestion.id, option.id);
+              handleAnswerChange(currentQuestion!.id, option.id);
             }
           }
-        } else if (currentQuestion?.type === 'true_false') {
+        } else if (qType === 'true_false') {
           if (index === 0) { // 1 -> True
             e.preventDefault();
-            handleAnswerChange(currentQuestion.id, true);
+            handleAnswerChange(currentQuestion!.id, true);
           } else if (index === 1) { // 2 -> False
             e.preventDefault();
-            handleAnswerChange(currentQuestion.id, false);
+            handleAnswerChange(currentQuestion!.id, false);
           }
         }
       }

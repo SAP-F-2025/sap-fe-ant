@@ -582,6 +582,9 @@ const TakeAssessment: React.FC = () => {
     const currentIndex = questions.findIndex(q => q.id === currentQuestionId);
     if (currentIndex > 0) {
       setCurrentQuestionId(questions[currentIndex - 1].id);
+    } else {
+      // Wrap to last question
+      setCurrentQuestionId(questions[questions.length - 1].id);
     }
   };
 
@@ -589,6 +592,9 @@ const TakeAssessment: React.FC = () => {
     const currentIndex = questions.findIndex(q => q.id === currentQuestionId);
     if (currentIndex < questions.length - 1) {
       setCurrentQuestionId(questions[currentIndex + 1].id);
+    } else {
+      // Wrap to first question
+      setCurrentQuestionId(questions[0].id);
     }
   };
 
@@ -608,18 +614,13 @@ const TakeAssessment: React.FC = () => {
       icon: <ExclamationCircleOutlined />,
       content: (
         <div>
-          <p>Bạn có chắc chắn muốn nộp bài?</p>
-          <p>
-            Đã trả lời: {answeredCount} / {totalQuestions} câu
-          </p>
+          <p>Bạn đã trả lời {answeredCount}/{totalQuestions} câu hỏi.</p>
           {answeredCount < totalQuestions && (
-            <Alert
-              message={`Bạn còn ${totalQuestions - answeredCount} câu chưa trả lời`}
-              type="warning"
-              showIcon
-              style={{ marginTop: 16 }}
-            />
+            <p style={{ color: '#ff4d4f' }}>
+              Còn {totalQuestions - answeredCount} câu chưa trả lời!
+            </p>
           )}
+          <p>Bạn có chắc chắn muốn nộp bài không?</p>
         </div>
       ),
       okText: 'Nộp bài',
@@ -1389,6 +1390,154 @@ const TakeAssessment: React.FC = () => {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, [settings, isSubmitting]);
+
+  // Keyboard shortcuts for exam navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      
+      // Shift+Enter to unfocus text fields (allows navigation again)
+      if (e.shiftKey && e.key === 'Enter' && (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT')) {
+        e.preventDefault();
+        (target as HTMLElement).blur();
+        return;
+      }
+      
+      // Auto-focus text fields for text-based question types when typing
+      const isTextQuestion = currentQuestion?.type === 'essay' || 
+                             currentQuestion?.type === 'fill_in_blank' || 
+                             currentQuestion?.type === 'short_answer';
+      
+      if (isTextQuestion && target.tagName !== 'TEXTAREA' && target.tagName !== 'INPUT') {
+        // Check if user pressed a printable character (letters, numbers, symbols, space)
+        if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+          e.preventDefault(); // Prevent default behavior
+          
+          let inputField: HTMLTextAreaElement | HTMLInputElement | null = null;
+          
+          // Find the appropriate input field
+          if (currentQuestion.type === 'essay') {
+            inputField = document.querySelector('textarea') as HTMLTextAreaElement;
+          } else {
+            // For fill_in_blank and short_answer, find the text input
+            // Be more specific with the selector to ensure we find the right input
+            inputField = document.querySelector('input[type="text"]') as HTMLInputElement;
+            
+            // If not found, try looking for any input in the question content
+            if (!inputField) {
+              const questionCard = document.querySelector('.ant-card');
+              inputField = questionCard?.querySelector('input') as HTMLInputElement;
+            }
+          }
+          
+          if (inputField) {
+            // Focus the field first
+            inputField.focus();
+            
+            // Update the value using React-compatible approach
+            const currentValue = inputField.value || '';
+            const newValue = currentValue + e.key;
+            
+            // Use the native setter to properly trigger React's onChange
+            const isTextarea = inputField instanceof HTMLTextAreaElement;
+            const prototype = isTextarea ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+            const nativeSetter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+            
+            if (nativeSetter) {
+              nativeSetter.call(inputField, newValue);
+              
+              // Dispatch input event that React will detect
+              const inputEvent = new Event('input', { bubbles: true });
+              inputField.dispatchEvent(inputEvent);
+              
+              // Also dispatch change event
+              const changeEvent = new Event('change', { bubbles: true });
+              inputField.dispatchEvent(changeEvent);
+              
+              // Set cursor to the end
+              setTimeout(() => {
+                const length = newValue.length;
+                if (inputField && inputField.setSelectionRange) {
+                  inputField.setSelectionRange(length, length);
+                }
+              }, 0);
+            }
+            
+            return;
+          }
+        }
+      }
+
+      // Don't trigger navigation shortcuts if user is typing in textarea or input
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+        return;
+      }
+
+      // Number keys for Multiple Choice and True/False
+      if (/^[1-9]$/.test(e.key) && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        const index = parseInt(e.key) - 1;
+        
+        if (currentQuestion?.type === 'multiple_choice') {
+          const options = currentQuestion.content.options || [];
+          if (index >= 0 && index < options.length) {
+            e.preventDefault();
+            const option = options[index];
+            const isMultiple = currentQuestion.content.allow_multiple_answers;
+            
+            if (isMultiple) {
+              // Toggle selection for multiple choice
+              const currentSelected = (answers[currentQuestion.id] as number[]) || [];
+              const newSelected = currentSelected.includes(option.id)
+                ? currentSelected.filter(id => id !== option.id)
+                : [...currentSelected, option.id];
+              handleAnswerChange(currentQuestion.id, newSelected);
+            } else {
+              // Select for single choice
+              handleAnswerChange(currentQuestion.id, option.id);
+            }
+          }
+        } else if (currentQuestion?.type === 'true_false') {
+          if (index === 0) { // 1 -> True
+            e.preventDefault();
+            handleAnswerChange(currentQuestion.id, true);
+          } else if (index === 1) { // 2 -> False
+            e.preventDefault();
+            handleAnswerChange(currentQuestion.id, false);
+          }
+        }
+      }
+
+      // Left Arrow - Previous question (wrap around)
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePreviousQuestion();
+      }
+
+      // Right Arrow - Next question (wrap around)
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNextQuestion();
+      }
+
+      // Ctrl + Enter - Open submit dialog
+      if (e.ctrlKey && e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+
+      // Ctrl + Shift + Enter - Direct confirm submit (if modal is open and delay passed)
+      if (e.ctrlKey && e.shiftKey && e.key === 'Enter') {
+        e.preventDefault();
+        const okButton = document.querySelector('.ant-modal-confirm-btns .ant-btn-primary') as HTMLButtonElement;
+        if (okButton && !okButton.disabled) {
+          okButton.click();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentQuestionId, currentQuestion, questions, answers]);
 
   if (isLoading) {
     return (

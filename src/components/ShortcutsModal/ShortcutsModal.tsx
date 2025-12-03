@@ -41,12 +41,28 @@ const allShortcuts: Record<string, ShortcutSection> = {
 			{ keys: ['Ctrl', 'B'], description: 'Ẩn/Hiện thanh bên' },
 		],
 	},
-	exam: {
-		title: 'Trang làm bài thi',
+	'exam-general': {
+		title: 'Trang làm bài thi - Chung',
 		shortcuts: [
+			{ keys: ['←', '→'], description: 'Câu trước/sau' },
+			{ keys: ['Shift', 'Enter'], description: 'Thoát khỏi ô nhập liệu' },
+			{ keys: ['Ctrl', 'Enter'], description: 'Mở hộp thoại nộp bài' },
+			{ keys: ['Ctrl', 'Shift', 'Enter'], description: 'Xác nhận nộp bài (khi modal mở)' },
 			{ keys: ['Ctrl', 'Shift', 'T'], description: 'Chuyển đổi chủ đề' },
 			{ keys: ['Ctrl', '/'], description: 'Mở/Đóng danh sách phím tắt' },
-			// Add more exam-specific shortcuts here as needed
+		],
+	},
+	'exam-mcq': {
+		title: 'Trang làm bài thi - Trắc nghiệm',
+		shortcuts: [
+			{ keys: ['1' ,'9'], description: 'Chọn đáp án tương ứng' },
+		],
+	},
+	'exam-tf': {
+		title: 'Trang làm bài thi - Đúng/Sai',
+		shortcuts: [
+			{ keys: ['1'], description: 'Chọn Đúng' },
+			{ keys: ['2'], description: 'Chọn Sai' },
 		],
 	},
 	global: {
@@ -96,7 +112,14 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 
 	const getSortedSections = () => {
 		const sections = Object.entries(allShortcuts);
-		if (activeContext && allShortcuts[activeContext]) {
+		if (activeContext) {
+			if (activeContext === 'exam') {
+				// Group all exam related sections at the top
+				const examSections = sections.filter(([key]) => key.startsWith('exam-'));
+				const otherSections = sections.filter(([key]) => !key.startsWith('exam-'));
+				return [...examSections, ...otherSections];
+			}
+			
 			const activeSection = sections.find(([key]) => key === activeContext);
 			const otherSections = sections.filter(([key]) => key !== activeContext);
 			return activeSection ? [activeSection, ...otherSections] : sections;

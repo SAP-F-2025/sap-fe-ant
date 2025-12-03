@@ -74,6 +74,14 @@ const allShortcuts: Record<string, ShortcutSection> = {
 					{ keys: ['2'], description: 'Chọn Sai' },
 				],
 			},
+			{
+				title: 'Sắp xếp',
+				shortcuts: [
+					{ keys: ['Space', 'Enter'], description: 'Chọn/Bỏ chọn để di chuyển' },
+					{ keys: ['Alt', '↑/↓'], description: 'Di chuyển mục đã chọn hoặc điều hướng' },
+					{ keys: ['1' ,'9'], description: 'Chọn nhanh hoặc di chuyển đến vị trí' },
+				],
+			},
 		],
 	},
 	global: {

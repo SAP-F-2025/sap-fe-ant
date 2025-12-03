@@ -1,6 +1,6 @@
 import { App as AntdApp } from 'antd';
 import React, { useRef } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import ExamLayout from './components/Layout/ExamLayout';
 import MainLayout from './components/Layout/MainLayout';
@@ -59,12 +59,21 @@ const AppRoutes: React.FC = () => {
 	const shortcutsRef = useRef<any>(null);
 	const { openSettings } = useSettingsModal();
 	const { toggleDark } = useTheme();
+	const location = useLocation();
 
 	useGlobalShortcuts({
 		onOpenShortcuts: () => shortcutsRef.current?.toggle(),
 		onOpenSettings: () => openSettings('my-account'),
 		onToggleTheme: toggleDark,
 	});
+
+	// Determine active context based on current route
+	const getActiveContext = () => {
+		const path = location.pathname;
+		if (path.includes('/student/take/')) return 'exam';
+		if (path.includes('/settings')) return 'settings';
+		return 'global';
+	};
 
 	return (
 		<>
@@ -305,7 +314,7 @@ const AppRoutes: React.FC = () => {
 					</Route>
 				</Route>
 			</Routes>
-			<ShortcutsModal ref={shortcutsRef} />
+			<ShortcutsModal ref={shortcutsRef} activeContext={getActiveContext()} />
 		</>
 	);
 };

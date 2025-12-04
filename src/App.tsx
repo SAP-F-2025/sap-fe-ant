@@ -38,7 +38,7 @@ import AvailableAssessments from './pages/Student/AvailableAssessments';
 import FaceVerification from './pages/Student/FaceVerification';
 import StudentDashboard from './pages/Student/StudentDashboard';
 import StudentHistory from './pages/Student/StudentHistory';
-import TakeAssessment from './pages/Student/TakeAssessment';
+import TakeAssessment from './pages/Exam';
 
 // Teacher Pages
 import MyAssessments from './pages/Teacher/MyAssessments';

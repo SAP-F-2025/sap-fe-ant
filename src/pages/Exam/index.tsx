@@ -63,10 +63,11 @@ import { useAuth } from '../../hooks/useAuth';
 import { useThemeToken } from '../../theme/ThemeProvider';
 import type { AttemptDetail, SubmitAnswerRequest, CompleteAttemptRequest } from '../../types';
 
-import { SortableOrderItem } from './components/SortableOrderItem';
-import { DroppableMatchZone } from './components/Matching/DroppableMatchZone';
-import { DraggableMatchAnswer } from './components/Matching/DraggableMatchAnswer';
 import { QuestionRenderer } from './components/QuestionRenderer';
+import { ExamHeader } from './components/ExamHeader';
+import { QuestionNavigation } from './components/QuestionNavigation';
+import { useAutoSave } from './hooks/useAutoSave';
+import { useExamTimer } from './hooks/useExamTimer';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -82,8 +83,8 @@ const TakeAssessment: React.FC = () => {
 
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, any>>({});
-  const [timeRemaining, setTimeRemaining] = useState<number>(0);
-  const [autoSaving, setAutoSaving] = useState(false);
+
+  const { saveAnswer, flushPendingSaves, isAutoSaving } = useAutoSave(Number(attemptId));
   const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
   const [browserViolations, setBrowserViolations] = useState<Map<string, BrowserProctoringEvent>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -152,17 +153,7 @@ const TakeAssessment: React.FC = () => {
     }
   }, [attempt]);
 
-  // Submit answer mutation
-  const submitAnswerMutation = useMutation({
-    mutationFn: (data: SubmitAnswerRequest) =>
-      studentService.submitAnswer(Number(attemptId), data),
-    onSuccess: () => {
-      setAutoSaving(false);
-    },
-    onError: () => {
-      setAutoSaving(false);
-    },
-  });
+
 
   // Submit attempt mutation
   const submitAttemptMutation = useMutation({
@@ -215,84 +206,18 @@ const TakeAssessment: React.FC = () => {
     },
   });
 
-  // Timer countdown
-  useEffect(() => {
-    if (!attempt) return;
-
-    const fetchTimeRemaining = async () => {
-      try {
-        const timeData = await studentService.getTimeRemaining(Number(attemptId));
-        const remainingSeconds = timeData.data;
-        
-        // Check if attempt has already expired
-        if (remainingSeconds <= 0) {
-          modal.warning({
-            title: 'Hết giờ!',
-            content: 'Thời gian làm bài đã hết. Bài kiểm tra sẽ được nộp tự động.',
-            onOk: () => {
-              submitAttemptMutation.mutate(buildCompleteAttemptRequest('timeout'));
-            },
-          });
-          return;
-        }
-        
-        setTimeRemaining(remainingSeconds);
-      } catch (error) {
-        console.error('Error fetching time remaining:', error);
-      }
-    };
-
-    fetchTimeRemaining();
-    const interval = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          handleTimeUp();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [attempt, attemptId]);
-
-  // Save queue to track pending auto-saves
-  const saveQueueRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
-  const pendingSavesRef = useRef<Set<number>>(new Set());
-
-  // Flush all pending saves before submission
-  const flushPendingSaves = async () => {
-    const pendingQuestions = Array.from(pendingSavesRef.current);
-    if (pendingQuestions.length === 0) return;
-
-    console.log('Flushing pending saves for questions:', pendingQuestions);
-    
-    const savePromises = pendingQuestions.map(questionId => {
-      return submitAnswerMutation.mutateAsync({
-        question_id: questionId,
-        answer: answers[questionId],
-      }).then(() => {
-        // Only remove on success
-        pendingSavesRef.current.delete(questionId);
-      }).catch(err => {
-        console.error(`Failed to save question ${questionId}:`, err);
-        // Keep in pending set for potential retry
-        throw err; // Re-throw to track failures
-      });
+  const handleTimeUpCallback = async () => {
+    await flushPendingSaves(answers);
+    modal.warning({
+      title: 'Hết giờ!',
+      content: 'Thời gian làm bài đã hết. Câu trả lời của bạn sẽ được nộp tự động.',
+      onOk: () => submitAttemptMutation.mutate(buildCompleteAttemptRequest('timeout')),
     });
-
-    try {
-      await Promise.all(savePromises);
-    } catch (error) {
-      // Some saves failed, warn the user
-      modal.error({
-        title: 'Lỗi lưu câu trả lời',
-        content: 'Một số câu trả lời chưa được lưu. Vui lòng kiểm tra kết nối mạng và thử lại.',
-      });
-      throw error; // Prevent submission if saves failed
-    }
   };
+
+  const { timeRemaining, formatTime } = useExamTimer(Number(attemptId), handleTimeUpCallback);
+
+
 
   const buildCompleteAttemptRequest = (endReason?: string): CompleteAttemptRequest => {
     // Convert answers from Record<number, any> to SubmitAnswerRequest[]
@@ -310,68 +235,13 @@ const TakeAssessment: React.FC = () => {
     };
   };
 
-  const handleTimeUp = async () => {
-    // Flush any pending auto-saves first
-    await flushPendingSaves();
-    
-    modal.warning({
-      title: 'Hết giờ!',
-      content: 'Thời gian làm bài đã hết. Câu trả lời của bạn sẽ được nộp tự động.',
-      onOk: () => {
-        submitAttemptMutation.mutate(buildCompleteAttemptRequest('timeout'));
-      },
-    });
-  };
 
-  const handleSaveAnswer = async (questionId: number, answer: any) => {
-    setAutoSaving(true);
-    submitAnswerMutation.mutate({
-      question_id: questionId,
-      answer,
-    });
-  };
+
+
 
   const handleAnswerChange = (questionId: number, answer: any) => {
-    // Update local state immediately
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: answer,
-    }));
-
-    // Clear existing timeout for this question
-    const existingTimeout = saveQueueRef.current.get(questionId);
-    if (existingTimeout) {
-      clearTimeout(existingTimeout);
-    }
-
-    // Mark as pending
-    pendingSavesRef.current.add(questionId);
-
-    // Set new debounced save
-    const timeout = setTimeout(() => {
-      setAutoSaving(true);
-      submitAnswerMutation.mutate(
-        {
-          question_id: questionId,
-          answer,
-        },
-        {
-          onSuccess: () => {
-            // Only remove from pending on success
-            pendingSavesRef.current.delete(questionId);
-            setAutoSaving(false);
-            setLastSavedTime(Date.now()); // Track save time
-          },
-          onError: () => {
-            // Keep in pending set for flush retry
-            setAutoSaving(false);
-          },
-        }
-      );
-      saveQueueRef.current.delete(questionId);
-    }, 2000);
-
-    saveQueueRef.current.set(questionId, timeout);
+    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+    saveAnswer(questionId, answer, () => setLastSavedTime(Date.now()));
   };
 
   const handlePreviousQuestion = () => {
@@ -399,8 +269,7 @@ const TakeAssessment: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    // Flush pending saves before showing confirmation
-    await flushPendingSaves();
+    await flushPendingSaves(answers);
     
     const answeredCount = Object.keys(answers).length;
     const totalQuestions = questions.length;
@@ -429,16 +298,7 @@ const TakeAssessment: React.FC = () => {
   };
 
 
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
 
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const getTimeColor = () => {
     const totalTime = (attempt?.assessment?.duration || 60) * 60;
@@ -905,57 +765,17 @@ const TakeAssessment: React.FC = () => {
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Header */}
-      <Card style={{ marginBottom: '16px' }}>
-        <Row gutter={16} align="middle">
-          <Col flex="auto">
-            <Space align="center">
-              <Title level={3} style={{ margin: 0 }}>
-                {attempt.assessment?.title}
-              </Title>
-              {autoSaving && (
-                <Tag color="processing" icon={<SaveOutlined />}>
-                  Đang lưu...
-                </Tag>
-              )}
-            </Space>
-            <div style={{ marginTop: '4px' }}>
-              <Space size="small">
-                <Text type="secondary">
-                  Câu {currentQuestionIndex + 1} / {questions.length}
-                </Text>
-                {!autoSaving && lastSavedTime && (
-                  <Text type="success" style={{ fontSize: '12px' }}>
-                    <CheckCircleOutlined /> Đã lưu
-                  </Text>
-                )}
-              </Space>
-            </div>
-          </Col>
-          <Col>
-            <Statistic
-              title="Thời gian còn lại"
-              value={formatTime(timeRemaining)}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: getTimeColor(), fontSize: '24px' }}
-            />
-          </Col>
-          <Col>
-            <Statistic
-              title="Đã trả lời"
-              value={answeredCount}
-              suffix={`/ ${questions.length}`}
-              valueStyle={{ fontSize: '24px' }}
-            />
-          </Col>
-        </Row>
-        <Progress
-          percent={progress}
-          showInfo={false}
-          strokeColor="#1890ff"
-          style={{ marginTop: '16px' }}
-        />
-      </Card>
+      <ExamHeader
+        title={attempt.assessment?.title || ''}
+        currentQuestionIndex={currentQuestionIndex}
+        totalQuestions={questions.length}
+        timeRemaining={formatTime(timeRemaining)}
+        timeColor={getTimeColor()}
+        answeredCount={answeredCount}
+        autoSaving={isAutoSaving}
+        lastSavedTime={lastSavedTime}
+        progress={progress}
+      />
 
       {/* Question Card */}
       <Card>
@@ -1043,30 +863,12 @@ const TakeAssessment: React.FC = () => {
         </Space>
       </Card>
 
-      {/* Question Navigation Grid */}
-      <Card title="Điều hướng câu hỏi" style={{ marginTop: '16px' }}>
-        <Space wrap>
-          {questions.map((q, index) => {
-            const isAnswered = !!answers[q.id];
-            const isCurrent = q.id === currentQuestionId;
-            return (
-              <Button
-                key={q.id}
-                type={isCurrent ? 'primary' : isAnswered ? 'default' : 'dashed'}
-                onClick={() => goToQuestion(q.id)}
-                style={{
-                  width: '40px',
-                  backgroundColor: isAnswered && !isCurrent ? '#52c41a' : undefined,
-                  borderColor: isAnswered && !isCurrent ? '#52c41a' : undefined,
-                  color: isAnswered && !isCurrent ? '#fff' : undefined,
-                }}
-              >
-                {index + 1}
-              </Button>
-            );
-          })}
-        </Space>
-      </Card>
+      <QuestionNavigation
+        questions={questions}
+        currentQuestionId={currentQuestionId}
+        answers={answers}
+        onQuestionSelect={goToQuestion}
+      />
 
       {/* Proctoring Monitor - Floating */}
       {requireWebcam && (

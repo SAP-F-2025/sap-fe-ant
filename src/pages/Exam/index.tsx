@@ -85,6 +85,9 @@ const TakeAssessment: React.FC = () => {
   const [answers, setAnswers] = useState<Record<number, any>>({});
 
   const handleTimeUpCallback = async () => {
+    // Stop timer to prevent 409 errors
+    stopTimer();
+    
     // Flush any pending saves before submitting
     await flushPendingSaves();
     
@@ -95,7 +98,7 @@ const TakeAssessment: React.FC = () => {
     });
   };
 
-  const { timeRemaining, formatTime } = useExamTimer(Number(attemptId), handleTimeUpCallback);
+  const { timeRemaining, formatTime, stopTimer } = useExamTimer(Number(attemptId), handleTimeUpCallback);
   const { saveAnswer, flushPendingSaves, isAutoSaving } = useAutoSave(Number(attemptId), timeRemaining);
   const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
   const [browserViolations, setBrowserViolations] = useState<Map<string, BrowserProctoringEvent>>(new Map());
@@ -261,6 +264,9 @@ const TakeAssessment: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    // Stop timer to prevent 409 errors
+    stopTimer();
+    
     // Flush any pending saves before submitting
     await flushPendingSaves();
     

@@ -3,9 +3,10 @@ import studentService from '../../../services/studentService';
 
 export const useExamTimer = (attemptId: number | undefined, onTimeUp: () => void) => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (!attemptId) return;
+    if (!attemptId || !isActive) return;
 
     const fetchTimeRemaining = async () => {
       try {
@@ -18,8 +19,11 @@ export const useExamTimer = (attemptId: number | undefined, onTimeUp: () => void
         }
         
         setTimeRemaining(remainingSeconds);
-      } catch (error) {
-        console.error('Error fetching time remaining:', error);
+      } catch (error: any) {
+        // Silence 409 errors (attempt already completed)
+        if (error?.response?.status !== 409) {
+          console.error('Error fetching time remaining:', error);
+        }
       }
     };
 
@@ -36,7 +40,7 @@ export const useExamTimer = (attemptId: number | undefined, onTimeUp: () => void
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [attemptId, onTimeUp]);
+  }, [attemptId, onTimeUp, isActive]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -49,5 +53,7 @@ export const useExamTimer = (attemptId: number | undefined, onTimeUp: () => void
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  return { timeRemaining, formatTime };
+  const stopTimer = () => setIsActive(false);
+
+  return { timeRemaining, formatTime, stopTimer };
 };

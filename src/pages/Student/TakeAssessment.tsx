@@ -74,6 +74,8 @@ interface SortableOrderItemProps {
   totalItems: number;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  isGrabbed?: boolean;
+  isFocused?: boolean;
 }
 
 const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
@@ -83,6 +85,8 @@ const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
   totalItems,
   onMoveUp,
   onMoveDown,
+  isGrabbed,
+  isFocused,
 }) => {
   const {
     attributes,
@@ -91,7 +95,6 @@ const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
     transform,
     transition,
     isDragging,
-    setActivatorNodeRef,
   } = useSortable({ id });
 
   const { token } = useThemeToken();
@@ -105,10 +108,18 @@ const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
     cursor: isDragging ? 'grabbing' : 'grab',
     boxShadow: isDragging 
       ? `0 4px 12px ${isDark ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.15)'}`
-      : undefined,
-    border: isDragging 
+      : isGrabbed
+        ? `0 0 0 2px ${token.colorPrimary}`
+        : isFocused
+          ? `0 0 0 2px ${token.colorWarning}`
+          : undefined,
+    border: isDragging || isGrabbed
       ? `2px solid ${token.colorPrimary}` 
-      : undefined,
+      : isFocused
+        ? `2px solid ${token.colorWarning}`
+        : `1px solid ${token.colorBorder}`,
+    zIndex: isGrabbed ? 1 : undefined,
+    outline: 'none',
   };
 
   return (
@@ -118,11 +129,16 @@ const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
       size="small"
       {...attributes}
       {...listeners}
+      data-sortable-id={id}
+      tabIndex={0}
+      onClick={(e) => {
+        e.currentTarget.focus();
+      }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
         {/* Content - Left side */}
         <Space style={{ flex: 1, minWidth: 0 }}>
-          <Tag color="blue">{index + 1}</Tag>
+          <Tag color={isGrabbed ? "processing" : "default"}>{index + 1}</Tag>
           {item.image_url && (
             <img
               src={item.image_url}
@@ -293,14 +309,14 @@ const TakeAssessment: React.FC = () => {
   const [hoveredOption, setHoveredOption] = useState<string | null>(null); // Add hover state at top level
   const [activeMatchingId, setActiveMatchingId] = useState<string | null>(null); // For matching drag overlay
   const [lastSavedTime, setLastSavedTime] = useState<number | null>(null); // Track last successful save
+  const [customGrabbedId, setCustomGrabbedId] = useState<string | null>(null); // For custom keyboard ordering
+  const [focusedItemId, setFocusedItemId] = useState<string | null>(null); // Track focused item for visual feedback
 
 
   // Setup sensors for drag-and-drop at top level (for ordering questions)
+  // Removed KeyboardSensor to use custom keyboard logic
   const dndSensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor)
   );
 
 
@@ -582,6 +598,9 @@ const TakeAssessment: React.FC = () => {
     const currentIndex = questions.findIndex(q => q.id === currentQuestionId);
     if (currentIndex > 0) {
       setCurrentQuestionId(questions[currentIndex - 1].id);
+    } else {
+      // Wrap to last question
+      setCurrentQuestionId(questions[questions.length - 1].id);
     }
   };
 
@@ -589,6 +608,9 @@ const TakeAssessment: React.FC = () => {
     const currentIndex = questions.findIndex(q => q.id === currentQuestionId);
     if (currentIndex < questions.length - 1) {
       setCurrentQuestionId(questions[currentIndex + 1].id);
+    } else {
+      // Wrap to first question
+      setCurrentQuestionId(questions[0].id);
     }
   };
 
@@ -608,18 +630,13 @@ const TakeAssessment: React.FC = () => {
       icon: <ExclamationCircleOutlined />,
       content: (
         <div>
-          <p>Bạn có chắc chắn muốn nộp bài?</p>
-          <p>
-            Đã trả lời: {answeredCount} / {totalQuestions} câu
-          </p>
+          <p>Bạn đã trả lời {answeredCount}/{totalQuestions} câu hỏi.</p>
           {answeredCount < totalQuestions && (
-            <Alert
-              message={`Bạn còn ${totalQuestions - answeredCount} câu chưa trả lời`}
-              type="warning"
-              showIcon
-              style={{ marginTop: 16 }}
-            />
+            <p style={{ color: '#ff4d4f' }}>
+              Còn {totalQuestions - answeredCount} câu chưa trả lời!
+            </p>
           )}
+          <p>Bạn có chắc chắn muốn nộp bài không?</p>
         </div>
       ),
       okText: 'Nộp bài',
@@ -1227,6 +1244,8 @@ const TakeAssessment: React.FC = () => {
                         totalItems={currentOrder.length}
                         onMoveUp={() => moveItem(index, index - 1)}
                         onMoveDown={() => moveItem(index, index + 1)}
+                        isGrabbed={customGrabbedId === itemId}
+                        isFocused={focusedItemId === itemId}
                       />
                     );
                   })}
@@ -1389,6 +1408,282 @@ const TakeAssessment: React.FC = () => {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, [settings, isSubmitting]);
+
+  // Keyboard shortcuts for exam navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      
+      // Shift+Enter to unfocus text fields (allows navigation again)
+      if (e.shiftKey && e.key === 'Enter' && (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT')) {
+        e.preventDefault();
+        (target as HTMLElement).blur();
+        return;
+      }
+      
+      // Auto-focus text fields for text-based question types when typing
+      // @ts-ignore - Runtime object structure differs from type definition
+      const questionType = currentQuestion?.type;
+      const isTextQuestion = questionType === 'essay' || 
+                             questionType === 'fill_blank' || 
+                             questionType === 'short_answer';
+      
+      if (isTextQuestion && target.tagName !== 'TEXTAREA' && target.tagName !== 'INPUT') {
+        // Check if user pressed a printable character (letters, numbers, symbols, space)
+        if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+          e.preventDefault(); // Prevent default behavior
+          
+          let inputField: HTMLTextAreaElement | HTMLInputElement | null = null;
+          
+          // Find the appropriate input field
+          if (questionType === 'essay') {
+            inputField = document.querySelector('textarea') as HTMLTextAreaElement;
+          } else {
+            // For fill_in_blank and short_answer, find the text input
+            // Be more specific with the selector to ensure we find the right input
+            inputField = document.querySelector('input[type="text"]') as HTMLInputElement;
+            
+            // If not found, try looking for any input in the question content
+            if (!inputField) {
+              const questionCard = document.querySelector('.ant-card');
+              inputField = questionCard?.querySelector('input') as HTMLInputElement;
+            }
+          }
+          
+          if (inputField) {
+            // Focus the field first
+            inputField.focus();
+            
+            // Update the value using React-compatible approach
+            const currentValue = inputField.value || '';
+            const newValue = currentValue + e.key;
+            
+            // Use the native setter to properly trigger React's onChange
+            const isTextarea = inputField instanceof HTMLTextAreaElement;
+            const prototype = isTextarea ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+            const nativeSetter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+            
+            if (nativeSetter) {
+              nativeSetter.call(inputField, newValue);
+              
+              // Dispatch input event that React will detect
+              const inputEvent = new Event('input', { bubbles: true });
+              inputField.dispatchEvent(inputEvent);
+              
+              // Also dispatch change event
+              const changeEvent = new Event('change', { bubbles: true });
+              inputField.dispatchEvent(changeEvent);
+              
+              // Set cursor to the end
+              setTimeout(() => {
+                const length = newValue.length;
+                if (inputField && inputField.setSelectionRange) {
+                  inputField.setSelectionRange(length, length);
+                }
+              }, 0);
+            }
+            
+            return;
+          }
+        }
+      }
+
+      // Don't trigger navigation shortcuts if user is typing in textarea or input
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+        return;
+      }
+
+      // Ordering Question Shortcuts
+      // @ts-ignore
+      if (currentQuestion?.type === 'ordering') {
+        // @ts-ignore
+        const items = currentQuestion?.content?.items || [];
+        const currentOrder = (answers[currentQuestion!.id] as string[]) || items.map((i: any) => i.id);
+
+        // Helper to focus item
+        const focusItem = (index: number) => {
+          const itemId = currentOrder[index];
+          setFocusedItemId(itemId); // Update internal focus state
+          
+          // Use setTimeout to allow render to happen if order changed
+          setTimeout(() => {
+            const el = document.querySelector(`[data-sortable-id="${itemId}"]`) as HTMLElement;
+            if (el) el.focus();
+          }, 0);
+        };
+
+        // Space or Enter to Toggle Grab
+        if (e.key === ' ' || e.key === 'Enter') {
+          // Only if an item is focused
+          const activeEl = document.activeElement as HTMLElement;
+          const sortableId = activeEl?.getAttribute('data-sortable-id');
+          
+          if (sortableId) {
+            e.preventDefault();
+            setFocusedItemId(sortableId); // Ensure focus state matches
+            
+            if (customGrabbedId === sortableId) {
+              setCustomGrabbedId(null); // Drop (focus stays on this item)
+            } else {
+              setCustomGrabbedId(sortableId); // Grab (focus already on this item)
+            }
+            return;
+          }
+        }
+
+        // Alt + Arrow Up/Down
+        if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+          e.preventDefault();
+          const activeEl = document.activeElement as HTMLElement;
+          const sortableId = activeEl?.getAttribute('data-sortable-id');
+          
+          // If nothing focused via DOM, try using internal state or default to first
+          const targetId = sortableId || focusedItemId || currentOrder[0];
+          
+          if (targetId) {
+            const currentIndex = currentOrder.indexOf(targetId);
+            if (currentIndex === -1) return;
+
+            const direction = e.key === 'ArrowUp' ? -1 : 1;
+            let newIndex = currentIndex + direction;
+
+            // Wrap around
+            if (newIndex < 0) newIndex = currentOrder.length - 1;
+            if (newIndex >= currentOrder.length) newIndex = 0;
+
+            if (customGrabbedId === targetId) {
+              // Swap (Move Item)
+              const newOrder = [...currentOrder];
+              // Remove from old
+              newOrder.splice(currentIndex, 1);
+              // Insert at new
+              newOrder.splice(newIndex, 0, targetId);
+              
+              handleAnswerChange(currentQuestion!.id, newOrder);
+              
+              // Update focus state to follow the moved item
+              setFocusedItemId(targetId); // targetId is the grabbed item
+              
+              // Focus the DOM element
+              setTimeout(() => {
+                const el = document.querySelector(`[data-sortable-id="${targetId}"]`) as HTMLElement;
+                if (el) el.focus();
+              }, 0);
+            } else {
+              // Navigation (Move Focus)
+              focusItem(newIndex);
+            }
+            return;
+          }
+        }
+
+        // Number Keys (1-9)
+        if (/^[1-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+          const targetIndex = parseInt(e.key) - 1;
+          if (targetIndex >= 0 && targetIndex < currentOrder.length) {
+            e.preventDefault();
+            
+            if (customGrabbedId) {
+              // Move grabbed item to target index
+              const grabbedIndex = currentOrder.indexOf(customGrabbedId);
+              if (grabbedIndex !== -1 && grabbedIndex !== targetIndex) {
+                const newOrder = [...currentOrder];
+                newOrder.splice(grabbedIndex, 1);
+                newOrder.splice(targetIndex, 0, customGrabbedId);
+                handleAnswerChange(currentQuestion!.id, newOrder);
+              }
+              setCustomGrabbedId(null); // Drop after move
+              
+              // Update focus state to follow the moved item
+              setFocusedItemId(customGrabbedId); // customGrabbedId is the moved item
+              
+              // Focus the DOM element
+              setTimeout(() => {
+                const el = document.querySelector(`[data-sortable-id="${customGrabbedId}"]`) as HTMLElement;
+                if (el) el.focus();
+              }, 0);
+            } else {
+              // Select and Grab
+              const targetId = currentOrder[targetIndex];
+              setCustomGrabbedId(targetId);
+              setFocusedItemId(targetId); // Sync focus with grab
+              focusItem(targetIndex);
+            }
+            return;
+          }
+        }
+      }
+
+      // Number keys for Multiple Choice and True/False
+      if (/^[1-9]$/.test(e.key) && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        const index = parseInt(e.key) - 1;
+        // @ts-ignore - Runtime object structure differs from type definition
+        const qType = currentQuestion?.type;
+        
+        if (qType === 'multiple_choice') {
+          // @ts-ignore - Runtime object structure differs from type definition
+          const options = currentQuestion?.content?.options || [];
+          if (index >= 0 && index < options.length) {
+            e.preventDefault();
+            const option = options[index];
+            // @ts-ignore - Runtime object structure differs from type definition
+            const isMultiple = currentQuestion?.content?.allow_multiple_answers;
+            
+            if (isMultiple) {
+              // Toggle selection for multiple choice
+              // Cast to any[] to handle both number[] and string[] IDs
+              const currentSelected = (answers[currentQuestion!.id] as any[]) || [];
+              const newSelected = currentSelected.includes(option.id)
+                ? currentSelected.filter((id: any) => id !== option.id)
+                : [...currentSelected, option.id];
+              handleAnswerChange(currentQuestion!.id, newSelected);
+            } else {
+              // Select for single choice
+              handleAnswerChange(currentQuestion!.id, option.id);
+            }
+          }
+        } else if (qType === 'true_false') {
+          if (index === 0) { // 1 -> True
+            e.preventDefault();
+            handleAnswerChange(currentQuestion!.id, true);
+          } else if (index === 1) { // 2 -> False
+            e.preventDefault();
+            handleAnswerChange(currentQuestion!.id, false);
+          }
+        }
+      }
+
+      // Left Arrow - Previous question (wrap around)
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePreviousQuestion();
+      }
+
+      // Right Arrow - Next question (wrap around)
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNextQuestion();
+      }
+
+      // Ctrl + Enter - Open submit dialog
+      if (e.ctrlKey && e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+
+      // Ctrl + Shift + Enter - Direct confirm submit (if modal is open and delay passed)
+      if (e.ctrlKey && e.shiftKey && e.key === 'Enter') {
+        e.preventDefault();
+        const okButton = document.querySelector('.ant-modal-confirm-btns .ant-btn-primary') as HTMLButtonElement;
+        if (okButton && !okButton.disabled) {
+          okButton.click();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentQuestionId, currentQuestion, questions, answers, customGrabbedId, focusedItemId]);
 
   if (isLoading) {
     return (

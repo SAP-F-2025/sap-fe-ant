@@ -38,6 +38,7 @@ import faceVerificationService from '../../services/faceVerificationService';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
 import type { ThemeMode } from '../../theme/tokens';
 import { getUserRole } from '../../utils/roleChecker';
+import { ShortcutsModal } from '../ShortcutsModal';
 import './SettingsModal.css';
 
 const { Title, Text, Paragraph } = Typography;
@@ -112,6 +113,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const { user, logout } = useAuth();
 	const [activeSection, setActiveSection] = useState<SettingsSection>(defaultSection);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	const [blinkRed, setBlinkRed] = useState(false);
+	const [shortcutContext, setShortcutContext] = useState<string | undefined>();
+
+	const sections: SettingsSection[] = ['my-account', 'profile', 'security', 'notifications', 'appearance', 'accessibility', 'language', 'about'];
 
 	// Reset to default section when modal opens
 	useEffect(() => {
@@ -121,16 +127,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		}
 	}, [open, defaultSection]);
 
-	// Handle ESC key to close
+	// Handle ESC and Ctrl+, to close
 	useEffect(() => {
-		const handleEsc = (e: KeyboardEvent) => {
-			if (e.key === 'Escape' && open) {
+		const handleClose = (e: KeyboardEvent) => {
+			if (!open) return;
+			if (e.key === 'Escape' || (e.ctrlKey && e.key === ',')) {
+				if (hasUnsavedChanges) {
+					setBlinkRed(true);
+					setTimeout(() => setBlinkRed(false), 300);
+					return;
+				}
+				e.preventDefault();
 				onClose();
 			}
 		};
-		window.addEventListener('keydown', handleEsc);
-		return () => window.removeEventListener('keydown', handleEsc);
-	}, [open, onClose]);
+		window.addEventListener('keydown', handleClose);
+		return () => window.removeEventListener('keydown', handleClose);
+	}, [open, onClose, hasUnsavedChanges]);
 
 	// Menu items for sidebar
 	const menuItems: MenuProps['items'] = [
@@ -216,6 +229,58 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		const { serverUrl, appName, organizationName } = CasdoorConfig;
 		return `${serverUrl}/account?app=${appName}&organization=${organizationName}`;
 	};
+
+	useEffect(() => {
+		if (activeSection === 'notifications' && hasUnsavedChanges) {
+			setShortcutContext('settings-notifications');
+		} else {
+			setShortcutContext(undefined);
+		}
+	}, [activeSection, hasUnsavedChanges]);
+
+	useEffect(() => {
+		if (!open) return;
+
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Allow Ctrl+Backspace and Ctrl+Enter to pass through for notifications section
+			if (e.ctrlKey && (e.key === 'Backspace' || e.key === 'Enter')) return;
+
+			if (hasUnsavedChanges && (e.altKey || e.shiftKey)) return;
+
+			// Alt+Arrow: Navigate between tabs
+			if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+				e.preventDefault();
+				const currentIndex = sections.indexOf(activeSection);
+				const nextIndex = e.key === 'ArrowDown'
+					? (currentIndex + 1) % sections.length
+					: (currentIndex - 1 + sections.length) % sections.length;
+				setActiveSection(sections[nextIndex]);
+			}
+
+			// Shift+Arrow: Navigate within tab
+			if (e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+				e.preventDefault();
+				const contentArea = document.querySelector('.settings-content-area');
+				if (!contentArea) return;
+				const focusableElements = contentArea.querySelectorAll(
+					'button:not([disabled]), [role="switch"]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+				);
+				const elements = Array.from(focusableElements).filter(el => {
+					const rect = el.getBoundingClientRect();
+					return rect.width > 0 && rect.height > 0;
+				});
+				if (elements.length === 0) return;
+				const currentIndex = elements.indexOf(document.activeElement as Element);
+				const nextIndex = e.key === 'ArrowDown'
+					? currentIndex === -1 ? 0 : (currentIndex + 1) % elements.length
+					: currentIndex === -1 ? elements.length - 1 : (currentIndex - 1 + elements.length) % elements.length;
+				(elements[nextIndex] as HTMLElement).focus();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [open, activeSection, sections, hasUnsavedChanges]);
 
 	// Render content based on active section
 	const renderContent = () => {
@@ -364,6 +429,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
 					{/* Content */}
 					<div
+						className="settings-content-area"
 						style={{
 							flex: 1,
 							overflow: 'auto',
@@ -375,9 +441,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						<div style={{ width: '100%', maxWidth: 660 }}>
 							{renderContent()}
 						</div>
+						<style>{`
+							.settings-content-area *:focus {
+								outline: 2px solid ${token.colorPrimary} !important;
+								outline-offset: 2px !important;
+								box-shadow: 0 0 0 4px ${token.colorPrimary}20 !important;
+							}
+						`}</style>
 					</div>
 				</div>
 			</div>
+			<ShortcutsModal activeContext={shortcutContext} />
 		</Modal>
 	);
 };
@@ -842,13 +916,55 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 const NotificationsSection: React.FC = () => {
 	const { token } = useThemeToken();
 	const [settings, setSettings] = useState({
-		enableNotifications: true,
-		emailNotifications: true,
-		pushNotifications: true,
-		assessmentReminders: true,
-		gradeNotifications: true,
-		systemUpdates: false,
+		assessmentAssigned: { enabled: true, email: true, push: true },
+		assessmentReminders: { enabled: true, email: true, push: true },
+		gradeNotifications: { enabled: true, email: true, push: true },
+		comments: { enabled: true, email: false, push: true },
+		systemUpdates: { enabled: false, email: false, push: false },
 	});
+	const [originalSettings, setOriginalSettings] = useState({ enableNotifications, settings });
+	const [hasChanges, setHasChanges] = useState(false);
+	const [saving, setSaving] = useState(false);
+
+	useEffect(() => {
+		const changed = JSON.stringify({ enableNotifications, settings }) !== JSON.stringify(originalSettings);
+		setHasChanges(changed);
+		onChangesStateChange(changed);
+	}, [enableNotifications, settings, originalSettings, onChangesStateChange]);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (!hasChanges) return;
+			if (e.ctrlKey && e.key === 'Enter') {
+				e.preventDefault();
+				handleSave();
+			} else if (e.ctrlKey && e.key === 'Backspace') {
+				e.preventDefault();
+				handleReset();
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [hasChanges]);
+
+	const handleSave = async () => {
+		setSaving(true);
+		try {
+			// TODO: API call to save notification settings
+			// await notificationService.updateSettings({ enableNotifications, ...settings });
+			await new Promise(resolve => setTimeout(resolve, 500));
+			setOriginalSettings({ enableNotifications, settings });
+			setHasChanges(false);
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const handleReset = () => {
+		setEnableNotifications(originalSettings.enableNotifications);
+		setSettings(originalSettings.settings);
+		setHasChanges(false);
+	};
 
 	return (
 		<div>
@@ -967,6 +1083,9 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({ mode, setMode, to
 					<div
 						key={theme.key}
 						onClick={() => setMode(theme.key)}
+						onKeyDown={(e) => e.key === 'Enter' && setMode(theme.key)}
+						tabIndex={0}
+						role="button"
 						style={{
 							flex: 1,
 							padding: 16,
@@ -1097,6 +1216,9 @@ const LanguageSection: React.FC = () => {
 					<div
 						key={lang.key}
 						onClick={() => setSelectedLang(lang.key)}
+						onKeyDown={(e) => e.key === 'Enter' && setSelectedLang(lang.key)}
+						tabIndex={0}
+						role="button"
 						style={{
 							padding: '16px',
 							display: 'flex',

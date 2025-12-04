@@ -58,12 +58,6 @@ export const MatchingQuestion: React.FC<DndQuestionProps> = ({
       onDragCancel={() => setActiveMatchingId(null)}
     >
       <Space direction="vertical" style={{ width: '100%' }} size="middle">
-        <Alert
-          message={`Đã ghép: ${Object.keys(currentMatches).length}/${left_items.length}`}
-          type="info"
-          showIcon
-        />
-
         <Row gutter={16}>
           <Col span={12}>
             <Card title="Câu hỏi" size="small">
@@ -116,6 +110,13 @@ export const MatchingQuestion: React.FC<DndQuestionProps> = ({
             </Card>
           </Col>
         </Row>
+        
+        <Alert
+          message={`Đã ghép: ${Object.keys(currentMatches).length}/${left_items.length}`}
+          type="warning"
+          showIcon={false}
+          style={{ fontSize: '13px', padding: '4px 12px' }}
+        />
       </Space>
 
       <DragOverlay>

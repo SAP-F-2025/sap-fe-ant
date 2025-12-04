@@ -18,21 +18,6 @@ export const EssayQuestion: React.FC<QuestionRendererProps> = ({
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
-      {(minWords || maxWords || suggestedLength) && (
-        <Alert
-          message="Yêu cầu"
-          description={
-            <Space direction="vertical" size="small">
-              {minWords && <Text>• Số từ tối thiểu: {minWords} từ</Text>}
-              {maxWords && <Text>• Số từ tối đa: {maxWords} từ</Text>}
-              {suggestedLength && <Text>• Độ dài gợi ý: {suggestedLength}</Text>}
-            </Space>
-          }
-          type="info"
-          showIcon
-        />
-      )}
-
       <TextArea
         rows={12}
         placeholder="Nhập câu trả lời của bạn..."

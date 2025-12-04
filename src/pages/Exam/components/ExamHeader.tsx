@@ -31,21 +31,19 @@ export const ExamHeader: React.FC<ExamHeaderProps> = ({
     <Card style={{ marginBottom: '16px' }}>
       <Row gutter={16} align="middle">
         <Col flex="auto">
-          <Space align="center">
-            <Title level={3} style={{ margin: 0 }}>
-              {title}
-            </Title>
-            {autoSaving && (
-              <Tag color="processing" icon={<SaveOutlined />}>
-                Đang lưu...
-              </Tag>
-            )}
-          </Space>
+          <Title level={3} style={{ margin: 0 }}>
+            {title}
+          </Title>
           <div style={{ marginTop: '4px' }}>
             <Space size="small">
               <Text type="secondary">
                 Câu {currentQuestionIndex + 1} / {totalQuestions}
               </Text>
+              {autoSaving && (
+                <Tag color="processing" icon={<SaveOutlined />} style={{ fontSize: '11px' }}>
+                  Đang lưu...
+                </Tag>
+              )}
               {!autoSaving && lastSavedTime && (
                 <Text type="success" style={{ fontSize: '12px' }}>
                   <CheckCircleOutlined /> Đã lưu

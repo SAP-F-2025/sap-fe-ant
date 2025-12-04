@@ -42,12 +42,6 @@ export const OrderingQuestion: React.FC<DndQuestionProps> = ({
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
-      <Alert
-        message="Kéo thả các items hoặc dùng nút ↑↓ để sắp xếp theo thứ tự đúng"
-        type="info"
-        showIcon
-      />
-
       <DndContext
         sensors={dndSensors}
         collisionDetection={closestCenter}
@@ -74,6 +68,13 @@ export const OrderingQuestion: React.FC<DndQuestionProps> = ({
           })}
         </SortableContext>
       </DndContext>
+      
+      <Alert
+        message="Kéo thả các items hoặc dùng nút ↑↓ để sắp xếp theo thứ tự đúng"
+        type="warning"
+        showIcon={false}
+        style={{ fontSize: '13px', padding: '4px 12px' }}
+      />
     </Space>
   );
 };

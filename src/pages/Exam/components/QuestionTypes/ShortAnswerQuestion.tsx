@@ -24,8 +24,9 @@ export const ShortAnswerQuestion: React.FC<QuestionRendererProps> = ({
       {caseSensitive && (
         <Alert
           message="Lưu ý: Câu trả lời có phân biệt chữ hoa chữ thường"
-          type="info"
-          showIcon
+          type="warning"
+          showIcon={false}
+          style={{ fontSize: '13px', padding: '4px 12px' }}
         />
       )}
     </Space>

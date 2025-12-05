@@ -84,7 +84,22 @@ const TakeAssessment: React.FC = () => {
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, any>>({});
 
-  const { saveAnswer, flushPendingSaves, isAutoSaving } = useAutoSave(Number(attemptId));
+  const handleTimeUpCallback = async () => {
+    // Stop timer to prevent 409 errors
+    stopTimer();
+    
+    // Flush any pending saves before submitting
+    await flushPendingSaves();
+    
+    modal.warning({
+      title: 'Hết giờ!',
+      content: 'Thời gian làm bài đã hết. Câu trả lời của bạn sẽ được nộp tự động.',
+      onOk: () => submitAttemptMutation.mutate(buildCompleteAttemptRequest('timeout')),
+    });
+  };
+
+  const { timeRemaining, formatTime, stopTimer } = useExamTimer(Number(attemptId), handleTimeUpCallback);
+  const { saveAnswer, flushPendingSaves, isAutoSaving } = useAutoSave(Number(attemptId), timeRemaining);
   const [proctoringEvents, setProctoringEvents] = useState<ProctoringEvent[]>([]);
   const [browserViolations, setBrowserViolations] = useState<Map<string, BrowserProctoringEvent>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -206,31 +221,11 @@ const TakeAssessment: React.FC = () => {
     },
   });
 
-  const handleTimeUpCallback = async () => {
-    await flushPendingSaves(answers);
-    modal.warning({
-      title: 'Hết giờ!',
-      content: 'Thời gian làm bài đã hết. Câu trả lời của bạn sẽ được nộp tự động.',
-      onOk: () => submitAttemptMutation.mutate(buildCompleteAttemptRequest('timeout')),
-    });
-  };
-
-  const { timeRemaining, formatTime } = useExamTimer(Number(attemptId), handleTimeUpCallback);
-
-
-
   const buildCompleteAttemptRequest = (endReason?: string): CompleteAttemptRequest => {
-    // Convert answers from Record<number, any> to SubmitAnswerRequest[]
-    const answersArray: SubmitAnswerRequest[] = Object.entries(answers).map(
-      ([questionId, answer]) => ({
-        question_id: Number(questionId),
-        answer,
-      })
-    );
-
+    // Answers already saved via auto-save, just mark as completed
     return {
       attempt_id: Number(attemptId),
-      answers: answersArray,
+      // answers: [], // Dont sent data
       end_reason: endReason,
     };
   };
@@ -269,7 +264,11 @@ const TakeAssessment: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    await flushPendingSaves(answers);
+    // Stop timer to prevent 409 errors
+    stopTimer();
+    
+    // Flush any pending saves before submitting
+    await flushPendingSaves();
     
     const answeredCount = Object.keys(answers).length;
     const totalQuestions = questions.length;

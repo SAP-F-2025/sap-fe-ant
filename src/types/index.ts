@@ -645,7 +645,7 @@ export interface SubmitAnswerRequest {
 
 export interface CompleteAttemptRequest {
 	attempt_id: number;
-	answers: SubmitAnswerRequest[];
+	// answers: SubmitAnswerRequest[];
 	time_spent?: number;
 	end_reason?: string;
 }

@@ -32,8 +32,10 @@ import {
 	Typography
 } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CasdoorConfig } from '../../config/casdoor';
 import { useAuth } from '../../hooks/useAuth';
+import { changeLanguage, getCurrentLanguage, supportedLanguages, type SupportedLanguage } from '../../i18n';
 import faceVerificationService from '../../services/faceVerificationService';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
 import type { ThemeMode } from '../../theme/tokens';
@@ -111,6 +113,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const { token } = useThemeToken();
 	const { mode, setMode, toggleDark } = useTheme();
 	const { user, logout } = useAuth();
+	const { t } = useTranslation();
 	const [activeSection, setActiveSection] = useState<SettingsSection>(defaultSection);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -150,49 +153,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		{
 			key: 'user-settings',
 			type: 'group',
-			label: <Text type="secondary" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Cài đặt người dùng</Text>,
+			label: <Text type="secondary" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{t('settings.userSettings')}</Text>,
 			children: [
 				{
 					key: 'my-account',
 					icon: <UserOutlined />,
-					label: 'Tài khoản',
+					label: t('settings.account'),
 				},
 				{
 					key: 'profile',
 					icon: <UserOutlined />,
-					label: 'Hồ sơ',
+					label: t('settings.profile'),
 				},
 				{
 					key: 'security',
 					icon: <SafetyOutlined />,
-					label: 'Bảo mật & Xác thực',
+					label: t('settings.securityAuth'),
 				},
 			],
 		},
 		{
 			key: 'app-settings',
 			type: 'group',
-			label: <Text type="secondary" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Cài đặt ứng dụng</Text>,
+			label: <Text type="secondary" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{t('settings.appSettings')}</Text>,
 			children: [
 				{
 					key: 'notifications',
 					icon: <BellOutlined />,
-					label: 'Thông báo',
+					label: t('settings.notifications'),
 				},
 				{
 					key: 'appearance',
 					icon: <BgColorsOutlined />,
-					label: 'Giao diện',
+					label: t('settings.appearance'),
 				},
 				{
 					key: 'accessibility',
 					icon: <EyeOutlined />,
-					label: 'Trợ năng',
+					label: t('settings.accessibility'),
 				},
 				{
 					key: 'language',
 					icon: <GlobalOutlined />,
-					label: 'Ngôn ngữ',
+					label: t('settings.language'),
 				},
 			],
 		},
@@ -202,7 +205,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		{
 			key: 'about',
 			icon: <InfoCircleOutlined />,
-			label: 'Thông tin',
+			label: t('settings.about'),
 		},
 		{
 			type: 'divider',
@@ -210,7 +213,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		{
 			key: 'logout',
 			icon: <CloseOutlined />,
-			label: <Text type="danger">Đăng xuất</Text>,
+			label: <Text type="danger">{t('auth.logout')}</Text>,
 			danger: true,
 		},
 	];
@@ -321,14 +324,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	};
 
 	const sectionTitles: Record<SettingsSection, string> = {
-		'my-account': 'Tài khoản của tôi',
-		'profile': 'Hồ sơ',
-		'security': 'Bảo mật & Xác thực',
-		'notifications': 'Thông báo',
-		'appearance': 'Giao diện',
-		'accessibility': 'Trợ năng',
-		'language': 'Ngôn ngữ',
-		'about': 'Thông tin',
+		'my-account': t('settings.myAccount'),
+		'profile': t('settings.profile'),
+		'security': t('settings.securityAuth'),
+		'notifications': t('settings.notifications'),
+		'appearance': t('settings.appearance'),
+		'accessibility': t('settings.accessibility'),
+		'language': t('settings.language'),
+		'about': t('settings.about'),
 	};
 
 	return (
@@ -1359,18 +1362,18 @@ const AccessibilitySection: React.FC = () => {
 
 const LanguageSection: React.FC = () => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
+	const [selectedLang, setSelectedLang] = useState<SupportedLanguage>(getCurrentLanguage());
 
-	const languages = [
-		{ key: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
-		{ key: 'en', label: 'English', flag: '🇺🇸' },
-	];
-
-	const [selectedLang, setSelectedLang] = useState('vi');
+	const handleLanguageChange = (langCode: SupportedLanguage) => {
+		setSelectedLang(langCode);
+		changeLanguage(langCode);
+	};
 
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				Chọn ngôn ngữ hiển thị cho ứng dụng.
+				{t('settings.languageDescription')}
 			</Paragraph>
 
 			<div
@@ -1380,11 +1383,11 @@ const LanguageSection: React.FC = () => {
 					overflow: 'hidden',
 				}}
 			>
-				{languages.map((lang) => (
+				{supportedLanguages.map((lang, index) => (
 					<div
-						key={lang.key}
-						onClick={() => setSelectedLang(lang.key)}
-						onKeyDown={(e) => e.key === 'Enter' && setSelectedLang(lang.key)}
+						key={lang.code}
+						onClick={() => handleLanguageChange(lang.code)}
+						onKeyDown={(e) => e.key === 'Enter' && handleLanguageChange(lang.code)}
 						tabIndex={0}
 						role="button"
 						style={{
@@ -1393,13 +1396,13 @@ const LanguageSection: React.FC = () => {
 							alignItems: 'center',
 							gap: 12,
 							cursor: 'pointer',
-							borderBottom: `1px solid ${token.colorBorderSecondary}`,
-							background: selectedLang === lang.key ? token.colorPrimaryBg : 'transparent',
+							borderBottom: index < supportedLanguages.length - 1 ? `1px solid ${token.colorBorderSecondary}` : 'none',
+							background: selectedLang === lang.code ? token.colorPrimaryBg : 'transparent',
 						}}
 					>
 						<span style={{ fontSize: 24 }}>{lang.flag}</span>
-						<Text strong={selectedLang === lang.key}>{lang.label}</Text>
-						{selectedLang === lang.key && (
+						<Text strong={selectedLang === lang.code}>{lang.label}</Text>
+						{selectedLang === lang.code && (
 							<Text type="success" style={{ marginLeft: 'auto' }}>
 								✓
 							</Text>

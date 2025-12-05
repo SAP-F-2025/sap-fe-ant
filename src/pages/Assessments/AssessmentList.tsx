@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   Table,
@@ -45,6 +46,7 @@ const { Search } = Input;
 
 
 const AssessmentList: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const token = useThemeToken();
   const [loading, setLoading] = useState(false);
@@ -103,7 +105,7 @@ const AssessmentList: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await assessmentService.deleteAssessment(id);
-      showSuccess('Xóa bài thi thành công');
+      showSuccess(t('assessmentList.deleteSuccess'));
       fetchAssessments();
     } catch (error) {
       // Error handled by interceptor
@@ -113,7 +115,7 @@ const AssessmentList: React.FC = () => {
   const handlePublish = async (id: number) => {
     try {
       await assessmentService.publishAssessment(id);
-      showSuccess('Xuất bản bài thi thành công');
+      showSuccess(t('assessmentList.publishSuccess'));
       fetchAssessments();
     } catch (error) {
       // message.error('Không thể xuất bản bài thi');
@@ -123,7 +125,7 @@ const AssessmentList: React.FC = () => {
   const handleArchive = async (id: number) => {
     try {
       await assessmentService.archiveAssessment(id);
-      showSuccess('Lưu trữ bài thi thành công');
+      showSuccess(t('assessmentList.archiveSuccess'));
       fetchAssessments();
     } catch (error) {
       // message.error('Không thể lưu trữ bài thi');
@@ -142,7 +144,7 @@ const AssessmentList: React.FC = () => {
 
   const columns: ColumnsType<Assessment> = [
     {
-      title: 'Tiêu đề',
+      title: t('assessmentList.columnTitle'),
       dataIndex: 'title',
       key: 'title',
       width: 300,
@@ -165,32 +167,32 @@ const AssessmentList: React.FC = () => {
       ),
     },
     {
-      title: 'Trạng thái',
+      title: t('assessmentList.columnStatus'),
       dataIndex: 'status',
       key: 'status',
       width: 140,
       render: (status) => getStatusBadge(status),
     },
     {
-      title: 'Thông tin',
+      title: t('assessmentList.columnInfo'),
       key: 'info',
       width: 200,
       render: (_, record) => (
         <Space direction="vertical" size={0}>
           <Typography.Text style={{ fontSize: 12 }}>
-            {record.questions_count || 0} câu hỏi
+            {record.questions_count || 0} {t('assessmentList.questions')}
           </Typography.Text>
           <Typography.Text style={{ fontSize: 12 }}>
-            Thời gian: {record.duration} phút
+            {t('assessmentList.duration')}: {record.duration} {t('assessmentList.minutes')}
           </Typography.Text>
           <Typography.Text style={{ fontSize: 12 }}>
-            Điểm đạt: {record.passing_score}%
+            {t('assessmentList.passingScore')}: {record.passing_score}%
           </Typography.Text>
         </Space>
       ),
     },
     {
-      title: 'Hạn nộp',
+      title: t('assessmentList.columnDueDate'),
       dataIndex: 'due_date',
       key: 'due_date',
       width: 150,
@@ -198,27 +200,27 @@ const AssessmentList: React.FC = () => {
         date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '-',
     },
     {
-      title: 'Ngày tạo',
+      title: t('assessmentList.columnCreated'),
       dataIndex: 'created_at',
       key: 'created_at',
       width: 150,
       render: (date) => dayjs(date).format('DD/MM/YYYY HH:mm'),
     },
     {
-      title: 'Thao tác',
+      title: t('assessmentList.columnActions'),
       key: 'action',
       fixed: 'right',
       width: 200,
       render: (_, record) => (
         <Space size="small" style={{ display: 'flex' }}>
-          <Tooltip title="Xem chi tiết">
+          <Tooltip title={t('assessmentList.viewDetail')}>
             <Button
               type="text"
               icon={<EyeOutlined />}
               onClick={() => navigate(`/assessments/${record.id}`)}
             />
           </Tooltip>
-          <Tooltip title="Chỉnh sửa">
+          <Tooltip title={t('assessmentList.edit')}>
             <Button
               type="text"
               icon={<EditOutlined />}
@@ -226,7 +228,7 @@ const AssessmentList: React.FC = () => {
             />
           </Tooltip>
           {record.status === AssessmentStatus.Draft ? (
-            <Tooltip title="Xuất bản">
+            <Tooltip title={t('assessmentList.publish')}>
               <Button
                 type="text"
                 icon={<CheckCircleOutlined />}
@@ -237,7 +239,7 @@ const AssessmentList: React.FC = () => {
               />
             </Tooltip>
           ) : record.status === AssessmentStatus.Active ? (
-            <Tooltip title="Lưu trữ">
+            <Tooltip title={t('assessmentList.archive')}>
               <Button
                 type="text"
                 icon={<CloseCircleOutlined />}
@@ -255,14 +257,14 @@ const AssessmentList: React.FC = () => {
             />
           )}
           <Popconfirm
-            title="Xác nhận xóa"
-            description="Bạn có chắc chắn muốn xóa bài thi này?"
+            title={t('assessmentList.confirmDelete')}
+            description={t('assessmentList.confirmDeleteDesc')}
             onConfirm={() => handleDelete(record.id)}
-            okText="Xóa"
-            cancelText="Hủy"
+            okText={t('common.delete')}
+            cancelText={t('common.cancel')}
             okButtonProps={{ danger: true }}
           >
-            <Tooltip title="Xóa">
+            <Tooltip title={t('assessmentList.delete')}>
               <Button
                 type="text"
                 danger
@@ -280,10 +282,10 @@ const AssessmentList: React.FC = () => {
       <Flex justify="space-between" align="center">
         <Space direction="vertical" size={4}>
           <Title level={2} style={{ margin: 0, fontWeight: 600 }}>
-            <FileTextOutlined style={{ marginRight: 8 }} /> Quản lý bài thi
+            <FileTextOutlined style={{ marginRight: 8 }} /> {t('assessmentList.title')}
           </Title>
           <Text type="secondary" style={{ fontSize: 14 }}>
-            Tạo và quản lý các bài kiểm tra đánh giá
+            {t('assessmentList.subtitle')}
           </Text>
         </Space>
         <Button
@@ -293,7 +295,7 @@ const AssessmentList: React.FC = () => {
           onClick={() => navigate('/assessments/new')}
           style={{ fontWeight: 500, height: 44, borderRadius: 10, paddingLeft: 24, paddingRight: 24 }}
         >
-          Tạo bài thi mới
+          {t('assessmentList.createNew')}
         </Button>
       </Flex>
 
@@ -304,7 +306,7 @@ const AssessmentList: React.FC = () => {
           <Row gutter={16}>
             <Col flex="auto">
               <Search
-                placeholder="Tìm kiếm theo tiêu đề..."
+                placeholder={t('assessmentList.searchPlaceholder')}
                 allowClear
                 enterButton={<SearchOutlined />}
                 size="large"
@@ -315,7 +317,7 @@ const AssessmentList: React.FC = () => {
             </Col>
             <Col>
               <Select
-                placeholder="Trạng thái"
+                placeholder={t('assessmentList.statusFilter')}
                 style={{ width: 180 }}
                 size="large"
                 allowClear
@@ -323,10 +325,10 @@ const AssessmentList: React.FC = () => {
                   setFilters({ ...filters, status: value, page: 1 })
                 }
                 options={[
-                  { label: 'Nháp', value: AssessmentStatus.Draft },
-                  { label: 'Đang hoạt động', value: AssessmentStatus.Active },
-                  { label: 'Hết hạn', value: AssessmentStatus.Expired },
-                  { label: 'Lưu trữ', value: AssessmentStatus.Archived },
+                  { label: t('assessment.status.draft'), value: AssessmentStatus.Draft },
+                  { label: t('assessment.status.active'), value: AssessmentStatus.Active },
+                  { label: t('assessment.status.completed'), value: AssessmentStatus.Expired },
+                  { label: t('assessmentList.archivedAssessments'), value: AssessmentStatus.Archived },
                 ]}
               />
             </Col>
@@ -343,7 +345,7 @@ const AssessmentList: React.FC = () => {
               pageSize: filters.size,
               total: total,
               showSizeChanger: true,
-              showTotal: (total) => `Tổng ${total} bài thi`,
+              showTotal: (total) => t('assessmentList.totalItems', { count: total }),
               onChange: (page, size) =>
                 setFilters({ ...filters, page, size }),
             }}
@@ -354,7 +356,7 @@ const AssessmentList: React.FC = () => {
       {/* Statistics Summary - Moved to bottom */}
       <Card bordered={false} style={{...elevation[1], borderRadius: 16, background: '#f5f5f5'}}>
         <Space direction="vertical" size={8} style={{width: '100%'}}>
-          <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>Thống kê tổng quan</Text>
+          <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>{t('assessmentList.statsTitle')}</Text>
           <Row gutter={[12, 12]}>
             <Col xs={12} sm={6}>
               <Flex align="center" gap={8}>
@@ -362,7 +364,7 @@ const AssessmentList: React.FC = () => {
                         style={{backgroundColor: cardColors.blue, flexShrink: 0}}/>
                 <Space direction="vertical" size={0}>
                   <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.total}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>Tổng số bài thi</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>{t('assessmentList.totalAssessments')}</Text>
                 </Space>
               </Flex>
             </Col>
@@ -372,7 +374,7 @@ const AssessmentList: React.FC = () => {
                         style={{backgroundColor: cardColors.green, flexShrink: 0}}/>
                 <Space direction="vertical" size={0}>
                   <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.active}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>Đang hoạt động</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>{t('assessmentList.activeAssessments')}</Text>
                 </Space>
               </Flex>
             </Col>
@@ -382,7 +384,7 @@ const AssessmentList: React.FC = () => {
                         style={{backgroundColor: cardColors.cyan, flexShrink: 0}}/>
                 <Space direction="vertical" size={0}>
                   <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.draft}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>Nháp</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>{t('assessmentList.draftAssessments')}</Text>
                 </Space>
               </Flex>
             </Col>
@@ -392,7 +394,7 @@ const AssessmentList: React.FC = () => {
                         style={{backgroundColor: cardColors.orange, flexShrink: 0}}/>
                 <Space direction="vertical" size={0}>
                   <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.archived}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>Đã lưu trữ</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>{t('assessmentList.archivedAssessments')}</Text>
                 </Space>
               </Flex>
             </Col>

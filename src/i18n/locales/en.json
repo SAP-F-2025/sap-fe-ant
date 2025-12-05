@@ -437,6 +437,27 @@
 		"privateBanks": "Private",
 		"totalQuestions": "Total Questions"
 	},
+	"questionBankForm": {
+		"createTitle": "Create New Question Bank",
+		"editTitle": "Edit Question Bank",
+		"back": "Back",
+		"name": "Bank Name",
+		"nameRequired": "Please enter bank name",
+		"nameMaxLength": "Name cannot exceed 200 characters",
+		"namePlaceholder": "Enter question bank name",
+		"description": "Description",
+		"descriptionMaxLength": "Description cannot exceed 1000 characters",
+		"descriptionPlaceholder": "Enter question bank description",
+		"tags": "Tags (comma separated)",
+		"tagsPlaceholder": "E.g: math, physics, basic",
+		"isPublic": "Public",
+		"isPublicTooltip": "Allow others to view and use this question bank",
+		"createBtn": "Create Bank",
+		"updateBtn": "Update",
+		"cancelBtn": "Cancel",
+		"createSuccess": "Question bank created successfully",
+		"updateSuccess": "Question bank updated successfully"
+	},
 	"gradingList": {
 		"title": "Grading",
 		"subtitle": "Manage and grade student submissions",

@@ -437,6 +437,27 @@
 		"privateBanks": "Riêng tư",
 		"totalQuestions": "Tổng câu hỏi"
 	},
+	"questionBankForm": {
+		"createTitle": "Tạo ngân hàng câu hỏi mới",
+		"editTitle": "Chỉnh sửa ngân hàng câu hỏi",
+		"back": "Quay lại",
+		"name": "Tên ngân hàng",
+		"nameRequired": "Vui lòng nhập tên ngân hàng",
+		"nameMaxLength": "Tên không được quá 200 ký tự",
+		"namePlaceholder": "Nhập tên ngân hàng câu hỏi",
+		"description": "Mô tả",
+		"descriptionMaxLength": "Mô tả không được quá 1000 ký tự",
+		"descriptionPlaceholder": "Nhập mô tả ngân hàng câu hỏi",
+		"tags": "Thẻ (phân cách bằng dấu phẩy)",
+		"tagsPlaceholder": "VD: toán học, vật lý, cơ bản",
+		"isPublic": "Công khai",
+		"isPublicTooltip": "Cho phép người khác xem và sử dụng ngân hàng câu hỏi này",
+		"createBtn": "Tạo ngân hàng",
+		"updateBtn": "Cập nhật",
+		"cancelBtn": "Hủy",
+		"createSuccess": "Tạo ngân hàng câu hỏi thành công",
+		"updateSuccess": "Cập nhật ngân hàng câu hỏi thành công"
+	},
 	"gradingList": {
 		"title": "Chấm điểm",
 		"subtitle": "Quản lý và chấm điểm bài làm của học viên",

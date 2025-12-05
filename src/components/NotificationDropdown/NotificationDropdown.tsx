@@ -11,6 +11,7 @@ import {
 	Typography
 } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useThemeToken } from '../../theme/ThemeProvider';
 import './NotificationDropdown.css';
 
@@ -63,9 +64,11 @@ const fetchNotifications = async (cursor?: string): Promise<NotificationPage> =>
 interface NotificationItemProps {
 	notification: Notification;
 	onClick: () => void;
+	t: (key: string, options?: Record<string, unknown>) => string;
+	i18n: { language: string };
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onClick }) => {
+const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onClick, t, i18n }) => {
 	const { token } = useThemeToken();
 
 	const formatTime = (dateString: string) => {
@@ -76,11 +79,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onCli
 		const diffHours = Math.floor(diffMs / 3600000);
 		const diffDays = Math.floor(diffMs / 86400000);
 
-		if (diffMins < 1) return 'Vừa xong';
-		if (diffMins < 60) return `${diffMins} phút trước`;
-		if (diffHours < 24) return `${diffHours} giờ trước`;
-		if (diffDays < 7) return `${diffDays} ngày trước`;
-		return date.toLocaleDateString('vi-VN');
+		if (diffMins < 1) return t('notificationDropdown.justNow');
+		if (diffMins < 60) return t('notificationDropdown.minutesAgo', { count: diffMins });
+		if (diffHours < 24) return t('notificationDropdown.hoursAgo', { count: diffHours });
+		if (diffDays < 7) return t('notificationDropdown.daysAgo', { count: diffDays });
+		return date.toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
 	};
 
 	return (
@@ -159,6 +162,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onCli
 // Main Component
 export const NotificationDropdown: React.FC = () => {
 	const { token } = useThemeToken();
+	const { t, i18n } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 	const [modalOpen, setModalOpen] = useState(false);
@@ -206,7 +210,7 @@ export const NotificationDropdown: React.FC = () => {
 
 	const formatFullDate = (dateString: string) => {
 		const date = new Date(dateString);
-		return date.toLocaleDateString('vi-VN', {
+		return date.toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US', {
 			year: 'numeric',
 			month: 'long',
 			day: 'numeric',
@@ -237,10 +241,10 @@ export const NotificationDropdown: React.FC = () => {
 					alignItems: 'center',
 				}}
 			>
-				<Title level={5} style={{ margin: 0 }}>Thông báo</Title>
+				<Title level={5} style={{ margin: 0 }}>{t('notificationDropdown.title')}</Title>
 				{unreadCount > 0 && (
 					<Button type="link" size="small" style={{ padding: 0 }}>
-						Đánh dấu đã đọc
+						{t('notificationDropdown.markAllRead')}
 					</Button>
 				)}
 			</div>
@@ -263,7 +267,7 @@ export const NotificationDropdown: React.FC = () => {
 					</div>
 				) : notifications.length === 0 ? (
 					<Empty
-						description="Không có thông báo"
+						description={t('notificationDropdown.noNotifications')}
 						style={{ padding: '40px 16px' }}
 					/>
 				) : (
@@ -273,6 +277,8 @@ export const NotificationDropdown: React.FC = () => {
 								key={notification.id}
 								notification={notification}
 								onClick={() => handleNotificationClick(notification)}
+								t={t}
+								i18n={i18n}
 							/>
 						))}
 						{isFetchingNextPage && (
@@ -342,7 +348,7 @@ export const NotificationDropdown: React.FC = () => {
 								alignItems: 'center',
 							}}
 						>
-							<Title level={4} style={{ margin: 0 }}>Chi tiết thông báo</Title>
+							<Title level={4} style={{ margin: 0 }}>{t('notificationDropdown.detailTitle')}</Title>
 							<Button
 								type="text"
 								icon={<CloseOutlined />}
@@ -378,7 +384,7 @@ export const NotificationDropdown: React.FC = () => {
 							}}
 						>
 							<Button onClick={() => setModalOpen(false)}>
-								Đóng
+								{t('common.close')}
 							</Button>
 						</div>
 					</div>

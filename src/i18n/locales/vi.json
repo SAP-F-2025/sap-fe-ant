@@ -580,5 +580,54 @@
 		"systemUpdatesDesc": "Thông báo về các cập nhật và bảo trì",
 		"unsavedChanges": "Có thay đổi chưa lưu",
 		"saveChanges": "Lưu thay đổi"
+	},
+	"notificationDropdown": {
+		"title": "Thông báo",
+		"markAllRead": "Đánh dấu đã đọc",
+		"noNotifications": "Không có thông báo",
+		"detailTitle": "Chi tiết thông báo",
+		"justNow": "Vừa xong",
+		"minutesAgo": "{{count}} phút trước",
+		"hoursAgo": "{{count}} giờ trước",
+		"daysAgo": "{{count}} ngày trước"
+	},
+	"shortcuts": {
+		"title": "Phím tắt",
+		"subtitle": "Sử dụng các phím tắt để làm việc nhanh hơn",
+		"sections": {
+			"settingsNotifications": "Cài đặt - Thông báo",
+			"settings": "Cài đặt",
+			"navigation": "Điều hướng",
+			"exam": "Trang làm bài thi",
+			"global": "Toàn cục"
+		},
+		"subsections": {
+			"general": "Chung",
+			"multipleChoice": "Trắc nghiệm",
+			"trueFalse": "Đúng/Sai",
+			"ordering": "Sắp xếp"
+		},
+		"descriptions": {
+			"saveChanges": "Lưu thay đổi",
+			"cancelChanges": "Hủy thay đổi",
+			"switchSettingsTab": "Chuyển tab cài đặt",
+			"navigateInTab": "Điều hướng trong tab",
+			"switchMenuTab": "Chuyển tab menu",
+			"toggleSidebar": "Ẩn/Hiện thanh bên",
+			"prevNextQuestion": "Câu trước/sau",
+			"exitInput": "Thoát khỏi ô nhập liệu",
+			"openSubmitDialog": "Mở hộp thoại nộp bài",
+			"confirmSubmit": "Xác nhận nộp bài (khi modal mở)",
+			"toggleTheme": "Chuyển đổi chủ đề",
+			"toggleShortcuts": "Mở/Đóng danh sách phím tắt",
+			"selectAnswer": "Chọn đáp án tương ứng",
+			"selectTrue": "Chọn Đúng",
+			"selectFalse": "Chọn Sai",
+			"selectOrMove": "Chọn/Bỏ chọn để di chuyển",
+			"moveSelectedOrNavigate": "Di chuyển mục đã chọn hoặc điều hướng",
+			"quickSelectOrMove": "Chọn nhanh hoặc di chuyển đến vị trí",
+			"openSettings": "Mở/Đóng cài đặt",
+			"closeModal": "Đóng modal"
+		}
 	}
 }

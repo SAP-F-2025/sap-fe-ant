@@ -580,5 +580,54 @@
 		"systemUpdatesDesc": "Get notified about updates and maintenance",
 		"unsavedChanges": "You have unsaved changes",
 		"saveChanges": "Save Changes"
+	},
+	"notificationDropdown": {
+		"title": "Notifications",
+		"markAllRead": "Mark all as read",
+		"noNotifications": "No notifications",
+		"detailTitle": "Notification Details",
+		"justNow": "Just now",
+		"minutesAgo": "{{count}} minutes ago",
+		"hoursAgo": "{{count}} hours ago",
+		"daysAgo": "{{count}} days ago"
+	},
+	"shortcuts": {
+		"title": "Keyboard Shortcuts",
+		"subtitle": "Use shortcuts to work faster",
+		"sections": {
+			"settingsNotifications": "Settings - Notifications",
+			"settings": "Settings",
+			"navigation": "Navigation",
+			"exam": "Exam Page",
+			"global": "Global"
+		},
+		"subsections": {
+			"general": "General",
+			"multipleChoice": "Multiple Choice",
+			"trueFalse": "True/False",
+			"ordering": "Ordering"
+		},
+		"descriptions": {
+			"saveChanges": "Save changes",
+			"cancelChanges": "Cancel changes",
+			"switchSettingsTab": "Switch settings tab",
+			"navigateInTab": "Navigate within tab",
+			"switchMenuTab": "Switch menu tab",
+			"toggleSidebar": "Toggle sidebar",
+			"prevNextQuestion": "Previous/Next question",
+			"exitInput": "Exit input field",
+			"openSubmitDialog": "Open submit dialog",
+			"confirmSubmit": "Confirm submit (when modal is open)",
+			"toggleTheme": "Toggle theme",
+			"toggleShortcuts": "Toggle shortcuts list",
+			"selectAnswer": "Select corresponding answer",
+			"selectTrue": "Select True",
+			"selectFalse": "Select False",
+			"selectOrMove": "Select/Deselect to move",
+			"moveSelectedOrNavigate": "Move selected item or navigate",
+			"quickSelectOrMove": "Quick select or move to position",
+			"openSettings": "Toggle settings",
+			"closeModal": "Close modal"
+		}
 	}
 }

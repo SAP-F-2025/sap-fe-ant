@@ -1,6 +1,7 @@
 import { CustomerServiceOutlined, FileTextOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Col, FloatButton, Row, Space } from 'antd';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Components
 import {
@@ -28,6 +29,7 @@ import { useDashboardData } from './hooks';
  * - Proper loading and error states
  */
 const Dashboard: React.FC = () => {
+	const { t } = useTranslation();
 	const [timePeriod, setTimePeriod] = useState<'week' | 'month' | 'year'>('month');
 
 	// All data fetching centralized in custom hook
@@ -84,8 +86,8 @@ const Dashboard: React.FC = () => {
 				style={{ right: 24, bottom: 24 }}
 				icon={<CustomerServiceOutlined />}
 			>
-				<FloatButton tooltip="Hướng dẫn" icon={<QuestionCircleOutlined />} />
-				<FloatButton tooltip="Báo cáo" icon={<FileTextOutlined />} />
+				<FloatButton tooltip={t('dashboard.guide')} icon={<QuestionCircleOutlined />} />
+				<FloatButton tooltip={t('dashboard.report')} icon={<FileTextOutlined />} />
 			</FloatButton.Group>
 		</Space>
 	);

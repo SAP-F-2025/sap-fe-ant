@@ -1,6 +1,7 @@
 import { TrophyOutlined } from '@ant-design/icons';
 import { Card, Empty, Skeleton, Space } from 'antd';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
 	Area,
 	AreaChart,
@@ -33,13 +34,14 @@ interface ActivityChartProps {
  */
 export const ActivityChart: React.FC<ActivityChartProps> = ({ data, isLoading }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	return (
 		<Card
 			title={
 				<Space>
 					<TrophyOutlined style={{ fontSize: 18, color: token.colorPrimary }} />
-					<span style={{ fontWeight: 600 }}>Hoạt động & Điểm số</span>
+					<span style={{ fontWeight: 600 }}>{t('dashboard.activityScore')}</span>
 				</Space>
 			}
 			bordered={false}
@@ -48,10 +50,10 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({ data, isLoading })
 			{isLoading ? (
 				<Skeleton active paragraph={{ rows: 8 }} />
 			) : data.length === 0 ? (
-				<Empty description="Chưa có dữ liệu hoạt động" style={{ padding: '60px 0' }} />
+				<Empty description={t('dashboard.noActivityData')} style={{ padding: '60px 0' }} />
 			) : (
 				<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-					<AreaChart data={data} aria-label="Biểu đồ hoạt động và điểm số">
+					<AreaChart data={data} aria-label={t('dashboard.activityChartLabel')}>
 						<defs>
 							<linearGradient id="colorAttempts" x1="0" y1="0" x2="0" y2="1">
 								<stop offset="5%" stopColor={STAT_CARD_COLORS.primary} stopOpacity={0.8} />
@@ -89,7 +91,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({ data, isLoading })
 							strokeWidth={3}
 							fillOpacity={1}
 							fill="url(#colorAttempts)"
-							name="Lượt làm bài"
+							name={t('dashboard.attemptsCount')}
 						/>
 						<Area
 							type="monotone"
@@ -98,7 +100,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({ data, isLoading })
 							strokeWidth={3}
 							fillOpacity={1}
 							fill="url(#colorScore)"
-							name="Điểm TB"
+							name={t('dashboard.avgScore')}
 						/>
 					</AreaChart>
 				</ResponsiveContainer>

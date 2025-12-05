@@ -1,11 +1,12 @@
 import { ClockCircleOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Badge, Card, Empty, Flex, Skeleton, Space, Typography } from 'antd';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { getStaggerDelay } from '../../../styles/animations';
 import { elevation } from '../../../styles/elevation';
 import { useThemeToken } from '../../../theme/ThemeProvider';
 import type { RecentActivity } from '../../../types';
-import { getActionText } from '../constants';
+import { getActionTextKey } from '../constants';
 
 const { Text } = Typography;
 
@@ -20,13 +21,14 @@ interface RecentActivitiesProps {
  */
 export const RecentActivities: React.FC<RecentActivitiesProps> = ({ activities, isLoading }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	return (
 		<Card
 			title={
 				<Space>
 					<ClockCircleOutlined style={{ fontSize: 18, color: token.colorInfo }} />
-					<span style={{ fontWeight: 600 }}>Hoạt động gần đây</span>
+					<span style={{ fontWeight: 600 }}>{t('dashboard.recentActivities')}</span>
 				</Space>
 			}
 			bordered={false}
@@ -35,7 +37,7 @@ export const RecentActivities: React.FC<RecentActivitiesProps> = ({ activities, 
 			{isLoading ? (
 				<Skeleton active paragraph={{ rows: 6 }} />
 			) : activities.length === 0 ? (
-				<Empty description="Chưa có hoạt động nào" style={{ padding: '40px 0' }} />
+				<Empty description={t('dashboard.noActivities')} style={{ padding: '40px 0' }} />
 			) : (
 				<Space direction="vertical" style={{ width: '100%' }} size="middle">
 					{activities.map((activity, index) => (
@@ -56,7 +58,9 @@ interface ActivityItemProps {
 /**
  * Individual activity item
  */
-const ActivityItem: React.FC<ActivityItemProps> = ({ activity, index, token }) => (
+const ActivityItem: React.FC<ActivityItemProps> = ({ activity, index, token }) => {
+	const { t } = useTranslation();
+	return (
 	<Card
 		size="small"
 		bordered={false}
@@ -80,12 +84,12 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, index, token }) =
 					</Text>
 				</Flex>
 				<Text type="secondary" style={{ fontSize: 13 }}>
-					{getActionText(activity.action)}{' '}
+					{t(getActionTextKey(activity.action))}{' '}
 					<Text strong>{activity.assessment_title || activity.question_bank_name || ''}</Text>
 				</Text>
 				{activity.score && (
 					<Badge
-						count={`${activity.score} điểm`}
+						count={`${activity.score} ${t('dashboard.points')}`}
 						style={{
 							backgroundColor: '#52c41a',
 							marginTop: 4,
@@ -95,4 +99,5 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, index, token }) =
 			</Flex>
 		</Flex>
 	</Card>
-);
+	);
+};

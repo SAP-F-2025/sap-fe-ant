@@ -29,15 +29,14 @@ export const STAT_CARD_COLORS = {
 // Pie chart colors
 export const PIE_COLORS = ['#1890ff', '#52c41a', '#faad14', '#eb2f96', '#722ed1'] as const;
 
-// Action text mapping for activities
-export const ACTION_TEXT_MAP: Record<string, string> = {
-	completed_assessment: 'hoàn thành bài thi',
-	started_assessment: 'bắt đầu bài thi',
-	created_question: 'tạo câu hỏi mới',
-	created_assessment: 'tạo bài thi mới',
-	published_assessment: 'xuất bản bài thi',
-};
-
-export const getActionText = (action: string): string => {
-	return ACTION_TEXT_MAP[action] || action;
+// Action text mapping for activities - now handled by i18n
+export const getActionTextKey = (action: string): string => {
+	const keyMap: Record<string, string> = {
+		completed_assessment: 'activities.completedAssessment',
+		started_assessment: 'activities.startedAssessment',
+		created_question: 'activities.createdQuestion',
+		created_assessment: 'activities.createdAssessment',
+		published_assessment: 'activities.publishedAssessment',
+	};
+	return keyMap[action] || action;
 };

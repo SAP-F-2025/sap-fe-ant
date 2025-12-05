@@ -1,6 +1,7 @@
 import { CheckCircleOutlined, RiseOutlined, TrophyOutlined } from '@ant-design/icons';
 import { Card, Col, Progress, Row, Skeleton, Statistic } from 'antd';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { elevation } from '../../../styles/elevation';
 import { useThemeToken } from '../../../theme/ThemeProvider';
 import type { DashboardStats } from '../../../types';
@@ -51,6 +52,7 @@ const QuickStatCard: React.FC<QuickStatCardProps> = ({ title, value, icon, color
  */
 export const QuickStats: React.FC<QuickStatsProps> = ({ stats }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	if (!stats) {
 		return (
@@ -68,20 +70,20 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ stats }) => {
 
 	const quickStatItems = [
 		{
-			title: 'Tỷ lệ hoàn thành',
+			title: t('dashboard.completionRate'),
 			value: stats.metrics.completion_rate,
 			icon: <TrophyOutlined />,
 			color: STAT_CARD_COLORS.success,
 			suffix: '%',
 		},
 		{
-			title: 'Điểm trung bình',
+			title: t('dashboard.averageScore'),
 			value: stats.metrics.average_score,
 			icon: <CheckCircleOutlined />,
 			color: STAT_CARD_COLORS.primary,
 		},
 		{
-			title: 'Tỷ lệ đạt',
+			title: t('dashboard.passRate'),
 			value: stats.metrics.pass_rate,
 			icon: <RiseOutlined />,
 			color: STAT_CARD_COLORS.warning,

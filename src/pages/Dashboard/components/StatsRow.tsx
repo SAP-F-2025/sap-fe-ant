@@ -6,6 +6,7 @@ import {
 } from '@ant-design/icons';
 import { Avatar, Card, Col, Flex, Row, Skeleton, Typography } from 'antd';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { getStaggerDelay } from '../../../styles/animations';
 import { elevation } from '../../../styles/elevation';
 import type { DashboardStats } from '../../../types';
@@ -101,6 +102,8 @@ interface StatsRowProps {
  * Displays 4 compact statistic cards
  */
 export const StatsRow: React.FC<StatsRowProps> = ({ stats }) => {
+	const { t } = useTranslation();
+	
 	if (!stats) {
 		return (
 			<Row gutter={[12, 12]}>
@@ -115,25 +118,25 @@ export const StatsRow: React.FC<StatsRowProps> = ({ stats }) => {
 		{
 			icon: <FileTextOutlined style={{ fontSize: 16 }} />,
 			value: stats.overview.total_assessments,
-			label: 'Bài thi',
+			label: t('dashboard.assessments'),
 			color: STAT_CARD_COLORS.primary,
 		},
 		{
 			icon: <QuestionCircleOutlined style={{ fontSize: 16 }} />,
 			value: stats.overview.total_questions,
-			label: 'Câu hỏi',
+			label: t('dashboard.questions'),
 			color: STAT_CARD_COLORS.success,
 		},
 		{
 			icon: <BankOutlined style={{ fontSize: 16 }} />,
 			value: stats.overview.total_question_banks,
-			label: 'Ngân hàng',
+			label: t('dashboard.banks'),
 			color: STAT_CARD_COLORS.cyan,
 		},
 		{
 			icon: <CheckCircleOutlined style={{ fontSize: 16 }} />,
 			value: stats.overview.total_attempts,
-			label: 'Lượt làm',
+			label: t('dashboard.attempts'),
 			color: STAT_CARD_COLORS.warning,
 		},
 	];

@@ -1,0 +1,136 @@
+{
+	"common": {
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"add": "Add",
+		"search": "Search",
+		"loading": "Loading...",
+		"noData": "No data",
+		"confirm": "Confirm",
+		"back": "Back",
+		"next": "Next",
+		"submit": "Submit",
+		"close": "Close",
+		"view": "View",
+		"actions": "Actions",
+		"status": "Status",
+		"success": "Success",
+		"error": "Error",
+		"warning": "Warning",
+		"info": "Info"
+	},
+	"auth": {
+		"login": "Login",
+		"logout": "Logout",
+		"register": "Register"
+	},
+	"settings": {
+		"title": "Settings",
+		"userSettings": "User Settings",
+		"appSettings": "App Settings",
+		"account": "Account",
+		"myAccount": "My Account",
+		"profile": "Profile",
+		"security": "Security",
+		"securityAuth": "Security & Authentication",
+		"notifications": "Notifications",
+		"appearance": "Appearance",
+		"accessibility": "Accessibility",
+		"language": "Language",
+		"about": "About",
+		"languageDescription": "Choose the display language for the application.",
+		"darkMode": "Dark Mode",
+		"darkModeDescription": "Turn dark mode on or off"
+	},
+	"dashboard": {
+		"title": "Dashboard",
+		"welcome": "Welcome",
+		"totalAssessments": "Total Assessments",
+		"totalQuestions": "Total Questions",
+		"totalStudents": "Total Students",
+		"recentActivity": "Recent Activity"
+	},
+	"assessment": {
+		"title": "Assessment",
+		"list": "Assessment List",
+		"create": "Create Assessment",
+		"edit": "Edit Assessment",
+		"delete": "Delete Assessment",
+		"name": "Assessment Name",
+		"description": "Description",
+		"duration": "Duration",
+		"startTime": "Start Time",
+		"endTime": "End Time",
+		"status": {
+			"draft": "Draft",
+			"published": "Published",
+			"active": "Active",
+			"completed": "Completed"
+		}
+	},
+	"question": {
+		"title": "Question",
+		"list": "Question List",
+		"create": "Create Question",
+		"edit": "Edit Question",
+		"delete": "Delete Question",
+		"type": {
+			"multipleChoice": "Multiple Choice",
+			"essay": "Essay",
+			"trueFalse": "True/False",
+			"fillBlank": "Fill in the Blank",
+			"coding": "Coding"
+		}
+	},
+	"questionBank": {
+		"title": "Question Bank",
+		"myBanks": "My Banks",
+		"public": "Public",
+		"shared": "Shared"
+	},
+	"student": {
+		"dashboard": "Student Dashboard",
+		"availableAssessments": "Available Assessments",
+		"history": "History",
+		"results": "Results",
+		"startAssessment": "Start Assessment",
+		"submitAssessment": "Submit",
+		"timeRemaining": "Time Remaining"
+	},
+	"grading": {
+		"title": "Grading",
+		"pending": "Pending",
+		"graded": "Graded",
+		"score": "Score",
+		"feedback": "Feedback"
+	},
+	"user": {
+		"management": "User Management",
+		"role": {
+			"admin": "Admin",
+			"teacher": "Teacher",
+			"student": "Student"
+		}
+	},
+	"table": {
+		"emptyText": "No data"
+	},
+	"notification": {
+		"enableNotifications": "Enable Notifications",
+		"enableNotificationsDesc": "Receive all notifications from the app",
+		"assessmentAssigned": "Assessment Assigned",
+		"assessmentAssignedDesc": "Get notified when assigned a new assessment",
+		"assessmentReminders": "Assessment Reminders",
+		"assessmentRemindersDesc": "Get notified about upcoming assessments",
+		"gradeNotifications": "Grade Notifications",
+		"gradeNotificationsDesc": "Get notified when grades are available",
+		"comments": "Comments & Feedback",
+		"commentsDesc": "Get notified when teachers comment on your work",
+		"systemUpdates": "System Updates",
+		"systemUpdatesDesc": "Get notified about updates and maintenance",
+		"unsavedChanges": "You have unsaved changes",
+		"saveChanges": "Save Changes"
+	}
+}

@@ -1,0 +1,136 @@
+{
+	"common": {
+		"save": "Lưu",
+		"cancel": "Hủy",
+		"delete": "Xóa",
+		"edit": "Sửa",
+		"add": "Thêm",
+		"search": "Tìm kiếm",
+		"loading": "Đang tải...",
+		"noData": "Không có dữ liệu",
+		"confirm": "Xác nhận",
+		"back": "Quay lại",
+		"next": "Tiếp theo",
+		"submit": "Gửi",
+		"close": "Đóng",
+		"view": "Xem",
+		"actions": "Hành động",
+		"status": "Trạng thái",
+		"success": "Thành công",
+		"error": "Lỗi",
+		"warning": "Cảnh báo",
+		"info": "Thông tin"
+	},
+	"auth": {
+		"login": "Đăng nhập",
+		"logout": "Đăng xuất",
+		"register": "Đăng ký"
+	},
+	"settings": {
+		"title": "Cài đặt",
+		"userSettings": "Cài đặt người dùng",
+		"appSettings": "Cài đặt ứng dụng",
+		"account": "Tài khoản",
+		"myAccount": "Tài khoản của tôi",
+		"profile": "Hồ sơ",
+		"security": "Bảo mật",
+		"securityAuth": "Bảo mật & Xác thực",
+		"notifications": "Thông báo",
+		"appearance": "Giao diện",
+		"accessibility": "Trợ năng",
+		"language": "Ngôn ngữ",
+		"about": "Thông tin",
+		"languageDescription": "Chọn ngôn ngữ hiển thị cho ứng dụng.",
+		"darkMode": "Chế độ tối",
+		"darkModeDescription": "Bật hoặc tắt chế độ tối"
+	},
+	"dashboard": {
+		"title": "Bảng điều khiển",
+		"welcome": "Chào mừng",
+		"totalAssessments": "Tổng bài kiểm tra",
+		"totalQuestions": "Tổng câu hỏi",
+		"totalStudents": "Tổng học sinh",
+		"recentActivity": "Hoạt động gần đây"
+	},
+	"assessment": {
+		"title": "Bài kiểm tra",
+		"list": "Danh sách bài kiểm tra",
+		"create": "Tạo bài kiểm tra",
+		"edit": "Sửa bài kiểm tra",
+		"delete": "Xóa bài kiểm tra",
+		"name": "Tên bài kiểm tra",
+		"description": "Mô tả",
+		"duration": "Thời gian",
+		"startTime": "Thời gian bắt đầu",
+		"endTime": "Thời gian kết thúc",
+		"status": {
+			"draft": "Nháp",
+			"published": "Đã xuất bản",
+			"active": "Đang hoạt động",
+			"completed": "Đã hoàn thành"
+		}
+	},
+	"question": {
+		"title": "Câu hỏi",
+		"list": "Danh sách câu hỏi",
+		"create": "Tạo câu hỏi",
+		"edit": "Sửa câu hỏi",
+		"delete": "Xóa câu hỏi",
+		"type": {
+			"multipleChoice": "Trắc nghiệm",
+			"essay": "Tự luận",
+			"trueFalse": "Đúng/Sai",
+			"fillBlank": "Điền vào chỗ trống",
+			"coding": "Lập trình"
+		}
+	},
+	"questionBank": {
+		"title": "Ngân hàng câu hỏi",
+		"myBanks": "Ngân hàng của tôi",
+		"public": "Công khai",
+		"shared": "Được chia sẻ"
+	},
+	"student": {
+		"dashboard": "Bảng điều khiển học sinh",
+		"availableAssessments": "Bài kiểm tra có sẵn",
+		"history": "Lịch sử làm bài",
+		"results": "Kết quả",
+		"startAssessment": "Bắt đầu làm bài",
+		"submitAssessment": "Nộp bài",
+		"timeRemaining": "Thời gian còn lại"
+	},
+	"grading": {
+		"title": "Chấm điểm",
+		"pending": "Chờ chấm",
+		"graded": "Đã chấm",
+		"score": "Điểm",
+		"feedback": "Nhận xét"
+	},
+	"user": {
+		"management": "Quản lý người dùng",
+		"role": {
+			"admin": "Quản trị viên",
+			"teacher": "Giáo viên",
+			"student": "Học sinh"
+		}
+	},
+	"table": {
+		"emptyText": "Không có dữ liệu"
+	},
+	"notification": {
+		"enableNotifications": "Bật thông báo",
+		"enableNotificationsDesc": "Nhận tất cả thông báo từ ứng dụng",
+		"assessmentAssigned": "Được giao bài kiểm tra",
+		"assessmentAssignedDesc": "Thông báo khi được giao bài kiểm tra mới",
+		"assessmentReminders": "Nhắc nhở bài kiểm tra",
+		"assessmentRemindersDesc": "Thông báo khi có bài kiểm tra sắp diễn ra",
+		"gradeNotifications": "Thông báo điểm số",
+		"gradeNotificationsDesc": "Thông báo khi có điểm mới",
+		"comments": "Nhận xét & Phản hồi",
+		"commentsDesc": "Thông báo khi giáo viên nhận xét bài làm",
+		"systemUpdates": "Cập nhật hệ thống",
+		"systemUpdatesDesc": "Thông báo về các cập nhật và bảo trì",
+		"unsavedChanges": "Có thay đổi chưa lưu",
+		"saveChanges": "Lưu thay đổi"
+	}
+}

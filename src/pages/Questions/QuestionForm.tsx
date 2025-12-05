@@ -1,1076 +1,1074 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Form,
-  Input,
-  InputNumber,
-  Button,
-  Card,
-  Space,
-  Typography,
-  Row,
-  Col,
-  Select,
-  Spin,
-  Radio,
-  Checkbox,
-  Divider,
-  Tag,
-  Alert,
-} from 'antd';
-import {
-  SaveOutlined,
-  RollbackOutlined,
-  PlusOutlined,
-  DeleteOutlined,
+	DeleteOutlined,
+	PlusOutlined,
+	RollbackOutlined,
+	SaveOutlined,
 } from '@ant-design/icons';
-import { QuestionCreateRequest, QuestionType, DifficultyLevel } from '../../types';
+import {
+	Alert,
+	Button,
+	Card,
+	Checkbox,
+	Col,
+	Divider,
+	Form,
+	Input,
+	InputNumber,
+	Radio,
+	Row,
+	Select,
+	Space,
+	Spin,
+	Tag,
+	Typography,
+} from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import questionService from '../../services/questionService';
+import { DifficultyLevel, QuestionCreateRequest, QuestionType } from '../../types';
 import { showSuccess } from '../../utils/errorHandler';
 
 const { Title } = Typography;
 const { TextArea } = Input;
 
 const QuestionForm: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [questionType, setQuestionType] = useState<QuestionType>(
-    QuestionType.MultipleChoice
-  );
-  const isEdit = Boolean(id);
+	const navigate = useNavigate();
+	const { id } = useParams<{ id: string }>();
+	const { t } = useTranslation();
+	const [form] = Form.useForm();
+	const [loading, setLoading] = useState(false);
+	const [submitting, setSubmitting] = useState(false);
+	const [questionType, setQuestionType] = useState<QuestionType>(
+		QuestionType.MultipleChoice
+	);
+	const isEdit = Boolean(id);
 
-  useEffect(() => {
-    if (isEdit && id) {
-      fetchQuestion(parseInt(id));
-    }
-  }, [id]);
+	useEffect(() => {
+		if (isEdit && id) {
+			fetchQuestion(parseInt(id));
+		}
+	}, [id]);
 
-  const fetchQuestion = async (questionId: number) => {
-    setLoading(true);
-    try {
-      const question = await questionService.getQuestion(questionId);
-      // Convert tags array to comma-separated string for display in Input field
-      const formData = {
-        ...question,
-        tags: Array.isArray(question.tags) ? question.tags.join(', ') : question.tags,
-      };
-      form.setFieldsValue(formData);
-      setQuestionType(question.type);
-    } catch (error) {
-      // Error will be handled by axios interceptor
-      navigate('/questions');
-    } finally {
-      setLoading(false);
-    }
-  };
+	const fetchQuestion = async (questionId: number) => {
+		setLoading(true);
+		try {
+			const question = await questionService.getQuestion(questionId);
+			// Convert tags array to comma-separated string for display in Input field
+			const formData = {
+				...question,
+				tags: Array.isArray(question.tags) ? question.tags.join(', ') : question.tags,
+			};
+			form.setFieldsValue(formData);
+			setQuestionType(question.type);
+		} catch (error) {
+			// Error will be handled by axios interceptor
+			navigate('/questions');
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const onFinish = async (values: any) => {
-    setSubmitting(true);
-    try {
-      const data: QuestionCreateRequest = {
-        ...values,
-        tags: values.tags
-          ? Array.isArray(values.tags)
-            ? values.tags
-            : values.tags.split(',').map((tag: string) => tag.trim())
-          : [],
-      };
+	const onFinish = async (values: any) => {
+		setSubmitting(true);
+		try {
+			const data: QuestionCreateRequest = {
+				...values,
+				tags: values.tags
+					? Array.isArray(values.tags)
+						? values.tags
+						: values.tags.split(',').map((tag: string) => tag.trim())
+					: [],
+			};
 
-      // Auto-generate correct_order for Ordering questions
-      if (data.type === QuestionType.Ordering && data.content?.items) {
-        data.content.correct_order = data.content.items
-          .map((item: any) => item?.id)
-          .filter(Boolean);
-      }
+			// Auto-generate correct_order for Ordering questions
+			if (data.type === QuestionType.Ordering && data.content?.items) {
+				data.content.correct_order = data.content.items
+					.map((item: any) => item?.id)
+					.filter(Boolean);
+			}
 
-      if (isEdit && id) {
-        await questionService.updateQuestion(parseInt(id), data);
-        showSuccess('Cập nhật câu hỏi thành công');
-      } else {
-        await questionService.createQuestion(data);
-        showSuccess('Tạo câu hỏi thành công');
-      }
+			if (isEdit && id) {
+				await questionService.updateQuestion(parseInt(id), data);
+				showSuccess(t('questionForm.updateSuccess'));
+			} else {
+				await questionService.createQuestion(data);
+				showSuccess(t('questionForm.createSuccess'));
+			} navigate('/questions');
+		} catch (error) {
+			// Error will be handled by axios interceptor with notification
+		} finally {
+			setSubmitting(false);
+		}
+	};
 
-      navigate('/questions');
-    } catch (error) {
-      // Error will be handled by axios interceptor with notification
-    } finally {
-      setSubmitting(false);
-    }
-  };
+	const renderQuestionTypeContent = () => {
+		switch (questionType) {
+			case QuestionType.MultipleChoice:
+				return (
+					<Card title={t('questionForm.multipleChoice.title')} type="inner">
+						<Space direction="vertical" style={{ width: '100%' }} size="large">
+							{/* Options List */}
+							<Form.List name={['content', 'options']}>
+								{(fields, { add, remove }) => (
+									<>
+										{fields.map(({ key, name, ...restField }) => (
+											<Space
+												key={key}
+												style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }}
+												align="baseline"
+											>
+												<Form.Item
+													{...restField}
+													name={[name, 'id']}
+													rules={[{ required: true, message: t('questionForm.multipleChoice.enterId') }]}
+												>
+													<Input placeholder={t('questionForm.multipleChoice.idPlaceholder')} style={{ width: 80 }} />
+												</Form.Item>
+												<Form.Item
+													{...restField}
+													name={[name, 'text']}
+													rules={[{ required: true, message: t('questionForm.multipleChoice.enterContent') }]}
+												>
+													<Input placeholder={t('questionForm.multipleChoice.contentPlaceholder')} style={{ width: 300 }} />
+												</Form.Item>
+												<Form.Item
+													{...restField}
+													name={[name, 'image_url']}
+												>
+													<Input placeholder={t('questionForm.multipleChoice.imageUrlPlaceholder')} style={{ width: 200 }} />
+												</Form.Item>
+												<Form.Item
+													{...restField}
+													name={[name, 'order']}
+													rules={[{ required: true, message: t('questionForm.multipleChoice.enterOrder') }]}
+												>
+													<InputNumber placeholder={t('questionForm.multipleChoice.orderPlaceholder')} min={1} style={{ width: 80 }} />
+												</Form.Item>
+												<DeleteOutlined onClick={() => remove(name)} />
+											</Space>
+										))}
+										<Form.Item>
+											<Button
+												type="dashed"
+												onClick={() => add()}
+												block
+												icon={<PlusOutlined />}
+											>
+												{t('questionForm.multipleChoice.addOption')}
+											</Button>
+										</Form.Item>
+									</>
+								)}
+							</Form.List>
 
-  const renderQuestionTypeContent = () => {
-    switch (questionType) {
-      case QuestionType.MultipleChoice:
-        return (
-          <Card title="Cấu hình trắc nghiệm" type="inner">
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              {/* Options List */}
-              <Form.List name={['content', 'options']}>
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Space
-                        key={key}
-                        style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }}
-                        align="baseline"
-                      >
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'id']}
-                          rules={[{ required: true, message: 'Nhập ID' }]}
-                        >
-                          <Input placeholder="ID (a, b, c...)" style={{ width: 80 }} />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'text']}
-                          rules={[{ required: true, message: 'Nhập nội dung' }]}
-                        >
-                          <Input placeholder="Nội dung đáp án" style={{ width: 300 }} />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'image_url']}
-                        >
-                          <Input placeholder="URL hình ảnh (tùy chọn)" style={{ width: 200 }} />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'order']}
-                          rules={[{ required: true, message: 'Nhập thứ tự' }]}
-                        >
-                          <InputNumber placeholder="Thứ tự" min={1} style={{ width: 80 }} />
-                        </Form.Item>
-                        <DeleteOutlined onClick={() => remove(name)} />
-                      </Space>
-                    ))}
-                    <Form.Item>
-                      <Button
-                        type="dashed"
-                        onClick={() => add()}
-                        block
-                        icon={<PlusOutlined />}
-                      >
-                        Thêm đáp án
-                      </Button>
-                    </Form.Item>
-                  </>
-                )}
-              </Form.List>
+							{/* Correct Answers */}
+							<Form.Item
+								noStyle
+								shouldUpdate={(prevValues, currentValues) =>
+									prevValues.content?.options !== currentValues.content?.options
+								}
+							>
+								{({ getFieldValue }) => {
+									const options = getFieldValue(['content', 'options']) || [];
+									return (
+										<Form.Item
+											label={t('questionForm.multipleChoice.correctAnswer')}
+											name={['content', 'correct_answers']}
+											rules={[{ required: true, message: t('questionForm.multipleChoice.selectCorrectAnswer') }]}
+										>
+											<Select
+												mode="multiple"
+												placeholder={t('questionForm.multipleChoice.selectCorrectAnswer')}
+												style={{ width: '100%' }}
+												options={options.map((opt: any) => ({
+													label: `${opt?.id || ''} - ${opt?.text || ''}`,
+													value: opt?.id,
+												})).filter((opt: any) => opt.value)}
+											/>
+										</Form.Item>
+									);
+								}}
+							</Form.Item>
 
-              {/* Correct Answers */}
-              <Form.Item
-                noStyle
-                shouldUpdate={(prevValues, currentValues) =>
-                  prevValues.content?.options !== currentValues.content?.options
-                }
-              >
-                {({ getFieldValue }) => {
-                  const options = getFieldValue(['content', 'options']) || [];
-                  return (
-                    <Form.Item
-                      label="Đáp án đúng"
-                      name={['content', 'correct_answers']}
-                      rules={[{ required: true, message: 'Chọn đáp án đúng' }]}
-                    >
-                      <Select
-                        mode="multiple"
-                        placeholder="Chọn đáp án đúng (ID)"
-                        style={{ width: '100%' }}
-                        options={options.map((opt: any) => ({
-                          label: `${opt?.id || ''} - ${opt?.text || ''}`,
-                          value: opt?.id,
-                        })).filter((opt: any) => opt.value)}
-                      />
-                    </Form.Item>
-                  );
-                }}
-              </Form.Item>
+							{/* Settings */}
+							<Card title={t('questionForm.multipleChoice.settings')} type="inner" size="small">
+								<Row gutter={[16, 16]}>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'multiple_correct']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.multipleChoice.allowMultiple')}</Checkbox>
+										</Form.Item>
+									</Col>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'randomize_options']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.multipleChoice.randomizeOptions')}</Checkbox>
+										</Form.Item>
+									</Col>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'partial_credit']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.multipleChoice.partialCredit')}</Checkbox>
+										</Form.Item>
+									</Col>
+								</Row>
+							</Card>
+						</Space>
+					</Card>
+				); case QuestionType.TrueFalse:
+				return (
+					<Card title={t('questionForm.trueFalse.title')} type="inner">
+						<Space direction="vertical" style={{ width: '100%' }} size="large">
+							{/* Correct Answer */}
+							<Form.Item
+								label={t('questionForm.trueFalse.correctAnswer')}
+								name={['content', 'correct_answer']}
+								rules={[{ required: true, message: t('questionForm.trueFalse.selectCorrectAnswer') }]}
+							>
+								<Radio.Group>
+									<Radio value={true}>{t('questionForm.trueFalse.true')}</Radio>
+									<Radio value={false}>{t('questionForm.trueFalse.false')}</Radio>
+								</Radio.Group>
+							</Form.Item>
 
-              {/* Settings */}
-              <Card title="Cài đặt" type="inner" size="small">
-                <Row gutter={[16, 16]}>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'multiple_correct']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Cho phép nhiều đáp án đúng</Checkbox>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'randomize_options']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Xáo trộn thứ tự đáp án</Checkbox>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'partial_credit']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Cho điểm từng phần</Checkbox>
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
-            </Space>
-          </Card>
-        );
+							{/* Custom Labels */}
+							<Card title={t('questionForm.trueFalse.customLabels')} type="inner" size="small">
+								<Row gutter={16}>
+									<Col span={12}>
+										<Form.Item
+											label={t('questionForm.trueFalse.trueLabel')}
+											name={['content', 'true_label']}
+											tooltip={t('questionForm.trueFalse.trueLabelTooltip')}
+										>
+											<Input placeholder={t('questionForm.trueFalse.trueLabelPlaceholder')} />
+										</Form.Item>
+									</Col>
+									<Col span={12}>
+										<Form.Item
+											label={t('questionForm.trueFalse.falseLabel')}
+											name={['content', 'false_label']}
+											tooltip={t('questionForm.trueFalse.falseLabelTooltip')}
+										>
+											<Input placeholder={t('questionForm.trueFalse.falseLabelPlaceholder')} />
+										</Form.Item>
+									</Col>
+								</Row>
+							</Card>
+						</Space>
+					</Card>
+				);
 
-      case QuestionType.TrueFalse:
-        return (
-          <Card title="Cấu hình Đúng/Sai" type="inner">
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              {/* Correct Answer */}
-              <Form.Item
-                label="Đáp án đúng"
-                name={['content', 'correct_answer']}
-                rules={[{ required: true, message: 'Chọn đáp án đúng' }]}
-              >
-                <Radio.Group>
-                  <Radio value={true}>Đúng</Radio>
-                  <Radio value={false}>Sai</Radio>
-                </Radio.Group>
-              </Form.Item>
+			case QuestionType.Essay:
+				return (
+					<Card title={t('questionForm.essay.title')} type="inner">
+						<Space direction="vertical" style={{ width: '100%' }} size="large">
+							{/* Word Limits */}
+							<Row gutter={16}>
+								<Col span={12}>
+									<Form.Item
+										label={t('questionForm.essay.minWords')}
+										name={['content', 'min_words']}
+									>
+										<InputNumber min={0} style={{ width: '100%' }} placeholder={t('questionForm.essay.minWordsPlaceholder')} />
+									</Form.Item>
+								</Col>
+								<Col span={12}>
+									<Form.Item
+										label={t('questionForm.essay.maxWords')}
+										name={['content', 'max_words']}
+									>
+										<InputNumber min={0} style={{ width: '100%' }} placeholder={t('questionForm.essay.maxWordsPlaceholder')} />
+									</Form.Item>
+								</Col>
+							</Row>
 
-              {/* Custom Labels */}
-              <Card title="Nhãn tùy chỉnh (tùy chọn)" type="inner" size="small">
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      label="Nhãn cho 'Đúng'"
-                      name={['content', 'true_label']}
-                      tooltip="VD: Đồng ý, Có, True"
-                    >
-                      <Input placeholder="Mặc định: Đúng" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      label="Nhãn cho 'Sai'"
-                      name={['content', 'false_label']}
-                      tooltip="VD: Không đồng ý, Không, False"
-                    >
-                      <Input placeholder="Mặc định: Sai" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
-            </Space>
-          </Card>
-        );
+							{/* Suggested Length */}
+							<Form.Item
+								label={t('questionForm.essay.suggestedLength')}
+								name={['content', 'suggested_length']}
+								tooltip={t('questionForm.essay.suggestedLengthTooltip')}
+							>
+								<Input placeholder={t('questionForm.essay.suggestedLengthPlaceholder')} />
+							</Form.Item>
 
-      case QuestionType.Essay:
-        return (
-          <Card title="Cấu hình Tự luận" type="inner">
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              {/* Word Limits */}
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    label="Số từ tối thiểu (tùy chọn)"
-                    name={['content', 'min_words']}
-                  >
-                    <InputNumber min={0} style={{ width: '100%' }} placeholder="VD: 100" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    label="Số từ tối đa (tùy chọn)"
-                    name={['content', 'max_words']}
-                  >
-                    <InputNumber min={0} style={{ width: '100%' }} placeholder="VD: 500" />
-                  </Form.Item>
-                </Col>
-              </Row>
+							{/* Rubric Criteria */}
+							<Card title={t('questionForm.essay.rubricCriteria')} type="inner" size="small">
+								<Form.Item
+									label={t('questionForm.essay.rubricCriteriaLabel')}
+									name={['content', 'rubric_criteria']}
+									tooltip={t('questionForm.essay.rubricCriteriaTooltip')}
+								>
+									<Select
+										mode="tags"
+										placeholder={t('questionForm.essay.rubricCriteriaPlaceholder')}
+										style={{ width: '100%' }}
+									/>
+								</Form.Item>
+							</Card>
 
-              {/* Suggested Length */}
-              <Form.Item
-                label="Độ dài gợi ý"
-                name={['content', 'suggested_length']}
-                tooltip="VD: 2-3 đoạn văn, 200-300 từ, 1 trang A4"
-              >
-                <Input placeholder="VD: 2-3 đoạn văn" />
-              </Form.Item>
+							{/* Sample Answer */}
+							<Form.Item
+								label={t('questionForm.essay.sampleAnswer')}
+								name={['content', 'sample_answer']}
+								tooltip={t('questionForm.essay.sampleAnswerTooltip')}
+							>
+								<TextArea
+									rows={6}
+									placeholder={t('questionForm.essay.sampleAnswerPlaceholder')}
+								/>
+							</Form.Item>
 
-              {/* Rubric Criteria */}
-              <Card title="Tiêu chí đánh giá (Rubric)" type="inner" size="small">
-                <Form.Item
-                  label="Các tiêu chí chấm điểm"
-                  name={['content', 'rubric_criteria']}
-                  tooltip="Nhấn Enter để thêm tiêu chí mới"
-                >
-                  <Select
-                    mode="tags"
-                    placeholder="VD: Nội dung, Ngữ pháp, Cấu trúc..."
-                    style={{ width: '100%' }}
-                  />
-                </Form.Item>
-              </Card>
+							{/* Auto Grading Settings */}
+							<Card title={t('questionForm.essay.autoGradeSettings')} type="inner" size="small">
+								<Space direction="vertical" style={{ width: '100%' }} size="middle">
+									<Form.Item
+										name={['content', 'auto_grade']}
+										valuePropName="checked"
+									>
+										<Checkbox>{t('questionForm.essay.enableAutoGrade')}</Checkbox>
+									</Form.Item>
 
-              {/* Sample Answer */}
-              <Form.Item
-                label="Đáp án mẫu (tùy chọn)"
-                name={['content', 'sample_answer']}
-                tooltip="Đáp án tham khảo cho giáo viên"
-              >
-                <TextArea
-                  rows={6}
-                  placeholder="Nhập đáp án mẫu để giáo viên tham khảo khi chấm bài..."
-                />
-              </Form.Item>
+									<Form.Item
+										noStyle
+										shouldUpdate={(prevValues, currentValues) =>
+											prevValues.content?.auto_grade !== currentValues.content?.auto_grade
+										}
+									>
+										{({ getFieldValue }) => {
+											const autoGrade = getFieldValue(['content', 'auto_grade']);
 
-              {/* Auto Grading Settings */}
-              <Card title="Cài đặt tự động chấm điểm" type="inner" size="small">
-                <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                  <Form.Item
-                    name={['content', 'auto_grade']}
-                    valuePropName="checked"
-                  >
-                    <Checkbox>Bật chấm điểm tự động</Checkbox>
-                  </Form.Item>
+											return autoGrade ? (
+												<Form.Item
+													label={t('questionForm.essay.keywords')}
+													name={['content', 'key_words']}
+													tooltip={t('questionForm.essay.keywordsTooltip')}
+												>
+													<Select
+														mode="tags"
+														placeholder={t('questionForm.essay.keywordsPlaceholder')}
+														style={{ width: '100%' }}
+													/>
+												</Form.Item>
+											) : null;
+										}}
+									</Form.Item>
+								</Space>
+							</Card>
 
-                  <Form.Item
-                    noStyle
-                    shouldUpdate={(prevValues, currentValues) =>
-                      prevValues.content?.auto_grade !== currentValues.content?.auto_grade
-                    }
-                  >
-                    {({ getFieldValue }) => {
-                      const autoGrade = getFieldValue(['content', 'auto_grade']);
+							<Alert
+								message={t('questionForm.essay.autoGradeNote')}
+								description={t('questionForm.essay.autoGradeNoteDesc')}
+								type="warning"
+								showIcon
+							/>
+						</Space>
+					</Card>
+				);
 
-                      return autoGrade ? (
-                        <Form.Item
-                          label="Từ khóa quan trọng"
-                          name={['content', 'key_words']}
-                          tooltip="Các từ khóa cần có trong bài làm để tự động tính điểm"
-                        >
-                          <Select
-                            mode="tags"
-                            placeholder="Nhập các từ khóa quan trọng (nhấn Enter để thêm)"
-                            style={{ width: '100%' }}
-                          />
-                        </Form.Item>
-                      ) : null;
-                    }}
-                  </Form.Item>
-                </Space>
-              </Card>
+			case QuestionType.FillBlank:
+				return (
+					<Card title={t('questionForm.fillBlank.title')} type="inner">
+						<Form.Item
+							label={t('questionForm.fillBlank.template')}
+							name={['content', 'template']}
+							rules={[{ required: true, message: t('questionForm.fillBlank.templateRequired') }]}
+							tooltip={t('questionForm.fillBlank.templateTooltip')}
+						>
+							<TextArea
+								rows={3}
+								placeholder={t('questionForm.fillBlank.templatePlaceholder')}
+								showCount
+							/>
+						</Form.Item>
 
-              <Alert
-                message="Lưu ý về chấm điểm tự động"
-                description="Chấm điểm tự động sẽ dựa trên: số từ, từ khóa quan trọng. Giáo viên vẫn nên xem xét và điều chỉnh điểm thủ công."
-                type="warning"
-                showIcon
-              />
-            </Space>
-          </Card>
-        );
+						<Row gutter={16}>
+							<Col span={12}>
+								<Form.Item
+									label={t('questionForm.fillBlank.caseSensitive')}
+									name={['content', 'case_sensitive']}
+									valuePropName="checked"
+								>
+									<Checkbox>{t('questionForm.fillBlank.caseSensitiveLabel')}</Checkbox>
+								</Form.Item>
+							</Col>
+							<Col span={12}>
+								<Form.Item
+									label={t('questionForm.fillBlank.trimSpaces')}
+									name={['content', 'trim_spaces']}
+									valuePropName="checked"
+								>
+									<Checkbox>{t('questionForm.fillBlank.trimSpacesLabel')}</Checkbox>
+								</Form.Item>
+							</Col>
+						</Row>
 
-      case QuestionType.FillBlank:
-        return (
-          <Card title="Cấu hình Điền khuyết" type="inner">
-            <Form.Item
-              label="Template câu hỏi"
-              name={['content', 'template']}
-              rules={[{ required: true, message: 'Nhập template câu hỏi' }]}
-              tooltip="Sử dụng {blank1}, {blank2}, ... để đánh dấu vị trí cần điền"
-            >
-              <TextArea
-                rows={3}
-                placeholder="VD: The capital of {blank1} is {blank2}"
-                showCount
-              />
-            </Form.Item>
+						<Divider>{t('questionForm.fillBlank.blankConfig')}</Divider>
 
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Phân biệt hoa thường"
-                  name={['content', 'case_sensitive']}
-                  valuePropName="checked"
-                >
-                  <Checkbox>Đáp án có phân biệt hoa thường</Checkbox>
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label="Tự động xóa khoảng trắng"
-                  name={['content', 'trim_spaces']}
-                  valuePropName="checked"
-                >
-                  <Checkbox>Tự động xóa khoảng trắng đầu cuối</Checkbox>
-                </Form.Item>
-              </Col>
-            </Row>
+						<Form.Item
+							noStyle
+							shouldUpdate={(prevValues, currentValues) =>
+								prevValues.content?.template !== currentValues.content?.template
+							}
+						>
+							{({ getFieldValue }) => {
+								const template = getFieldValue(['content', 'template']) || '';
+								const blankMatches = template.match(/\{blank\d+\}/g) || [];
+								const uniqueBlanks = Array.from(new Set(blankMatches)).sort() as string[];
 
-            <Divider>Cấu hình các chỗ trống</Divider>
+								return (
+									<>
+										{uniqueBlanks.length > 0 ? (
+											<Space direction="vertical" style={{ width: '100%' }} size="large">
+												{uniqueBlanks.map((blankPlaceholder: string) => {
+													const blankId = blankPlaceholder.replace(/[{}]/g, '');
+													return (
+														<Card
+															key={blankId}
+															type="inner"
+															size="small"
+															title={`${t('questionForm.fillBlank.blankTitle')}: ${blankPlaceholder}`}
+														>
+															<Form.Item
+																label={t('questionForm.fillBlank.acceptedAnswers')}
+																name={['content', 'blanks', blankId, 'accepted_answers']}
+																rules={[{ required: true, message: t('questionForm.fillBlank.acceptedAnswersRequired') }]}
+															>
+																<Select
+																	mode="tags"
+																	placeholder={t('questionForm.fillBlank.acceptedAnswersPlaceholder')}
+																	style={{ width: '100%' }}
+																/>
+															</Form.Item>
 
-            <Form.Item
-              noStyle
-              shouldUpdate={(prevValues, currentValues) =>
-                prevValues.content?.template !== currentValues.content?.template
-              }
-            >
-              {({ getFieldValue }) => {
-                const template = getFieldValue(['content', 'template']) || '';
-                const blankMatches = template.match(/\{blank\d+\}/g) || [];
-                const uniqueBlanks = Array.from(new Set(blankMatches)).sort();
+															<Row gutter={16}>
+																<Col span={12}>
+																	<Form.Item
+																		label={t('questionForm.fillBlank.blankPoints')}
+																		name={['content', 'blanks', blankId, 'points']}
+																		rules={[{ required: true, message: t('questionForm.fillBlank.blankPointsRequired') }]}
+																	>
+																		<InputNumber
+																			min={1}
+																			max={100}
+																			style={{ width: '100%' }}
+																			placeholder={t('questionForm.fillBlank.blankPointsPlaceholder')}
+																		/>
+																	</Form.Item>
+																</Col>
+																<Col span={12}>
+																	<Form.Item
+																		label={t('questionForm.fillBlank.placeholderText')}
+																		name={['content', 'blanks', blankId, 'placeholder_text']}
+																	>
+																		<Input placeholder={t('questionForm.fillBlank.placeholderTextPlaceholder')} />
+																	</Form.Item>
+																</Col>
+															</Row>
+														</Card>
+													);
+												})}
+											</Space>
+										) : (
+											<Typography.Text type="secondary">
+												{t('questionForm.fillBlank.templateHint')}
+											</Typography.Text>
+										)}
+									</>
+								);
+							}}
+						</Form.Item>
+					</Card>
+				);
 
-                return (
-                  <>
-                    {uniqueBlanks.length > 0 ? (
-                      <Space direction="vertical" style={{ width: '100%' }} size="large">
-                        {uniqueBlanks.map((blankPlaceholder) => {
-                          const blankId = blankPlaceholder.replace(/[{}]/g, '');
-                          return (
-                            <Card
-                              key={blankId}
-                              type="inner"
-                              size="small"
-                              title={`Chỗ trống: ${blankPlaceholder}`}
-                            >
-                              <Form.Item
-                                label="Các đáp án chấp nhận"
-                                name={['content', 'blanks', blankId, 'accepted_answers']}
-                                rules={[{ required: true, message: 'Nhập ít nhất 1 đáp án' }]}
-                              >
-                                <Select
-                                  mode="tags"
-                                  placeholder="Nhập các đáp án (nhấn Enter để thêm nhiều)"
-                                  style={{ width: '100%' }}
-                                />
-                              </Form.Item>
+			case QuestionType.Matching:
+				return (
+					<Card title={t('questionForm.matching.title')} type="inner">
+						<Space direction="vertical" style={{ width: '100%' }} size="large">
+							{/* Left Items */}
+							<Card title={t('questionForm.matching.leftItems')} type="inner" size="small">
+								<Form.List name={['content', 'left_items']}>
+									{(fields, { add, remove }) => (
+										<>
+											{fields.map(({ key, name, ...restField }) => (
+												<Space
+													key={key}
+													style={{ display: 'flex', marginBottom: 8 }}
+													align="baseline"
+												>
+													<Form.Item
+														{...restField}
+														name={[name, 'id']}
+														rules={[{ required: true, message: t('questionForm.matching.enterId') }]}
+													>
+														<Input placeholder={t('questionForm.matching.leftIdPlaceholder')} style={{ width: 100 }} />
+													</Form.Item>
+													<Form.Item
+														{...restField}
+														name={[name, 'text']}
+														rules={[{ required: true, message: t('questionForm.matching.enterContent') }]}
+													>
+														<Input placeholder={t('questionForm.matching.contentPlaceholder')} style={{ width: 300 }} />
+													</Form.Item>
+													<Form.Item
+														{...restField}
+														name={[name, 'image_url']}
+													>
+														<Input placeholder={t('questionForm.matching.imageUrlPlaceholder')} style={{ width: 200 }} />
+													</Form.Item>
+													<DeleteOutlined onClick={() => remove(name)} />
+												</Space>
+											))}
+											<Form.Item>
+												<Button
+													type="dashed"
+													onClick={() => add()}
+													block
+													icon={<PlusOutlined />}
+												>
+													{t('questionForm.matching.addLeftItem')}
+												</Button>
+											</Form.Item>
+										</>
+									)}
+								</Form.List>
+							</Card>
 
-                              <Row gutter={16}>
-                                <Col span={12}>
-                                  <Form.Item
-                                    label="Điểm số"
-                                    name={['content', 'blanks', blankId, 'points']}
-                                    rules={[{ required: true, message: 'Nhập điểm số' }]}
-                                  >
-                                    <InputNumber
-                                      min={1}
-                                      max={100}
-                                      style={{ width: '100%' }}
-                                      placeholder="Điểm cho chỗ trống này"
-                                    />
-                                  </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                  <Form.Item
-                                    label="Text gợi ý (tùy chọn)"
-                                    name={['content', 'blanks', blankId, 'placeholder_text']}
-                                  >
-                                    <Input placeholder="VD: Nhập tên quốc gia" />
-                                  </Form.Item>
-                                </Col>
-                              </Row>
-                            </Card>
-                          );
-                        })}
-                      </Space>
-                    ) : (
-                      <Typography.Text type="secondary">
-                        Nhập template với {'{blank1}'}, {'{blank2}'}, ... để hiển thị cấu hình các chỗ trống
-                      </Typography.Text>
-                    )}
-                  </>
-                );
-              }}
-            </Form.Item>
-          </Card>
-        );
+							{/* Right Items */}
+							<Card title={t('questionForm.matching.rightItems')} type="inner" size="small">
+								<Form.List name={['content', 'right_items']}>
+									{(fields, { add, remove }) => (
+										<>
+											{fields.map(({ key, name, ...restField }) => (
+												<Space
+													key={key}
+													style={{ display: 'flex', marginBottom: 8 }}
+													align="baseline"
+												>
+													<Form.Item
+														{...restField}
+														name={[name, 'id']}
+														rules={[{ required: true, message: t('questionForm.matching.enterId') }]}
+													>
+														<Input placeholder={t('questionForm.matching.rightIdPlaceholder')} style={{ width: 100 }} />
+													</Form.Item>
+													<Form.Item
+														{...restField}
+														name={[name, 'text']}
+														rules={[{ required: true, message: t('questionForm.matching.enterContent') }]}
+													>
+														<Input placeholder={t('questionForm.matching.contentPlaceholder')} style={{ width: 300 }} />
+													</Form.Item>
+													<Form.Item
+														{...restField}
+														name={[name, 'image_url']}
+													>
+														<Input placeholder={t('questionForm.matching.imageUrlPlaceholder')} style={{ width: 200 }} />
+													</Form.Item>
+													<DeleteOutlined onClick={() => remove(name)} />
+												</Space>
+											))}
+											<Form.Item>
+												<Button
+													type="dashed"
+													onClick={() => add()}
+													block
+													icon={<PlusOutlined />}
+												>
+													{t('questionForm.matching.addRightItem')}
+												</Button>
+											</Form.Item>
+										</>
+									)}
+								</Form.List>
+							</Card>
 
-      case QuestionType.Matching:
-        return (
-          <Card title="Cấu hình Ghép cặp" type="inner">
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              {/* Left Items */}
-              <Card title="Danh sách bên trái" type="inner" size="small">
-                <Form.List name={['content', 'left_items']}>
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{ display: 'flex', marginBottom: 8 }}
-                          align="baseline"
-                        >
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'id']}
-                            rules={[{ required: true, message: 'Nhập ID' }]}
-                          >
-                            <Input placeholder="ID (L1, L2...)" style={{ width: 100 }} />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'text']}
-                            rules={[{ required: true, message: 'Nhập nội dung' }]}
-                          >
-                            <Input placeholder="Nội dung" style={{ width: 300 }} />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'image_url']}
-                          >
-                            <Input placeholder="URL hình ảnh (tùy chọn)" style={{ width: 200 }} />
-                          </Form.Item>
-                          <DeleteOutlined onClick={() => remove(name)} />
-                        </Space>
-                      ))}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          block
-                          icon={<PlusOutlined />}
-                        >
-                          Thêm item bên trái
-                        </Button>
-                      </Form.Item>
-                    </>
-                  )}
-                </Form.List>
-              </Card>
+							{/* Correct Pairs */}
+							<Card title={t('questionForm.matching.correctPairs')} type="inner" size="small">
+								<Form.Item
+									noStyle
+									shouldUpdate={(prevValues, currentValues) =>
+										prevValues.content?.left_items !== currentValues.content?.left_items ||
+										prevValues.content?.right_items !== currentValues.content?.right_items
+									}
+								>
+									{({ getFieldValue }) => {
+										const leftItems = getFieldValue(['content', 'left_items']) || [];
+										const rightItems = getFieldValue(['content', 'right_items']) || [];
 
-              {/* Right Items */}
-              <Card title="Danh sách bên phải" type="inner" size="small">
-                <Form.List name={['content', 'right_items']}>
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{ display: 'flex', marginBottom: 8 }}
-                          align="baseline"
-                        >
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'id']}
-                            rules={[{ required: true, message: 'Nhập ID' }]}
-                          >
-                            <Input placeholder="ID (R1, R2...)" style={{ width: 100 }} />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'text']}
-                            rules={[{ required: true, message: 'Nhập nội dung' }]}
-                          >
-                            <Input placeholder="Nội dung" style={{ width: 300 }} />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'image_url']}
-                          >
-                            <Input placeholder="URL hình ảnh (tùy chọn)" style={{ width: 200 }} />
-                          </Form.Item>
-                          <DeleteOutlined onClick={() => remove(name)} />
-                        </Space>
-                      ))}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          block
-                          icon={<PlusOutlined />}
-                        >
-                          Thêm item bên phải
-                        </Button>
-                      </Form.Item>
-                    </>
-                  )}
-                </Form.List>
-              </Card>
+										return (
+											<Form.List name={['content', 'correct_pairs']}>
+												{(fields, { add, remove }) => (
+													<>
+														{fields.map(({ key, name, ...restField }) => (
+															<Space
+																key={key}
+																style={{ display: 'flex', marginBottom: 8 }}
+																align="baseline"
+															>
+																<Form.Item
+																	{...restField}
+																	name={[name, 'left_id']}
+																	rules={[{ required: true, message: t('questionForm.matching.selectLeft') }]}
+																>
+																	<Select
+																		placeholder={t('questionForm.matching.selectLeftPlaceholder')}
+																		style={{ width: 250 }}
+																		options={leftItems.map((item: any) => ({
+																			label: `${item?.id || ''} - ${item?.text || ''}`,
+																			value: item?.id,
+																		})).filter((opt: any) => opt.value)}
+																	/>
+																</Form.Item>
+																<span>⟷</span>
+																<Form.Item
+																	{...restField}
+																	name={[name, 'right_id']}
+																	rules={[{ required: true, message: t('questionForm.matching.selectRight') }]}
+																>
+																	<Select
+																		placeholder={t('questionForm.matching.selectRightPlaceholder')}
+																		style={{ width: 250 }}
+																		options={rightItems.map((item: any) => ({
+																			label: `${item?.id || ''} - ${item?.text || ''}`,
+																			value: item?.id,
+																		})).filter((opt: any) => opt.value)}
+																	/>
+																</Form.Item>
+																<DeleteOutlined onClick={() => remove(name)} />
+															</Space>
+														))}
+														<Form.Item>
+															<Button
+																type="dashed"
+																onClick={() => add()}
+																block
+																icon={<PlusOutlined />}
+																disabled={leftItems.length === 0 || rightItems.length === 0}
+															>
+																{t('questionForm.matching.addPair')}
+															</Button>
+														</Form.Item>
+														{(leftItems.length === 0 || rightItems.length === 0) && (
+															<Typography.Text type="secondary">
+																{t('questionForm.matching.addPairHint')}
+															</Typography.Text>
+														)}
+													</>
+												)}
+											</Form.List>
+										);
+									}}
+								</Form.Item>
+							</Card>
 
-              {/* Correct Pairs */}
-              <Card title="Các cặp ghép đúng" type="inner" size="small">
-                <Form.Item
-                  noStyle
-                  shouldUpdate={(prevValues, currentValues) =>
-                    prevValues.content?.left_items !== currentValues.content?.left_items ||
-                    prevValues.content?.right_items !== currentValues.content?.right_items
-                  }
-                >
-                  {({ getFieldValue }) => {
-                    const leftItems = getFieldValue(['content', 'left_items']) || [];
-                    const rightItems = getFieldValue(['content', 'right_items']) || [];
+							{/* Settings */}
+							<Card title={t('questionForm.matching.settings')} type="inner" size="small">
+								<Row gutter={16}>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'randomize_left']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.matching.randomizeLeft')}</Checkbox>
+										</Form.Item>
+									</Col>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'randomize_right']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.matching.randomizeRight')}</Checkbox>
+										</Form.Item>
+									</Col>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'partial_credit']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.matching.partialCredit')}</Checkbox>
+										</Form.Item>
+									</Col>
+								</Row>
+							</Card>
+						</Space>
+					</Card>
+				);
 
-                    return (
-                      <Form.List name={['content', 'correct_pairs']}>
-                        {(fields, { add, remove }) => (
-                          <>
-                            {fields.map(({ key, name, ...restField }) => (
-                              <Space
-                                key={key}
-                                style={{ display: 'flex', marginBottom: 8 }}
-                                align="baseline"
-                              >
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, 'left_id']}
-                                  rules={[{ required: true, message: 'Chọn item trái' }]}
-                                >
-                                  <Select
-                                    placeholder="Chọn bên trái"
-                                    style={{ width: 250 }}
-                                    options={leftItems.map((item: any) => ({
-                                      label: `${item?.id || ''} - ${item?.text || ''}`,
-                                      value: item?.id,
-                                    })).filter((opt: any) => opt.value)}
-                                  />
-                                </Form.Item>
-                                <span>⟷</span>
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, 'right_id']}
-                                  rules={[{ required: true, message: 'Chọn item phải' }]}
-                                >
-                                  <Select
-                                    placeholder="Chọn bên phải"
-                                    style={{ width: 250 }}
-                                    options={rightItems.map((item: any) => ({
-                                      label: `${item?.id || ''} - ${item?.text || ''}`,
-                                      value: item?.id,
-                                    })).filter((opt: any) => opt.value)}
-                                  />
-                                </Form.Item>
-                                <DeleteOutlined onClick={() => remove(name)} />
-                              </Space>
-                            ))}
-                            <Form.Item>
-                              <Button
-                                type="dashed"
-                                onClick={() => add()}
-                                block
-                                icon={<PlusOutlined />}
-                                disabled={leftItems.length === 0 || rightItems.length === 0}
-                              >
-                                Thêm cặp ghép đúng
-                              </Button>
-                            </Form.Item>
-                            {(leftItems.length === 0 || rightItems.length === 0) && (
-                              <Typography.Text type="secondary">
-                                Vui lòng thêm ít nhất 1 item ở cả 2 bên trước khi tạo cặp ghép
-                              </Typography.Text>
-                            )}
-                          </>
-                        )}
-                      </Form.List>
-                    );
-                  }}
-                </Form.Item>
-              </Card>
+			case QuestionType.Ordering:
+				return (
+					<Card title={t('questionForm.ordering.title')} type="inner">
+						<Space direction="vertical" style={{ width: '100%' }} size="large">
+							{/* Items List */}
+							<Card title={t('questionForm.ordering.itemsList')} type="inner" size="small">
+								<Form.List name={['content', 'items']}>
+									{(fields, { add, remove }) => (
+										<>
+											{fields.map(({ key, name, ...restField }) => (
+												<Space
+													key={key}
+													style={{ display: 'flex', marginBottom: 8 }}
+													align="baseline"
+												>
+													<Typography.Text style={{ minWidth: '30px' }}>
+														{name + 1}.
+													</Typography.Text>
+													<Form.Item
+														{...restField}
+														name={[name, 'id']}
+														rules={[{ required: true, message: t('questionForm.ordering.enterId') }]}
+													>
+														<Input placeholder={t('questionForm.ordering.idPlaceholder')} style={{ width: 100 }} />
+													</Form.Item>
+													<Form.Item
+														{...restField}
+														name={[name, 'text']}
+														rules={[{ required: true, message: t('questionForm.ordering.enterContent') }]}
+													>
+														<Input placeholder={t('questionForm.ordering.contentPlaceholder')} style={{ width: 350 }} />
+													</Form.Item>
+													<Form.Item
+														{...restField}
+														name={[name, 'image_url']}
+													>
+														<Input placeholder={t('questionForm.ordering.imageUrlPlaceholder')} style={{ width: 200 }} />
+													</Form.Item>
+													<DeleteOutlined onClick={() => remove(name)} />
+												</Space>
+											))}
+											<Form.Item>
+												<Button
+													type="dashed"
+													onClick={() => add()}
+													block
+													icon={<PlusOutlined />}
+												>
+													{t('questionForm.ordering.addItem')}
+												</Button>
+											</Form.Item>
+										</>
+									)}
+								</Form.List>
+								<Typography.Text type="secondary">
+									{t('questionForm.ordering.orderNote')}
+								</Typography.Text>
+							</Card>
 
-              {/* Settings */}
-              <Card title="Cài đặt" type="inner" size="small">
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'randomize_left']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Xáo trộn danh sách trái</Checkbox>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'randomize_right']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Xáo trộn danh sách phải</Checkbox>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'partial_credit']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Cho điểm từng phần</Checkbox>
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
-            </Space>
-          </Card>
-        );
+							{/* Correct Order (Auto-generated preview) */}
+							<Card title={t('questionForm.ordering.correctOrder')} type="inner" size="small">
+								<Form.Item
+									noStyle
+									shouldUpdate={(prevValues, currentValues) =>
+										prevValues.content?.items !== currentValues.content?.items
+									}
+								>
+									{({ getFieldValue }) => {
+										const items = getFieldValue(['content', 'items']) || [];
 
-      case QuestionType.Ordering:
-        return (
-          <Card title="Cấu hình Sắp xếp" type="inner">
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              {/* Items List */}
-              <Card title="Danh sách items" type="inner" size="small">
-                <Form.List name={['content', 'items']}>
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{ display: 'flex', marginBottom: 8 }}
-                          align="baseline"
-                        >
-                          <Typography.Text style={{ minWidth: '30px' }}>
-                            {name + 1}.
-                          </Typography.Text>
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'id']}
-                            rules={[{ required: true, message: 'Nhập ID' }]}
-                          >
-                            <Input placeholder="ID (O1, O2...)" style={{ width: 100 }} />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'text']}
-                            rules={[{ required: true, message: 'Nhập nội dung' }]}
-                          >
-                            <Input placeholder="Nội dung cần sắp xếp" style={{ width: 350 }} />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'image_url']}
-                          >
-                            <Input placeholder="URL hình ảnh (tùy chọn)" style={{ width: 200 }} />
-                          </Form.Item>
-                          <DeleteOutlined onClick={() => remove(name)} />
-                        </Space>
-                      ))}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          block
-                          icon={<PlusOutlined />}
-                        >
-                          Thêm item
-                        </Button>
-                      </Form.Item>
-                    </>
-                  )}
-                </Form.List>
-                <Typography.Text type="secondary">
-                  Lưu ý: Thứ tự hiện tại là thứ tự đúng. Hệ thống sẽ tự động tạo correct_order từ thứ tự các items.
-                </Typography.Text>
-              </Card>
+										// Auto-generate correct_order from items order
+										const correctOrder = items.map((item: any) => item?.id).filter(Boolean);
 
-              {/* Correct Order (Auto-generated preview) */}
-              <Card title="Thứ tự đúng" type="inner" size="small">
-                <Form.Item
-                  noStyle
-                  shouldUpdate={(prevValues, currentValues) =>
-                    prevValues.content?.items !== currentValues.content?.items
-                  }
-                >
-                  {({ getFieldValue }) => {
-                    const items = getFieldValue(['content', 'items']) || [];
+										return (
+											<>
+												{correctOrder.length > 0 ? (
+													<Space wrap>
+														{correctOrder.map((id: string, index: number) => (
+															<Tag key={id} color="blue">
+																{index + 1}. {id}
+															</Tag>
+														))}
+													</Space>
+												) : (
+													<Typography.Text type="secondary">
+														{t('questionForm.ordering.noItems')}
+													</Typography.Text>
+												)}
+												{/* Hidden field to store correct_order */}
+												<Form.Item
+													name={['content', 'correct_order']}
+													hidden
+													initialValue={correctOrder}
+												>
+													<Input />
+												</Form.Item>
+											</>
+										);
+									}}
+								</Form.Item>
+							</Card>
 
-                    // Auto-generate correct_order from items order
-                    const correctOrder = items.map((item: any) => item?.id).filter(Boolean);
+							{/* Settings */}
+							<Card title={t('questionForm.ordering.settings')} type="inner" size="small">
+								<Row gutter={16}>
+									<Col span={12}>
+										<Form.Item
+											name={['content', 'randomize_initial']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.ordering.randomizeInitial')}</Checkbox>
+										</Form.Item>
+									</Col>
+									<Col span={12}>
+										<Form.Item
+											name={['content', 'partial_credit']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.ordering.partialCredit')}</Checkbox>
+										</Form.Item>
+									</Col>
+								</Row>
+							</Card>
+						</Space>
+					</Card>
+				);
 
-                    return (
-                      <>
-                        {correctOrder.length > 0 ? (
-                          <Space wrap>
-                            {correctOrder.map((id: string, index: number) => (
-                              <Tag key={id} color="blue">
-                                {index + 1}. {id}
-                              </Tag>
-                            ))}
-                          </Space>
-                        ) : (
-                          <Typography.Text type="secondary">
-                            Chưa có items nào. Thêm items ở trên để xem thứ tự đúng.
-                          </Typography.Text>
-                        )}
-                        {/* Hidden field to store correct_order */}
-                        <Form.Item
-                          name={['content', 'correct_order']}
-                          hidden
-                          initialValue={correctOrder}
-                        >
-                          <Input />
-                        </Form.Item>
-                      </>
-                    );
-                  }}
-                </Form.Item>
-              </Card>
+			case QuestionType.ShortAnswer:
+				return (
+					<Card title={t('questionForm.shortAnswer.title')} type="inner">
+						<Space direction="vertical" style={{ width: '100%' }} size="large">
+							{/* Accepted Answers */}
+							<Form.Item
+								label={t('questionForm.shortAnswer.acceptedAnswers')}
+								name={['content', 'accepted_answers']}
+								rules={[{ required: true, message: t('questionForm.shortAnswer.acceptedAnswersRequired') }]}
+								tooltip={t('questionForm.shortAnswer.acceptedAnswersTooltip')}
+							>
+								<Select
+									mode="tags"
+									placeholder={t('questionForm.shortAnswer.acceptedAnswersPlaceholder')}
+									style={{ width: '100%' }}
+								/>
+							</Form.Item>
 
-              {/* Settings */}
-              <Card title="Cài đặt" type="inner" size="small">
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      name={['content', 'randomize_initial']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Xáo trộn thứ tự ban đầu</Checkbox>
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      name={['content', 'partial_credit']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Cho điểm từng phần</Checkbox>
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
-            </Space>
-          </Card>
-        );
+							{/* Placeholder Text */}
+							<Form.Item
+								label={t('questionForm.shortAnswer.placeholderText')}
+								name={['content', 'placeholder_text']}
+							>
+								<Input placeholder={t('questionForm.shortAnswer.placeholderTextPlaceholder')} />
+							</Form.Item>
 
-      case QuestionType.ShortAnswer:
-        return (
-          <Card title="Cấu hình Trả lời ngắn" type="inner">
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              {/* Accepted Answers */}
-              <Form.Item
-                label="Đáp án chấp nhận"
-                name={['content', 'accepted_answers']}
-                rules={[{ required: true, message: 'Nhập ít nhất 1 đáp án chấp nhận' }]}
-                tooltip="Nhấn Enter để thêm nhiều đáp án"
-              >
-                <Select
-                  mode="tags"
-                  placeholder="Nhập các đáp án chấp nhận (có thể nhiều)"
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
+							{/* Max Length */}
+							<Form.Item
+								label={t('questionForm.shortAnswer.maxLength')}
+								name={['content', 'max_length']}
+								rules={[
+									{ required: true, message: t('questionForm.shortAnswer.maxLengthRequired') },
+									{ type: 'number', min: 1, max: 500, message: t('questionForm.shortAnswer.maxLengthRange') }
+								]}
+							>
+								<InputNumber
+									min={1}
+									max={500}
+									style={{ width: '100%' }}
+									placeholder={t('questionForm.shortAnswer.maxLengthPlaceholder')}
+								/>
+							</Form.Item>
 
-              {/* Placeholder Text */}
-              <Form.Item
-                label="Text gợi ý (tùy chọn)"
-                name={['content', 'placeholder_text']}
-              >
-                <Input placeholder="VD: Nhập câu trả lời của bạn..." />
-              </Form.Item>
+							{/* Matching Settings */}
+							<Card title={t('questionForm.shortAnswer.matchingSettings')} type="inner" size="small">
+								<Row gutter={[16, 16]}>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'case_sensitive']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.shortAnswer.caseSensitive')}</Checkbox>
+										</Form.Item>
+									</Col>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'exact_match']}
+											valuePropName="checked"
+										>
+											<Checkbox>{t('questionForm.shortAnswer.exactMatch')}</Checkbox>
+										</Form.Item>
+									</Col>
+									<Col span={8}>
+										<Form.Item
+											name={['content', 'fuzzy_matching']}
+											valuePropName="checked"
+											tooltip={t('questionForm.shortAnswer.fuzzyMatchingTooltip')}
+										>
+											<Checkbox>{t('questionForm.shortAnswer.fuzzyMatching')}</Checkbox>
+										</Form.Item>
+									</Col>
+								</Row>
+							</Card>
 
-              {/* Max Length */}
-              <Form.Item
-                label="Độ dài tối đa (ký tự)"
-                name={['content', 'max_length']}
-                rules={[
-                  { required: true, message: 'Nhập độ dài tối đa' },
-                  { type: 'number', min: 1, max: 500, message: 'Từ 1 đến 500 ký tự' }
-                ]}
-              >
-                <InputNumber
-                  min={1}
-                  max={500}
-                  style={{ width: '100%' }}
-                  placeholder="Tối đa 500 ký tự"
-                />
-              </Form.Item>
+							<Alert
+								message={t('questionForm.shortAnswer.matchingNote')}
+								description={
+									<ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+										<li>{t('questionForm.shortAnswer.matchingNoteDesc1')}</li>
+										<li>{t('questionForm.shortAnswer.matchingNoteDesc2')}</li>
+										<li>{t('questionForm.shortAnswer.matchingNoteDesc3')}</li>
+									</ul>
+								}
+								type="info"
+								showIcon
+							/>
+						</Space>
+					</Card>
+				);
 
-              {/* Matching Settings */}
-              <Card title="Cài đặt so khớp" type="inner" size="small">
-                <Row gutter={[16, 16]}>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'case_sensitive']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Phân biệt hoa thường</Checkbox>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'exact_match']}
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Khớp chính xác</Checkbox>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name={['content', 'fuzzy_matching']}
-                      valuePropName="checked"
-                      tooltip="Cho phép sai sót nhỏ trong câu trả lời"
-                    >
-                      <Checkbox>Khớp mờ (Fuzzy)</Checkbox>
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
+			default:
+				return null;
+		}
+	};
 
-              <Alert
-                message="Lưu ý"
-                description={
-                  <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
-                    <li>Khớp chính xác: Đáp án phải giống hệt một trong các đáp án chấp nhận</li>
-                    <li>Khớp mờ: Chấp nhận đáp án có sai sót nhỏ (lỗi chính tả, thừa khoảng trắng...)</li>
-                    <li>Nếu bật cả hai, khớp chính xác sẽ được ưu tiên</li>
-                  </ul>
-                }
-                type="info"
-                showIcon
-              />
-            </Space>
-          </Card>
-        );
+	if (loading) {
+		return (
+			<div style={{ textAlign: 'center', padding: '100px 0' }}>
+				<Spin size="large" />
+			</div>
+		);
+	}
 
-      default:
-        return null;
-    }
-  };
+	return (
+		<Space direction="vertical" size="large" style={{ width: '100%' }}>
+			<Row justify="space-between" align="middle">
+				<Col>
+					<Title level={2}>
+						{isEdit ? t('questionForm.editTitle') : t('questionForm.createTitle')}
+					</Title>
+				</Col>
+				<Col>
+					<Button
+						icon={<RollbackOutlined />}
+						onClick={() => navigate('/questions')}
+					>
+						{t('questionForm.back')}
+					</Button>
+				</Col>
+			</Row>
 
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '100px 0' }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
+			<Form
+				form={form}
+				layout="vertical"
+				onFinish={onFinish}
+				initialValues={{
+					type: QuestionType.MultipleChoice,
+					points: 10,
+					difficulty: DifficultyLevel.Medium,
+					content: {
+						// Multiple Choice fields
+						options: [
+							{ id: 'a', text: '', order: 1, image_url: '' },
+							{ id: 'b', text: '', order: 2, image_url: '' },
+						],
+						correct_answers: [],
+						multiple_correct: false,
+						randomize_options: false,
+						partial_credit: false,
+						// True False fields
+						correct_answer: true,
+						true_label: '',
+						false_label: '',
+						// Fill blank fields
+						template: '',
+						blanks: {},
+						case_sensitive: false,
+						trim_spaces: true,
+						// Matching fields
+						left_items: [],
+						right_items: [],
+						correct_pairs: [],
+						randomize_left: false,
+						randomize_right: false,
+						// Ordering fields
+						items: [],
+						correct_order: [],
+						randomize_initial: false,
+						// Short Answer fields
+						accepted_answers: [],
+						exact_match: false,
+						max_length: 200,
+						placeholder_text: '',
+						fuzzy_matching: false,
+						// Essay fields
+						min_words: undefined,
+						max_words: undefined,
+						suggested_length: '',
+						rubric_criteria: [],
+						sample_answer: '',
+						auto_grade: false,
+						key_words: [],
+					},
+				}}
+			>
+				<Card title={t('questionForm.basicInfo')}>
+					<Row gutter={16}>
+						<Col xs={24} sm={12}>
+							<Form.Item
+								label={t('questionForm.questionType')}
+								name="type"
+								rules={[{ required: true, message: t('questionForm.selectQuestionType') }]}
+							>
+								<Select
+									onChange={(value) => setQuestionType(value)}
+									options={[
+										{ label: t('question.type.multipleChoice'), value: QuestionType.MultipleChoice },
+										{ label: t('question.type.trueFalse'), value: QuestionType.TrueFalse },
+										{ label: t('question.type.essay'), value: QuestionType.Essay },
+										{ label: t('question.type.fillBlank'), value: QuestionType.FillBlank },
+										{ label: t('question.type.matching'), value: QuestionType.Matching },
+										{ label: t('question.type.ordering'), value: QuestionType.Ordering },
+										{ label: t('question.type.shortAnswer'), value: QuestionType.ShortAnswer },
+									]}
+								/>
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12}>
+							<Form.Item
+								label={t('questionForm.difficulty')}
+								name="difficulty"
+								rules={[{ required: true, message: t('questionForm.selectDifficulty') }]}
+							>
+								<Select
+									options={[
+										{ label: t('questionList.easy'), value: DifficultyLevel.Easy },
+										{ label: t('questionList.medium'), value: DifficultyLevel.Medium },
+										{ label: t('questionList.hard'), value: DifficultyLevel.Hard },
+									]}
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
 
-  return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Title level={2}>
-            {isEdit ? 'Chỉnh sửa câu hỏi' : 'Tạo câu hỏi mới'}
-          </Title>
-        </Col>
-        <Col>
-          <Button
-            icon={<RollbackOutlined />}
-            onClick={() => navigate('/questions')}
-          >
-            Quay lại
-          </Button>
-        </Col>
-      </Row>
+					<Form.Item
+						label={t('questionForm.questionContent')}
+						name="text"
+						rules={[{ required: true, message: t('questionForm.enterQuestionContent') }]}
+					>
+						<TextArea
+							rows={4}
+							placeholder={t('questionForm.enterQuestionContent')}
+							showCount
+						/>
+					</Form.Item>
 
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          type: QuestionType.MultipleChoice,
-          points: 10,
-          difficulty: DifficultyLevel.Medium,
-          content: {
-            // Multiple Choice fields
-            options: [
-              { id: 'a', text: '', order: 1, image_url: '' },
-              { id: 'b', text: '', order: 2, image_url: '' },
-            ],
-            correct_answers: [],
-            multiple_correct: false,
-            randomize_options: false,
-            partial_credit: false,
-            // True False fields
-            correct_answer: true,
-            true_label: '',
-            false_label: '',
-            // Fill blank fields
-            template: '',
-            blanks: {},
-            case_sensitive: false,
-            trim_spaces: true,
-            // Matching fields
-            left_items: [],
-            right_items: [],
-            correct_pairs: [],
-            randomize_left: false,
-            randomize_right: false,
-            // Ordering fields
-            items: [],
-            correct_order: [],
-            randomize_initial: false,
-            // Short Answer fields
-            accepted_answers: [],
-            exact_match: false,
-            max_length: 200,
-            placeholder_text: '',
-            fuzzy_matching: false,
-            // Essay fields
-            min_words: undefined,
-            max_words: undefined,
-            suggested_length: '',
-            rubric_criteria: [],
-            sample_answer: '',
-            auto_grade: false,
-            key_words: [],
-          },
-        }}
-      >
-        <Card title="Thông tin cơ bản">
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Loại câu hỏi"
-                name="type"
-                rules={[{ required: true, message: 'Chọn loại câu hỏi' }]}
-              >
-                <Select
-                  onChange={(value) => setQuestionType(value)}
-                  options={[
-                    { label: 'Trắc nghiệm', value: QuestionType.MultipleChoice },
-                    { label: 'Đúng/Sai', value: QuestionType.TrueFalse },
-                    { label: 'Tự luận', value: QuestionType.Essay },
-                    { label: 'Điền khuyết', value: QuestionType.FillBlank },
-                    { label: 'Ghép cặp', value: QuestionType.Matching },
-                    { label: 'Sắp xếp', value: QuestionType.Ordering },
-                    { label: 'Trả lời ngắn', value: QuestionType.ShortAnswer },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Độ khó"
-                name="difficulty"
-                rules={[{ required: true, message: 'Chọn độ khó' }]}
-              >
-                <Select
-                  options={[
-                    { label: 'Dễ', value: DifficultyLevel.Easy },
-                    { label: 'Trung bình', value: DifficultyLevel.Medium },
-                    { label: 'Khó', value: DifficultyLevel.Hard },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item
-            label="Nội dung câu hỏi"
-            name="text"
-            rules={[{ required: true, message: 'Nhập nội dung câu hỏi' }]}
-          >
-            <TextArea
-              rows={4}
-              placeholder="Nhập nội dung câu hỏi"
-              showCount
-            />
-          </Form.Item>
-
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Điểm số"
-                name="points"
-                rules={[{ required: true, message: 'Nhập điểm số' }]}
-              >
-                <InputNumber
-                  min={1}
-                  max={100}
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
-            </Col>
-            {/* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
+					<Row gutter={16}>
+						<Col xs={24} sm={12}>
+							<Form.Item
+								label={t('questionForm.points')}
+								name="points"
+								rules={[{ required: true, message: t('questionForm.enterPoints') }]}
+							>
+								<InputNumber
+									min={1}
+									max={100}
+									style={{ width: '100%' }}
+								/>
+							</Form.Item>
+						</Col>
+						{/* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
             <Col xs={24} sm={12}>
               <Form.Item
                 label="Giới hạn thời gian (giây)"
@@ -1085,48 +1083,48 @@ const QuestionForm: React.FC = () => {
               </Form.Item>
             </Col>
             */}
-          </Row>
+					</Row>
 
-          <Form.Item
-            label="Thẻ (phân cách bằng dấu phẩy)"
-            name="tags"
-          >
-            <Input placeholder="VD: toán học, đại số, cơ bản" />
-          </Form.Item>
+					<Form.Item
+						label={t('questionForm.tags')}
+						name="tags"
+					>
+						<Input placeholder={t('questionForm.tagsPlaceholder')} />
+					</Form.Item>
 
-          <Form.Item
-            label="Giải thích"
-            name="explanation"
-          >
-            <TextArea
-              rows={3}
-              placeholder="Giải thích đáp án đúng"
-              showCount
-            />
-          </Form.Item>
-        </Card>
+					<Form.Item
+						label={t('questionForm.explanation')}
+						name="explanation"
+					>
+						<TextArea
+							rows={3}
+							placeholder={t('questionForm.explanationPlaceholder')}
+							showCount
+						/>
+					</Form.Item>
+				</Card>
 
-        {renderQuestionTypeContent()}
+				{renderQuestionTypeContent()}
 
-        <Form.Item>
-          <Space>
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<SaveOutlined />}
-              loading={submitting}
-              size="large"
-            >
-              {isEdit ? 'Cập nhật' : 'Tạo câu hỏi'}
-            </Button>
-            <Button onClick={() => navigate('/questions')} size="large">
-              Hủy
-            </Button>
-          </Space>
-        </Form.Item>
-      </Form>
-    </Space>
-  );
+				<Form.Item>
+					<Space>
+						<Button
+							type="primary"
+							htmlType="submit"
+							icon={<SaveOutlined />}
+							loading={submitting}
+							size="large"
+						>
+							{isEdit ? t('questionForm.updateBtn') : t('questionForm.createBtn')}
+						</Button>
+						<Button onClick={() => navigate('/questions')} size="large">
+							{t('questionForm.cancelBtn')}
+						</Button>
+					</Space>
+				</Form.Item>
+			</Form>
+		</Space>
+	);
 };
 
 export default QuestionForm;

@@ -148,6 +148,22 @@
 		"questionChartLabel": "Biểu đồ phân bổ loại câu hỏi",
 		"performanceChartLabel": "Biểu đồ điểm số theo môn học"
 	},
+	"layout": {
+		"studentDashboard": "Bảng điều khiển",
+		"assessments": "Bài kiểm tra",
+		"history": "Lịch sử",
+		"overview": "Tổng quan",
+		"users": "Người dùng",
+		"manageAssessments": "Quản lý bài thi",
+		"manageQuestions": "Quản lý câu hỏi",
+		"questionBanks": "Ngân hàng câu hỏi",
+		"grading": "Chấm điểm",
+		"profile": "Hồ sơ",
+		"settings": "Cài đặt",
+		"darkMode": "Chế độ tối",
+		"logout": "Đăng xuất",
+		"lightMode": "Chế độ sáng"
+	},
 	"assessment": {
 		"title": "Bài kiểm tra",
 		"list": "Danh sách bài kiểm tra",

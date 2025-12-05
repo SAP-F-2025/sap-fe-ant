@@ -148,6 +148,22 @@
 		"questionChartLabel": "Question type distribution chart",
 		"performanceChartLabel": "Score by subject chart"
 	},
+	"layout": {
+		"studentDashboard": "Dashboard",
+		"assessments": "Assessments",
+		"history": "History",
+		"overview": "Overview",
+		"users": "Users",
+		"manageAssessments": "Manage Assessments",
+		"manageQuestions": "Manage Questions",
+		"questionBanks": "Question Banks",
+		"grading": "Grading",
+		"profile": "Profile",
+		"settings": "Settings",
+		"darkMode": "Dark Mode",
+		"logout": "Logout",
+		"lightMode": "Light Mode"
+	},
 	"assessment": {
 		"title": "Assessment",
 		"list": "Assessment List",

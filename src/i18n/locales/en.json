@@ -548,6 +548,58 @@
 		"submitAssessment": "Submit",
 		"timeRemaining": "Time Remaining"
 	},
+	"studentDashboard": {
+		"title": "Dashboard",
+		"welcomeBack": "Welcome back, {{name}}!",
+		"overview": {
+			"assessmentsAvailable": "Assessments Available",
+			"completed": "Completed",
+			"inProgress": "In Progress",
+			"totalAttempts": "Total Attempts"
+		},
+		"performance": {
+			"averageScore": "Average Score",
+			"passRate": "Pass Rate",
+			"highestScore": "Highest Score",
+			"lowestScore": "Lowest Score"
+		},
+		"recentAttempts": {
+			"title": "Recent Attempts",
+			"viewAll": "View All",
+			"noAttempts": "No attempts yet",
+			"columns": {
+				"assessment": "Assessment",
+				"score": "Score",
+				"status": "Status",
+				"completedAt": "Completed",
+				"action": "Action"
+			},
+			"grading": "Grading",
+			"passed": "Passed",
+			"failed": "Failed",
+			"view": "View"
+		},
+		"upcoming": {
+			"title": "Upcoming Assessments",
+			"viewAll": "View All",
+			"noUpcoming": "No upcoming assessments",
+			"columns": {
+				"assessment": "Assessment",
+				"dueDate": "Due Date",
+				"timeRemaining": "Time Remaining",
+				"action": "Action"
+			},
+			"today": "Today",
+			"daysRemaining": "{{count}} days left",
+			"start": "Start"
+		},
+		"quickActions": {
+			"title": "Quick Actions",
+			"viewAssessments": "View Assessments",
+			"viewHistory": "View History",
+			"continueAttempt": "Continue Attempt"
+		}
+	},
 	"grading": {
 		"title": "Grading",
 		"pending": "Pending",

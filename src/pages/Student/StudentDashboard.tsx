@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import studentService from '../../services/studentService';
 import type { StudentDashboardStats } from '../../types';
@@ -29,6 +30,7 @@ const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { token } = useToken();
+  const { t } = useTranslation();
 
   // Fetch dashboard stats
   const { data: stats, isLoading } = useQuery<StudentDashboardStats>({
@@ -38,13 +40,13 @@ const StudentDashboard: React.FC = () => {
 
   const recentAttemptsColumns = [
     {
-      title: 'Bài kiểm tra',
+      title: t('studentDashboard.recentAttempts.columns.assessment'),
       dataIndex: 'assessment_title',
       key: 'assessment_title',
       render: (title: string) => <Text strong>{title}</Text>,
     },
     {
-      title: 'Điểm',
+      title: t('studentDashboard.recentAttempts.columns.score'),
       dataIndex: 'score',
       key: 'score',
       render: (score: number, record: any) => {
@@ -52,7 +54,7 @@ const StudentDashboard: React.FC = () => {
         if (!record.is_graded) {
           return (
             <Tag icon={<HourglassOutlined />} color="warning">
-              Đang chấm
+              {t('studentDashboard.recentAttempts.grading')}
             </Tag>
           );
         }
@@ -62,7 +64,7 @@ const StudentDashboard: React.FC = () => {
       },
     },
     {
-      title: 'Trạng thái',
+      title: t('studentDashboard.recentAttempts.columns.status'),
       dataIndex: 'passed',
       key: 'passed',
       render: (passed: boolean, record: any) => {
@@ -70,25 +72,25 @@ const StudentDashboard: React.FC = () => {
         if (!record.is_graded) {
           return (
             <Tag icon={<HourglassOutlined />} color="warning">
-              Đang chấm
+              {t('studentDashboard.recentAttempts.grading')}
             </Tag>
           );
         }
         return (
           <Tag color={passed ? 'success' : 'error'} icon={passed ? <CheckCircleOutlined /> : <CloseIcon />}>
-            {passed ? 'Đạt' : 'Không đạt'}
+            {passed ? t('studentDashboard.recentAttempts.passed') : t('studentDashboard.recentAttempts.failed')}
           </Tag>
         );
       },
     },
     {
-      title: 'Hoàn thành',
+      title: t('studentDashboard.recentAttempts.columns.completedAt'),
       dataIndex: 'completed_at',
       key: 'completed_at',
       render: (date: string) => dayjs(date).fromNow(),
     },
     {
-      title: 'Hành động',
+      title: t('studentDashboard.recentAttempts.columns.action'),
       key: 'action',
       render: (_: any, record: any) => (
         <Button
@@ -96,7 +98,7 @@ const StudentDashboard: React.FC = () => {
           icon={<ArrowRightOutlined />}
           onClick={() => navigate(`/student/results/${record.id}`)}
         >
-          Xem
+          {t('studentDashboard.recentAttempts.view')}
         </Button>
       ),
     },
@@ -104,32 +106,32 @@ const StudentDashboard: React.FC = () => {
 
   const upcomingColumns = [
     {
-      title: 'Bài kiểm tra',
+      title: t('studentDashboard.upcoming.columns.assessment'),
       dataIndex: 'title',
       key: 'title',
       render: (title: string) => <Text strong>{title}</Text>,
     },
     {
-      title: 'Hạn nộp',
+      title: t('studentDashboard.upcoming.columns.dueDate'),
       dataIndex: 'due_date',
       key: 'due_date',
       render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
     },
     {
-      title: 'Thời gian còn lại',
+      title: t('studentDashboard.upcoming.columns.timeRemaining'),
       dataIndex: 'days_remaining',
       key: 'days_remaining',
       render: (days: number) => {
         const color = days <= 1 ? 'red' : days <= 3 ? 'orange' : 'green';
         return (
           <Tag color={color}>
-            {days === 0 ? 'Hôm nay' : `Còn ${days} ngày`}
+            {days === 0 ? t('studentDashboard.upcoming.today') : t('studentDashboard.upcoming.daysRemaining', { count: days })}
           </Tag>
         );
       },
     },
     {
-      title: 'Hành động',
+      title: t('studentDashboard.upcoming.columns.action'),
       key: 'action',
       render: (_: any, record: any) => (
         <Button
@@ -137,7 +139,7 @@ const StudentDashboard: React.FC = () => {
           size="small"
           onClick={() => navigate(`/student/assessments/${record.id}`)}
         >
-          Bắt đầu
+          {t('studentDashboard.upcoming.start')}
         </Button>
       ),
     },
@@ -145,15 +147,15 @@ const StudentDashboard: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Title level={2}>Bảng điều khiển</Title>
-      <Text type="secondary">Chào mừng trở lại, {user?.displayName}!</Text>
+      <Title level={2}>{t('studentDashboard.title')}</Title>
+      <Text type="secondary">{t('studentDashboard.welcomeBack', { name: user?.displayName })}</Text>
 
       {/* Overview Stats */}
       <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic
-              title="Bài kiểm tra khả dụng"
+              title={t('studentDashboard.overview.assessmentsAvailable')}
               value={stats?.overview.total_assessments_available || 0}
               prefix={<BookOutlined />}
               valueStyle={{ color: token.colorPrimary }}
@@ -163,7 +165,7 @@ const StudentDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic
-              title="Đã hoàn thành"
+              title={t('studentDashboard.overview.completed')}
               value={stats?.overview.total_assessments_completed || 0}
               prefix={<CheckCircleOutlined />}
               valueStyle={{ color: token.colorSuccess }}
@@ -173,7 +175,7 @@ const StudentDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic
-              title="Đang làm"
+              title={t('studentDashboard.overview.inProgress')}
               value={stats?.overview.total_assessments_in_progress || 0}
               prefix={<ClockCircleOutlined />}
               valueStyle={{ color: token.colorWarning }}
@@ -183,7 +185,7 @@ const StudentDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic
-              title="Tổng số lần làm"
+              title={t('studentDashboard.overview.totalAttempts')}
               value={stats?.overview.total_attempts || 0}
               prefix={<FileTextOutlined />}
             />
@@ -196,7 +198,7 @@ const StudentDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic
-              title="Điểm trung bình"
+              title={t('studentDashboard.performance.averageScore')}
               value={stats?.performance.average_score || 0}
               precision={1}
               suffix="%"
@@ -208,7 +210,7 @@ const StudentDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic
-              title="Tỷ lệ đạt"
+              title={t('studentDashboard.performance.passRate')}
               value={stats?.performance.pass_rate || 0}
               precision={1}
               suffix="%"
@@ -228,7 +230,7 @@ const StudentDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic
-              title="Điểm cao nhất"
+              title={t('studentDashboard.performance.highestScore')}
               value={stats?.performance.highest_score || 0}
               precision={1}
               suffix="%"
@@ -239,7 +241,7 @@ const StudentDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card loading={isLoading}>
             <Statistic
-              title="Điểm thấp nhất"
+              title={t('studentDashboard.performance.lowestScore')}
               value={stats?.performance.lowest_score || 0}
               precision={1}
               suffix="%"
@@ -251,11 +253,11 @@ const StudentDashboard: React.FC = () => {
 
       {/* Recent Attempts */}
       <Card
-        title="Lần làm bài gần đây"
+        title={t('studentDashboard.recentAttempts.title')}
         style={{ marginTop: '24px' }}
         extra={
           <Button type="link" onClick={() => navigate('/student/history')}>
-            Xem tất cả
+            {t('studentDashboard.recentAttempts.viewAll')}
           </Button>
         }
         loading={isLoading}
@@ -265,17 +267,17 @@ const StudentDashboard: React.FC = () => {
           dataSource={stats?.recent_attempts || []}
           rowKey="id"
           pagination={false}
-          locale={{ emptyText: 'Chưa có lần làm bài nào' }}
+          locale={{ emptyText: t('studentDashboard.recentAttempts.noAttempts') }}
         />
       </Card>
 
       {/* Upcoming Assessments */}
       <Card
-        title="Bài kiểm tra sắp tới"
+        title={t('studentDashboard.upcoming.title')}
         style={{ marginTop: '24px' }}
         extra={
           <Button type="link" onClick={() => navigate('/student/assessments')}>
-            Xem tất cả
+            {t('studentDashboard.upcoming.viewAll')}
           </Button>
         }
         loading={isLoading}
@@ -285,25 +287,25 @@ const StudentDashboard: React.FC = () => {
           dataSource={stats?.upcoming_assessments || []}
           rowKey="id"
           pagination={false}
-          locale={{ emptyText: 'Không có bài kiểm tra sắp tới' }}
+          locale={{ emptyText: t('studentDashboard.upcoming.noUpcoming') }}
         />
       </Card>
 
       {/* Quick Actions */}
-      <Card title="Thao tác nhanh" style={{ marginTop: '24px' }}>
+      <Card title={t('studentDashboard.quickActions.title')} style={{ marginTop: '24px' }}>
         <Space size="middle" wrap>
           <Button
             type="primary"
             icon={<BookOutlined />}
             onClick={() => navigate('/student/assessments')}
           >
-            Xem bài kiểm tra
+            {t('studentDashboard.quickActions.viewAssessments')}
           </Button>
           <Button
             icon={<FileTextOutlined />}
             onClick={() => navigate('/student/history')}
           >
-            Xem lịch sử
+            {t('studentDashboard.quickActions.viewHistory')}
           </Button>
           <Button
             icon={<ClockCircleOutlined />}
@@ -312,7 +314,7 @@ const StudentDashboard: React.FC = () => {
               navigate('/student/history');
             }}
           >
-            Tiếp tục làm bài
+            {t('studentDashboard.quickActions.continueAttempt')}
           </Button>
         </Space>
       </Card>

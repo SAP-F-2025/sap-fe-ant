@@ -548,6 +548,58 @@
 		"submitAssessment": "Nộp bài",
 		"timeRemaining": "Thời gian còn lại"
 	},
+	"studentDashboard": {
+		"title": "Bảng điều khiển",
+		"welcomeBack": "Chào mừng trở lại, {{name}}!",
+		"overview": {
+			"assessmentsAvailable": "Bài kiểm tra khả dụng",
+			"completed": "Đã hoàn thành",
+			"inProgress": "Đang làm",
+			"totalAttempts": "Tổng số lần làm"
+		},
+		"performance": {
+			"averageScore": "Điểm trung bình",
+			"passRate": "Tỷ lệ đạt",
+			"highestScore": "Điểm cao nhất",
+			"lowestScore": "Điểm thấp nhất"
+		},
+		"recentAttempts": {
+			"title": "Lần làm bài gần đây",
+			"viewAll": "Xem tất cả",
+			"noAttempts": "Chưa có lần làm bài nào",
+			"columns": {
+				"assessment": "Bài kiểm tra",
+				"score": "Điểm",
+				"status": "Trạng thái",
+				"completedAt": "Hoàn thành",
+				"action": "Hành động"
+			},
+			"grading": "Đang chấm",
+			"passed": "Đạt",
+			"failed": "Không đạt",
+			"view": "Xem"
+		},
+		"upcoming": {
+			"title": "Bài kiểm tra sắp tới",
+			"viewAll": "Xem tất cả",
+			"noUpcoming": "Không có bài kiểm tra sắp tới",
+			"columns": {
+				"assessment": "Bài kiểm tra",
+				"dueDate": "Hạn nộp",
+				"timeRemaining": "Thời gian còn lại",
+				"action": "Hành động"
+			},
+			"today": "Hôm nay",
+			"daysRemaining": "Còn {{count}} ngày",
+			"start": "Bắt đầu"
+		},
+		"quickActions": {
+			"title": "Thao tác nhanh",
+			"viewAssessments": "Xem bài kiểm tra",
+			"viewHistory": "Xem lịch sử",
+			"continueAttempt": "Tiếp tục làm bài"
+		}
+	},
 	"grading": {
 		"title": "Chấm điểm",
 		"pending": "Chờ chấm",

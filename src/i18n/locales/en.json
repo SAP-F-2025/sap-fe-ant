@@ -529,7 +529,8 @@
 			"matching": "Matching",
 			"ordering": "Ordering",
 			"shortAnswer": "Short Answer",
-			"coding": "Coding"
+			"coding": "Coding",
+			"others": "Others"
 		}
 	},
 	"questionBank": {

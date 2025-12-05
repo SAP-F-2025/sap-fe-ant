@@ -529,7 +529,8 @@
 			"coding": "Lập trình",
 			"matching": "Ghép cặp",
 			"ordering": "Sắp xếp",
-			"shortAnswer": "Trả lời ngắn"
+			"shortAnswer": "Trả lời ngắn",
+			"others": "Khác"
 		}
 	},
 	"questionBank": {

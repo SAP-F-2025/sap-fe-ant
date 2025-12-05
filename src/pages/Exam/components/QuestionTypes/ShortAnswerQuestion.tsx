@@ -1,34 +1,36 @@
+import { Alert, Input, Space } from 'antd';
 import React from 'react';
-import { Input, Space, Alert } from 'antd';
+import { useTranslation } from 'react-i18next';
 import type { QuestionRendererProps } from '../../types';
 
 export const ShortAnswerQuestion: React.FC<QuestionRendererProps> = ({
-  question,
-  currentAnswer,
-  onAnswerChange,
+	question,
+	currentAnswer,
+	onAnswerChange,
 }) => {
-  const maxLength = question.content?.max_length || 200;
-  const placeholderText = question.content?.placeholder_text || 'Nhập câu trả lời ngắn...';
-  const caseSensitive = question.content?.case_sensitive;
+	const { t } = useTranslation();
+	const maxLength = question.content?.max_length || 200;
+	const placeholderText = question.content?.placeholder_text || t('exam.questionTypes.shortAnswer.placeholder');
+	const caseSensitive = question.content?.case_sensitive;
 
-  return (
-    <Space direction="vertical" style={{ width: '100%' }} size="middle">
-      <Input
-        placeholder={placeholderText}
-        value={currentAnswer || ''}
-        onChange={(e) => onAnswerChange(question.id, e.target.value)}
-        maxLength={maxLength}
-        showCount
-        style={{ width: '100%' }}
-      />
-      {caseSensitive && (
-        <Alert
-          message="Lưu ý: Câu trả lời có phân biệt chữ hoa chữ thường"
-          type="warning"
-          showIcon={false}
-          style={{ fontSize: '13px', padding: '4px 12px' }}
-        />
-      )}
-    </Space>
-  );
+	return (
+		<Space direction="vertical" style={{ width: '100%' }} size="middle">
+			<Input
+				placeholder={placeholderText}
+				value={currentAnswer || ''}
+				onChange={(e) => onAnswerChange(question.id, e.target.value)}
+				maxLength={maxLength}
+				showCount
+				style={{ width: '100%' }}
+			/>
+			{caseSensitive && (
+				<Alert
+					message={t('exam.questionTypes.caseSensitiveWarning')}
+					type="warning"
+					showIcon={false}
+					style={{ fontSize: '13px', padding: '4px 12px' }}
+				/>
+			)}
+		</Space>
+	);
 };

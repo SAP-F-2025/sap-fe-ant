@@ -33,6 +33,7 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import assessmentService from '../../services/assessmentService';
 import questionService from '../../services/questionService';
 import {
@@ -65,43 +66,6 @@ const difficultyColors = {
 	[DifficultyLevel.Hard]: 'error',
 };
 
-const difficultyLabels = {
-	[DifficultyLevel.Easy]: 'Dễ',
-	[DifficultyLevel.Medium]: 'Trung bình',
-	[DifficultyLevel.Hard]: 'Khó',
-};
-
-const typeLabels = {
-	[QuestionType.MultipleChoice]: 'Trắc nghiệm',
-	[QuestionType.TrueFalse]: 'Đúng/Sai',
-	[QuestionType.Essay]: 'Tự luận',
-	[QuestionType.FillBlank]: 'Điền khuyết',
-	[QuestionType.Matching]: 'Nối cặp',
-	[QuestionType.Ordering]: 'Sắp xếp',
-	[QuestionType.ShortAnswer]: 'Trả lời ngắn',
-};
-
-// Drag handle component
-const DragHandle = ({ id }: { id: number }) => {
-	const { attributes, listeners } = useSortable({ id });
-	return <DragOutlined {...attributes} {...listeners} style={{ cursor: 'grab', color: '#999' }} />;
-};
-
-// Sortable row component
-const SortableRow = (props: any) => {
-	const { setNodeRef, transform, transition, isDragging } = useSortable({
-		id: props['data-row-key'],
-	});
-
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-		...(isDragging ? { position: 'relative' as const, zIndex: 9999 } : {}),
-	};
-
-	return <tr {...props} ref={setNodeRef} style={style} />;
-};
-
 const MAX_TOTAL_POINTS = POINTS_VALIDATION.TOTAL_MAX;
 
 export const ManageAssessmentQuestions: React.FC<Props> = ({
@@ -109,9 +73,54 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	questions: initialQuestions,
 	onQuestionsChange,
 }) => {
+	const { t } = useTranslation();
 	const assessmentId = assessment.id;
 	const isQuestionsLocked = !canEditQuestions(assessment);
 	const lockReason = getQuestionsLockReason(assessment);
+
+	// Helper functions for translated labels
+	const getDifficultyLabel = (difficulty: DifficultyLevel) => {
+		const labels: Record<DifficultyLevel, string> = {
+			[DifficultyLevel.Easy]: t('manageAssessmentQuestions.difficulty.easy'),
+			[DifficultyLevel.Medium]: t('manageAssessmentQuestions.difficulty.medium'),
+			[DifficultyLevel.Hard]: t('manageAssessmentQuestions.difficulty.hard'),
+		};
+		return labels[difficulty];
+	};
+
+	const getTypeLabel = (type: QuestionType) => {
+		const labels: Record<QuestionType, string> = {
+			[QuestionType.MultipleChoice]: t('manageAssessmentQuestions.questionType.multipleChoice'),
+			[QuestionType.TrueFalse]: t('manageAssessmentQuestions.questionType.trueFalse'),
+			[QuestionType.Essay]: t('manageAssessmentQuestions.questionType.essay'),
+			[QuestionType.FillBlank]: t('manageAssessmentQuestions.questionType.fillBlank'),
+			[QuestionType.Matching]: t('manageAssessmentQuestions.questionType.matching'),
+			[QuestionType.Ordering]: t('manageAssessmentQuestions.questionType.ordering'),
+			[QuestionType.ShortAnswer]: t('manageAssessmentQuestions.questionType.shortAnswer'),
+		};
+		return labels[type];
+	};
+
+	// Drag handle component
+	const DragHandle = ({ id }: { id: number }) => {
+		const { attributes, listeners } = useSortable({ id });
+		return <DragOutlined {...attributes} {...listeners} style={{ cursor: 'grab', color: '#999' }} />;
+	};
+
+	// Sortable row component
+	const SortableRow = (props: any) => {
+		const { setNodeRef, transform, transition, isDragging } = useSortable({
+			id: props['data-row-key'],
+		});
+
+		const style = {
+			transform: CSS.Transform.toString(transform),
+			transition,
+			...(isDragging ? { position: 'relative' as const, zIndex: 9999 } : {}),
+		};
+
+		return <tr {...props} ref={setNodeRef} style={style} />;
+	};
 
 	const [questions, setQuestions] = useState<AssessmentQuestion[]>(initialQuestions || []);
 	const [loading, setLoading] = useState(false);
@@ -205,7 +214,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 			setAddLoading(true);
 			try {
 				await assessmentService.autoAssignQuestions(assessmentId, selectedQuestions);
-				showSuccess(`Đã tự động phân phối điểm cho ${selectedQuestions.length} câu hỏi`);
+				showSuccess(t('manageAssessmentQuestions.autoAssignSuccess', { count: selectedQuestions.length }));
 				setAddModalVisible(false);
 				setSelectedQuestions([]);
 				setQuestionPoints({});
@@ -217,10 +226,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					const details = error.response.data?.details;
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
-							'Không thể thêm câu hỏi - ' +
+							t('manageAssessmentQuestions.cannotAddQuestions') + ' - ' +
 							(details.context?.has_attempts
-								? 'Sinh viên đã bắt đầu làm bài'
-								: 'Assessment đã được lưu trữ')
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 						// Refresh to update UI state
 						onQuestionsChange?.();
@@ -251,7 +260,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 			const points = questionPoints[questionId];
 
 			if (!points || points < POINTS_VALIDATION.MIN || points > POINTS_VALIDATION.MAX) {
-				showError(`Vui lòng nhập điểm hợp lệ (${POINTS_VALIDATION.MIN}-${POINTS_VALIDATION.MAX}) cho tất cả câu hỏi`);
+				showError(t('manageAssessmentQuestions.invalidPoints', { min: POINTS_VALIDATION.MIN, max: POINTS_VALIDATION.MAX }));
 				return;
 			}
 
@@ -266,9 +275,12 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 		const newTotal = totalPoints + questionsToAdd.reduce((sum, q) => sum + q.points, 0);
 		if (newTotal > MAX_TOTAL_POINTS) {
 			showError(
-				`Tổng điểm sẽ vượt quá ${MAX_TOTAL_POINTS}. ` +
-				`Tổng hiện tại: ${totalPoints}, Thêm: ${questionsToAdd.reduce((sum, q) => sum + q.points, 0)}, ` +
-				`Tổng mới: ${newTotal}`
+				t('manageAssessmentQuestions.totalPointsExceeded', {
+					max: MAX_TOTAL_POINTS,
+					current: totalPoints,
+					add: questionsToAdd.reduce((sum, q) => sum + q.points, 0),
+					new: newTotal
+				})
 			);
 			return;
 		}
@@ -276,7 +288,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 		setAddLoading(true);
 		try {
 			await assessmentService.bulkAddQuestionsToAssessment(assessmentId, questionsToAdd);
-			showSuccess(`Đã thêm ${selectedQuestions.length} câu hỏi`);
+			showSuccess(t('manageAssessmentQuestions.addedQuestions', { count: selectedQuestions.length }));
 			setAddModalVisible(false);
 			setSelectedQuestions([]);
 			setQuestionPoints({});
@@ -287,10 +299,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				const details = error.response.data?.details;
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
-						'Không thể thêm câu hỏi - ' +
+						t('manageAssessmentQuestions.cannotAddQuestion') + ' - ' +
 						(details.context?.has_attempts
-							? 'Sinh viên đã bắt đầu làm bài'
-							: 'Assessment đã được lưu trữ')
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					// Refresh to update UI state
 					onQuestionsChange?.();
@@ -306,7 +318,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	const handleRemoveQuestion = async (questionId: number) => {
 		try {
 			await assessmentService.removeQuestionFromAssessment(assessmentId, questionId);
-			showSuccess('Xóa câu hỏi thành công');
+			showSuccess(t('manageAssessmentQuestions.removeSuccess'));
 			onQuestionsChange?.();
 		} catch (error: any) {
 			// Handle specific lock error
@@ -314,10 +326,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				const details = error.response.data?.details;
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
-						'Không thể xóa câu hỏi - ' +
+						t('manageAssessmentQuestions.cannotRemoveQuestion') + ' - ' +
 						(details.context?.has_attempts
-							? 'Sinh viên đã bắt đầu làm bài'
-							: 'Assessment đã được lưu trữ')
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					return;
@@ -346,7 +358,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				await assessmentService.reorderAssessmentQuestions(assessmentId, {
 					question_orders,
 				});
-				showSuccess('Đã cập nhật thứ tự câu hỏi');
+				showSuccess(t('manageAssessmentQuestions.reorderSuccess'));
 				onQuestionsChange?.();
 			} catch (error: any) {
 				// Handle specific lock error
@@ -354,10 +366,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					const details = error.response.data?.details;
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
-							'Không thể sắp xếp lại câu hỏi - ' +
+							t('manageAssessmentQuestions.cannotReorder') + ' - ' +
 							(details.context?.has_attempts
-								? 'Sinh viên đã bắt đầu làm bài'
-								: 'Assessment đã được lưu trữ')
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 					}
 				}
@@ -371,7 +383,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	// Inline editing handlers
 	const handleUpdatePoints = async (questionId: number, points: number | null) => {
 		if (points === null || points < 0) {
-			showError('Điểm phải lớn hơn hoặc bằng 0');
+			showError(t('manageAssessmentQuestions.pointsMustBePositive'));
 			return;
 		}
 
@@ -383,13 +395,13 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 		const newTotal = otherQuestionsPoints + points;
 
 		if (newTotal > MAX_TOTAL_POINTS) {
-			showError(`Tổng điểm không được vượt quá ${MAX_TOTAL_POINTS}. Tổng hiện tại sẽ là: ${newTotal}`);
+			showError(t('manageAssessmentQuestions.totalPointsMaxExceeded', { max: MAX_TOTAL_POINTS, total: newTotal }));
 			return;
 		}
 
 		try {
 			await assessmentService.updateQuestionSettings(assessmentId, questionId, { points });
-			showSuccess('Cập nhật điểm thành công');
+			showSuccess(t('manageAssessmentQuestions.updatePointsSuccess'));
 			onQuestionsChange?.();
 		} catch (error: any) {
 			// Handle specific lock error
@@ -397,10 +409,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				const details = error.response.data?.details;
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
-						'Không thể cập nhật điểm - ' +
+						t('manageAssessmentQuestions.cannotUpdatePoints') + ' - ' +
 						(details.context?.has_attempts
-							? 'Sinh viên đã bắt đầu làm bài'
-							: 'Assessment đã được lưu trữ')
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					return;
@@ -432,7 +444,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	// Bulk actions handlers
 	const handleBulkUpdate = () => {
 		if (selectedRows.length === 0) {
-			showError('Vui lòng chọn ít nhất một câu hỏi');
+			showError(t('manageAssessmentQuestions.selectAtLeastOne'));
 			return;
 		}
 		setBulkModalVisible(true);
@@ -457,14 +469,14 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				const newTotal = unchangedPoints + (values.points * selectedRows.length);
 
 				if (newTotal > MAX_TOTAL_POINTS) {
-					showError(`Tổng điểm không được vượt quá ${MAX_TOTAL_POINTS}. Tổng mới sẽ là: ${newTotal}`);
+					showError(t('manageAssessmentQuestions.totalPointsMaxExceeded', { max: MAX_TOTAL_POINTS, total: newTotal }));
 					setBulkLoading(false);
 					return;
 				}
 			}
 
 			await assessmentService.bulkUpdateQuestionSettings(assessmentId, updates);
-			showSuccess(`Đã cập nhật ${selectedRows.length} câu hỏi`);
+			showSuccess(t('manageAssessmentQuestions.bulkUpdateSuccess', { count: selectedRows.length }));
 			setBulkModalVisible(false);
 			setSelectedRows([]);
 			bulkForm.resetFields();
@@ -475,10 +487,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				const details = error.response.data?.details;
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
-						'Không thể cập nhật câu hỏi - ' +
+						t('manageAssessmentQuestions.cannotBulkUpdate') + ' - ' +
 						(details.context?.has_attempts
-							? 'Sinh viên đã bắt đầu làm bài'
-							: 'Assessment đã được lưu trữ')
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					setBulkLoading(false);
@@ -499,37 +511,37 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 			render: (_, record) => isQuestionsLocked ? null : <DragHandle id={record.question_id} />,
 		},
 		{
-			title: 'STT',
+			title: t('manageAssessmentQuestions.columnOrder'),
 			dataIndex: 'order',
 			width: 70,
 			render: (order) => <Text strong>{order}</Text>,
 		},
 		{
-			title: 'Câu hỏi',
+			title: t('manageAssessmentQuestions.columnQuestion'),
 			dataIndex: ['question', 'text'],
 			ellipsis: true,
 		},
 		{
-			title: 'Loại',
+			title: t('manageAssessmentQuestions.columnType'),
 			width: 150,
-			render: (_, record: any) => <Tag>{typeLabels[record.question?.type] || 'N/A'}</Tag>,
+			render: (_, record: any) => <Tag>{getTypeLabel(record.question?.type) || 'N/A'}</Tag>,
 		},
 		{
-			title: 'Độ khó',
+			title: t('manageAssessmentQuestions.columnDifficulty'),
 			width: 120,
 			render: (_, record: any) => (
 				<Tag
-					color={difficultyColors[record.question?.difficulty] || 'default'}>{difficultyLabels[record.question?.difficulty] || 'N/A'}</Tag>
+					color={difficultyColors[record.question?.difficulty] || 'default'}>{getDifficultyLabel(record.question?.difficulty) || 'N/A'}</Tag>
 			),
 		},
 		{
-			title: 'Điểm',
+			title: t('manageAssessmentQuestions.columnPoints'),
 			dataIndex: 'points',
 			width: 120,
 			render: (points, record: any) => {
 				const effectivePoints = points ?? record.question?.points;
 				return (
-					<Tooltip title={isQuestionsLocked ? 'Không thể chỉnh sửa - Câu hỏi đã bị khóa' : 'Click để chỉnh sửa'}>
+					<Tooltip title={isQuestionsLocked ? t('manageAssessmentQuestions.questionsLocked') : undefined}>
 						<InputNumber
 							size="small"
 							min={0}
@@ -590,15 +602,15 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 		},
 		*/
 		{
-			title: 'Thao tác',
+			title: t('manageAssessmentQuestions.columnActions'),
 			width: 100,
 			render: (_, record) => (
 				<Popconfirm
-					title="Xóa câu hỏi?"
-					description="Bạn có chắc muốn xóa câu hỏi này khỏi bài thi?"
+					title={t('manageAssessmentQuestions.confirmDelete')}
+					description={t('manageAssessmentQuestions.confirmDeleteDesc')}
 					onConfirm={() => handleRemoveQuestion(record.question_id)}
-					okText="Xóa"
-					cancelText="Hủy"
+					okText={t('manageAssessmentQuestions.delete')}
+					cancelText={t('manageAssessmentQuestions.cancel')}
 					disabled={isQuestionsLocked}
 				>
 					<Button type="text" danger icon={<DeleteOutlined />} size="small" disabled={isQuestionsLocked} />
@@ -609,32 +621,32 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 
 	const availableColumns: ColumnsType<Question> = [
 		{
-			title: 'Câu hỏi',
+			title: t('manageAssessmentQuestions.columnQuestion'),
 			dataIndex: 'text',
 			ellipsis: true,
 		},
 		{
-			title: 'Loại',
+			title: t('manageAssessmentQuestions.columnType'),
 			dataIndex: 'type',
 			width: 150,
-			render: (type: QuestionType) => <Tag>{typeLabels[type]}</Tag>,
+			render: (type: QuestionType) => <Tag>{getTypeLabel(type)}</Tag>,
 		},
 		{
-			title: 'Độ khó',
+			title: t('manageAssessmentQuestions.columnDifficulty'),
 			dataIndex: 'difficulty',
 			width: 120,
 			render: (difficulty: DifficultyLevel) => (
-				<Tag color={difficultyColors[difficulty]}>{difficultyLabels[difficulty]}</Tag>
+				<Tag color={difficultyColors[difficulty]}>{getDifficultyLabel(difficulty)}</Tag>
 			),
 		},
 		{
-			title: 'Điểm',
+			title: t('manageAssessmentQuestions.columnPoints'),
 			dataIndex: 'points',
 			width: 120,
 			render: (_, record) => {
 				// In auto-assign mode, don't show point inputs
 				if (addMode === 'auto-assign') {
-					return <Text type="secondary">Tự động</Text>;
+					return <Text type="secondary">{t('manageAssessmentQuestions.autoPoints')}</Text>;
 				}
 
 				const isSelected = selectedQuestions.includes(record.id);
@@ -647,7 +659,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 						min={POINTS_VALIDATION.MIN}
 						max={Math.min(POINTS_VALIDATION.MAX, remainingPoints + (questionPoints[record.id] || 0))}
 						value={currentValue}
-						placeholder="Điểm"
+						placeholder={t('manageAssessmentQuestions.pointsLabel')}
 						style={{ width: '100%' }}
 						onChange={(value) => {
 							if (value) {
@@ -667,10 +679,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 			<Card
 				title={
 					<Space>
-						<span>Câu hỏi ({questions.length})</span>
+						<span>{t('manageAssessmentQuestions.cardTitle')} ({questions.length})</span>
 						{isQuestionsLocked && (
 							<Tag icon={<LockOutlined />} color="warning">
-								Đã khóa
+								{t('manageAssessmentQuestions.locked')}
 							</Tag>
 						)}
 					</Space>
@@ -684,16 +696,16 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 							fetchAvailableQuestions({ page: 1, size: 10 });
 						}}
 						disabled={isQuestionsLocked}
-						title={isQuestionsLocked ? lockReason || 'Không thể thêm câu hỏi' : 'Thêm câu hỏi'}
+						title={isQuestionsLocked ? lockReason || t('manageAssessmentQuestions.cannotAddQuestion') : t('manageAssessmentQuestions.addQuestion')}
 					>
-						Thêm câu hỏi
+						{t('manageAssessmentQuestions.addQuestion')}
 					</Button>
 				}
 			>
 				{/* Lock warning */}
 				{isQuestionsLocked && lockReason && (
 					<Alert
-						message="Câu hỏi đã bị khóa"
+						message={t('manageAssessmentQuestions.questionsLocked')}
 						description={lockReason}
 						type="warning"
 						showIcon
@@ -706,7 +718,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				<Alert
 					message={
 						<Space>
-							<Text strong>Tổng điểm:</Text>
+							<Text strong>{t('manageAssessmentQuestions.totalPoints')}:</Text>
 							<Text style={{
 								color: totalPoints > MAX_TOTAL_POINTS ? '#ff4d4f' : totalPoints === MAX_TOTAL_POINTS ? '#52c41a' : '#1890ff',
 								fontSize: 16,
@@ -719,25 +731,25 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					type={totalPoints > MAX_TOTAL_POINTS ? 'error' : totalPoints === MAX_TOTAL_POINTS ? 'success' : 'info'}
 					showIcon
 					style={{ marginBottom: 16 }}
-					description={totalPoints > MAX_TOTAL_POINTS ? `Tổng điểm vượt quá giới hạn ${MAX_TOTAL_POINTS - totalPoints} điểm` : undefined}
+					description={totalPoints > MAX_TOTAL_POINTS ? t('manageAssessmentQuestions.exceededBy', { points: Math.abs(MAX_TOTAL_POINTS - totalPoints) }) : undefined}
 				/>
 
 				{/* Bulk actions toolbar */}
 				{selectedRows.length > 0 && (
 					<Space style={{ marginBottom: 16 }}>
-						<Tag color="blue">Đã chọn {selectedRows.length} câu hỏi</Tag>
+						<Tag color="blue">{t('manageAssessmentQuestions.selectedQuestions', { count: selectedRows.length })}</Tag>
 						<Button
 							icon={<EditOutlined />}
 							onClick={handleBulkUpdate}
 							type="primary"
 							disabled={isQuestionsLocked}
 						>
-							Cập nhật hàng loạt
+							{t('manageAssessmentQuestions.bulkUpdate')}
 						</Button>
 						<Button
 							onClick={() => setSelectedRows([])}
 						>
-							Bỏ chọn
+							{t('manageAssessmentQuestions.deselect')}
 						</Button>
 					</Space>
 				)}
@@ -761,7 +773,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 									},
 								}}
 								locale={{
-									emptyText: 'Chưa có câu hỏi nào',
+									emptyText: t('manageAssessmentQuestions.noQuestions'),
 								}}
 							/>
 						</SortableContext>
@@ -774,14 +786,14 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 						loading={loading}
 						pagination={false}
 						locale={{
-							emptyText: 'Chưa có câu hỏi nào',
+							emptyText: t('manageAssessmentQuestions.noQuestions'),
 						}}
 					/>
 				)}
 			</Card>
 
 			<Modal
-				title="Thêm câu hỏi vào bài thi"
+				title={t('manageAssessmentQuestions.addToAssessmentModal')}
 				open={addModalVisible}
 				onCancel={() => {
 					setAddModalVisible(false);
@@ -790,8 +802,8 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					setAddMode('manual'); // Reset mode
 				}}
 				onOk={handleAddQuestions}
-				okText="Thêm"
-				cancelText="Hủy"
+				okText={t('manageAssessmentQuestions.add')}
+				cancelText={t('manageAssessmentQuestions.cancel')}
 				width={900}
 				confirmLoading={addLoading}
 				okButtonProps={{ disabled: selectedQuestions.length === 0 }}
@@ -807,7 +819,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					{/* Mode selection */}
 					<Card size="small" style={{ backgroundColor: '#f0f5ff' }}>
 						<Space direction="vertical" size="small" style={{ width: '100%' }}>
-							<Text strong>Chọn phương thức thêm câu hỏi:</Text>
+							<Text strong>{t('manageAssessmentQuestions.selectAddMethod')}</Text>
 							<Radio.Group
 								value={addMode}
 								onChange={(e) => setAddMode(e.target.value)}
@@ -816,17 +828,17 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								<Space direction="vertical">
 									<Radio value="manual">
 										<Space direction="vertical" size={0}>
-											<Text strong>Nhập điểm thủ công</Text>
+											<Text strong>{t('manageAssessmentQuestions.manualPoints')}</Text>
 											<Text type="secondary" style={{ fontSize: 12 }}>
-												Bạn sẽ nhập điểm cho từng câu hỏi. Câu hỏi hiện có giữ nguyên điểm.
+												{t('manageAssessmentQuestions.manualPointsDesc')}
 											</Text>
 										</Space>
 									</Radio>
 									<Radio value="auto-assign">
 										<Space direction="vertical" size={0}>
-											<Text strong>Tự động phân phối điểm đều</Text>
+											<Text strong>{t('manageAssessmentQuestions.autoAssign')}</Text>
 											<Text type="secondary" style={{ fontSize: 12 }}>
-												Hệ thống sẽ tự động phân phối 100 điểm đều cho TẤT CẢ câu hỏi (cả hiện có và mới).
+												{t('manageAssessmentQuestions.autoAssignDesc')}
 											</Text>
 										</Space>
 									</Radio>
@@ -838,7 +850,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					{/* Filter info */}
 					{questions.length > 0 && (
 						<Alert
-							message={`Danh sách đã lọc bỏ ${questions.length} câu hỏi đã có trong bài thi`}
+							message={t('manageAssessmentQuestions.filteredInfo', { count: questions.length })}
 							type="info"
 							showIcon
 							closable
@@ -849,20 +861,20 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					{addMode === 'auto-assign' && selectedQuestions.length > 0 && (
 						<>
 							<Alert
-								message="Xem trước phân phối điểm"
+								message={t('manageAssessmentQuestions.previewDistribution')}
 								description={
 									<Space direction="vertical" size="small">
 										<Text>
-											Tổng số câu hỏi: <Text strong>{questions.length + selectedQuestions.length}</Text> câu
-											({questions.length} hiện có + {selectedQuestions.length} mới)
+											{t('manageAssessmentQuestions.totalQuestionsLabel')}: <Text strong>{questions.length + selectedQuestions.length}</Text> {t('manageAssessmentQuestions.questionsUnit')}
+											({questions.length} {t('manageAssessmentQuestions.existingQuestions')} + {selectedQuestions.length} {t('manageAssessmentQuestions.newQuestions')})
 										</Text>
 										<Text>
-											Điểm mỗi câu: <Text strong style={{ color: '#1890ff' }}>
-												{Math.floor(100 / (questions.length + selectedQuestions.length))} điểm
+											{t('manageAssessmentQuestions.pointsPerQuestion')}: <Text strong style={{ color: '#1890ff' }}>
+												{Math.floor(100 / (questions.length + selectedQuestions.length))} {t('gradingDetail.pointsUnit')}
 											</Text>
 											{100 % (questions.length + selectedQuestions.length) > 0 && (
 												<Text type="secondary" style={{ fontSize: 12 }}>
-													{' '}({100 % (questions.length + selectedQuestions.length)} câu đầu sẽ có thêm 1 điểm)
+													{' '}({t('manageAssessmentQuestions.extraPointNote', { count: 100 % (questions.length + selectedQuestions.length) })})
 												</Text>
 											)}
 										</Text>
@@ -872,12 +884,12 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								showIcon
 							/>
 							<Alert
-								message="Lưu ý quan trọng"
+								message={t('manageAssessmentQuestions.importantNote')}
 								description={
 									<ul style={{ margin: 0, paddingLeft: 20 }}>
-										<li>Tất cả câu hỏi (cả hiện có) sẽ được phân phối lại điểm đều nhau</li>
-										<li>Điểm của câu hỏi hiện có sẽ bị thay đổi</li>
-										<li>Chỉ có thể sử dụng khi chưa có sinh viên nào bắt đầu làm bài</li>
+										<li>{t('manageAssessmentQuestions.autoAssignWarning1')}</li>
+										<li>{t('manageAssessmentQuestions.autoAssignWarning2')}</li>
+										<li>{t('manageAssessmentQuestions.autoAssignWarning3')}</li>
 									</ul>
 								}
 								type="warning"
@@ -891,7 +903,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 						<Alert
 							message={
 								<Space>
-									<Text>Điểm khả dụng:</Text>
+									<Text>{t('manageAssessmentQuestions.availablePoints')}:</Text>
 									<Text strong style={{ color: '#1890ff' }}>
 										{getRemainingPoints(totalPoints)} / {MAX_TOTAL_POINTS}
 									</Text>
@@ -899,14 +911,14 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 							}
 							type="info"
 							showIcon
-							description="Nhập điểm cho từng câu hỏi sau khi chọn. Tổng điểm không được vượt quá 100."
+							description={t('manageAssessmentQuestions.manualPointsHint')}
 						/>
 					)}
 
 					<Row gutter={[8, 8]}>
 						<Col span={12}>
 							<Input
-								placeholder="Tìm kiếm câu hỏi..."
+								placeholder={t('manageAssessmentQuestions.searchPlaceholder')}
 								prefix={<SearchOutlined />}
 								value={searchText}
 								onChange={(e) => setSearchText(e.target.value)}
@@ -916,32 +928,32 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 						</Col>
 						<Col span={6}>
 							<Select
-								placeholder="Lọc theo loại"
+								placeholder={t('manageAssessmentQuestions.filterByType')}
 								allowClear
 								style={{ width: '100%' }}
 								value={filterType}
 								onChange={(value) => setFilterType(value)}
 								disabled={fetchingQuestions}
 							>
-								{Object.entries(typeLabels).map(([key, label]) => (
-									<Select.Option key={key} value={key}>
-										{label}
+								{Object.values(QuestionType).map((type) => (
+									<Select.Option key={type} value={type}>
+										{getTypeLabel(type)}
 									</Select.Option>
 								))}
 							</Select>
 						</Col>
 						<Col span={6}>
 							<Select
-								placeholder="Lọc theo độ khó"
+								placeholder={t('manageAssessmentQuestions.filterByDifficulty')}
 								allowClear
 								style={{ width: '100%' }}
 								value={filterDifficulty}
 								onChange={(value) => setFilterDifficulty(value)}
 								disabled={fetchingQuestions}
 							>
-								{Object.entries(difficultyLabels).map(([key, label]) => (
-									<Select.Option key={key} value={key}>
-										{label}
+								{Object.values(DifficultyLevel).map((level) => (
+									<Select.Option key={level} value={level}>
+										{getDifficultyLabel(level)}
 									</Select.Option>
 								))}
 							</Select>
@@ -955,16 +967,16 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 							loading={fetchingQuestions}
 							disabled={fetchingQuestions}
 						>
-							{fetchingQuestions ? 'Đang tìm...' : 'Lọc'}
+							{fetchingQuestions ? t('manageAssessmentQuestions.searching') : t('manageAssessmentQuestions.filter')}
 						</Button>
 						{!fetchingQuestions && availableQuestions.length > 0 && (
 							<Text type="secondary">
-								Tìm thấy {availableQuestions.length} câu hỏi
+								{t('manageAssessmentQuestions.foundQuestions', { count: availableQuestions.length })}
 							</Text>
 						)}
 						{fetchingQuestions && (
 							<Text type="secondary">
-								Đang tải danh sách câu hỏi...
+								{t('manageAssessmentQuestions.loadingQuestions')}
 							</Text>
 						)}
 					</Space>
@@ -1006,13 +1018,13 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 									<FileTextOutlined style={{ fontSize: 48, color: '#bfbfbf' }} />
 									<Text type="secondary">
 										{questions.length > 0
-											? 'Tất cả câu hỏi trong kho đã được thêm vào bài thi'
-											: 'Không tìm thấy câu hỏi nào'
+											? t('manageAssessmentQuestions.allQuestionsAdded')
+											: t('manageAssessmentQuestions.noQuestionsFound')
 										}
 									</Text>
 									{questions.length === 0 && (
 										<Text type="secondary" style={{ fontSize: 12 }}>
-											Thử thay đổi bộ lọc hoặc tìm kiếm
+											{t('manageAssessmentQuestions.tryChangeFilter')}
 										</Text>
 									)}
 								</Space>
@@ -1024,19 +1036,19 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 
 			{/* Bulk update modal */}
 			<Modal
-				title="Cập nhật hàng loạt"
+				title={t('manageAssessmentQuestions.bulkUpdateModal')}
 				open={bulkModalVisible}
 				onCancel={() => {
 					setBulkModalVisible(false);
 					bulkForm.resetFields();
 				}}
 				onOk={handleBulkUpdateSubmit}
-				okText="Cập nhật"
-				cancelText="Hủy"
+				okText={t('manageAssessmentQuestions.update')}
+				cancelText={t('manageAssessmentQuestions.cancel')}
 				confirmLoading={bulkLoading}
 			>
 				<Alert
-					message={`Cập nhật cho ${selectedRows.length} câu hỏi đã chọn`}
+					message={t('manageAssessmentQuestions.bulkUpdateInfo', { count: selectedRows.length })}
 					type="info"
 					showIcon
 					style={{ marginBottom: 16 }}
@@ -1047,15 +1059,15 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					layout="vertical"
 				>
 					<Form.Item
-						label="Điểm"
+						label={t('manageAssessmentQuestions.points')}
 						name="points"
-						help="Để trống nếu không muốn thay đổi"
+						help={t('manageAssessmentQuestions.leaveEmptyHint')}
 					>
 						<InputNumber
 							min={0}
 							max={MAX_TOTAL_POINTS}
 							style={{ width: '100%' }}
-							placeholder="Nhập điểm cho tất cả câu hỏi đã chọn"
+							placeholder={t('manageAssessmentQuestions.pointsPlaceholder')}
 						/>
 					</Form.Item>
 
@@ -1074,12 +1086,12 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
                     */}
 
 					<Alert
-						message="Lưu ý"
+						message={t('manageAssessmentQuestions.note')}
 						description={
 							<ul style={{ margin: 0, paddingLeft: 20 }}>
-								<li>Các trường để trống sẽ không được cập nhật</li>
-								<li>Tổng điểm của assessment không được vượt quá {MAX_TOTAL_POINTS}</li>
-								<li>Thay đổi sẽ áp dụng cho tất cả câu hỏi đã chọn</li>
+								<li>{t('manageAssessmentQuestions.bulkUpdateNote1')}</li>
+								<li>{t('manageAssessmentQuestions.bulkUpdateNote2', { max: MAX_TOTAL_POINTS })}</li>
+								<li>{t('manageAssessmentQuestions.bulkUpdateNote3')}</li>
 							</ul>
 						}
 						type="warning"

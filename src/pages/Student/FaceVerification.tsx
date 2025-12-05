@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Card, Button, Space, Typography, Alert, Spin, App, theme, Steps, Row, Col, Tag } from 'antd';
 import { CameraOutlined, CheckCircleOutlined, PlayCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import studentService from '../../services/studentService';
 import faceVerificationService from '../../services/faceVerificationService';
@@ -15,6 +16,7 @@ const FaceVerification: React.FC = () => {
   const { user } = useAuth();
   const { modal, message } = App.useApp();
   const { token } = useToken();
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,11 +68,11 @@ const FaceVerification: React.FC = () => {
       console.error('Camera error:', err);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         setPermissionDenied(true);
-        setError('Vui lòng cấp quyền truy cập camera để tiếp tục.');
+        setError(t('faceVerification.cameraPermissionError'));
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        setError('Không tìm thấy camera. Vui lòng kiểm tra kết nối thiết bị.');
+        setError(t('faceVerification.cameraNotFoundError'));
       } else {
-        setError(err.message || 'Không thể truy cập camera. Vui lòng thử lại.');
+        setError(err.message || t('faceVerification.cameraAccessError'));
       }
     }
   };
@@ -118,11 +120,11 @@ const FaceVerification: React.FC = () => {
     try {
       const imageBlob = await captureFrame();
       await faceVerificationService.registerFace(imageBlob);
-      message.success('Đăng ký khuôn mặt thành công!');
+      message.success(t('faceVerification.registerSuccess'));
       setIsRegistered(true);
     } catch (err: any) {
       console.error('Registration error:', err);
-      setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+      setError(err.message || t('faceVerification.registerError'));
     } finally {
       setRegistering(false);
     }
@@ -141,7 +143,7 @@ const FaceVerification: React.FC = () => {
       if (!result.verified) {
         setVerifying(false);
         const similarity = (result.similarity * 100).toFixed(1);
-        setError(`Xác thực thất bại (${similarity}%). ${result.reason || 'Vui lòng giữ yên và nhìn thẳng vào camera.'}`);
+        setError(t('faceVerification.verifyFailed', { similarity, reason: result.reason || t('faceVerification.verifyFailedHint') }));
         return;
       }
 
@@ -151,28 +153,28 @@ const FaceVerification: React.FC = () => {
     } catch (err: any) {
       setVerifying(false);
       console.error('Verification error:', err);
-      const errorMsg = err.message || 'Lỗi xác thực khuôn mặt. Vui lòng thử lại.';
+      const errorMsg = err.message || t('faceVerification.verifyError');
       setError(errorMsg);
     }
   };
 
   const startAssessment = () => {
     modal.confirm({
-      title: 'Bắt đầu làm bài',
+      title: t('faceVerification.startExamTitle'),
       content: (
         <div>
           <p><strong>{assessmentData.title}</strong></p>
-          <p>Thời gian: {assessmentData.duration} phút</p>
+          <p>{t('faceVerification.duration')}: {assessmentData.duration} {t('common.minutes')}</p>
           <Alert
-            message="Chúc bạn làm bài tốt!"
+            message={t('faceVerification.goodLuck')}
             type="success"
             showIcon
             style={{ marginTop: 16 }}
           />
         </div>
       ),
-      okText: 'Bắt đầu ngay',
-      cancelText: 'Hủy',
+      okText: t('faceVerification.startNow'),
+      cancelText: t('common.cancel'),
       onOk: async () => {
         setIsStarting(true);
         try {
@@ -189,8 +191,8 @@ const FaceVerification: React.FC = () => {
         } catch (error: any) {
           setIsStarting(false);
           modal.error({
-            title: 'Lỗi',
-            content: error.response?.data?.message || error.message || 'Không thể bắt đầu bài kiểm tra',
+            title: t('common.error'),
+            content: error.response?.data?.message || error.message || t('faceVerification.startError'),
           });
         }
       },
@@ -215,21 +217,21 @@ const FaceVerification: React.FC = () => {
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               <div>
                 <Title level={3} style={{ marginBottom: 0 }}>{assessmentData.title}</Title>
-                <Text type="secondary">Chuẩn bị vào phòng thi</Text>
+                <Text type="secondary">{t('faceVerification.preparingRoom')}</Text>
               </div>
 
               <Card size="small" style={{ background: token.colorFillAlter }}>
                 <Space direction="vertical" size="small">
                   <Space>
-                    <Text type="secondary">Thời gian:</Text>
-                    <Text strong>{assessmentData.duration} phút</Text>
+                    <Text type="secondary">{t('faceVerification.duration')}:</Text>
+                    <Text strong>{assessmentData.duration} {t('common.minutes')}</Text>
                   </Space>
                   <Space>
-                    <Text type="secondary">Số lần làm:</Text>
+                    <Text type="secondary">{t('faceVerification.attemptsUsed')}:</Text>
                     <Text strong>{assessmentData.attempts_used} / {assessmentData.max_attempts}</Text>
                   </Space>
                   <Space>
-                    <Text type="secondary">Điểm đạt:</Text>
+                    <Text type="secondary">{t('faceVerification.passingScore')}:</Text>
                     <Text strong>{assessmentData.passing_score}%</Text>
                   </Space>
                 </Space>
@@ -241,18 +243,18 @@ const FaceVerification: React.FC = () => {
                   current={checkingStatus ? 0 : isRegistered ? 2 : 1}
                   items={[
                     {
-                      title: 'Kiểm tra thiết bị',
-                      description: 'Đảm bảo camera hoạt động tốt',
+                      title: t('faceVerification.steps.deviceCheck'),
+                      description: t('faceVerification.steps.deviceCheckDesc'),
                       status: cameraReady ? 'finish' : 'process',
                     },
                     {
-                      title: 'Đăng ký khuôn mặt',
-                      description: 'Tạo dữ liệu nhận diện (chỉ lần đầu)',
+                      title: t('faceVerification.steps.faceRegister'),
+                      description: t('faceVerification.steps.faceRegisterDesc'),
                       status: isRegistered ? 'finish' : checkingStatus ? 'wait' : 'process',
                     },
                     {
-                      title: 'Xác thực danh tính',
-                      description: 'Đối chiếu khuôn mặt để vào thi',
+                      title: t('faceVerification.steps.identityVerify'),
+                      description: t('faceVerification.steps.identityVerifyDesc'),
                       status: isRegistered ? 'process' : 'wait',
                     },
                   ]}
@@ -263,7 +265,7 @@ const FaceVerification: React.FC = () => {
                 icon={<ArrowLeftOutlined />} 
                 onClick={() => navigate('/student/assessments')}
               >
-                Quay lại danh sách
+                {t('faceVerification.backToList')}
               </Button>
             </Space>
           </Col>
@@ -271,8 +273,8 @@ const FaceVerification: React.FC = () => {
           {/* Right Side: Camera & Actions */}
           <Col xs={24} md={14}>
             <Card 
-              title={isRegistered ? "Xác thực danh tính" : "Đăng ký khuôn mặt"}
-              extra={isRegistered ? <Tag color="blue">Bước 3/3</Tag> : <Tag color="orange">Bước 2/3</Tag>}
+              title={isRegistered ? t('faceVerification.identityVerificationTitle') : t('faceVerification.faceRegisterTitle')}
+              extra={isRegistered ? <Tag color="blue">{t('faceVerification.step3')}</Tag> : <Tag color="orange">{t('faceVerification.step2')}</Tag>}
             >
               <div style={{ 
                 position: 'relative', 
@@ -288,22 +290,22 @@ const FaceVerification: React.FC = () => {
               }}>
                 {permissionDenied ? (
                   <div style={{ textAlign: 'center', padding: 20, color: '#fff' }}>
-                    <Title level={4} style={{ color: '#fff' }}>Quyền truy cập bị từ chối</Title>
+                    <Title level={4} style={{ color: '#fff' }}>{t('faceVerification.permissionDenied')}</Title>
                     <Text style={{ color: 'rgba(255,255,255,0.8)' }}>
-                      Vui lòng cho phép trình duyệt truy cập camera.
+                      {t('faceVerification.allowCameraAccess')}
                     </Text>
-                    <Button type="primary" onClick={startCamera} style={{ marginTop: 16 }}>Thử lại</Button>
+                    <Button type="primary" onClick={startCamera} style={{ marginTop: 16 }}>{t('faceVerification.retry')}</Button>
                   </div>
                 ) : error && !cameraReady ? (
                   <div style={{ textAlign: 'center', padding: 20, color: '#fff' }}>
-                    <Title level={4} style={{ color: '#ff4d4f' }}>Lỗi Camera</Title>
+                    <Title level={4} style={{ color: '#ff4d4f' }}>{t('faceVerification.cameraError')}</Title>
                     <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{error}</Text>
-                    <Button type="primary" onClick={startCamera} style={{ marginTop: 16 }}>Thử lại</Button>
+                    <Button type="primary" onClick={startCamera} style={{ marginTop: 16 }}>{t('faceVerification.retry')}</Button>
                   </div>
                 ) : !cameraReady ? (
                   <div style={{ textAlign: 'center' }}>
                     <Spin size="large" />
-                    <div style={{ marginTop: 16, color: '#fff' }}>Đang khởi động camera...</div>
+                    <div style={{ marginTop: 16, color: '#fff' }}>{t('faceVerification.startingCamera')}</div>
                   </div>
                 ) : null}
                 
@@ -328,7 +330,7 @@ const FaceVerification: React.FC = () => {
 
               <div style={{ textAlign: 'center' }}>
                 {checkingStatus ? (
-                  <Spin tip="Đang kiểm tra trạng thái..." />
+                  <Spin tip={t('faceVerification.checkingStatus')} />
                 ) : isRegistered ? (
                   <Button
                     type="primary"
@@ -339,13 +341,13 @@ const FaceVerification: React.FC = () => {
                     loading={verifying || isStarting}
                     block
                   >
-                    {verifying ? 'Đang xác thực...' : 'Xác thực và vào thi'}
+                    {verifying ? t('faceVerification.verifying') : t('faceVerification.verifyAndStart')}
                   </Button>
                 ) : (
                   <Space direction="vertical" style={{ width: '100%' }}>
                     <Alert 
                       type="info" 
-                      message="Bạn chưa có dữ liệu khuôn mặt. Vui lòng chụp ảnh để đăng ký." 
+                      message={t('faceVerification.noFaceData')} 
                       showIcon 
                       style={{ textAlign: 'left' }}
                     />
@@ -358,7 +360,7 @@ const FaceVerification: React.FC = () => {
                       loading={registering}
                       block
                     >
-                      {registering ? 'Đang đăng ký...' : 'Chụp ảnh đăng ký'}
+                      {registering ? t('faceVerification.registering') : t('faceVerification.captureToRegister')}
                     </Button>
                   </Space>
                 )}

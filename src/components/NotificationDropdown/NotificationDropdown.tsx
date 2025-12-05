@@ -42,10 +42,10 @@ const fetchNotifications = async (cursor?: string): Promise<NotificationPage> =>
 		const index = cursor ? parseInt(cursor) + i : i;
 		return {
 			id: `notification-${index}`,
-			title: `Thông báo ${index + 1}`,
+			title: `Notification ${index + 1}`,
 			content: index % 3 === 0
-				? `Đây là nội dung thông báo số ${index + 1}. Nội dung này rất dài và cần được cắt bớt khi hiển thị trong danh sách để đảm bảo giao diện đẹp mắt và dễ đọc cho người dùng.`
-				: `Nội dung thông báo ngắn gọn số ${index + 1}.`,
+				? `This is the content of notification ${index + 1}. This content is very long and needs to be truncated when displayed in the list to ensure a beautiful and readable interface for users.`
+				: `Short notification content ${index + 1}.`,
 			createdAt: new Date(Date.now() - index * 3600000).toISOString(),
 			read: index > 2,
 		};

@@ -164,6 +164,27 @@
 		"logout": "Logout",
 		"lightMode": "Light Mode"
 	},
+	"userManagement": {
+		"title": "User Management",
+		"noAccess": "No Access",
+		"noAccessDesc": "You need admin privileges to access this page.",
+		"backHome": "Back to Home",
+		"subtitle": "Manage users through Casdoor - Centralized Identity Management Platform",
+		"casdoorTitle": "Casdoor User Management",
+		"casdoorDesc": "The system uses Casdoor for centralized user management. All user management operations such as add, edit, delete, and permission assignment are performed on the Casdoor platform.",
+		"createUser": "Create User",
+		"createUserDesc": "Add new users to the system",
+		"permissions": "Permissions",
+		"permissionsDesc": "Manage roles and permissions",
+		"manageGroups": "Manage Groups",
+		"manageGroupsDesc": "Organize users by groups",
+		"configuration": "Configuration",
+		"configurationDesc": "Set up security policies",
+		"openCasdoor": "Open Casdoor User Management",
+		"redirectNote": "You will be redirected to Casdoor user management page",
+		"infoTitle": "Information",
+		"infoDesc": "Casdoor provides a complete user management interface with features: search, filter, permission management, group management, and many other features."
+	},
 	"assessment": {
 		"title": "Assessment",
 		"list": "Assessment List",

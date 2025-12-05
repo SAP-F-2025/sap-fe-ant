@@ -164,6 +164,27 @@
 		"logout": "Đăng xuất",
 		"lightMode": "Chế độ sáng"
 	},
+	"userManagement": {
+		"title": "Quản lý người dùng",
+		"noAccess": "Không có quyền truy cập",
+		"noAccessDesc": "Bạn cần quyền admin để truy cập trang này.",
+		"backHome": "Về trang chủ",
+		"subtitle": "Quản lý người dùng thông qua Casdoor - Nền tảng quản lý danh tính tập trung",
+		"casdoorTitle": "Casdoor User Management",
+		"casdoorDesc": "Hệ thống sử dụng Casdoor để quản lý người dùng tập trung. Tất cả các thao tác quản lý người dùng như thêm, sửa, xóa, phân quyền được thực hiện trên nền tảng Casdoor.",
+		"createUser": "Tạo người dùng",
+		"createUserDesc": "Thêm người dùng mới vào hệ thống",
+		"permissions": "Phân quyền",
+		"permissionsDesc": "Quản lý vai trò và quyền hạn",
+		"manageGroups": "Quản lý nhóm",
+		"manageGroupsDesc": "Tổ chức người dùng theo nhóm",
+		"configuration": "Cấu hình",
+		"configurationDesc": "Thiết lập chính sách bảo mật",
+		"openCasdoor": "Mở Casdoor User Management",
+		"redirectNote": "Bạn sẽ được chuyển hướng đến trang quản lý người dùng của Casdoor",
+		"infoTitle": "Thông tin",
+		"infoDesc": "Casdoor cung cấp giao diện quản lý người dùng đầy đủ với các tính năng: tìm kiếm, lọc, phân quyền, quản lý nhóm, và nhiều tính năng khác."
+	},
 	"assessment": {
 		"title": "Bài kiểm tra",
 		"list": "Danh sách bài kiểm tra",

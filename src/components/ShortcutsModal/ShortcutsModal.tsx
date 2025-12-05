@@ -1,22 +1,23 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { Modal, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useThemeToken } from '../../theme/ThemeProvider';
 
 const { Text } = Typography;
 
 interface Shortcut {
 	keys: string[];
-	description: string;
+	descriptionKey: string;
 }
 
 interface ShortcutSubsection {
-	title?: string;
+	titleKey?: string;
 	shortcuts: Shortcut[];
 }
 
 interface ShortcutSection {
-	title: string;
+	titleKey: string;
 	subsections?: ShortcutSubsection[];
 	shortcuts?: Shortcut[];
 }
@@ -27,70 +28,70 @@ interface ShortcutsModalProps {
 
 const allShortcuts: Record<string, ShortcutSection> = {
 	'settings-notifications': {
-		title: 'Cài đặt - Thông báo',
+		titleKey: 'shortcuts.sections.settingsNotifications',
 		shortcuts: [
-			{ keys: ['Ctrl', 'Enter'], description: 'Lưu thay đổi' },
-			{ keys: ['Ctrl', 'Backspace'], description: 'Hủy thay đổi' },
+			{ keys: ['Ctrl', 'Enter'], descriptionKey: 'shortcuts.descriptions.saveChanges' },
+			{ keys: ['Ctrl', 'Backspace'], descriptionKey: 'shortcuts.descriptions.cancelChanges' },
 		],
 	},
 	settings: {
-		title: 'Cài đặt',
+		titleKey: 'shortcuts.sections.settings',
 		shortcuts: [
-			{ keys: ['Alt', '↑/↓'], description: 'Chuyển tab cài đặt' },
-			{ keys: ['Shift', '↑/↓'], description: 'Điều hướng trong tab' },
+			{ keys: ['Alt', '↑/↓'], descriptionKey: 'shortcuts.descriptions.switchSettingsTab' },
+			{ keys: ['Shift', '↑/↓'], descriptionKey: 'shortcuts.descriptions.navigateInTab' },
 		],
 	},
 	navigation: {
-		title: 'Điều hướng',
+		titleKey: 'shortcuts.sections.navigation',
 		shortcuts: [
-			{ keys: ['Alt', '↑/↓'], description: 'Chuyển tab menu' },
-			{ keys: ['Ctrl', 'B'], description: 'Ẩn/Hiện thanh bên' },
+			{ keys: ['Alt', '↑/↓'], descriptionKey: 'shortcuts.descriptions.switchMenuTab' },
+			{ keys: ['Ctrl', 'B'], descriptionKey: 'shortcuts.descriptions.toggleSidebar' },
 		],
 	},
 	exam: {
-		title: 'Trang làm bài thi',
+		titleKey: 'shortcuts.sections.exam',
 		subsections: [
 			{
-				title: 'Chung',
+				titleKey: 'shortcuts.subsections.general',
 				shortcuts: [
-					{ keys: ['←', '→'], description: 'Câu trước/sau' },
-					{ keys: ['Shift', 'Enter'], description: 'Thoát khỏi ô nhập liệu' },
-					{ keys: ['Ctrl', 'Enter'], description: 'Mở hộp thoại nộp bài' },
-					{ keys: ['Ctrl', 'Shift', 'Enter'], description: 'Xác nhận nộp bài (khi modal mở)' },
-					{ keys: ['Ctrl', 'Shift', 'T'], description: 'Chuyển đổi chủ đề' },
-					{ keys: ['Ctrl', '/'], description: 'Mở/Đóng danh sách phím tắt' },
+					{ keys: ['←', '→'], descriptionKey: 'shortcuts.descriptions.prevNextQuestion' },
+					{ keys: ['Shift', 'Enter'], descriptionKey: 'shortcuts.descriptions.exitInput' },
+					{ keys: ['Ctrl', 'Enter'], descriptionKey: 'shortcuts.descriptions.openSubmitDialog' },
+					{ keys: ['Ctrl', 'Shift', 'Enter'], descriptionKey: 'shortcuts.descriptions.confirmSubmit' },
+					{ keys: ['Ctrl', 'Shift', 'T'], descriptionKey: 'shortcuts.descriptions.toggleTheme' },
+					{ keys: ['Ctrl', '/'], descriptionKey: 'shortcuts.descriptions.toggleShortcuts' },
 				],
 			},
 			{
-				title: 'Trắc nghiệm',
+				titleKey: 'shortcuts.subsections.multipleChoice',
 				shortcuts: [
-					{ keys: ['1', '9'], description: 'Chọn đáp án tương ứng' },
+					{ keys: ['1', '9'], descriptionKey: 'shortcuts.descriptions.selectAnswer' },
 				],
 			},
 			{
-				title: 'Đúng/Sai',
+				titleKey: 'shortcuts.subsections.trueFalse',
 				shortcuts: [
-					{ keys: ['1'], description: 'Chọn Đúng' },
-					{ keys: ['2'], description: 'Chọn Sai' },
+					{ keys: ['1'], descriptionKey: 'shortcuts.descriptions.selectTrue' },
+					{ keys: ['2'], descriptionKey: 'shortcuts.descriptions.selectFalse' },
 				],
 			},
 			{
-				title: 'Sắp xếp',
+				titleKey: 'shortcuts.subsections.ordering',
 				shortcuts: [
-					{ keys: ['Space', 'Enter'], description: 'Chọn/Bỏ chọn để di chuyển' },
-					{ keys: ['Alt', '↑/↓'], description: 'Di chuyển mục đã chọn hoặc điều hướng' },
-					{ keys: ['1' ,'9'], description: 'Chọn nhanh hoặc di chuyển đến vị trí' },
+					{ keys: ['Space', 'Enter'], descriptionKey: 'shortcuts.descriptions.selectOrMove' },
+					{ keys: ['Alt', '↑/↓'], descriptionKey: 'shortcuts.descriptions.moveSelectedOrNavigate' },
+					{ keys: ['1', '9'], descriptionKey: 'shortcuts.descriptions.quickSelectOrMove' },
 				],
 			},
 		],
 	},
 	global: {
-		title: 'Toàn cục',
+		titleKey: 'shortcuts.sections.global',
 		shortcuts: [
-			{ keys: ['Ctrl', '/'], description: 'Mở/Đóng danh sách phím tắt' },
-			{ keys: ['Ctrl', ','], description: 'Mở/Đóng cài đặt' },
-			{ keys: ['Ctrl', 'Shift', 'T'], description: 'Chuyển đổi chủ đề' },
-			{ keys: ['Esc'], description: 'Đóng modal' },
+			{ keys: ['Ctrl', '/'], descriptionKey: 'shortcuts.descriptions.toggleShortcuts' },
+			{ keys: ['Ctrl', ','], descriptionKey: 'shortcuts.descriptions.openSettings' },
+			{ keys: ['Ctrl', 'Shift', 'T'], descriptionKey: 'shortcuts.descriptions.toggleTheme' },
+			{ keys: ['Esc'], descriptionKey: 'shortcuts.descriptions.closeModal' },
 		],
 	},
 };
@@ -103,6 +104,7 @@ export interface ShortcutsModalHandle {
 
 const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, ShortcutsModalProps>(({ activeContext }, ref) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const contentRef = React.useRef<HTMLDivElement>(null);
 
@@ -153,7 +155,7 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 						borderRadius: 4,
 					}}
 				>
-					<Text style={{ fontSize: 14 }}>{shortcut.description}</Text>
+					<Text style={{ fontSize: 14 }}>{t(shortcut.descriptionKey)}</Text>
 					<div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
 						{shortcut.keys.map((key, i) => (
 							<React.Fragment key={i}>
@@ -210,9 +212,9 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 					}}
 				>
 					<div>
-						<Text strong style={{ fontSize: 18 }}>Phím tắt</Text>
+						<Text strong style={{ fontSize: 18 }}>{t('shortcuts.title')}</Text>
 						<div style={{ marginTop: 4 }}>
-							<Text type="secondary" style={{ fontSize: 13 }}>Sử dụng các phím tắt để làm việc nhanh hơn</Text>
+							<Text type="secondary" style={{ fontSize: 13 }}>{t('shortcuts.subtitle')}</Text>
 						</div>
 					</div>
 					<div
@@ -231,7 +233,7 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 				</div>
 
 				{/* Content */}
-				<div 
+				<div
 					ref={contentRef}
 					tabIndex={0}
 					style={{ padding: '16px 24px 24px', maxHeight: '60vh', overflow: 'auto', outline: 'none' }}
@@ -249,14 +251,14 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 									color: key === activeContext ? token.colorPrimary : token.colorTextSecondary,
 								}}
 							>
-								{section.title}
+								{t(section.titleKey)}
 							</Text>
-							
+
 							{section.subsections ? (
 								<div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 									{section.subsections.map((subsection, subIndex) => (
 										<div key={subIndex}>
-											{subsection.title && (
+											{subsection.titleKey && (
 												<Text
 													type="secondary"
 													style={{
@@ -267,7 +269,7 @@ const ShortcutsModalComponent = React.forwardRef<ShortcutsModalHandle, Shortcuts
 														marginLeft: 4
 													}}
 												>
-													{subsection.title}
+													{t(subsection.titleKey)}
 												</Text>
 											)}
 											{renderShortcutsList(subsection.shortcuts)}

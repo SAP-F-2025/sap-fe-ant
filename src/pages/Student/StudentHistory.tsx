@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
-import { Card, Table, Tag, Button, Space, Typography, Input, Select } from 'antd';
 import {
-  EyeOutlined,
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  PlayCircleOutlined,
-  HourglassOutlined,
+	CheckCircleOutlined,
+	ClockCircleOutlined,
+	CloseCircleOutlined,
+	EyeOutlined,
+	HourglassOutlined,
+	PlayCircleOutlined,
 } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
+import { Button, Card, Select, Space, Table, Tag, Typography } from 'antd';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import studentService from '../../services/studentService';
-import type { AttemptWithAssessment, AttemptStatus, QuestionScore } from '../../types';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import type { AttemptStatus, AttemptWithAssessment } from '../../types';
 
 dayjs.extend(relativeTime);
 
@@ -22,287 +23,288 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 
 const StudentHistory: React.FC = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [statusFilter, setStatusFilter] = useState<AttemptStatus | undefined>();
+	const navigate = useNavigate();
+	const { user } = useAuth();
+	const { t } = useTranslation();
+	const [page, setPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
+	const [statusFilter, setStatusFilter] = useState<AttemptStatus | undefined>();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['student-history', page, pageSize, statusFilter],
-    queryFn: () =>
-      studentService.getAttemptHistory({
-        page,
-        size: pageSize,
-        status: statusFilter,
-      }),
-  });
+	const { data, isLoading } = useQuery({
+		queryKey: ['student-history', page, pageSize, statusFilter],
+		queryFn: () =>
+			studentService.getAttemptHistory({
+				page,
+				size: pageSize,
+				status: statusFilter,
+			}),
+	});
 
-  // Helper function to check if results should be hidden
-  const isPendingGrading = (record: AttemptWithAssessment): boolean => {
-    // Only completed attempts can be pending grading
-    if (record.status !== 'completed') {
-      return false;
-    }
+	// Helper function to check if results should be hidden
+	const isPendingGrading = (record: AttemptWithAssessment): boolean => {
+		// Only completed attempts can be pending grading
+		if (record.status !== 'completed') {
+			return false;
+		}
 
-    // Check if there are ungraded questions
-    return record.is_pending_grade ?? false;
-  };
+		// Check if there are ungraded questions
+		return record.is_pending_grade ?? false;
+	};
 
-  const getStatusTag = (status: string) => {
-    const statusMap: Record<string, { color: string; icon: React.ReactNode; text: string }> = {
-      in_progress: {
-        color: 'processing',
-        icon: <ClockCircleOutlined />,
-        text: 'Đang làm',
-      },
-      completed: {
-        color: 'success',
-        icon: <CheckCircleOutlined />,
-        text: 'Đã hoàn thành',
-      },
-      abandoned: {
-        color: 'default',
-        icon: <CloseCircleOutlined />,
-        text: 'Đã bỏ',
-      },
-      timeout: {
-        color: 'error',
-        icon: <ClockCircleOutlined />,
-        text: 'Hết giờ',
-      },
-    };
+	const getStatusTag = (status: string) => {
+		const statusMap: Record<string, { color: string; icon: React.ReactNode; textKey: string }> = {
+			in_progress: {
+				color: 'processing',
+				icon: <ClockCircleOutlined />,
+				textKey: 'studentHistory.status.inProgress',
+			},
+			completed: {
+				color: 'success',
+				icon: <CheckCircleOutlined />,
+				textKey: 'studentHistory.status.completed',
+			},
+			abandoned: {
+				color: 'default',
+				icon: <CloseCircleOutlined />,
+				textKey: 'studentHistory.status.abandoned',
+			},
+			timeout: {
+				color: 'error',
+				icon: <ClockCircleOutlined />,
+				textKey: 'studentHistory.status.timeout',
+			},
+		};
 
-    const statusInfo = statusMap[status] || {
-      color: 'default',
-      icon: null,
-      text: status,
-    };
+		const statusInfo = statusMap[status] || {
+			color: 'default',
+			icon: null,
+			textKey: status,
+		};
 
-    return (
-      <Tag color={statusInfo.color} icon={statusInfo.icon}>
-        {statusInfo.text}
-      </Tag>
-    );
-  };
+		return (
+			<Tag color={statusInfo.color} icon={statusInfo.icon}>
+				{t(statusInfo.textKey)}
+			</Tag>
+		);
+	};
 
-  const columns = [
-    {
-      title: 'Bài kiểm tra',
-      dataIndex: 'assessment_title',
-      key: 'assessment',
-      render: (title: string) => (
-        <div>
-          <Text strong>{title || 'Không xác định'}</Text>
-        </div>
-      ),
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      width: 140,
-      render: (status: string) => getStatusTag(status),
-      filters: [
-        { text: 'Đang làm', value: 'in_progress' },
-        { text: 'Đã hoàn thành', value: 'completed' },
-        { text: 'Đã bỏ', value: 'abandoned' },
-        { text: 'Hết giờ', value: 'timeout' },
-      ],
-      onFilter: (value: any, record: AttemptWithAssessment) => record.status === value,
-    },
-    {
-      title: 'Điểm',
-      dataIndex: 'score',
-      key: 'score',
-      width: 120,
-      render: (score: number | undefined, record: AttemptWithAssessment) => {
-        // Check if not completed
-        if (record.status !== 'completed') {
-          return <Text type="secondary">-</Text>;
-        }
+	const columns = [
+		{
+			title: t('studentHistory.columns.assessment'),
+			dataIndex: 'assessment_title',
+			key: 'assessment',
+			render: (title: string) => (
+				<div>
+					<Text strong>{title || t('studentHistory.unknown')}</Text>
+				</div>
+			),
+		},
+		{
+			title: t('studentHistory.columns.status'),
+			dataIndex: 'status',
+			key: 'status',
+			width: 140,
+			render: (status: string) => getStatusTag(status),
+			filters: [
+				{ text: t('studentHistory.status.inProgress'), value: 'in_progress' },
+				{ text: t('studentHistory.status.completed'), value: 'completed' },
+				{ text: t('studentHistory.status.abandoned'), value: 'abandoned' },
+				{ text: t('studentHistory.status.timeout'), value: 'timeout' },
+			],
+			onFilter: (value: any, record: AttemptWithAssessment) => record.status === value,
+		},
+		{
+			title: t('studentHistory.columns.score'),
+			dataIndex: 'score',
+			key: 'score',
+			width: 120,
+			render: (score: number | undefined, record: AttemptWithAssessment) => {
+				// Check if not completed
+				if (record.status !== 'completed') {
+					return <Text type="secondary">-</Text>;
+				}
 
-        // Check if pending grading
-        if (isPendingGrading(record)) {
-          return (
-            <Tag icon={<HourglassOutlined />} color="warning">
-              Đang chấm
-            </Tag>
-          );
-        }
+				// Check if pending grading
+				if (isPendingGrading(record)) {
+					return (
+						<Tag icon={<HourglassOutlined />} color="warning">
+							{t('studentHistory.grading')}
+						</Tag>
+					);
+				}
 
-        // Show score if available
-        if (score === undefined) {
-          return <Text type="secondary">-</Text>;
-        }
+				// Show score if available
+				if (score === undefined) {
+					return <Text type="secondary">-</Text>;
+				}
 
-        const percentage = record.percentage ?? score;
-        return (
-          <Text type={record.passed ? 'success' : 'danger'} strong>
-            {percentage.toFixed(1)}%
-          </Text>
-        );
-      },
-      sorter: (a: AttemptWithAssessment, b: AttemptWithAssessment) =>
-        (a.score || 0) - (b.score || 0),
-    },
-    {
-      title: 'Kết quả',
-      dataIndex: 'passed',
-      key: 'passed',
-      width: 120,
-      render: (passed: boolean | undefined, record: AttemptWithAssessment) => {
-        // Check if not completed
-        if (record.status !== 'completed') {
-          return <Text type="secondary">-</Text>;
-        }
+				const percentage = record.percentage ?? score;
+				return (
+					<Text type={record.passed ? 'success' : 'danger'} strong>
+						{percentage.toFixed(1)}%
+					</Text>
+				);
+			},
+			sorter: (a: AttemptWithAssessment, b: AttemptWithAssessment) =>
+				(a.score || 0) - (b.score || 0),
+		},
+		{
+			title: t('studentHistory.columns.result'),
+			dataIndex: 'passed',
+			key: 'passed',
+			width: 120,
+			render: (passed: boolean | undefined, record: AttemptWithAssessment) => {
+				// Check if not completed
+				if (record.status !== 'completed') {
+					return <Text type="secondary">-</Text>;
+				}
 
-        // Check if pending grading
-        if (isPendingGrading(record)) {
-          return (
-            <Tag icon={<HourglassOutlined />} color="warning">
-              Đang chấm
-            </Tag>
-          );
-        }
+				// Check if pending grading
+				if (isPendingGrading(record)) {
+					return (
+						<Tag icon={<HourglassOutlined />} color="warning">
+							{t('studentHistory.grading')}
+						</Tag>
+					);
+				}
 
-        // Show pass/fail status
-        return passed ? (
-          <Tag color="success" icon={<CheckCircleOutlined />}>
-            Đạt
-          </Tag>
-        ) : (
-          <Tag color="error" icon={<CloseCircleOutlined />}>
-            Không đạt
-          </Tag>
-        );
-      },
-    },
-    {
-      title: 'Bắt đầu',
-      dataIndex: 'started_at',
-      key: 'started_at',
-      width: 180,
-      render: (date: string) => (
-        <div>
-          <div>{dayjs(date).format('DD/MM/YYYY')}</div>
-          <Text type="secondary" style={{ fontSize: '12px' }}>
-            {dayjs(date).format('HH:mm')}
-          </Text>
-        </div>
-      ),
-      sorter: (a: AttemptWithAssessment, b: AttemptWithAssessment) =>
-        dayjs(a.started_at).unix() - dayjs(b.started_at).unix(),
-      defaultSortOrder: 'descend' as const,
-    },
-    {
-      title: 'Hoàn thành',
-      dataIndex: 'completed_at',
-      key: 'completed_at',
-      width: 180,
-      render: (date: string | undefined) =>
-        date ? (
-          <div>
-            <div>{dayjs(date).format('DD/MM/YYYY')}</div>
-            <Text type="secondary" style={{ fontSize: '12px' }}>
-              {dayjs(date).format('HH:mm')}
-            </Text>
-          </div>
-        ) : (
-          <Text type="secondary">-</Text>
-        ),
-    },
-    {
-      title: 'Thời gian',
-      key: 'time_spent',
-      width: 120,
-      render: (_: any, record: AttemptWithAssessment) => {
-        if (!record.completed_at) {
-          return <Text type="secondary">-</Text>;
-        }
-        const duration = dayjs(record.completed_at).diff(dayjs(record.started_at), 'minute');
-        return <Text>{duration} phút</Text>;
-      },
-    },
-    {
-      title: 'Hành động',
-      key: 'action',
-      width: 120,
-      fixed: 'right' as const,
-      render: (_: any, record: AttemptWithAssessment) => (
-        <Space>
-          {record.status === 'in_progress' ? (
-            <Button
-              type="primary"
-              size="small"
-              icon={<PlayCircleOutlined />}
-              onClick={() => navigate(`/student/take/${record.id}`)}
-            >
-              Tiếp tục
-            </Button>
-          ) : (
-            <Button
-              type="link"
-              size="small"
-              icon={<EyeOutlined />}
-              onClick={() => navigate(`/student/results/${record.id}`)}
-            >
-              Xem
-            </Button>
-          )}
-        </Space>
-      ),
-    },
-  ];
+				// Show pass/fail status
+				return passed ? (
+					<Tag color="success" icon={<CheckCircleOutlined />}>
+						{t('studentHistory.passed')}
+					</Tag>
+				) : (
+					<Tag color="error" icon={<CloseCircleOutlined />}>
+						{t('studentHistory.failed')}
+					</Tag>
+				);
+			},
+		},
+		{
+			title: t('studentHistory.columns.startedAt'),
+			dataIndex: 'started_at',
+			key: 'started_at',
+			width: 180,
+			render: (date: string) => (
+				<div>
+					<div>{dayjs(date).format('DD/MM/YYYY')}</div>
+					<Text type="secondary" style={{ fontSize: '12px' }}>
+						{dayjs(date).format('HH:mm')}
+					</Text>
+				</div>
+			),
+			sorter: (a: AttemptWithAssessment, b: AttemptWithAssessment) =>
+				dayjs(a.started_at).unix() - dayjs(b.started_at).unix(),
+			defaultSortOrder: 'descend' as const,
+		},
+		{
+			title: t('studentHistory.columns.completedAt'),
+			dataIndex: 'completed_at',
+			key: 'completed_at',
+			width: 180,
+			render: (date: string | undefined) =>
+				date ? (
+					<div>
+						<div>{dayjs(date).format('DD/MM/YYYY')}</div>
+						<Text type="secondary" style={{ fontSize: '12px' }}>
+							{dayjs(date).format('HH:mm')}
+						</Text>
+					</div>
+				) : (
+					<Text type="secondary">-</Text>
+				),
+		},
+		{
+			title: t('studentHistory.columns.timeSpent'),
+			key: 'time_spent',
+			width: 120,
+			render: (_: any, record: AttemptWithAssessment) => {
+				if (!record.completed_at) {
+					return <Text type="secondary">-</Text>;
+				}
+				const duration = dayjs(record.completed_at).diff(dayjs(record.started_at), 'minute');
+				return <Text>{t('studentHistory.minutes', { count: duration })}</Text>;
+			},
+		},
+		{
+			title: t('studentHistory.columns.action'),
+			key: 'action',
+			width: 120,
+			fixed: 'right' as const,
+			render: (_: any, record: AttemptWithAssessment) => (
+				<Space>
+					{record.status === 'in_progress' ? (
+						<Button
+							type="primary"
+							size="small"
+							icon={<PlayCircleOutlined />}
+							onClick={() => navigate(`/student/take/${record.id}`)}
+						>
+							{t('studentHistory.continue')}
+						</Button>
+					) : (
+						<Button
+							type="link"
+							size="small"
+							icon={<EyeOutlined />}
+							onClick={() => navigate(`/student/results/${record.id}`)}
+						>
+							{t('studentHistory.view')}
+						</Button>
+					)}
+				</Space>
+			),
+		},
+	];
 
-  return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '24px' }}>
-        <Title level={2}>Lịch sử làm bài</Title>
-        <Text type="secondary">Xem tất cả các lần làm bài đã qua và đang làm</Text>
-      </div>
+	return (
+		<div style={{ padding: '24px' }}>
+			<div style={{ marginBottom: '24px' }}>
+				<Title level={2}>{t('studentHistory.title')}</Title>
+				<Text type="secondary">{t('studentHistory.subtitle')}</Text>
+			</div>
 
-      <Card>
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          {/* Filters */}
-          <Space size="middle">
-            <Select
-              placeholder="Lọc theo trạng thái"
-              allowClear
-              style={{ width: 200 }}
-              value={statusFilter}
-              onChange={setStatusFilter}
-            >
-              <Option value="in_progress">Đang làm</Option>
-              <Option value="completed">Đã hoàn thành</Option>
-              <Option value="abandoned">Đã bỏ</Option>
-              <Option value="timeout">Hết giờ</Option>
-            </Select>
-          </Space>
+			<Card>
+				<Space direction="vertical" size="large" style={{ width: '100%' }}>
+					{/* Filters */}
+					<Space size="middle">
+						<Select
+							placeholder={t('studentHistory.filterPlaceholder')}
+							allowClear
+							style={{ width: 200 }}
+							value={statusFilter}
+							onChange={setStatusFilter}
+						>
+							<Option value="in_progress">{t('studentHistory.status.inProgress')}</Option>
+							<Option value="completed">{t('studentHistory.status.completed')}</Option>
+							<Option value="abandoned">{t('studentHistory.status.abandoned')}</Option>
+							<Option value="timeout">{t('studentHistory.status.timeout')}</Option>
+						</Select>
+					</Space>
 
-          {/* Table */}
-          <Table
-            columns={columns}
-            dataSource={data?.data || []}
-            rowKey="id"
-            loading={isLoading}
-            pagination={{
-              current: page,
-              pageSize: pageSize,
-              total: data?.total || 0,
-              showSizeChanger: true,
-              showTotal: (total) => `Tổng ${total} lần làm bài`,
-              onChange: (page, pageSize) => {
-                setPage(page);
-                setPageSize(pageSize);
-              },
-            }}
-            scroll={{ x: 1200 }}
-          />
-        </Space>
-      </Card>
-    </div>
-  );
+					{/* Table */}
+					<Table
+						columns={columns}
+						dataSource={data?.data || []}
+						rowKey="id"
+						loading={isLoading}
+						pagination={{
+							current: page,
+							pageSize: pageSize,
+							total: data?.total || 0,
+							showSizeChanger: true,
+							showTotal: (total) => t('studentHistory.totalAttempts', { count: total }),
+							onChange: (page, pageSize) => {
+								setPage(page);
+								setPageSize(pageSize);
+							},
+						}}
+						scroll={{ x: 1200 }}
+					/>
+				</Space>
+			</Card>
+		</div>
+	);
 };
 
 export default StudentHistory;

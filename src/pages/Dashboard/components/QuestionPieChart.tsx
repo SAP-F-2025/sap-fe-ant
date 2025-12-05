@@ -1,6 +1,7 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Card, Empty, Skeleton, Space } from 'antd';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { elevation } from '../../../styles/elevation';
 import { useThemeToken } from '../../../theme/ThemeProvider';
@@ -23,13 +24,14 @@ interface QuestionPieChartProps {
  */
 export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({ data, isLoading }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	return (
 		<Card
 			title={
 				<Space>
 					<QuestionCircleOutlined style={{ fontSize: 18, color: token.colorSuccess }} />
-					<span style={{ fontWeight: 600 }}>Phân bổ loại câu hỏi</span>
+					<span style={{ fontWeight: 600 }}>{t('dashboard.questionDistribution')}</span>
 				</Space>
 			}
 			bordered={false}
@@ -38,10 +40,10 @@ export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({ data, isLoad
 			{isLoading ? (
 				<Skeleton active paragraph={{ rows: 8 }} />
 			) : data.length === 0 ? (
-				<Empty description="Chưa có dữ liệu câu hỏi" style={{ padding: '60px 0' }} />
+				<Empty description={t('dashboard.noQuestionData')} style={{ padding: '60px 0' }} />
 			) : (
 				<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-					<PieChart aria-label="Biểu đồ phân bổ loại câu hỏi">
+					<PieChart aria-label={t('dashboard.questionChartLabel')}>
 						<Pie
 							data={data}
 							cx="50%"

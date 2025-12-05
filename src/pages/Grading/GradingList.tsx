@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   Table,
@@ -41,6 +42,7 @@ const { Title, Text } = Typography;
 const { Search } = Input;
 
 const GradingList: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const token = useThemeToken();
   const [loading, setLoading] = useState(false);
@@ -98,7 +100,7 @@ const GradingList: React.FC = () => {
       const response = await assessmentService.getAssessments({ page: 1, size: 100 });
       setAssessments(response.assessments || []);
     } catch (error) {
-      console.error('Không thể tải danh sách bài thi', error);
+      console.error(t('gradingList.loadError'), error);
     }
   };
 
@@ -115,7 +117,7 @@ const GradingList: React.FC = () => {
       setAttempts(response.data); // Changed from 'attempts' to 'data'
       setTotal(response.total); // Changed from 'total_elements' to 'total'
     } catch (error) {
-      message.error('Không thể tải danh sách bài làm');
+      message.error(t('gradingList.loadError'));
     } finally {
       setLoading(false);
     }
@@ -154,7 +156,7 @@ const GradingList: React.FC = () => {
 
   const handleAutoGradeAll = async () => {
     if (!assessmentFilter) {
-      message.warning('Vui lòng chọn bài thi để chấm tự động');
+      message.warning(t('gradingList.selectAssessment'));
       return;
     }
 
@@ -162,11 +164,15 @@ const GradingList: React.FC = () => {
       setLoading(true);
       const result = await gradingService.autoGradeAssessment(assessmentFilter);
       message.success(
-        `Đã xử lý ${result.processed_attempts} bài. Chấm tự động: ${result.auto_graded}, Cần chấm thủ công: ${result.manual_required}`
+        t('gradingList.autoGradeSuccess', {
+          processed: result.processed_attempts,
+          graded: result.auto_graded,
+          manual: result.manual_required
+        })
       );
       await fetchAttempts();
     } catch (error) {
-      message.error('Không thể chấm điểm tự động');
+      message.error(t('gradingList.autoGradeError'));
     } finally {
       setLoading(false);
     }
@@ -174,13 +180,13 @@ const GradingList: React.FC = () => {
 
   const columns: ColumnsType<AttemptListItem> = [
     {
-      title: 'ID',
+      title: t('gradingList.columnId'),
       dataIndex: 'id',
       key: 'id',
       width: 80,
     },
     {
-      title: 'Bài thi',
+      title: t('gradingList.columnAssessment'),
       dataIndex: ['assessment', 'title'],
       key: 'assessment',
       width: 200,
@@ -188,13 +194,13 @@ const GradingList: React.FC = () => {
         <Space direction="vertical" size={0}>
           <Text strong>{record.assessment?.title || `Bài thi #${record.assessment_id}`}</Text>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            Điểm chuẩn: {record.assessment?.passing_score}%
+            {t('gradingList.passingScore')}: {record.assessment?.passing_score}%
           </Text>
         </Space>
       ),
     },
     {
-      title: 'Học viên',
+      title: t('gradingList.columnStudent'),
       dataIndex: ['student', 'full_name'],
       key: 'student',
       width: 200,
@@ -215,21 +221,21 @@ const GradingList: React.FC = () => {
       ),
     },
     {
-      title: 'Trạng thái',
+      title: t('gradingList.columnStatus'),
       dataIndex: 'status',
       key: 'status',
       width: 130,
       render: (status) => getStatusBadge(status),
       filters: [
-        { text: 'Đang làm', value: 'in_progress' },
-        { text: 'Hoàn thành', value: 'completed' },
-        { text: 'Bỏ cuộc', value: 'abandoned' },
-        { text: 'Hết giờ', value: 'timeout' },
+        { text: t('gradingList.statusInProgress'), value: 'in_progress' },
+        { text: t('gradingList.statusCompleted'), value: 'completed' },
+        { text: t('gradingList.statusAbandoned'), value: 'abandoned' },
+        { text: t('gradingList.statusTimeout'), value: 'timeout' },
       ],
       filteredValue: statusFilter ? [statusFilter] : null,
     },
     {
-      title: 'Điểm',
+      title: t('gradingList.columnScore'),
       dataIndex: 'score',
       key: 'score',
       width: 120,
@@ -244,20 +250,20 @@ const GradingList: React.FC = () => {
               </Text>
               {record.passed !== undefined && (
                 record.passed ? (
-                  <Tag color="success">Đạt</Tag>
+                  <Tag color="success">{t('gradingList.passed')}</Tag>
                 ) : (
-                  <Tag color="error">Không đạt</Tag>
+                  <Tag color="error">{t('gradingList.failed')}</Tag>
                 )
               )}
             </>
           ) : (
-            <Tag color="warning">Chưa chấm</Tag>
+            <Tag color="warning">{t('gradingList.notGraded')}</Tag>
           )}
         </Space>
       ),
     },
     {
-      title: 'Thời gian bắt đầu',
+      title: t('gradingList.columnStarted'),
       dataIndex: 'started_at',
       key: 'started_at',
       width: 160,
@@ -272,7 +278,7 @@ const GradingList: React.FC = () => {
       ),
     },
     {
-      title: 'Thời gian hoàn thành',
+      title: t('gradingList.columnCompleted'),
       dataIndex: 'completed_at',
       key: 'completed_at',
       width: 160,
@@ -293,7 +299,7 @@ const GradingList: React.FC = () => {
       ),
     },
     {
-      title: 'Thao tác',
+      title: t('gradingList.columnActions'),
       key: 'action',
       fixed: 'right',
       width: 120,
@@ -304,7 +310,7 @@ const GradingList: React.FC = () => {
           icon={<EyeOutlined />}
           onClick={() => handleViewDetail(record.id)}
         >
-          Xem chi tiết
+          {t('gradingList.viewDetail')}
         </Button>
       ),
     },
@@ -315,10 +321,10 @@ const GradingList: React.FC = () => {
       <Flex justify="space-between" align="center">
         <Space direction="vertical" size={4}>
           <Title level={2} style={{ margin: 0, fontWeight: 600 }}>
-            <CheckCircleOutlined style={{ marginRight: 8 }} /> Chấm điểm
+            <CheckCircleOutlined style={{ marginRight: 8 }} /> {t('gradingList.title')}
           </Title>
           <Text type="secondary" style={{ fontSize: 14 }}>
-            Quản lý và chấm điểm bài làm của học viên
+            {t('gradingList.subtitle')}
           </Text>
         </Space>
         <Space>
@@ -327,7 +333,7 @@ const GradingList: React.FC = () => {
             onClick={fetchAttempts}
             loading={loading}
           >
-            Làm mới
+            {t('gradingList.refresh')}
           </Button>
           <Button
             type="primary"
@@ -335,7 +341,7 @@ const GradingList: React.FC = () => {
             onClick={handleAutoGradeAll}
             disabled={!assessmentFilter}
           >
-            Chấm tự động tất cả
+            {t('gradingList.autoGradeAll')}
           </Button>
         </Space>
       </Flex>
@@ -345,28 +351,28 @@ const GradingList: React.FC = () => {
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={8}>
             <Space direction="vertical" style={{ width: '100%' }} size={4}>
-              <Text strong>Trạng thái</Text>
+              <Text strong>{t('gradingList.statusFilter')}</Text>
               <Select
                 style={{ width: '100%' }}
-                placeholder="Tất cả trạng thái"
+                placeholder={t('gradingList.allStatuses')}
                 allowClear
                 value={statusFilter}
                 onChange={setStatusFilter}
                 options={[
-                  { label: 'Đang làm', value: 'in_progress' },
-                  { label: 'Hoàn thành', value: 'completed' },
-                  { label: 'Bỏ cuộc', value: 'abandoned' },
-                  { label: 'Hết giờ', value: 'timeout' },
+                  { label: t('gradingList.statusInProgress'), value: 'in_progress' },
+                  { label: t('gradingList.statusCompleted'), value: 'completed' },
+                  { label: t('gradingList.statusAbandoned'), value: 'abandoned' },
+                  { label: t('gradingList.statusTimeout'), value: 'timeout' },
                 ]}
               />
             </Space>
           </Col>
           <Col xs={24} sm={12} md={8}>
             <Space direction="vertical" style={{ width: '100%' }} size={4}>
-              <Text strong>Bài thi</Text>
+              <Text strong>{t('gradingList.assessmentFilter')}</Text>
               <Select
                 style={{ width: '100%' }}
-                placeholder="Tất cả bài thi"
+                placeholder={t('gradingList.allAssessments')}
                 allowClear
                 showSearch
                 value={assessmentFilter}
@@ -383,9 +389,9 @@ const GradingList: React.FC = () => {
           </Col>
           <Col xs={24} sm={12} md={8}>
             <Space direction="vertical" style={{ width: '100%' }} size={4}>
-              <Text strong>Tìm kiếm</Text>
+              <Text strong>{t('gradingList.searchLabel')}</Text>
               <Search
-                placeholder="Tìm theo tên học viên..."
+                placeholder={t('gradingList.searchPlaceholder')}
                 allowClear
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
@@ -410,7 +416,7 @@ const GradingList: React.FC = () => {
             pageSize: pagination.pageSize,
             total: total,
             showSizeChanger: true,
-            showTotal: (total) => `Tổng ${total} bài làm`,
+            showTotal: (total) => t('gradingList.totalItems', {count: total}),
             pageSizeOptions: ['10', '20', '50', '100'],
           }}
           onChange={handleTableChange}
@@ -420,7 +426,7 @@ const GradingList: React.FC = () => {
       {/* Statistics Summary - Moved to bottom */}
       <Card bordered={false} style={{...elevation[1], borderRadius: 16, background: '#f5f5f5'}}>
         <Space direction="vertical" size={8} style={{width: '100%'}}>
-          <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>Thống kê tổng quan</Text>
+          <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>{t('gradingList.statsTitle')}</Text>
           <Row gutter={[12, 12]}>
             <Col xs={12} sm={6}>
               <Flex align="center" gap={8}>
@@ -428,7 +434,7 @@ const GradingList: React.FC = () => {
                         style={{backgroundColor: cardColors.geekblue, flexShrink: 0}}/>
                 <Space direction="vertical" size={0}>
                   <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.total}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>Tổng bài làm</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>{t('gradingList.totalSubmissions')}</Text>
                 </Space>
               </Flex>
             </Col>
@@ -438,7 +444,7 @@ const GradingList: React.FC = () => {
                         style={{backgroundColor: cardColors.green, flexShrink: 0}}/>
                 <Space direction="vertical" size={0}>
                   <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.graded}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>Đã chấm</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>{t('gradingList.graded')}</Text>
                 </Space>
               </Flex>
             </Col>
@@ -448,7 +454,7 @@ const GradingList: React.FC = () => {
                         style={{backgroundColor: cardColors.orange, flexShrink: 0}}/>
                 <Space direction="vertical" size={0}>
                   <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.pending}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>Chờ chấm</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>{t('gradingList.pending')}</Text>
                 </Space>
               </Flex>
             </Col>
@@ -458,7 +464,7 @@ const GradingList: React.FC = () => {
                         style={{backgroundColor: cardColors.volcano, flexShrink: 0}}/>
                 <Space direction="vertical" size={0}>
                   <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.avgScore}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>Điểm trung bình</Text>
+                  <Text type="secondary" style={{fontSize: 12}}>{t('gradingList.avgScore')}</Text>
                 </Space>
               </Flex>
             </Col>

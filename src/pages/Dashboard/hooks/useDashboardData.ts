@@ -1,13 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import dashboardService from '../../../services/dashboardService';
 import { PIE_COLORS, REFETCH_INTERVAL, STALE_TIME } from '../constants';
+
+// Map API question types to translation keys
+const questionTypeToTranslationKey: Record<string, string> = {
+	multiple_choice: 'question.type.multipleChoice',
+	true_false: 'question.type.trueFalse',
+	essay: 'question.type.essay',
+	fill_blank: 'question.type.fillBlank',
+	matching: 'question.type.matching',
+	ordering: 'question.type.ordering',
+	short_answer: 'question.type.shortAnswer',
+	others: 'question.type.others',
+};
 
 /**
  * Custom hook for all dashboard data fetching
  * Centralizes React Query logic and data transformations
  */
 export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
+	const { t } = useTranslation();
 	// Dashboard stats
 	const statsQuery = useQuery({
 		queryKey: ['dashboard-stats'],
@@ -47,11 +61,13 @@ export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
 	// Memoized chart data transformations
 	const questionChartData = useMemo(() => {
 		return (questionQuery.data || []).map((item, index) => ({
-			name: item.name,
+			name: questionTypeToTranslationKey[item.type]
+				? t(questionTypeToTranslationKey[item.type])
+				: item.name,
 			value: item.count,
 			color: PIE_COLORS[index % PIE_COLORS.length],
 		}));
-	}, [questionQuery.data]);
+	}, [questionQuery.data, t]);
 
 	const performanceChartData = useMemo(() => {
 		return (performanceQuery.data || []).map(item => ({

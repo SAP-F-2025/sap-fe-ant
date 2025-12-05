@@ -26,6 +26,7 @@ import {
 	Switch
 } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { elevation } from '../../styles/elevation';
@@ -47,6 +48,7 @@ const { useBreakpoint } = Grid;
  */
 
 const MainLayout: React.FC = () => {
+	const { t } = useTranslation();
 	const [collapsed, setCollapsed] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -74,50 +76,50 @@ const MainLayout: React.FC = () => {
 		{
 			key: '/student/dashboard',
 			icon: <DashboardOutlined />,
-			label: 'Bảng điều khiển',
+			label: t('layout.studentDashboard'),
 		},
 		{
 			key: '/student/assessments',
 			icon: <BookOutlined />,
-			label: 'Bài kiểm tra',
+			label: t('layout.assessments'),
 		},
 		{
 			key: '/student/history',
 			icon: <HistoryOutlined />,
-			label: 'Lịch sử',
+			label: t('layout.history'),
 		},
 	] : [
 		// Admin/Teacher menu items
 		{
 			key: '/dashboard',
 			icon: <DashboardOutlined />,
-			label: 'Tổng quan',
+			label: t('layout.overview'),
 		},
 		// Only show Users menu for admin
 		...(user?.isAdmin ? [{
 			key: '/users',
 			icon: <TeamOutlined />,
-			label: 'Người dùng',
+			label: t('layout.users'),
 		}] : []),
 		{
 			key: '/assessments',
 			icon: <FileTextOutlined />,
-			label: 'Quản lý bài thi',
+			label: t('layout.manageAssessments'),
 		},
 		{
 			key: '/questions',
 			icon: <QuestionCircleOutlined />,
-			label: 'Quản lý câu hỏi',
+			label: t('layout.manageQuestions'),
 		},
 		{
 			key: '/question-banks',
 			icon: <BankOutlined />,
-			label: 'Ngân hàng câu hỏi',
+			label: t('layout.questionBanks'),
 		},
 		{
 			key: '/grading',
 			icon: <CheckCircleOutlined />,
-			label: 'Chấm điểm',
+			label: t('layout.grading'),
 		},
 	];
 
@@ -139,12 +141,12 @@ const MainLayout: React.FC = () => {
 		{
 			key: 'profile',
 			icon: <UserOutlined />,
-			label: 'Hồ sơ',
+			label: t('layout.profile'),
 		},
 		{
 			key: 'settings',
 			icon: <SettingOutlined />,
-			label: 'Cài đặt',
+			label: t('layout.settings'),
 		},
 		{
 			type: 'divider',
@@ -153,7 +155,7 @@ const MainLayout: React.FC = () => {
 			key: 'theme',
 			label: (
 				<Space>
-					<span>Chế độ tối</span>
+					<span>{t('layout.darkMode')}</span>
 					<Switch
 						checked={mode === 'dark'}
 						onChange={toggleDark}
@@ -168,7 +170,7 @@ const MainLayout: React.FC = () => {
 		},
 		{
 			key: 'logout',
-			label: 'Đăng xuất',
+			label: t('layout.logout'),
 			danger: true,
 		},
 	];

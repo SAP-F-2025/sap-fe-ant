@@ -9,6 +9,7 @@ import {
   Alert,
   Divider,
 } from 'antd';
+import { useTranslation } from 'react-i18next';
 import {
   TeamOutlined,
   SafetyOutlined,
@@ -27,6 +28,7 @@ const { Title, Text, Paragraph } = Typography;
  * Redirects admins to Casdoor for user management
  */
 const UserManagement: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -45,17 +47,17 @@ const UserManagement: React.FC = () => {
     return (
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Title level={2}>
-          <TeamOutlined /> Quản lý người dùng
+          <TeamOutlined /> {t('userManagement.title')}
         </Title>
 
         <Alert
-          message="Không có quyền truy cập"
-          description="Bạn cần quyền admin để truy cập trang này."
+          message={t('userManagement.noAccess')}
+          description={t('userManagement.noAccessDesc')}
           type="error"
           showIcon
           action={
             <Button size="small" onClick={() => navigate('/dashboard')}>
-              Về trang chủ
+              {t('userManagement.backHome')}
             </Button>
           }
         />
@@ -67,10 +69,10 @@ const UserManagement: React.FC = () => {
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <div>
         <Title level={2}>
-          <TeamOutlined /> Quản lý người dùng
+          <TeamOutlined /> {t('userManagement.title')}
         </Title>
         <Text type="secondary">
-          Quản lý người dùng thông qua Casdoor - Nền tảng quản lý danh tính tập trung
+          {t('userManagement.subtitle')}
         </Text>
       </div>
 
@@ -79,11 +81,10 @@ const UserManagement: React.FC = () => {
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div>
             <Title level={4}>
-              <SettingOutlined /> Casdoor User Management
+              <SettingOutlined /> {t('userManagement.casdoorTitle')}
             </Title>
             <Paragraph>
-              Hệ thống sử dụng Casdoor để quản lý người dùng tập trung. Tất cả các thao tác quản lý
-              người dùng như thêm, sửa, xóa, phân quyền được thực hiện trên nền tảng Casdoor.
+              {t('userManagement.casdoorDesc')}
             </Paragraph>
           </div>
 
@@ -95,9 +96,9 @@ const UserManagement: React.FC = () => {
               <Card size="small" style={{ textAlign: 'center' }}>
                 <Space direction="vertical" size="small">
                   <UserOutlined style={{ fontSize: 32, color: '#1890ff' }} />
-                  <Text strong>Tạo người dùng</Text>
+                  <Text strong>{t('userManagement.createUser')}</Text>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    Thêm người dùng mới vào hệ thống
+                    {t('userManagement.createUserDesc')}
                   </Text>
                 </Space>
               </Card>
@@ -106,9 +107,9 @@ const UserManagement: React.FC = () => {
               <Card size="small" style={{ textAlign: 'center' }}>
                 <Space direction="vertical" size="small">
                   <SafetyOutlined style={{ fontSize: 32, color: '#52c41a' }} />
-                  <Text strong>Phân quyền</Text>
+                  <Text strong>{t('userManagement.permissions')}</Text>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    Quản lý vai trò và quyền hạn
+                    {t('userManagement.permissionsDesc')}
                   </Text>
                 </Space>
               </Card>
@@ -117,9 +118,9 @@ const UserManagement: React.FC = () => {
               <Card size="small" style={{ textAlign: 'center' }}>
                 <Space direction="vertical" size="small">
                   <TeamOutlined style={{ fontSize: 32, color: '#faad14' }} />
-                  <Text strong>Quản lý nhóm</Text>
+                  <Text strong>{t('userManagement.manageGroups')}</Text>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    Tổ chức người dùng theo nhóm
+                    {t('userManagement.manageGroupsDesc')}
                   </Text>
                 </Space>
               </Card>
@@ -128,9 +129,9 @@ const UserManagement: React.FC = () => {
               <Card size="small" style={{ textAlign: 'center' }}>
                 <Space direction="vertical" size="small">
                   <SettingOutlined style={{ fontSize: 32, color: '#722ed1' }} />
-                  <Text strong>Cấu hình</Text>
+                  <Text strong>{t('userManagement.configuration')}</Text>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    Thiết lập chính sách bảo mật
+                    {t('userManagement.configurationDesc')}
                   </Text>
                 </Space>
               </Card>
@@ -147,18 +148,18 @@ const UserManagement: React.FC = () => {
               icon={<ArrowRightOutlined />}
               onClick={handleManageUsers}
             >
-              Mở Casdoor User Management
+              {t('userManagement.openCasdoor')}
             </Button>
             <div style={{ marginTop: 12 }}>
               <Text type="secondary" style={{ fontSize: 12 }}>
-                Bạn sẽ được chuyển hướng đến trang quản lý người dùng của Casdoor
+                {t('userManagement.redirectNote')}
               </Text>
             </div>
           </div>
 
           <Alert
-            message="Thông tin"
-            description="Casdoor cung cấp giao diện quản lý người dùng đầy đủ với các tính năng: tìm kiếm, lọc, phân quyền, quản lý nhóm, và nhiều tính năng khác."
+            message={t('userManagement.infoTitle')}
+            description={t('userManagement.infoDesc')}
             type="info"
             showIcon
           />

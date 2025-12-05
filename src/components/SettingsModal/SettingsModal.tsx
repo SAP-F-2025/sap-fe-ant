@@ -32,8 +32,10 @@ import {
 	Typography
 } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CasdoorConfig } from '../../config/casdoor';
 import { useAuth } from '../../hooks/useAuth';
+import { changeLanguage, getCurrentLanguage, supportedLanguages, type SupportedLanguage } from '../../i18n';
 import faceVerificationService from '../../services/faceVerificationService';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
 import type { ThemeMode } from '../../theme/tokens';
@@ -111,6 +113,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const { token } = useThemeToken();
 	const { mode, setMode, toggleDark } = useTheme();
 	const { user, logout } = useAuth();
+	const { t } = useTranslation();
 	const [activeSection, setActiveSection] = useState<SettingsSection>(defaultSection);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -150,49 +153,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		{
 			key: 'user-settings',
 			type: 'group',
-			label: <Text type="secondary" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Cài đặt người dùng</Text>,
+			label: <Text type="secondary" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{t('settings.userSettings')}</Text>,
 			children: [
 				{
 					key: 'my-account',
 					icon: <UserOutlined />,
-					label: 'Tài khoản',
+					label: t('settings.account'),
 				},
 				{
 					key: 'profile',
 					icon: <UserOutlined />,
-					label: 'Hồ sơ',
+					label: t('settings.profile'),
 				},
 				{
 					key: 'security',
 					icon: <SafetyOutlined />,
-					label: 'Bảo mật & Xác thực',
+					label: t('settings.securityAuth'),
 				},
 			],
 		},
 		{
 			key: 'app-settings',
 			type: 'group',
-			label: <Text type="secondary" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Cài đặt ứng dụng</Text>,
+			label: <Text type="secondary" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{t('settings.appSettings')}</Text>,
 			children: [
 				{
 					key: 'notifications',
 					icon: <BellOutlined />,
-					label: 'Thông báo',
+					label: t('settings.notifications'),
 				},
 				{
 					key: 'appearance',
 					icon: <BgColorsOutlined />,
-					label: 'Giao diện',
+					label: t('settings.appearance'),
 				},
 				{
 					key: 'accessibility',
 					icon: <EyeOutlined />,
-					label: 'Trợ năng',
+					label: t('settings.accessibility'),
 				},
 				{
 					key: 'language',
 					icon: <GlobalOutlined />,
-					label: 'Ngôn ngữ',
+					label: t('settings.language'),
 				},
 			],
 		},
@@ -202,7 +205,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		{
 			key: 'about',
 			icon: <InfoCircleOutlined />,
-			label: 'Thông tin',
+			label: t('settings.about'),
 		},
 		{
 			type: 'divider',
@@ -210,7 +213,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		{
 			key: 'logout',
 			icon: <CloseOutlined />,
-			label: <Text type="danger">Đăng xuất</Text>,
+			label: <Text type="danger">{t('auth.logout')}</Text>,
 			danger: true,
 		},
 	];
@@ -321,14 +324,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	};
 
 	const sectionTitles: Record<SettingsSection, string> = {
-		'my-account': 'Tài khoản của tôi',
-		'profile': 'Hồ sơ',
-		'security': 'Bảo mật & Xác thực',
-		'notifications': 'Thông báo',
-		'appearance': 'Giao diện',
-		'accessibility': 'Trợ năng',
-		'language': 'Ngôn ngữ',
-		'about': 'Thông tin',
+		'my-account': t('settings.myAccount'),
+		'profile': t('settings.profile'),
+		'security': t('settings.securityAuth'),
+		'notifications': t('settings.notifications'),
+		'appearance': t('settings.appearance'),
+		'accessibility': t('settings.accessibility'),
+		'language': t('settings.language'),
+		'about': t('settings.about'),
 	};
 
 	return (
@@ -387,7 +390,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					{/* Search */}
 					<div style={{ padding: '16px 12px 8px' }}>
 						<Search
-							placeholder="Tìm kiếm..."
+							placeholder={t('settings.search')}
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 							style={{ width: '100%' }}
@@ -481,6 +484,7 @@ interface MyAccountSectionProps {
 
 const MyAccountSection: React.FC<MyAccountSectionProps> = ({ user, onEditProfile }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	return (
 		<div>
@@ -524,7 +528,7 @@ const MyAccountSection: React.FC<MyAccountSectionProps> = ({ user, onEditProfile
 						style={{ position: 'absolute', top: 16, right: 16 }}
 						onClick={onEditProfile}
 					>
-						Chỉnh sửa hồ sơ
+						{t('settings.editProfile')}
 					</Button>
 				</div>
 			</div>
@@ -537,17 +541,17 @@ const MyAccountSection: React.FC<MyAccountSectionProps> = ({ user, onEditProfile
 					padding: 16,
 				}}
 			>
-				<SettingItem title="Tên hiển thị" description={user?.displayName || user?.name || '-'}>
-					<Button size="small" onClick={onEditProfile}>Sửa</Button>
+				<SettingItem title={t('settings.displayName')} description={user?.displayName || user?.name || '-'}>
+					<Button size="small" onClick={onEditProfile}>{t('common.edit')}</Button>
 				</SettingItem>
-				<SettingItem title="Tên người dùng" description={user?.name || '-'}>
-					<Button size="small" onClick={onEditProfile}>Sửa</Button>
+				<SettingItem title={t('settings.username')} description={user?.name || '-'}>
+					<Button size="small" onClick={onEditProfile}>{t('common.edit')}</Button>
 				</SettingItem>
-				<SettingItem title="Email" description={user?.email || '-'}>
-					<Button size="small" onClick={onEditProfile}>Sửa</Button>
+				<SettingItem title={t('settings.email')} description={user?.email || '-'}>
+					<Button size="small" onClick={onEditProfile}>{t('common.edit')}</Button>
 				</SettingItem>
-				<SettingItem title="Số điện thoại" description={user?.phone || 'Chưa thêm'} noBorder>
-					<Button size="small" onClick={onEditProfile}>Sửa</Button>
+				<SettingItem title={t('settings.phone')} description={user?.phone || t('settings.notAdded')} noBorder>
+					<Button size="small" onClick={onEditProfile}>{t('common.edit')}</Button>
 				</SettingItem>
 			</div>
 		</div>
@@ -560,6 +564,7 @@ interface ProfileSectionProps {
 
 const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	const formatDate = (dateString?: string) => {
 		if (!dateString) return '-';
@@ -576,7 +581,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				Thông tin hồ sơ công khai của bạn.
+				{t('settings.publicProfileInfo')}
 			</Paragraph>
 
 			{/* Basic Info */}
@@ -588,26 +593,26 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 					marginBottom: 24,
 				}}
 			>
-				<SettingItem title="Avatar" description="Ảnh đại diện của bạn">
+				<SettingItem title={t('settings.avatar')} description={t('settings.yourAvatar')}>
 					<Avatar size={64} src={user?.avatar} icon={<UserOutlined />} />
 				</SettingItem>
-				<SettingItem title="Vai trò" noBorder>
+				<SettingItem title={t('settings.role')} noBorder>
 					<Space>
 						{userRole === 'admin' && (
 							<Tag color="red" icon={<SafetyOutlined />}>Admin</Tag>
 						)}
 						{userRole === 'teacher' && (
-							<Tag color="blue">Giáo viên</Tag>
+							<Tag color="blue">{t('user.role.teacher')}</Tag>
 						)}
 						{userRole === 'student' && (
-							<Tag color="green">Học sinh</Tag>
+							<Tag color="green">{t('user.role.student')}</Tag>
 						)}
 					</Space>
 				</SettingItem>
 			</div>
 
 			{/* Detailed Info */}
-			<Title level={5} style={{ marginBottom: 16 }}>Thông tin chi tiết</Title>
+			<Title level={5} style={{ marginBottom: 16 }}>{t('settings.detailedInfo')}</Title>
 			<div
 				style={{
 					background: token.colorBgElevated,
@@ -621,13 +626,13 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 						<Descriptions.Item label="ID">{user.id}</Descriptions.Item>
 					)}
 					{(user as any)?.education && (
-						<Descriptions.Item label="Trường">{(user as any).education}</Descriptions.Item>
+						<Descriptions.Item label={t('settings.school')}>{(user as any).education}</Descriptions.Item>
 					)}
 					{user?.owner && (
-						<Descriptions.Item label="Tổ chức">{user.owner}</Descriptions.Item>
+						<Descriptions.Item label={t('settings.organization')}>{user.owner}</Descriptions.Item>
 					)}
 					{user?.createdTime && (
-						<Descriptions.Item label={<><ClockCircleOutlined /> Ngày tạo</>}>
+						<Descriptions.Item label={<><ClockCircleOutlined /> {t('settings.createdDate')}</>}>
 							{formatDate(user.createdTime)}
 						</Descriptions.Item>
 					)}
@@ -637,7 +642,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 			{/* Roles & Permissions */}
 			{(user?.roles?.length > 0 || user?.permissions?.length > 0) && (
 				<>
-					<Title level={5} style={{ marginBottom: 16 }}>Vai trò & Quyền hạn</Title>
+					<Title level={5} style={{ marginBottom: 16 }}>{t('settings.rolesPermissions')}</Title>
 					<div
 						style={{
 							background: token.colorBgElevated,
@@ -647,7 +652,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 					>
 						{user?.roles?.length > 0 && (
 							<div style={{ marginBottom: user?.permissions?.length ? 16 : 0 }}>
-								<Text strong style={{ display: 'block', marginBottom: 8 }}>Vai trò:</Text>
+								<Text strong style={{ display: 'block', marginBottom: 8 }}>{t('settings.roles')}:</Text>
 								<Space size={[0, 8]} wrap>
 									{user.roles.map((role: any, index: number) => (
 										<Tag key={index} color="blue">
@@ -659,7 +664,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 						)}
 						{user?.permissions?.length > 0 && (
 							<div>
-								<Text strong style={{ display: 'block', marginBottom: 8 }}>Quyền hạn:</Text>
+								<Text strong style={{ display: 'block', marginBottom: 8 }}>{t('settings.permissions')}:</Text>
 								<Space size={[0, 8]} wrap>
 									{user.permissions.map((permission: any, index: number) => (
 										<Tag key={index} color="green">
@@ -685,6 +690,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 	const { token } = useThemeToken();
 	const { message, modal } = App.useApp();
 	const queryClient = useQueryClient();
+	const { t } = useTranslation();
 
 	// Face registration state
 	const [registerModalOpen, setRegisterModalOpen] = useState(false);
@@ -702,11 +708,11 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 	const deleteFaceMutation = useMutation({
 		mutationFn: () => faceVerificationService.deleteFace(),
 		onSuccess: () => {
-			message.success('Đã xóa dữ liệu khuôn mặt');
+			message.success(t('settings.faceDeleted'));
 			queryClient.invalidateQueries({ queryKey: ['face-registration-status'] });
 		},
 		onError: (error: any) => {
-			message.error(error.response?.data?.detail || 'Lỗi khi xóa dữ liệu khuôn mặt');
+			message.error(error.response?.data?.detail || t('settings.faceDeleteError'));
 		},
 	});
 
@@ -721,7 +727,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 			}
 			setCameraReady(true);
 		} catch (err) {
-			message.error('Không thể truy cập camera');
+			message.error(t('settings.cameraAccessError'));
 		}
 	};
 
@@ -761,12 +767,12 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 		try {
 			const imageBlob = await captureFrame();
 			await faceVerificationService.registerFace(imageBlob);
-			message.success('Đăng ký khuôn mặt thành công');
+			message.success(t('settings.faceRegisteredSuccess'));
 			setRegisterModalOpen(false);
 			stopCamera();
 			queryClient.invalidateQueries({ queryKey: ['face-registration-status'] });
 		} catch (err: any) {
-			message.error(err.response?.data?.detail || 'Lỗi đăng ký khuôn mặt');
+			message.error(err.response?.data?.detail || t('settings.faceRegisterError'));
 		} finally {
 			setRegistering(false);
 		}
@@ -774,11 +780,11 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 
 	const handleDeleteFace = () => {
 		modal.confirm({
-			title: 'Xóa dữ liệu khuôn mặt?',
-			content: 'Bạn sẽ cần đăng ký lại để sử dụng tính năng xác thực khuôn mặt.',
-			okText: 'Xóa',
+			title: t('settings.deleteFaceConfirm'),
+			content: t('settings.deleteFaceConfirmDesc'),
+			okText: t('common.delete'),
 			okType: 'danger',
-			cancelText: 'Hủy',
+			cancelText: t('common.cancel'),
 			onOk: () => deleteFaceMutation.mutate(),
 		});
 	};
@@ -786,11 +792,11 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				Quản lý bảo mật tài khoản và các phương thức xác thực.
+				{t('settings.manageSecurityAuth')}
 			</Paragraph>
 
 			{/* Password Section */}
-			<Title level={5} style={{ marginBottom: 16 }}>Mật khẩu</Title>
+			<Title level={5} style={{ marginBottom: 16 }}>{t('settings.password')}</Title>
 			<div
 				style={{
 					background: token.colorBgElevated,
@@ -799,15 +805,15 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 					marginBottom: 24,
 				}}
 			>
-				<SettingItem title="Đổi mật khẩu" description="Cập nhật mật khẩu của bạn để bảo vệ tài khoản" noBorder>
+				<SettingItem title={t('settings.changePassword')} description={t('settings.updatePasswordDesc')} noBorder>
 					<Button type="primary" ghost onClick={onEditProfile}>
-						Đổi mật khẩu
+						{t('settings.changePassword')}
 					</Button>
 				</SettingItem>
 			</div>
 
 			{/* Face Registration */}
-			<Title level={5} style={{ marginBottom: 16 }}>Xác thực khuôn mặt</Title>
+			<Title level={5} style={{ marginBottom: 16 }}>{t('settings.faceAuth')}</Title>
 			<div
 				style={{
 					background: token.colorBgElevated,
@@ -816,7 +822,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 				}}
 			>
 				<Paragraph type="secondary" style={{ marginBottom: 16 }}>
-					Sử dụng khuôn mặt để xác thực danh tính khi làm bài kiểm tra.
+					{t('settings.useFaceAuthDesc')}
 				</Paragraph>
 				{statusLoading ? (
 					<div style={{ textAlign: 'center', padding: 16 }}>
@@ -825,8 +831,8 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 				) : registrationStatus?.registered ? (
 					<Space direction="vertical" style={{ width: '100%' }}>
 						<Alert
-							message="Đã đăng ký khuôn mặt"
-							description="Bạn có thể sử dụng tính năng xác thực khuôn mặt cho các bài kiểm tra."
+							message={t('settings.faceRegistered')}
+							description={t('settings.faceRegisteredDesc')}
 							type="success"
 							showIcon
 							icon={<CheckCircleOutlined />}
@@ -837,14 +843,14 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 							onClick={handleDeleteFace}
 							loading={deleteFaceMutation.isPending}
 						>
-							Xóa dữ liệu khuôn mặt
+							{t('settings.deleteFaceData')}
 						</Button>
 					</Space>
 				) : (
 					<Space direction="vertical" style={{ width: '100%' }}>
 						<Alert
-							message="Chưa đăng ký khuôn mặt"
-							description="Đăng ký khuôn mặt để sử dụng tính năng xác thực trong các bài kiểm tra."
+							message={t('settings.faceNotRegistered')}
+							description={t('settings.faceNotRegisteredDesc')}
 							type="info"
 							showIcon
 						/>
@@ -856,7 +862,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 								setTimeout(startCamera, 100);
 							}}
 						>
-							Đăng ký khuôn mặt
+							{t('settings.registerFace')}
 						</Button>
 					</Space>
 				)}
@@ -864,7 +870,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 
 			{/* Face Registration Modal */}
 			<Modal
-				title="Đăng ký khuôn mặt"
+				title={t('settings.registerFaceTitle')}
 				open={registerModalOpen}
 				onCancel={() => {
 					setRegisterModalOpen(false);
@@ -875,7 +881,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 						setRegisterModalOpen(false);
 						stopCamera();
 					}}>
-						Hủy
+						{t('common.cancel')}
 					</Button>,
 					<Button
 						key="register"
@@ -885,7 +891,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 						loading={registering}
 						disabled={!cameraReady}
 					>
-						Đăng ký
+						{t('settings.register')}
 					</Button>,
 				]}
 				width={600}
@@ -893,8 +899,8 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 			>
 				<Space direction="vertical" style={{ width: '100%' }} size="large">
 					<Alert
-						message="Hướng dẫn"
-						description="Đặt khuôn mặt vào khung hình, đảm bảo ánh sáng tốt và nhìn thẳng vào camera."
+						message={t('settings.instructions')}
+						description={t('settings.faceInstructions')}
 						type="info"
 						showIcon
 					/>
@@ -916,7 +922,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }
 							<div style={{ marginTop: 16 }}>
 								<Spin />
 								<div style={{ marginTop: 8 }}>
-									<Text type="secondary">Đang khởi động camera...</Text>
+									<Text type="secondary">{t('settings.startingCamera')}</Text>
 								</div>
 							</div>
 						)}
@@ -934,6 +940,7 @@ interface NotificationsSectionProps {
 
 const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesStateChange, blinkRed }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 	const [enableNotifications, setEnableNotifications] = useState(true);
 	const [settings, setSettings] = useState({
 		assessmentAssigned: { enabled: true, email: true, push: true },
@@ -989,10 +996,10 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				Chọn loại thông báo bạn muốn nhận.
+				{t('settings.chooseNotifications')}
 			</Paragraph>
 
-			<Title level={5}>Thông báo chung</Title>
+			<Title level={5}>{t('settings.generalNotifications')}</Title>
 			<div
 				style={{
 					background: token.colorBgElevated,
@@ -1002,8 +1009,8 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 				}}
 			>
 				<SettingItem
-					title="Bật thông báo"
-					description="Nhận tất cả thông báo từ ứng dụng"
+					title={t('notification.enableNotifications')}
+					description={t('notification.enableNotificationsDesc')}
 					noBorder
 				>
 					<Switch
@@ -1021,7 +1028,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 					transition: 'max-height 0.3s ease, opacity 0.3s ease',
 				}}
 			>
-				<Title level={5}>Loại thông báo</Title>
+				<Title level={5}>{t('settings.notificationTypes')}</Title>
 				<div
 					style={{
 						background: token.colorBgElevated,
@@ -1033,9 +1040,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 					<div style={{ paddingBottom: 12, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
 							<div style={{ flex: 1 }}>
-								<Text strong style={{ display: 'block', marginBottom: 4 }}>Được giao bài kiểm tra</Text>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>{t('notification.assessmentAssigned')}</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									Thông báo khi được giao bài kiểm tra mới
+									{t('notification.assessmentAssignedDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1062,9 +1069,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 					<div style={{ paddingTop: 12, paddingBottom: 12, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
 							<div style={{ flex: 1 }}>
-								<Text strong style={{ display: 'block', marginBottom: 4 }}>Nhắc nhở bài kiểm tra</Text>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>{t('notification.assessmentReminders')}</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									Thông báo khi có bài kiểm tra sắp diễn ra
+									{t('notification.assessmentRemindersDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1091,9 +1098,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 					<div style={{ paddingTop: 12, paddingBottom: 12, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
 							<div style={{ flex: 1 }}>
-								<Text strong style={{ display: 'block', marginBottom: 4 }}>Thông báo điểm số</Text>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>{t('notification.gradeNotifications')}</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									Thông báo khi có điểm mới
+									{t('notification.gradeNotificationsDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1120,9 +1127,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 					<div style={{ paddingTop: 12, paddingBottom: 12, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
 							<div style={{ flex: 1 }}>
-								<Text strong style={{ display: 'block', marginBottom: 4 }}>Nhận xét & Phản hồi</Text>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>{t('notification.comments')}</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									Thông báo khi giáo viên nhận xét bài làm
+									{t('notification.commentsDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1149,9 +1156,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 					<div style={{ paddingTop: 12 }}>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
 							<div style={{ flex: 1 }}>
-								<Text strong style={{ display: 'block', marginBottom: 4 }}>Cập nhật hệ thống</Text>
+								<Text strong style={{ display: 'block', marginBottom: 4 }}>{t('notification.systemUpdates')}</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									Thông báo về các cập nhật và bảo trì
+									{t('notification.systemUpdatesDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1196,11 +1203,11 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({ onChangesSt
 						transition: 'all 0.3s ease',
 					}}
 				>
-					<Text style={{ color: blinkRed ? '#fff' : undefined, fontSize: 14 }}>Có thay đổi chưa lưu</Text>
+					<Text style={{ color: blinkRed ? '#fff' : undefined, fontSize: 14 }}>{t('notification.unsavedChanges')}</Text>
 					<Space size="middle">
-						<Button onClick={handleReset}>Hủy</Button>
+						<Button onClick={handleReset}>{t('common.cancel')}</Button>
 						<Button type="primary" onClick={handleSave} loading={saving}>
-							Lưu thay đổi
+							{t('notification.saveChanges')}
 						</Button>
 					</Space>
 				</div>
@@ -1224,20 +1231,21 @@ interface AppearanceSectionProps {
 
 const AppearanceSection: React.FC<AppearanceSectionProps> = ({ mode, setMode, toggleDark }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	const themes: Array<{ key: ThemeMode; icon: React.ReactNode; label: string; bg: string; color: string }> = [
-		{ key: 'light', icon: <SunOutlined />, label: 'Sáng', bg: '#ffffff', color: '#333333' },
-		{ key: 'dark', icon: <MoonOutlined />, label: 'Tối', bg: '#1a1a1a', color: '#ffffff' },
-		{ key: 'highContrast', icon: <EyeOutlined />, label: 'Tương phản cao', bg: '#000000', color: '#ffff00' },
+		{ key: 'light', icon: <SunOutlined />, label: t('settings.light'), bg: '#ffffff', color: '#333333' },
+		{ key: 'dark', icon: <MoonOutlined />, label: t('settings.dark'), bg: '#1a1a1a', color: '#ffffff' },
+		{ key: 'highContrast', icon: <EyeOutlined />, label: t('settings.highContrast'), bg: '#000000', color: '#ffff00' },
 	];
 
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				Tùy chỉnh giao diện ứng dụng theo sở thích của bạn.
+				{t('settings.customizeAppearance')}
 			</Paragraph>
 
-			<Title level={5}>Chủ đề</Title>
+			<Title level={5}>{t('settings.theme')}</Title>
 			<div
 				style={{
 					display: 'flex',
@@ -1287,8 +1295,8 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({ mode, setMode, to
 				}}
 			>
 				<SettingItem
-					title="Chế độ tối"
-					description="Bật hoặc tắt chế độ tối"
+					title={t('settings.darkMode')}
+					description={t('settings.darkModeDescription')}
 					noBorder
 				>
 					<Switch
@@ -1305,6 +1313,7 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({ mode, setMode, to
 
 const AccessibilitySection: React.FC = () => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 	const [settings, setSettings] = useState({
 		reduceMotion: false,
 		highContrast: false,
@@ -1314,7 +1323,7 @@ const AccessibilitySection: React.FC = () => {
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				Tùy chọn trợ năng để cải thiện trải nghiệm sử dụng.
+				{t('settings.accessibilityOptions')}
 			</Paragraph>
 
 			<div
@@ -1325,8 +1334,8 @@ const AccessibilitySection: React.FC = () => {
 				}}
 			>
 				<SettingItem
-					title="Giảm chuyển động"
-					description="Giảm hiệu ứng animation trong ứng dụng"
+					title={t('settings.reduceMotion')}
+					description={t('settings.reduceMotionDesc')}
 				>
 					<Switch
 						checked={settings.reduceMotion}
@@ -1334,8 +1343,8 @@ const AccessibilitySection: React.FC = () => {
 					/>
 				</SettingItem>
 				<SettingItem
-					title="Độ tương phản cao"
-					description="Tăng độ tương phản cho các phần tử"
+					title={t('settings.highContrastMode')}
+					description={t('settings.highContrastDesc')}
 				>
 					<Switch
 						checked={settings.highContrast}
@@ -1343,8 +1352,8 @@ const AccessibilitySection: React.FC = () => {
 					/>
 				</SettingItem>
 				<SettingItem
-					title="Chữ lớn hơn"
-					description="Tăng kích thước văn bản"
+					title={t('settings.largerText')}
+					description={t('settings.largerTextDesc')}
 					noBorder
 				>
 					<Switch
@@ -1359,18 +1368,18 @@ const AccessibilitySection: React.FC = () => {
 
 const LanguageSection: React.FC = () => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
+	const [selectedLang, setSelectedLang] = useState<SupportedLanguage>(getCurrentLanguage());
 
-	const languages = [
-		{ key: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
-		{ key: 'en', label: 'English', flag: '🇺🇸' },
-	];
-
-	const [selectedLang, setSelectedLang] = useState('vi');
+	const handleLanguageChange = (langCode: SupportedLanguage) => {
+		setSelectedLang(langCode);
+		changeLanguage(langCode);
+	};
 
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				Chọn ngôn ngữ hiển thị cho ứng dụng.
+				{t('settings.languageDescription')}
 			</Paragraph>
 
 			<div
@@ -1380,11 +1389,11 @@ const LanguageSection: React.FC = () => {
 					overflow: 'hidden',
 				}}
 			>
-				{languages.map((lang) => (
+				{supportedLanguages.map((lang, index) => (
 					<div
-						key={lang.key}
-						onClick={() => setSelectedLang(lang.key)}
-						onKeyDown={(e) => e.key === 'Enter' && setSelectedLang(lang.key)}
+						key={lang.code}
+						onClick={() => handleLanguageChange(lang.code)}
+						onKeyDown={(e) => e.key === 'Enter' && handleLanguageChange(lang.code)}
 						tabIndex={0}
 						role="button"
 						style={{
@@ -1393,13 +1402,13 @@ const LanguageSection: React.FC = () => {
 							alignItems: 'center',
 							gap: 12,
 							cursor: 'pointer',
-							borderBottom: `1px solid ${token.colorBorderSecondary}`,
-							background: selectedLang === lang.key ? token.colorPrimaryBg : 'transparent',
+							borderBottom: index < supportedLanguages.length - 1 ? `1px solid ${token.colorBorderSecondary}` : 'none',
+							background: selectedLang === lang.code ? token.colorPrimaryBg : 'transparent',
 						}}
 					>
 						<span style={{ fontSize: 24 }}>{lang.flag}</span>
-						<Text strong={selectedLang === lang.key}>{lang.label}</Text>
-						{selectedLang === lang.key && (
+						<Text strong={selectedLang === lang.code}>{lang.label}</Text>
+						{selectedLang === lang.code && (
 							<Text type="success" style={{ marginLeft: 'auto' }}>
 								✓
 							</Text>
@@ -1413,6 +1422,7 @@ const LanguageSection: React.FC = () => {
 
 const AboutSection: React.FC = () => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	return (
 		<div>
@@ -1424,9 +1434,9 @@ const AboutSection: React.FC = () => {
 			>
 				<div style={{ fontSize: 64, marginBottom: 16 }}>🎓</div>
 				<Title level={3} style={{ margin: 0 }}>
-					SAP - Secure Assessment Platform
+					{t('settings.appName')}
 				</Title>
-				<Text type="secondary">Phiên bản 1.0.0</Text>
+				<Text type="secondary">{t('settings.version')} 1.0.0</Text>
 			</div>
 
 			<div
@@ -1436,23 +1446,23 @@ const AboutSection: React.FC = () => {
 					padding: 16,
 				}}
 			>
-				<SettingItem title="Phiên bản" description="1.0.0">
-					<Button size="small">Kiểm tra cập nhật</Button>
+				<SettingItem title={t('settings.version')} description="1.0.0">
+					<Button size="small">{t('settings.checkUpdates')}</Button>
 				</SettingItem>
-				<SettingItem title="Điều khoản dịch vụ" description="Xem điều khoản sử dụng">
+				<SettingItem title={t('settings.termsOfService')} description={t('settings.viewTerms')}>
 					<Button size="small" type="link">
-						Xem
+						{t('common.view')}
 					</Button>
 				</SettingItem>
-				<SettingItem title="Chính sách bảo mật" description="Xem chính sách bảo mật" noBorder>
+				<SettingItem title={t('settings.privacyPolicy')} description={t('settings.viewPrivacy')} noBorder>
 					<Button size="small" type="link">
-						Xem
+						{t('common.view')}
 					</Button>
 				</SettingItem>
 			</div>
 
 			<div style={{ textAlign: 'center', marginTop: 32 }}>
-				<Text type="secondary">© 2025 SAP Team. All rights reserved.</Text>
+				<Text type="secondary">{t('settings.copyright')}</Text>
 			</div>
 		</div>
 	);

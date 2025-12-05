@@ -1,6 +1,7 @@
 import { MoonOutlined, SunOutlined } from '@ant-design/icons';
 import { Button, Layout, Tooltip } from 'antd';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Outlet } from 'react-router-dom';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
 
@@ -15,6 +16,7 @@ const { Content } = Layout;
  * - Full screen experience
  */
 const ExamLayout: React.FC = () => {
+	const { t } = useTranslation();
 	const { token } = useThemeToken();
 	const { mode, toggleDark } = useTheme();
 
@@ -29,7 +31,7 @@ const ExamLayout: React.FC = () => {
 					zIndex: 1001,
 				}}
 			>
-				<Tooltip title={mode === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'} placement="left">
+				<Tooltip title={mode === 'dark' ? t('layout.lightMode') : t('layout.darkMode')} placement="left">
 					<Button
 						type="default"
 						shape="circle"

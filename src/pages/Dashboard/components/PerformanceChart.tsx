@@ -1,6 +1,7 @@
 import { RiseOutlined } from '@ant-design/icons';
 import { Card, Empty, Skeleton, Space } from 'antd';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
 	Bar,
 	BarChart,
@@ -29,13 +30,14 @@ interface PerformanceChartProps {
  */
 export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoading }) => {
 	const { token } = useThemeToken();
+	const { t } = useTranslation();
 
 	return (
 		<Card
 			title={
 				<Space>
 					<RiseOutlined style={{ fontSize: 18, color: token.colorWarning }} />
-					<span style={{ fontWeight: 600 }}>Điểm số theo môn học</span>
+					<span style={{ fontWeight: 600 }}>{t('dashboard.scoreBySubject')}</span>
 				</Space>
 			}
 			bordered={false}
@@ -44,10 +46,10 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoad
 			{isLoading ? (
 				<Skeleton active paragraph={{ rows: 8 }} />
 			) : data.length === 0 ? (
-				<Empty description="Chưa có dữ liệu điểm số" style={{ padding: '60px 0' }} />
+				<Empty description={t('dashboard.noScoreData')} style={{ padding: '60px 0' }} />
 			) : (
 				<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-					<BarChart data={data} aria-label="Biểu đồ điểm số theo môn học">
+					<BarChart data={data} aria-label={t('dashboard.performanceChartLabel')}>
 						<CartesianGrid
 							strokeDasharray="3 3"
 							stroke={token.colorBorderSecondary}
@@ -72,7 +74,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoad
 							fill={STAT_CARD_COLORS.primary}
 							radius={[8, 8, 0, 0]}
 							maxBarSize={60}
-							name="Điểm trung bình"
+							name={t('dashboard.avgScoreFull')}
 						/>
 					</BarChart>
 				</ResponsiveContainer>

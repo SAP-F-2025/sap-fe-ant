@@ -600,6 +600,96 @@
 			"continueAttempt": "Tiếp tục làm bài"
 		}
 	},
+	"availableAssessments": {
+		"title": "Bài kiểm tra khả dụng",
+		"subtitle": "Chọn một bài kiểm tra để bắt đầu. Hãy đảm bảo bạn có đủ thời gian để hoàn thành.",
+		"searchPlaceholder": "Tìm kiếm bài kiểm tra...",
+		"totalAssessments": "Tổng {{count}} bài kiểm tra",
+		"columns": {
+			"title": "Tiêu đề",
+			"duration": "Thời gian",
+			"questions": "Số câu hỏi",
+			"passingScore": "Điểm đạt",
+			"attempts": "Lượt làm",
+			"bestScore": "Điểm cao nhất",
+			"dueDate": "Hạn nộp",
+			"status": "Trạng thái",
+			"action": "Hành động"
+		},
+		"status": {
+			"inProgress": "Đang làm",
+			"unavailable": "Không khả dụng",
+			"ready": "Sẵn sàng"
+		},
+		"noDueDate": "Không có hạn",
+		"minutes": "{{count}} phút",
+		"continue": "Tiếp tục",
+		"start": "Bắt đầu",
+		"modals": {
+			"authError": {
+				"title": "Lỗi xác thực",
+				"content": "Bạn cần đăng nhập để làm bài kiểm tra."
+			},
+			"continueAttempt": {
+				"title": "Tiếp tục làm bài",
+				"content": "Bạn đang có một lần làm bài chưa hoàn thành. Bạn có muốn tiếp tục?",
+				"okText": "Tiếp tục",
+				"cancelText": "Hủy"
+			},
+			"timeout": {
+				"title": "Hết giờ",
+				"content": "Bài kiểm tra đã hết thời gian và sẽ được nộp tự động."
+			},
+			"cannotStart": {
+				"title": "Không thể bắt đầu",
+				"defaultContent": "Bạn không thể bắt đầu bài kiểm tra này lúc này."
+			},
+			"startAssessment": {
+				"title": "Bắt đầu làm bài",
+				"duration": "Thời gian: {{duration}} phút",
+				"attempts": "Số lần làm: {{used}} / {{max}}",
+				"passingScore": "Điểm đạt: {{score}}%",
+				"warning": "Khi bạn bắt đầu, đồng hồ sẽ bắt đầu đếm. Hãy đảm bảo kết nối internet ổn định.",
+				"okText": "Bắt đầu ngay",
+				"cancelText": "Hủy"
+			},
+			"error": {
+				"title": "Lỗi",
+				"defaultContent": "Đã có lỗi xảy ra",
+				"cannotStart": "Không thể bắt đầu bài kiểm tra",
+				"cannotContinue": "Không thể tiếp tục bài kiểm tra"
+			}
+		}
+	},
+	"studentHistory": {
+		"title": "Lịch sử làm bài",
+		"subtitle": "Xem tất cả các lần làm bài đã qua và đang làm",
+		"filterPlaceholder": "Lọc theo trạng thái",
+		"totalAttempts": "Tổng {{count}} lần làm bài",
+		"columns": {
+			"assessment": "Bài kiểm tra",
+			"status": "Trạng thái",
+			"score": "Điểm",
+			"result": "Kết quả",
+			"startedAt": "Bắt đầu",
+			"completedAt": "Hoàn thành",
+			"timeSpent": "Thời gian",
+			"action": "Hành động"
+		},
+		"status": {
+			"inProgress": "Đang làm",
+			"completed": "Đã hoàn thành",
+			"abandoned": "Đã bỏ",
+			"timeout": "Hết giờ"
+		},
+		"grading": "Đang chấm",
+		"passed": "Đạt",
+		"failed": "Không đạt",
+		"unknown": "Không xác định",
+		"minutes": "{{count}} phút",
+		"continue": "Tiếp tục",
+		"view": "Xem"
+	},
 	"grading": {
 		"title": "Chấm điểm",
 		"pending": "Chờ chấm",

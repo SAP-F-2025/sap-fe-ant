@@ -600,6 +600,96 @@
 			"continueAttempt": "Continue Attempt"
 		}
 	},
+	"availableAssessments": {
+		"title": "Available Assessments",
+		"subtitle": "Select an assessment to start. Make sure you have enough time to complete it.",
+		"searchPlaceholder": "Search assessments...",
+		"totalAssessments": "Total {{count}} assessments",
+		"columns": {
+			"title": "Title",
+			"duration": "Duration",
+			"questions": "Questions",
+			"passingScore": "Passing Score",
+			"attempts": "Attempts",
+			"bestScore": "Best Score",
+			"dueDate": "Due Date",
+			"status": "Status",
+			"action": "Action"
+		},
+		"status": {
+			"inProgress": "In Progress",
+			"unavailable": "Unavailable",
+			"ready": "Ready"
+		},
+		"noDueDate": "No deadline",
+		"minutes": "{{count}} min",
+		"continue": "Continue",
+		"start": "Start",
+		"modals": {
+			"authError": {
+				"title": "Authentication Error",
+				"content": "You need to login to take the assessment."
+			},
+			"continueAttempt": {
+				"title": "Continue Attempt",
+				"content": "You have an incomplete attempt. Do you want to continue?",
+				"okText": "Continue",
+				"cancelText": "Cancel"
+			},
+			"timeout": {
+				"title": "Time's Up",
+				"content": "The assessment has timed out and will be submitted automatically."
+			},
+			"cannotStart": {
+				"title": "Cannot Start",
+				"defaultContent": "You cannot start this assessment at this time."
+			},
+			"startAssessment": {
+				"title": "Start Assessment",
+				"duration": "Duration: {{duration}} minutes",
+				"attempts": "Attempts: {{used}} / {{max}}",
+				"passingScore": "Passing Score: {{score}}%",
+				"warning": "Once you start, the timer will begin. Make sure you have a stable internet connection.",
+				"okText": "Start Now",
+				"cancelText": "Cancel"
+			},
+			"error": {
+				"title": "Error",
+				"defaultContent": "An error occurred",
+				"cannotStart": "Cannot start the assessment",
+				"cannotContinue": "Cannot continue the assessment"
+			}
+		}
+	},
+	"studentHistory": {
+		"title": "Assessment History",
+		"subtitle": "View all your past and ongoing attempts",
+		"filterPlaceholder": "Filter by status",
+		"totalAttempts": "Total {{count}} attempts",
+		"columns": {
+			"assessment": "Assessment",
+			"status": "Status",
+			"score": "Score",
+			"result": "Result",
+			"startedAt": "Started",
+			"completedAt": "Completed",
+			"timeSpent": "Duration",
+			"action": "Action"
+		},
+		"status": {
+			"inProgress": "In Progress",
+			"completed": "Completed",
+			"abandoned": "Abandoned",
+			"timeout": "Timed Out"
+		},
+		"grading": "Grading",
+		"passed": "Passed",
+		"failed": "Failed",
+		"unknown": "Unknown",
+		"minutes": "{{count}} min",
+		"continue": "Continue",
+		"view": "View"
+	},
 	"grading": {
 		"title": "Grading",
 		"pending": "Pending",

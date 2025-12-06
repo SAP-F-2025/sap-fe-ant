@@ -42,6 +42,11 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
           icon: <Badge count={5} size="small" offset={[10, 0]}><TeamOutlined /></Badge>,
           label: 'Người dùng',
         }] : []),
+        ...(user?.isAdmin ? [{
+          key: '/groups',
+          icon: <TeamOutlined />,
+          label: 'Quản lý nhóm',
+        }] : []),
       ],
     },
     {
@@ -89,6 +94,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
   const getSelectedKey = () => {
     const path = location.pathname;
     if (path.startsWith('/users')) return '/users';
+    if (path.startsWith('/groups')) return '/groups';
     if (path.startsWith('/assessments')) return '/assessments';
     if (path.startsWith('/questions')) return '/questions';
     if (path.startsWith('/question-banks')) return '/question-banks';
@@ -97,9 +103,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
   };
 
   return (
-    <div style={{ 
-      height: '100%', 
-      display: 'flex', 
+    <div style={{
+      height: '100%',
+      display: 'flex',
       flexDirection: 'column',
       position: 'relative',
     }}>
@@ -114,22 +120,22 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
           borderBottom: mode === 'dark'
             ? '1px solid rgba(255, 255, 255, 0.08)'
             : '1px solid rgba(0, 0, 0, 0.06)',
-          background: mode === 'dark' 
+          background: mode === 'dark'
             ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)'
             : 'linear-gradient(135deg, rgba(24, 144, 255, 0.05) 0%, rgba(114, 46, 209, 0.05) 100%)',
         }}
       >
         {collapsed ? (
-          <div style={{ 
+          <div style={{
             fontSize: 28,
             filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
           }}>
             🎓
           </div>
         ) : (
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             gap: 12,
             fontWeight: 700,
             fontSize: 16,
@@ -174,9 +180,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
         {collapsed ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
             <Tooltip title="Hồ sơ" placement="right">
-              <Avatar 
+              <Avatar
                 size={40}
-                style={{ 
+                style={{
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   cursor: 'pointer',
                   border: '2px solid rgba(255,255,255,0.2)',
@@ -186,10 +192,10 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
               </Avatar>
             </Tooltip>
             <Tooltip title="Đăng xuất" placement="right">
-              <LogoutOutlined 
+              <LogoutOutlined
                 onClick={logout}
-                style={{ 
-                  fontSize: 18, 
+                style={{
+                  fontSize: 18,
                   cursor: 'pointer',
                   color: mode === 'dark' ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.65)',
                   transition: 'all 0.3s',
@@ -202,9 +208,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
         ) : (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <Avatar 
+              <Avatar
                 size={48}
-                style={{ 
+                style={{
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   border: '2px solid rgba(255,255,255,0.2)',
                   flexShrink: 0,
@@ -213,8 +219,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
                 {user?.name?.[0] || 'U'}
               </Avatar>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ 
-                  fontWeight: 600, 
+                <div style={{
+                  fontWeight: 600,
                   fontSize: 14,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -222,8 +228,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
                 }}>
                   {user?.name || 'User'}
                 </div>
-                <div style={{ 
-                  fontSize: 12, 
+                <div style={{
+                  fontSize: 12,
                   color: mode === 'dark' ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',

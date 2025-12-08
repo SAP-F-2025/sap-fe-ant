@@ -2,18 +2,23 @@ import {
 	BulbOutlined,
 	CopyOutlined,
 	DeleteOutlined,
+	DownloadOutlined,
 	EditOutlined,
+	ExportOutlined,
 	FireOutlined,
+	ImportOutlined,
 	PlusOutlined,
 	QuestionCircleOutlined,
 	SearchOutlined,
 	ThunderboltOutlined,
+	UploadOutlined,
 } from '@ant-design/icons';
 import {
 	Avatar,
 	Button,
 	Card,
 	Col,
+	Dropdown,
 	Flex,
 	Input,
 	message,
@@ -27,6 +32,7 @@ import {
 	Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import type { MenuProps } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -36,6 +42,8 @@ import { elevation } from '../../styles/elevation';
 import { useThemeToken } from '../../theme/ThemeProvider';
 import { DifficultyLevel, Question, QuestionType } from '../../types';
 import { showSuccess } from '../../utils/errorHandler';
+import QuestionImportModal from '../../components/Questions/QuestionImportModal';
+import QuestionExportModal from '../../components/Questions/QuestionExportModal';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -60,6 +68,12 @@ const QuestionList: React.FC = () => {
 	// Detect if we're in student context
 	const isStudentContext = location.pathname.startsWith('/student');
 	const basePath = isStudentContext ? '/student/questions' : '/questions';
+
+	// Import/Export modal states
+	const [importModalOpen, setImportModalOpen] = useState(false);
+	const [exportModalOpen, setExportModalOpen] = useState(false);
+	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+	const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
 
 	// Calculate statistics from ALL questions, not just current page
 	const stats = useMemo(() => {
@@ -258,6 +272,7 @@ const QuestionList: React.FC = () => {
 						{t('questionList.subtitle')}
 					</Text>
 				</Space>
+
 				<Button
 					type="primary"
 					icon={<PlusOutlined />}
@@ -267,6 +282,36 @@ const QuestionList: React.FC = () => {
 				>
 					{t('questionList.createNew')}
 				</Button>
+
+				<Space>
+					<Button
+						icon={<UploadOutlined />}
+						size="large"
+						onClick={() => setImportModalOpen(true)}
+						style={{ fontWeight: 500, height: 44, borderRadius: 10 }}
+					>
+						{t('questionList.import', 'Import')}
+					</Button>
+					<Button
+						icon={<DownloadOutlined />}
+						size="large"
+						onClick={() => setExportModalOpen(true)}
+						disabled={selectedQuestions.length === 0}
+						style={{ fontWeight: 500, height: 44, borderRadius: 10 }}
+					>
+						{t('questionList.export', 'Export')} {selectedQuestions.length > 0 && `(${selectedQuestions.length})`}
+					</Button>
+					<Button
+						type="primary"
+						icon={<PlusOutlined />}
+						size="large"
+						onClick={() => navigate('/questions/new')}
+						style={{ fontWeight: 500, height: 44, borderRadius: 10, paddingLeft: 24, paddingRight: 24 }}
+					>
+						{t('questionList.createNew')}
+					</Button>
+				</Space>
+
 			</Flex>
 
 
@@ -328,6 +373,13 @@ const QuestionList: React.FC = () => {
 						rowKey="id"
 						loading={loading}
 						scroll={{ x: 1200 }}
+						rowSelection={{
+							selectedRowKeys,
+							onChange: (keys, rows) => {
+								setSelectedRowKeys(keys);
+								setSelectedQuestions(rows);
+							},
+						}}
 						pagination={{
 							current: filters.page,
 							pageSize: filters.size,
@@ -389,6 +441,23 @@ const QuestionList: React.FC = () => {
 					</Row>
 				</Space>
 			</Card>
+
+			{/* Import Modal */}
+			<QuestionImportModal
+				open={importModalOpen}
+				onClose={() => setImportModalOpen(false)}
+				onSuccess={() => {
+					fetchQuestions();
+					fetchAllQuestionsForStats();
+				}}
+			/>
+
+			{/* Export Modal */}
+			<QuestionExportModal
+				open={exportModalOpen}
+				onClose={() => setExportModalOpen(false)}
+				selectedQuestions={selectedQuestions}
+			/>
 		</Space>
 	);
 };

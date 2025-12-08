@@ -32,6 +32,9 @@ export const API_ENDPOINTS = {
   QUESTION_DETAIL: (id: number) => `/api/v1/questions/${id}`,
   QUESTIONS_BATCH: '/api/v1/questions/batch',
   QUESTIONS_RANDOM: '/api/v1/questions/random',
+  QUESTIONS_IMPORT: '/api/v1/questions/import',
+  QUESTIONS_EXPORT: '/api/v1/questions/export',
+  QUESTIONS_TEMPLATE: '/api/v1/questions/template',
 
   // Question Banks
   QUESTION_BANKS: '/api/v1/question-banks',

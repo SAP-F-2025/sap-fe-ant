@@ -26,6 +26,20 @@ class GroupService {
     }
 
     /**
+     * Get groups created by current user
+     */
+    async getMyGroups(): Promise<GroupListResponse> {
+        return apiService.get<GroupListResponse>(API_ENDPOINTS.GROUPS_MY);
+    }
+
+    /**
+     * Get groups where current user is a member
+     */
+    async getMyMemberships(): Promise<GroupListResponse> {
+        return apiService.get<GroupListResponse>(API_ENDPOINTS.GROUPS_MEMBERSHIPS);
+    }
+
+    /**
      * Get group by ID
      */
     async getGroup(id: number): Promise<GroupResponse> {

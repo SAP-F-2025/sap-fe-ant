@@ -1850,6 +1850,8 @@
 		},
 		"members": {
 			"title": "Danh sách thành viên",
+			"name": "Thành viên",
+			"unknownUser": "Người dùng không xác định",
 			"add": "Thêm thành viên",
 			"remove": "Xóa khỏi nhóm",
 			"changeRole": "Thay đổi vai trò",
@@ -1954,6 +1956,44 @@
 			"edit": "Chỉnh sửa nhóm",
 			"delete": "Xóa nhóm",
 			"view": "Xem chi tiết"
+		}
+	},
+	"studentGroups": {
+		"title": "Nhóm của tôi",
+		"create": "Tạo nhóm mới",
+		"createFirst": "Tạo nhóm đầu tiên",
+		"loadError": "Không thể tải danh sách nhóm",
+		"createSuccess": "Đã tạo nhóm thành công",
+		"deleteSuccess": "Đã xóa nhóm thành công",
+		"typeClass": "Lớp học",
+		"typeStudyGroup": "Nhóm học",
+		"memberCount": "Số thành viên",
+		"assessmentCount": "Số bài thi",
+		"tabs": {
+			"myGroups": "Nhóm tôi tạo",
+			"memberships": "Nhóm tham gia"
+		},
+		"empty": {
+			"myGroups": "Bạn chưa tạo nhóm nào",
+			"memberships": "Bạn chưa tham gia nhóm nào"
+		},
+		"deleteConfirm": {
+			"title": "Xác nhận xóa nhóm",
+			"description": "Hành động này không thể hoàn tác"
+		},
+		"createModal": {
+			"title": "Tạo nhóm mới",
+			"code": "Mã nhóm",
+			"codeRequired": "Vui lòng nhập mã nhóm",
+			"codePattern": "Chỉ chứa chữ cái, số, gạch ngang và gạch dưới",
+			"codePlaceholder": "vd: nhom-hoc-toan-k12",
+			"name": "Tên nhóm",
+			"nameRequired": "Vui lòng nhập tên nhóm",
+			"namePlaceholder": "vd: Nhóm học Toán K12",
+			"type": "Loại nhóm",
+			"description": "Mô tả",
+			"descriptionPlaceholder": "Mô tả về nhóm...",
+			"submit": "Tạo nhóm"
 		}
 	}
 }

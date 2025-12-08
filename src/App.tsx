@@ -42,6 +42,7 @@ import AssessmentResults from './pages/Student/AssessmentResults';
 import AvailableAssessments from './pages/Student/AvailableAssessments';
 import FaceVerification from './pages/Student/FaceVerification';
 import StudentDashboard from './pages/Student/StudentDashboard';
+import StudentGroups from './pages/Student/StudentGroups';
 import StudentHistory from './pages/Student/StudentHistory';
 import TakeAssessment from './pages/Exam';
 
@@ -316,6 +317,10 @@ const AppRoutes: React.FC = () => {
 						{/* Note: take/:attemptId moved to ExamLayout below */}
 						<Route path="results/:attemptId" element={<AssessmentResults />} />
 						<Route path="history" element={<StudentHistory />} />
+						{/* Student Groups */}
+						<Route path="groups" element={<StudentGroups />} />
+						<Route path="groups/:id" element={<GroupDetail />} />
+						<Route path="groups/:id/edit" element={<GroupForm />} />
 					</Route>
 
 					{/* Teacher routes */}

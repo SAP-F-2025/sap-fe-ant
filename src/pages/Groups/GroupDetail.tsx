@@ -34,7 +34,7 @@ import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import groupService from '../../services/groupService';
 import userService from '../../services/userService';
 import { elevation } from '../../styles/elevation';
@@ -53,6 +53,7 @@ const GroupDetail: React.FC = () => {
 	const { t } = useTranslation();
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [loading, setLoading] = useState(true);
 	const [group, setGroup] = useState<GroupResponse | null>(null);
 	const [members, setMembers] = useState<GroupMemberResponse[]>([]);
@@ -73,6 +74,10 @@ const GroupDetail: React.FC = () => {
 
 	const groupId = parseInt(id || '0');
 
+	// Detect if we're in student context
+	const isStudentContext = location.pathname.startsWith('/student');
+	const basePath = isStudentContext ? '/student/groups' : '/groups';
+
 	useEffect(() => {
 		if (groupId) {
 			fetchGroup();
@@ -87,7 +92,7 @@ const GroupDetail: React.FC = () => {
 			setGroup(data);
 		} catch (error) {
 			showError(t('groups.loadDetailError'));
-			navigate('/groups');
+			navigate(basePath);
 		} finally {
 			setLoading(false);
 		}
@@ -170,7 +175,7 @@ const GroupDetail: React.FC = () => {
 		try {
 			await groupService.deleteGroup(groupId);
 			showSuccess(t('groups.deleteSuccess'));
-			navigate('/groups');
+			navigate(basePath);
 		} catch (error) {
 			// handled by interceptor
 		}
@@ -196,7 +201,7 @@ const GroupDetail: React.FC = () => {
 
 	const memberColumns: ColumnsType<GroupMemberResponse> = [
 		{
-			title: t('groups.columns.name'),
+			title: t('groups.members.name'),
 			key: 'user',
 			render: (_, record) => (
 				<Flex align="center" gap={12}>
@@ -206,10 +211,12 @@ const GroupDetail: React.FC = () => {
 						size={40}
 					/>
 					<Space direction="vertical" size={0}>
-						<Text strong>{record.user?.full_name || record.user_id}</Text>
-						<Text type="secondary" style={{ fontSize: 12 }}>
-							{record.user?.email}
-						</Text>
+						<Text strong>{record.user?.full_name || record.user?.email || t('groups.members.unknownUser')}</Text>
+						{record.user?.email && record.user?.full_name && (
+							<Text type="secondary" style={{ fontSize: 12 }}>
+								{record.user.email}
+							</Text>
+						)}
 					</Space>
 				</Flex>
 			),
@@ -286,7 +293,7 @@ const GroupDetail: React.FC = () => {
 				<Space direction="vertical" size={4}>
 					<Button
 						icon={<ArrowLeftOutlined />}
-						onClick={() => navigate('/groups')}
+						onClick={() => navigate(basePath)}
 						size="small"
 					>
 						{t('groups.detail.backToList')}
@@ -301,7 +308,7 @@ const GroupDetail: React.FC = () => {
 						<Tooltip title={t('groups.tooltip.edit')}>
 							<Button
 								icon={<EditOutlined />}
-								onClick={() => navigate(`/groups/${groupId}/edit`)}
+								onClick={() => navigate(`${basePath}/${groupId}/edit`)}
 							/>
 						</Tooltip>
 					)}

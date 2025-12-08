@@ -102,6 +102,8 @@ export const API_ENDPOINTS = {
 
   // Groups
   GROUPS: '/api/v1/groups',
+  GROUPS_MY: '/api/v1/groups/my',
+  GROUPS_MEMBERSHIPS: '/api/v1/groups/memberships',
   GROUP_DETAIL: (id: number) => `/api/v1/groups/${id}`,
   GROUP_MEMBERS: (id: number) => `/api/v1/groups/${id}/members`,
   GROUP_MEMBER: (id: number, userId: string) => `/api/v1/groups/${id}/members/${userId}`,

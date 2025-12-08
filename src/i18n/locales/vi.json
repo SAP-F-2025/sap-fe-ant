@@ -1994,6 +1994,14 @@
 			"description": "Mô tả",
 			"descriptionPlaceholder": "Mô tả về nhóm...",
 			"submit": "Tạo nhóm"
+		},
+		"sort": {
+			"createdAt": "Ngày tạo",
+			"name": "Tên nhóm",
+			"type": "Loại nhóm",
+			"memberCount": "Số thành viên",
+			"ascending": "Tăng dần",
+			"descending": "Giảm dần"
 		}
 	}
 }

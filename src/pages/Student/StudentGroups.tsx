@@ -2,6 +2,8 @@ import {
 	DeleteOutlined,
 	EditOutlined,
 	PlusOutlined,
+	SortAscendingOutlined,
+	SortDescendingOutlined,
 	TeamOutlined,
 	UserOutlined,
 } from '@ant-design/icons';
@@ -25,7 +27,7 @@ import {
 	Tooltip,
 	Typography,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import groupService from '../../services/groupService';
@@ -43,10 +45,13 @@ const StudentGroups: React.FC = () => {
 	const [memberships, setMemberships] = useState<GroupResponse[]>([]);
 	const [loading, setLoading] = useState(false);
 
-	// Create group modal
 	const [createModalOpen, setCreateModalOpen] = useState(false);
 	const [createLoading, setCreateLoading] = useState(false);
 	const [form] = Form.useForm();
+
+	// Sort state
+	const [sortBy, setSortBy] = useState<'created_at' | 'name' | 'type' | 'member_count'>('created_at');
+	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
 	useEffect(() => {
 		fetchGroups();
@@ -92,6 +97,33 @@ const StudentGroups: React.FC = () => {
 			// handled by interceptor
 		}
 	};
+
+	// Sort function
+	const sortGroups = (groups: GroupResponse[]) => {
+		return [...groups].sort((a, b) => {
+			let comparison = 0;
+			switch (sortBy) {
+				case 'created_at':
+					comparison = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+					break;
+				case 'name':
+					comparison = (a.display_name || a.name || '').localeCompare(b.display_name || b.name || '');
+					break;
+				case 'type':
+					comparison = (a.type || '').localeCompare(b.type || '');
+					break;
+				case 'member_count':
+					// Member count: larger groups first (reverse the comparison)
+					comparison = (b.member_count || 0) - (a.member_count || 0);
+					break;
+			}
+			return sortOrder === 'asc' ? comparison : -comparison;
+		});
+	};
+
+	// Sorted groups
+	const sortedMyGroups = useMemo(() => sortGroups(myGroups), [myGroups, sortBy, sortOrder]);
+	const sortedMemberships = useMemo(() => sortGroups(memberships), [memberships, sortBy, sortOrder]);
 
 	const GroupCard: React.FC<{ group: GroupResponse; showActions?: boolean }> = ({ group, showActions = false }) => (
 		<Card
@@ -220,13 +252,33 @@ const StudentGroups: React.FC = () => {
 					<TeamOutlined style={{ marginRight: 8 }} />
 					{t('studentGroups.title')}
 				</Title>
-				<Button
-					type="primary"
-					icon={<PlusOutlined />}
-					onClick={() => setCreateModalOpen(true)}
-				>
-					{t('studentGroups.create')}
-				</Button>
+				<Space wrap>
+					{/* Sort Controls */}
+					<Select
+						value={sortBy}
+						onChange={setSortBy}
+						style={{ width: 150 }}
+						options={[
+							{ label: 'Ngày tạo', value: 'created_at' },
+							{ label: 'Tên nhóm', value: 'name' },
+							{ label: 'Loại nhóm', value: 'type' },
+							{ label: 'Số thành viên', value: 'member_count' },
+						]}
+					/>
+					<Tooltip title={sortOrder === 'asc' ? 'Tăng dần' : 'Giảm dần'}>
+						<Button
+							icon={sortOrder === 'asc' ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
+							onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+						/>
+					</Tooltip>
+					<Button
+						type="primary"
+						icon={<PlusOutlined />}
+						onClick={() => setCreateModalOpen(true)}
+					>
+						{t('studentGroups.create')}
+					</Button>
+				</Space>
 			</Flex>
 
 			{/* Tabs */}
@@ -248,7 +300,7 @@ const StudentGroups: React.FC = () => {
 									<Tag>{myGroups.length}</Tag>
 								</Space>
 							),
-							children: renderGroupGrid(myGroups, true),
+							children: renderGroupGrid(sortedMyGroups, true),
 						},
 						{
 							key: 'memberships',
@@ -259,7 +311,7 @@ const StudentGroups: React.FC = () => {
 									<Tag>{memberships.length}</Tag>
 								</Space>
 							),
-							children: renderGroupGrid(memberships, false),
+							children: renderGroupGrid(sortedMemberships, false),
 						},
 					]}
 				/>

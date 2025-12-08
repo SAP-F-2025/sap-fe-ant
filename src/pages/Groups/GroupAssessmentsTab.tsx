@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
     Table,
     Button,
@@ -8,7 +8,6 @@ import {
     Popconfirm,
     Tooltip,
     Modal,
-    Select,
     Spin,
     Empty,
     Flex,
@@ -17,6 +16,9 @@ import {
     Row,
     Col,
     Progress,
+    Tabs,
+    Input,
+    Checkbox,
 } from 'antd';
 import {
     PlusOutlined,
@@ -26,8 +28,10 @@ import {
     CheckCircleOutlined,
     PlayCircleOutlined,
     EditOutlined,
+    SearchOutlined,
+    UserOutlined,
 } from '@ant-design/icons';
-import { GroupAssessmentItem, GroupAssessmentListResponse, Assessment, AssessmentStatus } from '../../types';
+import { GroupAssessmentItem, Assessment, AssessmentStatus } from '../../types';
 import groupService from '../../services/groupService';
 import assessmentService from '../../services/assessmentService';
 import { showError, showSuccess } from '../../utils/errorHandler';
@@ -47,12 +51,14 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
     const [totalCount, setTotalCount] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    // Assign modal
+    // Assign modal - new state
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [assignLoading, setAssignLoading] = useState(false);
-    const [availableAssessments, setAvailableAssessments] = useState<Assessment[]>([]);
-    const [searchLoading, setSearchLoading] = useState(false);
+    const [modalLoading, setModalLoading] = useState(false);
+    const [allAssessments, setAllAssessments] = useState<Assessment[]>([]);
     const [selectedAssessmentIds, setSelectedAssessmentIds] = useState<number[]>([]);
+    const [activeTab, setActiveTab] = useState<'my' | 'all'>('my');
+    const [searchFilter, setSearchFilter] = useState('');
 
     useEffect(() => {
         if (groupId) {
@@ -75,22 +81,66 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
         }
     };
 
-    const handleSearchAssessments = async (search: string) => {
-        if (search.length < 2) return;
-        setSearchLoading(true);
+    // Open modal and load assessments
+    const handleOpenAssignModal = async () => {
+        setAssignModalOpen(true);
+        setModalLoading(true);
+        setSelectedAssessmentIds([]);
+        setSearchFilter('');
+        setActiveTab('my');
         try {
-            const response = await assessmentService.getAssessments({ search, size: 20 });
-            // Filter out already assigned assessments
-            const assignedIds = assessments.map(a => a.id);
-            setAvailableAssessments(
-                (response.assessments || []).filter(a => !assignedIds.includes(a.id))
-            );
+            // Load all active assessments (size 100 should be enough for most cases)
+            const response = await assessmentService.getAssessments({ size: 100, status: 'Active' });
+            setAllAssessments(response.assessments || []);
         } catch (error) {
-            // ignore
+            showError('Không thể tải danh sách bài thi');
+            setAllAssessments([]);
         } finally {
-            setSearchLoading(false);
+            setModalLoading(false);
         }
     };
+
+    // Close modal and reset state
+    const handleCloseModal = () => {
+        setAssignModalOpen(false);
+        setSelectedAssessmentIds([]);
+        setAllAssessments([]);
+        setSearchFilter('');
+    };
+
+    // Filtered lists
+    const assignedIds = useMemo(() => assessments.map(a => a.id), [assessments]);
+    
+    const myAssessments = useMemo(() => 
+        allAssessments.filter(a => a.can_edit && !assignedIds.includes(a.id)),
+        [allAssessments, assignedIds]
+    );
+    
+    const otherAssessments = useMemo(() => 
+        allAssessments.filter(a => !a.can_edit && !assignedIds.includes(a.id)),
+        [allAssessments, assignedIds]
+    );
+
+    // Apply search filter
+    const filteredMyAssessments = useMemo(() => {
+        if (!searchFilter) return myAssessments;
+        const search = searchFilter.toLowerCase();
+        return myAssessments.filter(a => 
+            a.title.toLowerCase().includes(search) ||
+            a.description?.toLowerCase().includes(search)
+        );
+    }, [myAssessments, searchFilter]);
+
+    const filteredOtherAssessments = useMemo(() => {
+        if (!searchFilter) return otherAssessments;
+        const search = searchFilter.toLowerCase();
+        return otherAssessments.filter(a => 
+            a.title.toLowerCase().includes(search) ||
+            a.description?.toLowerCase().includes(search)
+        );
+    }, [otherAssessments, searchFilter]);
+
+    const currentList = activeTab === 'my' ? filteredMyAssessments : filteredOtherAssessments;
 
     const handleAssign = async () => {
         if (selectedAssessmentIds.length === 0) return;
@@ -102,10 +152,8 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
                     groupService.assignAssessmentToGroups(assessmentId, [groupId])
                 )
             );
-            showSuccess('Đã gán bài thi cho nhóm');
-            setAssignModalOpen(false);
-            setSelectedAssessmentIds([]);
-            setAvailableAssessments([]);
+            showSuccess(`Đã gán ${selectedAssessmentIds.length} bài thi cho nhóm`);
+            handleCloseModal();
             fetchAssessments();
         } catch (error) {
             // handled by interceptor
@@ -123,6 +171,29 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
             // handled by interceptor
         }
     };
+
+    // Toggle selection
+    const handleToggleSelect = (assessmentId: number) => {
+        setSelectedAssessmentIds(prev => 
+            prev.includes(assessmentId)
+                ? prev.filter(id => id !== assessmentId)
+                : [...prev, assessmentId]
+        );
+    };
+
+    // Select all in current list
+    const handleSelectAllInList = (checked: boolean) => {
+        if (checked) {
+            const idsToAdd = currentList.map(a => a.id).filter(id => !selectedAssessmentIds.includes(id));
+            setSelectedAssessmentIds(prev => [...prev, ...idsToAdd]);
+        } else {
+            const idsToRemove = new Set(currentList.map(a => a.id));
+            setSelectedAssessmentIds(prev => prev.filter(id => !idsToRemove.has(id)));
+        }
+    };
+
+    const allInListSelected = currentList.length > 0 && currentList.every(a => selectedAssessmentIds.includes(a.id));
+    const someInListSelected = currentList.some(a => selectedAssessmentIds.includes(a.id));
 
     const getStatusConfig = (status: AssessmentStatus) => {
         const config: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
@@ -159,7 +230,7 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
                                 cursor: 'pointer',
                                 color: '#1890ff',
                             }}
-                            onClick={() => navigate(`/assessments/${record.id}`)}
+                            onClick={() => navigate(`/assessments/edit/${record.id}`)}
                         >
                             {record.title}
                         </Text>
@@ -222,25 +293,18 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
         {
             title: 'Thao tác',
             key: 'actions',
-            width: 120,
+            width: 100,
+            align: 'center',
             render: (_, record) => (
-                <Space>
-                    {record.can_take && (
-                        <Tooltip title="Làm bài">
+                <Space size={4}>
+                    {record.can_edit && (
+                        <Tooltip title="Chỉnh sửa bài thi">
                             <Button
                                 type="primary"
-                                size="small"
-                                icon={<PlayCircleOutlined />}
-                                onClick={() => navigate(`/student/take/${record.id}`)}
-                            />
-                        </Tooltip>
-                    )}
-                    {record.can_edit && (
-                        <Tooltip title="Chỉnh sửa">
-                            <Button
+                                ghost
                                 size="small"
                                 icon={<EditOutlined />}
-                                onClick={() => navigate(`/assessments/${record.id}/edit`)}
+                                onClick={() => navigate(`/assessments/edit/${record.id}`)}
                             />
                         </Tooltip>
                     )}
@@ -253,12 +317,71 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
                             cancelText="Không"
                             okButtonProps={{ danger: true }}
                         >
-                            <Tooltip title="Hủy gán">
+                            <Tooltip title="Hủy gán khỏi nhóm">
                                 <Button type="text" danger size="small" icon={<DeleteOutlined />} />
                             </Tooltip>
                         </Popconfirm>
                     )}
                 </Space>
+            ),
+        },
+    ];
+
+    // Modal assessment list columns
+    const modalColumns: ColumnsType<Assessment> = [
+        {
+            title: () => (
+                <Checkbox
+                    checked={allInListSelected}
+                    indeterminate={!allInListSelected && someInListSelected}
+                    onChange={(e) => handleSelectAllInList(e.target.checked)}
+                />
+            ),
+            key: 'select',
+            width: 50,
+            render: (_, record) => (
+                <Checkbox
+                    checked={selectedAssessmentIds.includes(record.id)}
+                    onChange={() => handleToggleSelect(record.id)}
+                />
+            ),
+        },
+        {
+            title: 'Bài thi',
+            key: 'assessment',
+            render: (_, record) => (
+                <Flex align="center" gap={8}>
+                    <Avatar
+                        size="small"
+                        icon={<FileTextOutlined />}
+                        style={{ backgroundColor: '#1890ff' }}
+                    />
+                    <Space direction="vertical" size={0}>
+                        <Text strong>{record.title}</Text>
+                        {record.description && (
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                {record.description.length > 50
+                                    ? `${record.description.substring(0, 50)}...`
+                                    : record.description}
+                            </Text>
+                        )}
+                    </Space>
+                </Flex>
+            ),
+        },
+        {
+            title: 'Trạng thái',
+            key: 'status',
+            width: 110,
+            render: (_, record) => getStatusTag(record.status),
+        },
+        {
+            title: 'Câu hỏi',
+            key: 'questions',
+            width: 80,
+            align: 'center',
+            render: (_, record) => (
+                <Text>{record.questions_count || 0}</Text>
             ),
         },
     ];
@@ -311,7 +434,7 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
-                        onClick={() => setAssignModalOpen(true)}
+                        onClick={handleOpenAssignModal}
                     >
                         Gán bài thi
                     </Button>
@@ -332,7 +455,7 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
                         <Button
                             type="primary"
                             icon={<PlusOutlined />}
-                            onClick={() => setAssignModalOpen(true)}
+                            onClick={handleOpenAssignModal}
                         >
                             Gán bài thi đầu tiên
                         </Button>
@@ -348,58 +471,118 @@ const GroupAssessmentsTab: React.FC<GroupAssessmentsTabProps> = ({ groupId, canM
                 />
             )}
 
-            {/* Assign Assessment Modal */}
+            {/* Improved Assign Assessment Modal */}
             <Modal
                 title="Gán bài thi cho nhóm"
                 open={assignModalOpen}
-                onCancel={() => {
-                    setAssignModalOpen(false);
-                    setSelectedAssessmentIds([]);
-                    setAvailableAssessments([]);
-                }}
+                onCancel={handleCloseModal}
                 onOk={handleAssign}
-                okText="Gán bài thi"
+                okText={`Gán ${selectedAssessmentIds.length > 0 ? selectedAssessmentIds.length + ' ' : ''}bài thi`}
                 cancelText="Hủy"
-                okButtonProps={{ loading: assignLoading, disabled: selectedAssessmentIds.length === 0 }}
-                width={600}
+                okButtonProps={{ 
+                    loading: assignLoading, 
+                    disabled: selectedAssessmentIds.length === 0 
+                }}
+                width={700}
+                styles={{ body: { maxHeight: '60vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' } }}
             >
-                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                    <Text type="secondary">
-                        Tìm và chọn một hoặc nhiều bài thi để gán cho nhóm. Thành viên trong nhóm sẽ có thể truy cập các bài thi này.
-                    </Text>
-                    <Select
-                        mode="multiple"
-                        showSearch
-                        placeholder="Nhập tên bài thi để tìm..."
-                        style={{ width: '100%' }}
-                        loading={searchLoading}
-                        filterOption={false}
-                        onSearch={handleSearchAssessments}
-                        onChange={(values) => setSelectedAssessmentIds(values)}
-                        value={selectedAssessmentIds}
-                        notFoundContent={searchLoading ? <Spin size="small" /> : 'Nhập ít nhất 2 ký tự để tìm kiếm'}
-                        options={availableAssessments.map((a) => ({
-                            label: (
-                                <Flex align="center" gap={8} justify="space-between">
-                                    <Flex align="center" gap={8}>
-                                        <FileTextOutlined />
-                                        <span>{a.title}</span>
-                                    </Flex>
-                                    {getStatusTag(a.status)}
-                                </Flex>
-                            ),
-                            value: a.id,
-                        }))}
-                    />
-                    {selectedAssessmentIds.length > 0 && (
-                        <Text type="secondary">
-                            Đã chọn {selectedAssessmentIds.length} bài thi
-                        </Text>
-                    )}
-                </Space>
+                {modalLoading ? (
+                    <Flex justify="center" align="center" style={{ minHeight: 300 }}>
+                        <Spin size="large" tip="Đang tải danh sách bài thi..." />
+                    </Flex>
+                ) : (
+                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                        {/* Search Input */}
+                        <Input
+                            placeholder="Tìm kiếm bài thi..."
+                            prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+                            value={searchFilter}
+                            onChange={(e) => setSearchFilter(e.target.value)}
+                            allowClear
+                        />
+
+                        {/* Tabs */}
+                        <Tabs
+                            activeKey={activeTab}
+                            onChange={(key) => setActiveTab(key as 'my' | 'all')}
+                            items={[
+                                {
+                                    key: 'my',
+                                    label: (
+                                        <Space>
+                                            <UserOutlined />
+                                            Bài thi của tôi
+                                            <Tag>{filteredMyAssessments.length}</Tag>
+                                        </Space>
+                                    ),
+                                },
+                                {
+                                    key: 'all',
+                                    label: (
+                                        <Space>
+                                            <FileTextOutlined />
+                                            Tất cả bài thi
+                                            <Tag>{filteredOtherAssessments.length}</Tag>
+                                        </Space>
+                                    ),
+                                },
+                            ]}
+                        />
+
+                        {/* Assessment List */}
+                        <div style={{ maxHeight: '40vh', overflow: 'auto' }}>
+                            {currentList.length === 0 ? (
+                                <Empty
+                                    description={
+                                        searchFilter 
+                                            ? "Không tìm thấy bài thi phù hợp"
+                                            : activeTab === 'my' 
+                                                ? "Bạn chưa tạo bài thi nào hoặc tất cả đã được gán"
+                                                : "Không có bài thi nào khác"
+                                    }
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                />
+                            ) : (
+                                <Table
+                                    columns={modalColumns}
+                                    dataSource={currentList}
+                                    rowKey="id"
+                                    size="small"
+                                    pagination={currentList.length > 8 ? { pageSize: 8, size: 'small' } : false}
+                                    onRow={(record) => ({
+                                        onClick: () => handleToggleSelect(record.id),
+                                        style: { 
+                                            cursor: 'pointer',
+                                            backgroundColor: selectedAssessmentIds.includes(record.id) 
+                                                ? '#e6f7ff' 
+                                                : undefined 
+                                        },
+                                    })}
+                                />
+                            )}
+                        </div>
+
+                        {/* Selection Summary */}
+                        {selectedAssessmentIds.length > 0 && (
+                            <Flex justify="space-between" align="center" style={{ paddingTop: 8, borderTop: '1px solid #f0f0f0' }}>
+                                <Text type="secondary">
+                                    Đã chọn <Text strong>{selectedAssessmentIds.length}</Text> bài thi
+                                </Text>
+                                <Button 
+                                    type="link" 
+                                    size="small"
+                                    onClick={() => setSelectedAssessmentIds([])}
+                                >
+                                    Bỏ chọn tất cả
+                                </Button>
+                            </Flex>
+                        )}
+                    </Space>
+                )}
             </Modal>
         </Space>
     );
 };
 
 export default GroupAssessmentsTab;
+

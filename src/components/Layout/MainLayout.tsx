@@ -89,6 +89,11 @@ const MainLayout: React.FC = () => {
 			label: t('studentGroups.title'),
 		},
 		{
+			key: '/student/manage-assessments',
+			icon: <FileTextOutlined />,
+			label: t('layout.manageAssessments'),
+		},
+		{
 			key: '/student/history',
 			icon: <HistoryOutlined />,
 			label: t('layout.history'),
@@ -226,6 +231,7 @@ const MainLayout: React.FC = () => {
 		// Student paths
 		if (path.startsWith('/student/dashboard')) return '/student/dashboard';
 		if (path.startsWith('/student/assessments')) return '/student/assessments';
+		if (path.startsWith('/student/manage-assessments')) return '/student/manage-assessments';
 		if (path.startsWith('/student/groups')) return '/student/groups';
 		if (path.startsWith('/student/history')) return '/student/history';
 		if (path.startsWith('/student/take')) return '/student/assessments';

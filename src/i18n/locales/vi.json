@@ -303,7 +303,7 @@
 	},
 	"layout": {
 		"studentDashboard": "Bảng điều khiển",
-		"assessments": "Bài kiểm tra",
+		"assessments": "Bài thi được giao",
 		"history": "Lịch sử",
 		"overview": "Tổng quan",
 		"users": "Người dùng",
@@ -820,7 +820,7 @@
 		}
 	},
 	"availableAssessments": {
-		"title": "Bài kiểm tra khả dụng",
+		"title": "Bài thi được giao",
 		"subtitle": "Chọn một bài kiểm tra để bắt đầu. Hãy đảm bảo bạn có đủ thời gian để hoàn thành.",
 		"searchPlaceholder": "Tìm kiếm bài kiểm tra...",
 		"totalAssessments": "Tổng {{count}} bài kiểm tra",

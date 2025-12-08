@@ -26,7 +26,7 @@ import {
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ManageAssessmentQuestions } from '../../components/Assessment/ManageAssessmentQuestions';
 import assessmentService from '../../services/assessmentService';
 import { Assessment, AssessmentStats, AssessmentStatus } from '../../types';
@@ -36,11 +36,17 @@ const { Title } = Typography;
 const AssessmentDetail: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { id } = useParams<{ id: string }>();
 	const [loading, setLoading] = useState(false);
 	const [assessment, setAssessment] = useState<Assessment | null>(null);
 	const [stats, setStats] = useState<AssessmentStats | null>(null);
 	const { modal } = App.useApp();
+
+	// Detect if we're in student context
+	const isStudentContext = location.pathname.startsWith('/student');
+	const basePath = isStudentContext ? '/student/manage-assessments' : '/assessments';
+	const editPath = isStudentContext ? `${basePath}/${id}/edit` : `/assessments/edit/${id}`;
 
 	useEffect(() => {
 		if (id) {
@@ -56,7 +62,7 @@ const AssessmentDetail: React.FC = () => {
 			setAssessment(data);
 		} catch (error) {
 			message.error(t('assessmentDetail.loadError'));
-			navigate('/assessments');
+			navigate(basePath);
 		} finally {
 			setLoading(false);
 		}
@@ -158,7 +164,7 @@ const AssessmentDetail: React.FC = () => {
 					<Space>
 						<Button
 							icon={<RollbackOutlined />}
-							onClick={() => navigate('/assessments')}
+							onClick={() => navigate(basePath)}
 						>
 							{t('common.back')}
 						</Button>
@@ -183,7 +189,7 @@ const AssessmentDetail: React.FC = () => {
 						<Button
 							type="primary"
 							icon={<EditOutlined />}
-							onClick={() => navigate(`/assessments/edit/${id}`)}
+							onClick={() => navigate(editPath)}
 						>
 							{t('common.edit')}
 						</Button>

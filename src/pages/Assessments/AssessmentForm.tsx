@@ -17,7 +17,7 @@ import {
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import assessmentService from '../../services/assessmentService';
 import { AssessmentCreateRequest } from '../../types';
 import { showSuccess } from '../../utils/errorHandler';
@@ -28,11 +28,16 @@ const { TextArea } = Input;
 const AssessmentForm: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { id } = useParams<{ id: string }>();
 	const [form] = Form.useForm();
 	const [loading, setLoading] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const isEdit = Boolean(id);
+
+	// Detect if we're in student context
+	const isStudentContext = location.pathname.startsWith('/student');
+	const basePath = isStudentContext ? '/student/manage-assessments' : '/assessments';
 
 	useEffect(() => {
 		if (isEdit && id) {
@@ -50,7 +55,7 @@ const AssessmentForm: React.FC = () => {
 			});
 		} catch (error) {
 			// Error will be handled by axios interceptor
-			navigate('/assessments');
+			navigate(basePath);
 		} finally {
 			setLoading(false);
 		}
@@ -72,7 +77,7 @@ const AssessmentForm: React.FC = () => {
 				showSuccess(t('assessmentForm.createSuccess'));
 			}
 
-			navigate('/assessments');
+			navigate(basePath);
 		} catch (error) {
 			// Error will be handled by axios interceptor with notification
 			// No need to show message here
@@ -100,7 +105,7 @@ const AssessmentForm: React.FC = () => {
 				<Col>
 					<Button
 						icon={<RollbackOutlined />}
-						onClick={() => navigate('/assessments')}
+						onClick={() => navigate(basePath)}
 					>
 						{t('common.back')}
 					</Button>
@@ -399,7 +404,7 @@ const AssessmentForm: React.FC = () => {
 						>
 							{isEdit ? t('assessmentForm.updateButton') : t('assessmentForm.createButton')}
 						</Button>
-						<Button onClick={() => navigate('/assessments')} size="large">
+						<Button onClick={() => navigate(basePath)} size="large">
 							{t('common.cancel')}
 						</Button>
 					</Space>

@@ -86,7 +86,7 @@ const AssessmentList: React.FC = () => {
       setAssessments(response.assessments);
       setTotal(response.total);
     } catch (error) {
-      // showError('Không thể tải danh sách bài thi');
+      // showError('Failed to load assessments');
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ const AssessmentList: React.FC = () => {
       showSuccess(t('assessmentList.publishSuccess'));
       fetchAssessments();
     } catch (error) {
-      // message.error('Không thể xuất bản bài thi');
+      // message.error('Failed to publish assessment');
     }
   };
 
@@ -128,7 +128,7 @@ const AssessmentList: React.FC = () => {
       showSuccess(t('assessmentList.archiveSuccess'));
       fetchAssessments();
     } catch (error) {
-      // message.error('Không thể lưu trữ bài thi');
+      // message.error('Failed to archive assessment');
     }
   };
 

@@ -422,25 +422,6 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 		}
 	};
 
-	/* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
-	const handleUpdateTimeLimit = async (questionId: number, timeLimit: number | null) => {
-			if (timeLimit !== null && timeLimit < 0) {
-					showError('Thời gian phải lớn hơn hoặc bằng 0');
-					return;
-			}
-
-			try {
-					await assessmentService.updateQuestionSettings(assessmentId, questionId, {
-							time_limit: timeLimit === null ? undefined : timeLimit
-					});
-					showSuccess('Cập nhật thời gian thành công');
-					onQuestionsChange?.();
-			} catch (error) {
-					// Error handled by interceptor
-			}
-	};
-	*/
-
 	// Bulk actions handlers
 	const handleBulkUpdate = () => {
 		if (selectedRows.length === 0) {
@@ -567,40 +548,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				);
 			},
 		},
-		/* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
-		{
-				title: 'Thời gian (giây)',
-				dataIndex: 'time_limit',
-				width: 140,
-				render: (timeLimit, record: any) => {
-						const effectiveTimeLimit = timeLimit ?? record.question?.time_limit;
-						return (
-								<Tooltip title="Click để chỉnh sửa (để trống = không giới hạn)">
-										<InputNumber
-												size="small"
-												min={0}
-												placeholder="Không giới hạn"
-												defaultValue={effectiveTimeLimit}
-												style={{width: '100%'}}
-												onBlur={(e: any) => {
-														const value = e.target.value === '' ? null : parseFloat(e.target.value);
-														if (value !== effectiveTimeLimit) {
-																handleUpdateTimeLimit(record.question_id, value);
-														}
-												}}
-												onPressEnter={(e: any) => {
-														const value = e.target.value === '' ? null : parseFloat(e.target.value);
-														if (value !== effectiveTimeLimit) {
-																handleUpdateTimeLimit(record.question_id, value);
-																e.target.blur();
-														}
-												}}
-										/>
-								</Tooltip>
-						);
-				},
-		},
-		*/
+
 		{
 			title: t('manageAssessmentQuestions.columnActions'),
 			width: 100,
@@ -1070,20 +1018,6 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 							placeholder={t('manageAssessmentQuestions.pointsPlaceholder')}
 						/>
 					</Form.Item>
-
-					{/* DEPRECATED: time_limit is not used in timing logic. Assessment.Duration is used instead.
-                    <Form.Item
-                        label="Thời gian (giây)"
-                        name="time_limit"
-                        help="Để trống nếu không muốn thay đổi"
-                    >
-                        <InputNumber
-                            min={0}
-                            style={{width: '100%'}}
-                            placeholder="Nhập thời gian cho tất cả câu hỏi đã chọn"
-                        />
-                    </Form.Item>
-                    */}
 
 					<Alert
 						message={t('manageAssessmentQuestions.note')}

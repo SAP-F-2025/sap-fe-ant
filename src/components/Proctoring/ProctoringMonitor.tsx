@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Alert, Badge, Card, Tag, Button } from 'antd';
-import { EyeOutlined, DragOutlined, MinusOutlined, PlusOutlined, VideoCameraOutlined } from '@ant-design/icons';
-import { useMediaPipeFaceDetection, ProctoringEvent } from '../../hooks/useProctoring';
+import { DragOutlined, MinusOutlined, PlusOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { Alert, Badge, Button, Card, Tag } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBrowserProctoring } from '../../hooks/useBrowserProctoring';
+import { ProctoringEvent, useMediaPipeFaceDetection } from '../../hooks/useProctoring';
 
 interface ProctoringMonitorProps {
 	onViolation?: (event: ProctoringEvent) => void;
@@ -27,6 +28,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	preventCopyPaste = true,
 	detectTampering = false
 }) => {
+	const { t } = useTranslation();
 	const cardRef = useRef<HTMLDivElement>(null);
 	const [position, setPosition] = useState(() => {
 		const saved = localStorage.getItem('proctoring-position');
@@ -50,7 +52,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	const isMobile = windowWidth < 768;
 	const isTablet = windowWidth >= 768 && windowWidth < 1200;
 	const isDesktop = windowWidth >= 1200;
-	
+
 	const [isExpanded, setIsExpanded] = useState(!isMobile);
 	const startXRef = useRef(0);
 	const startScaleRef = useRef(scale);
@@ -83,7 +85,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 					next.delete(key);
 					return next;
 				});
-					violationTimeoutsRef.current.delete(key);
+				violationTimeoutsRef.current.delete(key);
 			}, 3000);
 
 			violationTimeoutsRef.current.set(key, timeout);
@@ -159,9 +161,9 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	const getSize = () => {
 		const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;
 		const baseHeight = isMobile ? 180 : isTablet ? 240 : compact ? 240 : 480;
-		return { 
-			width: Math.round(baseWidth * scale), 
-			height: Math.round(baseHeight * scale) 
+		return {
+			width: Math.round(baseWidth * scale),
+			height: Math.round(baseHeight * scale)
 		};
 	};
 	const size = getSize();
@@ -293,118 +295,118 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 				}}
 				onMouseDown={handleMouseDown}
 			>
-			{isExpanded && !isMobile && (
-				<div
-					className="resize-handle"
-					style={{
-						position: 'absolute',
-						right: -4,
-						top: 0,
-						width: 8,
-						height: '100%',
-						cursor: 'ew-resize',
-						zIndex: 10
-					}}
-				/>
-			)}
-			<Card
-				title={
-					<span style={{ cursor: isMobile ? 'default' : 'grab', userSelect: 'none', fontSize: Math.round((isMobile ? 12 : 14) * scale) }}>
-						{!isMobile && <DragOutlined />} {isMobile ? '📹' : 'Camera giám sát'}
-					</span>
-				}
-				size="small"
-				extra={
-					<div style={{ display: 'flex', gap: 8 * scale, alignItems: 'center' }}>
-						{violationCount > 0 && (
-							<Tag color="error" style={{ margin: 0, fontSize: Math.round((isMobile ? 10 : 12) * scale) }}>
-								{isMobile ? violationCount : `Vi phạm: ${violationCount}`}
-							</Tag>
-						)}
-						<Button
-							type="text"
-							size="small"
-							icon={isExpanded ? <MinusOutlined /> : <PlusOutlined />}
-							onClick={() => setIsExpanded(!isExpanded)}
-							style={{ fontSize: Math.round(14 * scale) }}
-						/>
-					</div>
-				}
-			>
-				{error && isExpanded && (
-					<Alert type="error" message={error} showIcon style={{ marginBottom: 16 * scale, fontSize: Math.round(14 * scale) }} />
-				)}
-
-				<div style={{ position: 'relative', width: size.width, height: size.height, display: isExpanded ? 'block' : 'none' }}>
-					<video
-						ref={videoRef}
-						autoPlay
-						playsInline
-						muted
-						style={{
-							width: '100%',
-							height: '100%',
-							backgroundColor: '#000',
-							borderRadius: 8,
-							transform: 'scaleX(-1)'
-						}}
-					/>
-					<canvas
-						ref={canvasRef}
-						width={size.width}
-						height={size.height}
+				{isExpanded && !isMobile && (
+					<div
+						className="resize-handle"
 						style={{
 							position: 'absolute',
+							right: -4,
 							top: 0,
-							left: 0,
-							transform: 'scaleX(-1)'
+							width: 8,
+							height: '100%',
+							cursor: 'ew-resize',
+							zIndex: 10
 						}}
 					/>
+				)}
+				<Card
+					title={
+						<span style={{ cursor: isMobile ? 'default' : 'grab', userSelect: 'none', fontSize: Math.round((isMobile ? 12 : 14) * scale) }}>
+							{!isMobile && <DragOutlined />} {isMobile ? '📹' : t('proctoring.monitor.cameraTitle')}
+						</span>
+					}
+					size="small"
+					extra={
+						<div style={{ display: 'flex', gap: 8 * scale, alignItems: 'center' }}>
+							{violationCount > 0 && (
+								<Tag color="error" style={{ margin: 0, fontSize: Math.round((isMobile ? 10 : 12) * scale) }}>
+									{isMobile ? violationCount : t('proctoring.monitor.violationCount', { count: violationCount })}
+								</Tag>
+							)}
+							<Button
+								type="text"
+								size="small"
+								icon={isExpanded ? <MinusOutlined /> : <PlusOutlined />}
+								onClick={() => setIsExpanded(!isExpanded)}
+								style={{ fontSize: Math.round(14 * scale) }}
+							/>
+						</div>
+					}
+				>
+					{error && isExpanded && (
+						<Alert type="error" message={error} showIcon style={{ marginBottom: 16 * scale, fontSize: Math.round(14 * scale) }} />
+					)}
 
-								{isProcessing && (
-									<div style={{
-										position: 'absolute',
-										top: 8 * scale,
-										right: 8 * scale,
-										background: 'rgba(82, 196, 26, 0.8)',
-										padding: `${4 * scale}px ${8 * scale}px`,
-										borderRadius: 4 * scale,
-										color: 'white',
-										fontSize: Math.round(12 * scale)
-									}}>
-										Monitoring
-									</div>
-								)}
+					<div style={{ position: 'relative', width: size.width, height: size.height, display: isExpanded ? 'block' : 'none' }}>
+						<video
+							ref={videoRef}
+							autoPlay
+							playsInline
+							muted
+							style={{
+								width: '100%',
+								height: '100%',
+								backgroundColor: '#000',
+								borderRadius: 8,
+								transform: 'scaleX(-1)'
+							}}
+						/>
+						<canvas
+							ref={canvasRef}
+							width={size.width}
+							height={size.height}
+							style={{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								transform: 'scaleX(-1)'
+							}}
+						/>
+
+						{isProcessing && (
+							<div style={{
+								position: 'absolute',
+								top: 8 * scale,
+								right: 8 * scale,
+								background: 'rgba(82, 196, 26, 0.8)',
+								padding: `${4 * scale}px ${8 * scale}px`,
+								borderRadius: 4 * scale,
+								color: 'white',
+								fontSize: Math.round(12 * scale)
+							}}>
+								Monitoring
+							</div>
+						)}
 					</div>
 
-				{Array.from(activeViolations.values()).map((violation, index) => {
-							const getMessage = (type: string, metadata?: any) => {
-								switch (type) {
-									case 'face_not_detected': return 'Không phát hiện khuôn mặt';
-									case 'multiple_faces': return 'Phát hiện nhiều khuôn mặt';
-									case 'mouth_open': return 'Phát hiện mở miệng';
-									case 'head_turned': return 'Đầu quay đi';
-									case 'eyes_closed': return 'Nhắm mắt';
-									case 'looking_away': return 'Đang nhìn ra ngoài màn hình';
-									case 'tab_switch': return metadata?.hidden ? 'Chuyển tab/cửa sổ' : 'Quay lại tab';
-									case 'fullscreen_exit': return 'Thoát chế độ toàn màn hình';
-									case 'copy_paste': return `Phát hiện ${metadata?.action === 'copy' ? 'sao chép' : metadata?.action === 'paste' ? 'dán' : 'cắt'}`;
-									case 'browser_tamper': return 'Phát hiện DevTools';
-									default: return 'Vi phạm';
-								}
-							};
+					{Array.from(activeViolations.values()).map((violation, index) => {
+						const getMessage = (type: string, metadata?: any) => {
+							switch (type) {
+								case 'face_not_detected': return t('proctoring.violations.faceNotDetected');
+								case 'multiple_faces': return t('proctoring.violations.multipleFaces');
+								case 'mouth_open': return t('proctoring.violations.mouthOpen');
+								case 'head_turned': return t('proctoring.violations.headTurned');
+								case 'eyes_closed': return t('proctoring.violations.eyesClosed');
+								case 'looking_away': return t('proctoring.violations.lookingAway');
+								case 'tab_switch': return metadata?.hidden ? t('proctoring.violations.tabSwitch') : t('proctoring.violations.tabReturn');
+								case 'fullscreen_exit': return t('proctoring.violations.fullscreenExit');
+								case 'copy_paste': return t('proctoring.violations.copyPaste', { action: metadata?.action === 'copy' ? t('proctoring.violations.copy') : metadata?.action === 'paste' ? t('proctoring.violations.paste') : t('proctoring.violations.cut') });
+								case 'browser_tamper': return t('proctoring.violations.browserTamper');
+								default: return t('proctoring.violations.default');
+							}
+						};
 
-							return (
-								<Alert
-									key={violation.type}
-									type={violation.duration === 0 ? 'error' : 'warning'}
-									message={getMessage(violation.type, violation.metadata)}
-									showIcon
-									style={{ marginTop: (index === 0 ? 12 : 8) * scale, fontSize: Math.round((isMobile ? 11 : 14) * scale) }}
-								/>
+						return (
+							<Alert
+								key={violation.type}
+								type={violation.duration === 0 ? 'error' : 'warning'}
+								message={getMessage(violation.type, violation.metadata)}
+								showIcon
+								style={{ marginTop: (index === 0 ? 12 : 8) * scale, fontSize: Math.round((isMobile ? 11 : 14) * scale) }}
+							/>
 						);
 					})}
-			</Card>
+				</Card>
 			</div>
 		</>
 	);

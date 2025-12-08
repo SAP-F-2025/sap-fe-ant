@@ -352,11 +352,11 @@ const AssessmentForm: React.FC = () => {
 							</Form.Item>
 						</Col>
 					</Row>
-				</Card>				<Card title="Hỗ trợ truy cập (Accessibility)" style={{ marginBottom: 16 }}>
+				</Card>				<Card title={t('assessmentForm.accessibility.title')} style={{ marginBottom: 16 }}>
 					<Row gutter={[16, 16]}>
 						<Col xs={24} sm={12} lg={8}>
 							<Form.Item
-								label="Cho phép đọc màn hình"
+								label={t('assessmentForm.accessibility.allowScreenReader')}
 								name={['settings', 'allow_screen_reader']}
 								valuePropName="checked"
 							>
@@ -365,7 +365,7 @@ const AssessmentForm: React.FC = () => {
 						</Col>
 						<Col xs={24} sm={12} lg={8}>
 							<Form.Item
-								label="Chế độ tương phản cao"
+								label={t('assessmentForm.accessibility.highContrastMode')}
 								name={['settings', 'high_contrast_mode']}
 								valuePropName="checked"
 							>
@@ -374,9 +374,9 @@ const AssessmentForm: React.FC = () => {
 						</Col>
 						<Col xs={24} sm={12} lg={8}>
 							<Form.Item
-								label="Điều chỉnh kích thước font"
+								label={t('assessmentForm.accessibility.fontSizeAdjustment')}
 								name={['settings', 'font_size_adjustment']}
-								tooltip="Từ -2 đến +2"
+								tooltip={t('assessmentForm.accessibility.fontSizeTooltip')}
 							>
 								<InputNumber
 									min={-2}
@@ -397,10 +397,10 @@ const AssessmentForm: React.FC = () => {
 							loading={submitting}
 							size="large"
 						>
-							{isEdit ? 'Cập nhật' : 'Tạo bài thi'}
+							{isEdit ? t('assessmentForm.updateButton') : t('assessmentForm.createButton')}
 						</Button>
 						<Button onClick={() => navigate('/assessments')} size="large">
-							Hủy
+							{t('common.cancel')}
 						</Button>
 					</Space>
 				</Form.Item>

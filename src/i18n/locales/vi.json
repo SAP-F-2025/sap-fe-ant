@@ -109,6 +109,66 @@
 		"queryError": "Có lỗi xảy ra khi tải dữ liệu",
 		"mutationError": "Có lỗi xảy ra khi cập nhật dữ liệu"
 	},
+	"errorHandler": {
+		"badRequest": {
+			"title": "Yêu cầu không hợp lệ",
+			"description": "Vui lòng kiểm tra lại thông tin."
+		},
+		"unauthorized": {
+			"title": "Phiên đăng nhập hết hạn",
+			"description": "Vui lòng đăng nhập lại."
+		},
+		"forbidden": {
+			"title": "Không có quyền truy cập",
+			"description": "Bạn không có quyền thực hiện thao tác này."
+		},
+		"notFound": {
+			"title": "Không tìm thấy",
+			"description": "Tài nguyên yêu cầu không tồn tại."
+		},
+		"conflict": {
+			"title": "Xung đột dữ liệu",
+			"description": "Dữ liệu bị xung đột. Vui lòng thử lại."
+		},
+		"unprocessable": {
+			"title": "Dữ liệu không hợp lệ",
+			"description": "Vui lòng kiểm tra lại thông tin đã nhập."
+		},
+		"tooManyRequests": {
+			"title": "Quá nhiều yêu cầu",
+			"description": "Vui lòng thử lại sau ít phút."
+		},
+		"serverError": {
+			"title": "Lỗi máy chủ",
+			"description": "Đã xảy ra lỗi trên máy chủ. Vui lòng thử lại."
+		},
+		"badGateway": {
+			"title": "Máy chủ không phản hồi",
+			"description": "Không thể kết nối đến máy chủ."
+		},
+		"serviceUnavailable": {
+			"title": "Dịch vụ không khả dụng",
+			"description": "Hệ thống đang bảo trì. Vui lòng thử lại sau."
+		},
+		"gatewayTimeout": {
+			"title": "Máy chủ quá tải",
+			"description": "Yêu cầu quá thời gian chờ."
+		},
+		"default": {
+			"title": "Đã xảy ra lỗi",
+			"description": "Vui lòng thử lại sau."
+		},
+		"timeout": {
+			"title": "Yêu cầu quá thời gian chờ",
+			"description": "Vui lòng kiểm tra kết nối mạng và thử lại."
+		},
+		"networkError": {
+			"title": "Lỗi kết nối",
+			"description": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng."
+		},
+		"connectionError": "Lỗi kết nối. Vui lòng thử lại.",
+		"unknownError": "Lỗi không xác định."
+	},
 	"statusBadge": {
 		"active": "Hoạt động",
 		"inactive": "Không hoạt động",
@@ -639,6 +699,63 @@
 		"myBanks": "Ngân hàng của tôi",
 		"public": "Công khai",
 		"shared": "Được chia sẻ"
+	},
+	"questionBankDetail": {
+		"back": "Quay lại",
+		"edit": "Chỉnh sửa",
+		"public": "Công khai",
+		"private": "Riêng tư",
+		"detailInfo": "Thông tin chi tiết",
+		"questionCount": "Số câu hỏi",
+		"questions": "câu",
+		"status": "Trạng thái",
+		"createdAt": "Ngày tạo",
+		"tags": "Thẻ"
+	},
+	"publicQuestionBanks": {
+		"title": "Ngân hàng câu hỏi công khai",
+		"subtitle": "Khám phá và sử dụng ngân hàng câu hỏi được chia sẻ công khai",
+		"back": "Quay lại",
+		"searchPlaceholder": "Tìm kiếm ngân hàng công khai...",
+		"loadError": "Không thể tải danh sách ngân hàng công khai",
+		"showTotal": "Tổng {{total}} ngân hàng",
+		"public": "Công khai",
+		"viewDetail": "Xem chi tiết",
+		"columns": {
+			"bankName": "Tên ngân hàng",
+			"questionCount": "Số câu hỏi",
+			"creator": "Người tạo",
+			"createdAt": "Ngày tạo",
+			"actions": "Thao tác"
+		}
+	},
+	"sharedQuestionBanks": {
+		"title": "Được chia sẻ với tôi",
+		"subtitle": "Các ngân hàng câu hỏi mà người khác đã chia sẻ với bạn",
+		"back": "Quay lại",
+		"loadError": "Không thể tải danh sách ngân hàng được chia sẻ",
+		"showTotal": "Tổng {{total}} ngân hàng",
+		"public": "Công khai",
+		"private": "Riêng tư",
+		"viewDetail": "Xem chi tiết",
+		"empty": {
+			"title": "Chưa có ngân hàng nào được chia sẻ với bạn",
+			"description": "Khi có người chia sẻ ngân hàng câu hỏi, nó sẽ xuất hiện ở đây"
+		},
+		"permission": {
+			"viewOnly": "Chỉ xem",
+			"canEdit": "Có thể chỉnh sửa",
+			"fullAccess": "Toàn quyền",
+			"owner": "Chủ sở hữu"
+		},
+		"columns": {
+			"bankName": "Tên ngân hàng",
+			"questionCount": "Số câu hỏi",
+			"myPermission": "Quyền của tôi",
+			"sharer": "Người chia sẻ",
+			"createdAt": "Ngày tạo",
+			"actions": "Thao tác"
+		}
 	},
 	"student": {
 		"dashboard": "Bảng điều khiển học sinh",
@@ -1359,68 +1476,90 @@
 	"manageQuestionBankQuestions": {
 		"addSuccess": "Thêm câu hỏi thành công",
 		"removeSuccess": "Xóa câu hỏi thành công",
-		"cardTitle": "Câu hỏi",
-		"confirmDelete": "Xóa câu hỏi?",
-		"confirmDeleteDesc": "Bạn có chắc muốn xóa {{count}} câu hỏi khỏi ngân hàng?",
-		"delete": "Xóa",
-		"addQuestion": "Thêm câu hỏi",
+		"title": "Câu hỏi ({{count}})",
+		"removeConfirm": {
+			"title": "Xóa câu hỏi?",
+			"description": "Bạn có chắc muốn xóa {{count}} câu hỏi khỏi ngân hàng?",
+			"ok": "Xóa",
+			"cancel": "Hủy"
+		},
+		"removeBtn": "Xóa ({{count}})",
+		"addBtn": "Thêm câu hỏi",
 		"noQuestions": "Chưa có câu hỏi nào",
-		"addToBank": "Thêm câu hỏi vào ngân hàng",
-		"add": "Thêm",
-		"cancel": "Hủy",
-		"filteredInfo": "Danh sách đã lọc bỏ {{count}} câu hỏi đã có trong ngân hàng",
+		"addModal": {
+			"title": "Thêm câu hỏi vào ngân hàng",
+			"ok": "Thêm",
+			"cancel": "Hủy"
+		},
+		"filterInfo": "Danh sách đã lọc bỏ {{count}} câu hỏi đã có trong ngân hàng",
 		"searchPlaceholder": "Tìm kiếm câu hỏi...",
 		"filterByType": "Lọc theo loại",
 		"filterByDifficulty": "Lọc theo độ khó",
 		"searching": "Đang tìm...",
 		"filter": "Lọc",
-		"foundQuestions": "Tìm thấy {{count}} câu hỏi",
-		"loadingQuestions": "Đang tải danh sách câu hỏi...",
+		"found": "Tìm thấy {{count}} câu hỏi",
+		"loading": "Đang tải danh sách câu hỏi...",
 		"allQuestionsAdded": "Tất cả câu hỏi trong kho đã được thêm vào ngân hàng",
 		"noQuestionsFound": "Không tìm thấy câu hỏi nào",
 		"tryChangeFilter": "Thử thay đổi bộ lọc hoặc tìm kiếm",
-		"columnId": "ID",
 		"columnQuestion": "Câu hỏi",
 		"columnType": "Loại",
 		"columnDifficulty": "Độ khó",
-		"columnPoints": "Điểm"
+		"columnPoints": "Điểm",
+		"difficulty": {
+			"easy": "Dễ",
+			"medium": "Trung bình",
+			"hard": "Khó"
+		},
+		"type": {
+			"multipleChoice": "Trắc nghiệm",
+			"trueFalse": "Đúng/Sai",
+			"essay": "Tự luận",
+			"fillBlank": "Điền khuyết",
+			"matching": "Nối cặp",
+			"ordering": "Sắp xếp",
+			"shortAnswer": "Trả lời ngắn"
+		}
 	},
 	"shareQuestionBank": {
+		"title": "Chia sẻ",
 		"permission": {
 			"viewOnly": "Chỉ xem",
 			"canEdit": "Có thể chỉnh sửa",
-			"canDelete": "Toàn quyền"
+			"fullAccess": "Toàn quyền"
 		},
-		"selectUserError": "Vui lòng chọn ít nhất một người dùng",
+		"selectAtLeastOne": "Vui lòng chọn ít nhất một người dùng",
 		"shareSuccess": "Đã chia sẻ ngân hàng với {{count}} người dùng",
 		"unshareSuccess": "Đã hủy chia sẻ",
 		"updatePermissionSuccess": "Đã cập nhật quyền",
-		"columnUser": "Người dùng",
-		"columnPermission": "Quyền",
-		"columnSharedAt": "Ngày chia sẻ",
-		"columnActions": "Thao tác",
-		"confirmUnshare": "Hủy chia sẻ?",
-		"confirmUnshareDesc": "Người dùng này sẽ không thể truy cập ngân hàng nữa",
-		"confirm": "Xác nhận",
-		"cancel": "Hủy",
-		"modalTitle": "Chia sẻ",
-		"guide": "Hướng dẫn chia sẻ",
-		"guideSearchUsers": "Tìm kiếm người dùng theo tên hoặc email",
-		"guideViewOnly": "Chỉ xem:",
-		"guideViewOnlyDesc": "Chỉ có thể xem câu hỏi",
-		"guideCanEdit": "Có thể chỉnh sửa:",
-		"guideCanEditDesc": "Có thể xem và thêm/xóa câu hỏi",
-		"guideCanDelete": "Toàn quyền:",
-		"guideCanDeleteDesc": "Có thể xem, chỉnh sửa, và xóa ngân hàng",
+		"columns": {
+			"user": "Người dùng",
+			"permission": "Quyền",
+			"sharedDate": "Ngày chia sẻ",
+			"actions": "Thao tác"
+		},
+		"unshareConfirm": {
+			"title": "Hủy chia sẻ?",
+			"description": "Người dùng này sẽ không thể truy cập ngân hàng nữa",
+			"confirm": "Xác nhận",
+			"cancel": "Hủy"
+		},
+		"guide": {
+			"title": "Hướng dẫn chia sẻ",
+			"search": "Tìm kiếm người dùng theo tên hoặc email",
+			"viewOnlyDesc": "Chỉ có thể xem câu hỏi",
+			"canEditDesc": "Có thể xem và thêm/xóa câu hỏi",
+			"fullAccessDesc": "Có thể xem, chỉnh sửa, và xóa ngân hàng"
+		},
 		"selectUsers": "Chọn người dùng",
 		"selectUsersRequired": "Vui lòng chọn người dùng",
 		"selectUsersTooltip": "Tìm kiếm và chọn người dùng để chia sẻ",
 		"searchPlaceholder": "Tìm kiếm theo tên hoặc email...",
-		"noUserFound": "Không tìm thấy người dùng",
+		"noUsersFound": "Không tìm thấy người dùng",
 		"accessPermission": "Quyền truy cập",
 		"share": "Chia sẻ",
-		"sharedWith": "Đã chia sẻ với",
-		"noShares": "Chưa chia sẻ với ai"
+		"sharedWith": "Đã chia sẻ với ({{count}})",
+		"noSharesYet": "Chưa chia sẻ với ai"
 	},
 	"gradingDetail": {
 		"loadError": "Không thể tải chi tiết bài làm",
@@ -1459,58 +1598,70 @@
 			"shortAnswer": "Câu trả lời ngắn"
 		},
 		"noQuestionData": "Không có dữ liệu câu hỏi",
-		"correctAnswer": "Đáp án đúng",
-		"correctAnswerLabel": "Câu trả lời đúng",
-		"wrongAnswerLabel": "Câu trả lời sai",
-		"studentAnswer": "Câu trả lời của học sinh",
-		"studentAnswerLabel": "Câu trả lời của học sinh:",
-		"noAnswer": "Không có câu trả lời",
-		"notAnswered": "(không trả lời)",
-		"wordCountAnalysis": "Phân tích số từ",
-		"wordCount": "Số từ:",
-		"minRequired": "Yêu cầu tối thiểu:",
-		"maxRequired": "Yêu cầu tối đa:",
-		"rubricCriteria": "Tiêu chí đánh giá (Rubric)",
-		"autoGradeAnalysis": "Phân tích tự động chấm điểm",
-		"keywordsFound": "Từ khóa tìm thấy:",
-		"autoGradeNote": "Lưu ý",
-		"autoGradeNoteText": "Đây chỉ là phân tích tự động. Giáo viên nên xem xét toàn bộ bài làm và điều chỉnh điểm phù hợp.",
-		"sampleAnswer": "Đáp án mẫu tham khảo",
-		"acceptedAnswers": "Các đáp án được chấp nhận",
-		"matchSettings": "Cài đặt so khớp",
-		"caseSensitive": "Phân biệt hoa thường:",
-		"exactMatch": "Khớp chính xác:",
-		"fuzzyMatching": "Khớp mờ:",
-		"yes": "Có",
-		"no": "Không",
-		"empty": "(trống)",
-		"correctAnswerIs": "Đáp án đúng:",
-		"blankLabel": "Chỗ trống {{id}}:",
-		"pointsLabel": "điểm",
-		"leftSide": "Bên trái:",
-		"studentChose": "Học sinh chọn:",
-		"notAnsweredTag": "Không trả lời",
-		"studentOrder": "Thứ tự học sinh sắp xếp",
-		"studentNotAnswered": "Học sinh không trả lời",
-		"correctPosition": "Đúng vị trí:",
-		"correctOrder": "Thứ tự đúng",
-		"loading": "Đang tải...",
+		"trueFalse": {
+			"defaultTrue": "Đúng",
+			"defaultFalse": "Sai",
+			"correctAnswer": "Đáp án đúng",
+			"answerCorrect": "Câu trả lời đúng",
+			"answerIncorrect": "Câu trả lời sai"
+		},
+		"essay": {
+			"studentAnswer": "Câu trả lời của học sinh",
+			"noAnswer": "Không có câu trả lời",
+			"wordCountAnalysis": "Phân tích số từ",
+			"wordCount": "Số từ",
+			"minRequired": "Yêu cầu tối thiểu",
+			"maxRequired": "Yêu cầu tối đa",
+			"rubricCriteria": "Tiêu chí đánh giá (Rubric)",
+			"autoGradeAnalysis": "Phân tích tự động chấm điểm",
+			"keywordsFound": "Từ khóa tìm thấy",
+			"note": "Lưu ý",
+			"autoGradeNote": "Đây chỉ là phân tích tự động. Giáo viên nên xem xét toàn bộ bài làm và điều chỉnh điểm phù hợp.",
+			"sampleAnswer": "Đáp án mẫu tham khảo"
+		},
+		"shortAnswer": {
+			"studentAnswer": "Câu trả lời của học sinh",
+			"noAnswer": "(không trả lời)",
+			"noAnswerFallback": "Không có câu trả lời",
+			"acceptedAnswers": "Các đáp án được chấp nhận",
+			"matchingSettings": "Cài đặt so khớp",
+			"caseSensitive": "Phân biệt hoa thường",
+			"exactMatch": "Khớp chính xác",
+			"fuzzyMatching": "Khớp mờ"
+		},
+		"fillBlank": {
+			"empty": "(trống)",
+			"noAnswer": "(không trả lời)",
+			"correctAnswer": "Đáp án đúng",
+			"points": "điểm",
+			"blankNumber": "Chỗ trống"
+		},
+		"matching": {
+			"leftSide": "Bên trái",
+			"studentChoice": "Học sinh chọn",
+			"noAnswer": "Không trả lời",
+			"correctAnswer": "Đáp án đúng"
+		},
+		"ordering": {
+			"studentOrder": "Thứ tự học sinh sắp xếp",
+			"correctPosition": "Đúng vị trí",
+			"noAnswer": "Học sinh không trả lời",
+			"correctOrder": "Thứ tự đúng"
+		},
 		"notFound": "Không tìm thấy bài làm",
-		"back": "Quay lại",
 		"title": "Chi tiết bài làm",
 		"autoGradeAll": "Chấm tự động toàn bộ",
-		"generateFeedback": "Tạo phản hồi AI",
+		"generateAIFeedback": "Tạo phản hồi AI",
 		"saveGrades": "Lưu điểm",
-		"gradingProgress": "Tiến độ chấm điểm",
+		"progress": "Tiến độ chấm điểm",
 		"gradedCount": "{{graded}} / {{total}} câu đã chấm",
-		"overallGrade": "Điểm tổng kết & Phản hồi chung",
+		"overallGradeAndFeedback": "Điểm tổng kết & Phản hồi chung",
 		"saveOverallGrade": "Lưu điểm tổng kết",
-		"finalScore": "Điểm tổng kết (tùy chọn):",
+		"finalScoreLabel": "Điểm tổng kết (tùy chọn)",
 		"finalScorePlaceholder": "Điểm tổng kết...",
 		"finalScoreHint": "Để trống nếu muốn tính tự động từ từng câu",
-		"overallFeedback": "Phản hồi chung:",
-		"clearFeedback": "Xóa",
-		"feedbackPlaceholder": "Nhập phản hồi chung cho học viên... (hoặc dùng nút 'Tạo phản hồi AI' ở trên)",
+		"overallFeedbackLabel": "Phản hồi chung",
+		"overallFeedbackPlaceholder": "Nhập phản hồi chung cho học viên... (hoặc dùng nút 'Tạo phản hồi AI' ở trên)",
 		"attemptInfo": "Thông tin bài làm",
 		"assessment": "Bài thi",
 		"status": "Trạng thái",
@@ -1521,28 +1672,28 @@
 		"timeSpent": "Thời gian làm bài",
 		"questionCount": "Số câu hỏi",
 		"score": "Điểm số",
-		"scoreResult": "Kết quả tổng hợp",
+		"overallResult": "Kết quả tổng hợp",
 		"passed": "Đạt",
-		"notPassed": "Chưa đạt",
-		"pointsUnit": "điểm",
+		"failed": "Chưa đạt",
+		"scoreDisplay": "{{score}} / {{max}} điểm",
 		"correctAnswers": "Câu đúng",
-		"wrongAnswers": "Câu sai",
+		"incorrectAnswers": "Câu sai",
 		"passedRequirement": "Đạt yêu cầu",
-		"notPassedRequirement": "Chưa đạt yêu cầu",
-		"passingScoreLabel": "Điểm chuẩn:",
+		"failedRequirement": "Chưa đạt yêu cầu",
+		"passingScore": "Điểm chuẩn",
 		"proctoringWarnings": "Cảnh báo giám sát",
 		"answers": "Câu trả lời",
-		"questionNumber": "Câu {{num}}",
+		"questionNumber": "Câu {{number}}",
 		"flaggedQuestion": "Câu hỏi được đánh dấu",
 		"graded": "Đã chấm",
-		"question": "Câu hỏi:",
-		"studentAnswerSection": "Câu trả lời của học viên:",
+		"scoreOutOf": "{{score}} / {{max}} điểm",
+		"question": "Câu hỏi",
+		"studentAnswerLabel": "Câu trả lời của học viên",
 		"explanation": "Giải thích",
-		"scoreLabel": "Điểm số:",
-		"feedback": "Nhận xét:",
-		"feedbackInputPlaceholder": "Nhập nhận xét cho học viên...",
-		"gradedAt": "Đã chấm lúc {{time}}",
-		"gradedBy": "bởi giáo viên #{{id}}"
+		"scoreLabel": "Điểm số",
+		"feedbackLabel": "Nhận xét",
+		"feedbackPlaceholder": "Nhập nhận xét cho học viên...",
+		"gradedAtBy": "Đã chấm lúc {{time}}{{teacher}}"
 	},
 	"proctoring": {
 		"tamperCheck": {
@@ -1572,6 +1723,27 @@
 			"faceChangeDetected": "Phát hiện thay đổi khuôn mặt",
 			"faceChangeDescription": "Hệ thống phát hiện có sự thay đổi về số lượng người. Vui lòng xác thực lại danh tính để tiếp tục.",
 			"startingCamera": "Đang khởi động camera..."
+		},
+		"monitor": {
+			"cameraTitle": "Camera giám sát",
+			"violationCount": "Vi phạm: {{count}}"
+		},
+		"violations": {
+			"faceNotDetected": "Không phát hiện khuôn mặt",
+			"multipleFaces": "Phát hiện nhiều khuôn mặt",
+			"mouthOpen": "Phát hiện mở miệng",
+			"headTurned": "Đầu quay đi",
+			"eyesClosed": "Nhắm mắt",
+			"lookingAway": "Đang nhìn ra ngoài màn hình",
+			"tabSwitch": "Chuyển tab/cửa sổ",
+			"tabReturn": "Quay lại tab",
+			"fullscreenExit": "Thoát chế độ toàn màn hình",
+			"copyPaste": "Phát hiện {{action}}",
+			"copy": "sao chép",
+			"paste": "dán",
+			"cut": "cắt",
+			"browserTamper": "Phát hiện DevTools",
+			"default": "Vi phạm"
 		}
 	}
 }

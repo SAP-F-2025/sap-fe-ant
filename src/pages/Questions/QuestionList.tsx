@@ -105,7 +105,7 @@ const QuestionList: React.FC = () => {
 			showSuccess(t('questionList.deleteSuccess'));
 			fetchQuestions();
 		} catch (error) {
-			// message.error('Không thể xóa câu hỏi');
+			// message.error('Failed to delete question');
 		}
 	};
 
@@ -122,7 +122,7 @@ const QuestionList: React.FC = () => {
 			showSuccess(t('questionList.duplicateSuccess'));
 			fetchQuestions();
 		} catch (error) {
-			// message.error('Không thể sao chép câu hỏi');
+			// message.error('Failed to duplicate question');
 		}
 	};
 

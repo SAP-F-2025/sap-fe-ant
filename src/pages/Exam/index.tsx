@@ -762,7 +762,7 @@ const TakeAssessment: React.FC = () => {
 							{/* DEPRECATED: time_limit per question not used. Only Assessment.Duration is enforced.
               {currentQuestion.time_limit && (
                 <Tag icon={<ClockCircleOutlined />}>
-                  {currentQuestion.time_limit} giây
+                  {currentQuestion.time_limit} seconds
                 </Tag>
               )}
               */}

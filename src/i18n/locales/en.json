@@ -109,6 +109,66 @@
 		"queryError": "An error occurred while loading data",
 		"mutationError": "An error occurred while updating data"
 	},
+	"errorHandler": {
+		"badRequest": {
+			"title": "Invalid Request",
+			"description": "Please check your information."
+		},
+		"unauthorized": {
+			"title": "Session Expired",
+			"description": "Please log in again."
+		},
+		"forbidden": {
+			"title": "Access Denied",
+			"description": "You do not have permission to perform this action."
+		},
+		"notFound": {
+			"title": "Not Found",
+			"description": "The requested resource does not exist."
+		},
+		"conflict": {
+			"title": "Data Conflict",
+			"description": "Data conflict occurred. Please try again."
+		},
+		"unprocessable": {
+			"title": "Invalid Data",
+			"description": "Please check the information you entered."
+		},
+		"tooManyRequests": {
+			"title": "Too Many Requests",
+			"description": "Please try again in a few minutes."
+		},
+		"serverError": {
+			"title": "Server Error",
+			"description": "An error occurred on the server. Please try again."
+		},
+		"badGateway": {
+			"title": "Server Not Responding",
+			"description": "Cannot connect to the server."
+		},
+		"serviceUnavailable": {
+			"title": "Service Unavailable",
+			"description": "System is under maintenance. Please try again later."
+		},
+		"gatewayTimeout": {
+			"title": "Server Overloaded",
+			"description": "Request timed out."
+		},
+		"default": {
+			"title": "An Error Occurred",
+			"description": "Please try again later."
+		},
+		"timeout": {
+			"title": "Request Timed Out",
+			"description": "Please check your network connection and try again."
+		},
+		"networkError": {
+			"title": "Connection Error",
+			"description": "Cannot connect to the server. Please check your network connection."
+		},
+		"connectionError": "Connection error. Please try again.",
+		"unknownError": "Unknown error."
+	},
 	"statusBadge": {
 		"active": "Active",
 		"inactive": "Inactive",
@@ -639,6 +699,63 @@
 		"myBanks": "My Banks",
 		"public": "Public",
 		"shared": "Shared"
+	},
+	"questionBankDetail": {
+		"back": "Back",
+		"edit": "Edit",
+		"public": "Public",
+		"private": "Private",
+		"detailInfo": "Detail Information",
+		"questionCount": "Question Count",
+		"questions": "questions",
+		"status": "Status",
+		"createdAt": "Created At",
+		"tags": "Tags"
+	},
+	"publicQuestionBanks": {
+		"title": "Public Question Banks",
+		"subtitle": "Explore and use publicly shared question banks",
+		"back": "Back",
+		"searchPlaceholder": "Search public question banks...",
+		"loadError": "Failed to load public question banks",
+		"showTotal": "Total {{total}} banks",
+		"public": "Public",
+		"viewDetail": "View Detail",
+		"columns": {
+			"bankName": "Bank Name",
+			"questionCount": "Question Count",
+			"creator": "Creator",
+			"createdAt": "Created At",
+			"actions": "Actions"
+		}
+	},
+	"sharedQuestionBanks": {
+		"title": "Shared with Me",
+		"subtitle": "Question banks that others have shared with you",
+		"back": "Back",
+		"loadError": "Failed to load shared question banks",
+		"showTotal": "Total {{total}} banks",
+		"public": "Public",
+		"private": "Private",
+		"viewDetail": "View Detail",
+		"empty": {
+			"title": "No question banks have been shared with you",
+			"description": "When someone shares a question bank, it will appear here"
+		},
+		"permission": {
+			"viewOnly": "View Only",
+			"canEdit": "Can Edit",
+			"fullAccess": "Full Access",
+			"owner": "Owner"
+		},
+		"columns": {
+			"bankName": "Bank Name",
+			"questionCount": "Question Count",
+			"myPermission": "My Permission",
+			"sharer": "Shared By",
+			"createdAt": "Created At",
+			"actions": "Actions"
+		}
 	},
 	"student": {
 		"dashboard": "Student Dashboard",
@@ -1359,68 +1476,90 @@
 	"manageQuestionBankQuestions": {
 		"addSuccess": "Questions added successfully",
 		"removeSuccess": "Questions removed successfully",
-		"cardTitle": "Questions",
-		"confirmDelete": "Delete questions?",
-		"confirmDeleteDesc": "Are you sure you want to remove {{count}} questions from the bank?",
-		"delete": "Delete",
-		"addQuestion": "Add Question",
+		"title": "Questions ({{count}})",
+		"removeConfirm": {
+			"title": "Delete questions?",
+			"description": "Are you sure you want to remove {{count}} questions from the bank?",
+			"ok": "Delete",
+			"cancel": "Cancel"
+		},
+		"removeBtn": "Delete ({{count}})",
+		"addBtn": "Add Questions",
 		"noQuestions": "No questions yet",
-		"addToBank": "Add Questions to Bank",
-		"add": "Add",
-		"cancel": "Cancel",
-		"filteredInfo": "List filtered out {{count}} questions already in the bank",
+		"addModal": {
+			"title": "Add Questions to Bank",
+			"ok": "Add",
+			"cancel": "Cancel"
+		},
+		"filterInfo": "List filtered out {{count}} questions already in the bank",
 		"searchPlaceholder": "Search questions...",
 		"filterByType": "Filter by type",
 		"filterByDifficulty": "Filter by difficulty",
 		"searching": "Searching...",
 		"filter": "Filter",
-		"foundQuestions": "Found {{count}} questions",
-		"loadingQuestions": "Loading questions...",
+		"found": "Found {{count}} questions",
+		"loading": "Loading questions...",
 		"allQuestionsAdded": "All questions in the bank have been added",
 		"noQuestionsFound": "No questions found",
 		"tryChangeFilter": "Try changing the filter or search",
-		"columnId": "ID",
 		"columnQuestion": "Question",
 		"columnType": "Type",
 		"columnDifficulty": "Difficulty",
-		"columnPoints": "Points"
+		"columnPoints": "Points",
+		"difficulty": {
+			"easy": "Easy",
+			"medium": "Medium",
+			"hard": "Hard"
+		},
+		"type": {
+			"multipleChoice": "Multiple Choice",
+			"trueFalse": "True/False",
+			"essay": "Essay",
+			"fillBlank": "Fill in the Blank",
+			"matching": "Matching",
+			"ordering": "Ordering",
+			"shortAnswer": "Short Answer"
+		}
 	},
 	"shareQuestionBank": {
+		"title": "Share",
 		"permission": {
 			"viewOnly": "View Only",
 			"canEdit": "Can Edit",
-			"canDelete": "Full Access"
+			"fullAccess": "Full Access"
 		},
-		"selectUserError": "Please select at least one user",
+		"selectAtLeastOne": "Please select at least one user",
 		"shareSuccess": "Shared bank with {{count}} users",
 		"unshareSuccess": "Share removed",
 		"updatePermissionSuccess": "Permission updated",
-		"columnUser": "User",
-		"columnPermission": "Permission",
-		"columnSharedAt": "Shared At",
-		"columnActions": "Actions",
-		"confirmUnshare": "Remove share?",
-		"confirmUnshareDesc": "This user will no longer be able to access this bank",
-		"confirm": "Confirm",
-		"cancel": "Cancel",
-		"modalTitle": "Share",
-		"guide": "Sharing Guide",
-		"guideSearchUsers": "Search users by name or email",
-		"guideViewOnly": "View Only:",
-		"guideViewOnlyDesc": "Can only view questions",
-		"guideCanEdit": "Can Edit:",
-		"guideCanEditDesc": "Can view and add/remove questions",
-		"guideCanDelete": "Full Access:",
-		"guideCanDeleteDesc": "Can view, edit, and delete the bank",
+		"columns": {
+			"user": "User",
+			"permission": "Permission",
+			"sharedDate": "Shared Date",
+			"actions": "Actions"
+		},
+		"unshareConfirm": {
+			"title": "Remove share?",
+			"description": "This user will no longer be able to access this bank",
+			"confirm": "Confirm",
+			"cancel": "Cancel"
+		},
+		"guide": {
+			"title": "Sharing Guide",
+			"search": "Search users by name or email",
+			"viewOnlyDesc": "Can only view questions",
+			"canEditDesc": "Can view and add/remove questions",
+			"fullAccessDesc": "Can view, edit, and delete the bank"
+		},
 		"selectUsers": "Select users",
 		"selectUsersRequired": "Please select users",
 		"selectUsersTooltip": "Search and select users to share with",
 		"searchPlaceholder": "Search by name or email...",
-		"noUserFound": "No users found",
+		"noUsersFound": "No users found",
 		"accessPermission": "Access Permission",
 		"share": "Share",
-		"sharedWith": "Shared With",
-		"noShares": "Not shared with anyone"
+		"sharedWith": "Shared With ({{count}})",
+		"noSharesYet": "Not shared with anyone"
 	},
 	"gradingDetail": {
 		"loadError": "Cannot load attempt details",
@@ -1459,58 +1598,70 @@
 			"shortAnswer": "Short Answer"
 		},
 		"noQuestionData": "No question data",
-		"correctAnswer": "Correct Answer",
-		"correctAnswerLabel": "Correct answer",
-		"wrongAnswerLabel": "Wrong answer",
-		"studentAnswer": "Student's Answer",
-		"studentAnswerLabel": "Student's answer:",
-		"noAnswer": "No answer",
-		"notAnswered": "(not answered)",
-		"wordCountAnalysis": "Word Count Analysis",
-		"wordCount": "Word count:",
-		"minRequired": "Minimum required:",
-		"maxRequired": "Maximum required:",
-		"rubricCriteria": "Rubric Criteria",
-		"autoGradeAnalysis": "Auto-grade Analysis",
-		"keywordsFound": "Keywords found:",
-		"autoGradeNote": "Note",
-		"autoGradeNoteText": "This is only an automatic analysis. Teachers should review the entire work and adjust scores accordingly.",
-		"sampleAnswer": "Sample Answer Reference",
-		"acceptedAnswers": "Accepted Answers",
-		"matchSettings": "Match Settings",
-		"caseSensitive": "Case sensitive:",
-		"exactMatch": "Exact match:",
-		"fuzzyMatching": "Fuzzy matching:",
-		"yes": "Yes",
-		"no": "No",
-		"empty": "(empty)",
-		"correctAnswerIs": "Correct answer:",
-		"blankLabel": "Blank {{id}}:",
-		"pointsLabel": "points",
-		"leftSide": "Left side:",
-		"studentChose": "Student chose:",
-		"notAnsweredTag": "Not answered",
-		"studentOrder": "Student's Order",
-		"studentNotAnswered": "Student did not answer",
-		"correctPosition": "Correct position:",
-		"correctOrder": "Correct Order",
-		"loading": "Loading...",
+		"trueFalse": {
+			"defaultTrue": "True",
+			"defaultFalse": "False",
+			"correctAnswer": "Correct Answer",
+			"answerCorrect": "Correct answer",
+			"answerIncorrect": "Incorrect answer"
+		},
+		"essay": {
+			"studentAnswer": "Student's Answer",
+			"noAnswer": "No answer",
+			"wordCountAnalysis": "Word Count Analysis",
+			"wordCount": "Word count",
+			"minRequired": "Minimum required",
+			"maxRequired": "Maximum required",
+			"rubricCriteria": "Rubric Criteria",
+			"autoGradeAnalysis": "Auto-grade Analysis",
+			"keywordsFound": "Keywords found",
+			"note": "Note",
+			"autoGradeNote": "This is only an automatic analysis. Teachers should review the entire work and adjust scores accordingly.",
+			"sampleAnswer": "Sample Answer Reference"
+		},
+		"shortAnswer": {
+			"studentAnswer": "Student's answer",
+			"noAnswer": "(not answered)",
+			"noAnswerFallback": "No answer",
+			"acceptedAnswers": "Accepted Answers",
+			"matchingSettings": "Match Settings",
+			"caseSensitive": "Case sensitive",
+			"exactMatch": "Exact match",
+			"fuzzyMatching": "Fuzzy matching"
+		},
+		"fillBlank": {
+			"empty": "(empty)",
+			"noAnswer": "(not answered)",
+			"correctAnswer": "Correct answer",
+			"points": "points",
+			"blankNumber": "Blank"
+		},
+		"matching": {
+			"leftSide": "Left side",
+			"studentChoice": "Student chose",
+			"noAnswer": "Not answered",
+			"correctAnswer": "Correct answer"
+		},
+		"ordering": {
+			"studentOrder": "Student's Order",
+			"correctPosition": "Correct position",
+			"noAnswer": "Student did not answer",
+			"correctOrder": "Correct Order"
+		},
 		"notFound": "Attempt not found",
-		"back": "Back",
 		"title": "Attempt Details",
 		"autoGradeAll": "Auto-grade All",
-		"generateFeedback": "Generate AI Feedback",
+		"generateAIFeedback": "Generate AI Feedback",
 		"saveGrades": "Save Grades",
-		"gradingProgress": "Grading Progress",
+		"progress": "Grading Progress",
 		"gradedCount": "{{graded}} / {{total}} graded",
-		"overallGrade": "Final Grade & Overall Feedback",
+		"overallGradeAndFeedback": "Final Grade & Overall Feedback",
 		"saveOverallGrade": "Save Final Grade",
-		"finalScore": "Final Score (optional):",
+		"finalScoreLabel": "Final Score (optional)",
 		"finalScorePlaceholder": "Final score...",
 		"finalScoreHint": "Leave empty to auto-calculate from individual questions",
-		"overallFeedback": "Overall Feedback:",
-		"clearFeedback": "Clear",
-		"feedbackPlaceholder": "Enter overall feedback for student... (or use 'Generate AI Feedback' button above)",
+		"overallFeedbackLabel": "Overall Feedback",
+		"overallFeedbackPlaceholder": "Enter overall feedback for student... (or use 'Generate AI Feedback' button above)",
 		"attemptInfo": "Attempt Information",
 		"assessment": "Assessment",
 		"status": "Status",
@@ -1521,28 +1672,28 @@
 		"timeSpent": "Time Spent",
 		"questionCount": "Questions",
 		"score": "Score",
-		"scoreResult": "Overall Result",
+		"overallResult": "Overall Result",
 		"passed": "Passed",
-		"notPassed": "Not Passed",
-		"pointsUnit": "points",
+		"failed": "Not Passed",
+		"scoreDisplay": "{{score}} / {{max}} points",
 		"correctAnswers": "Correct",
-		"wrongAnswers": "Wrong",
+		"incorrectAnswers": "Wrong",
 		"passedRequirement": "Passed",
-		"notPassedRequirement": "Not Passed",
-		"passingScoreLabel": "Passing score:",
+		"failedRequirement": "Not Passed",
+		"passingScore": "Passing score",
 		"proctoringWarnings": "Proctoring Warnings",
 		"answers": "Answers",
-		"questionNumber": "Question {{num}}",
+		"questionNumber": "Question {{number}}",
 		"flaggedQuestion": "Flagged question",
 		"graded": "Graded",
-		"question": "Question:",
-		"studentAnswerSection": "Student's Answer:",
+		"scoreOutOf": "{{score}} / {{max}} points",
+		"question": "Question",
+		"studentAnswerLabel": "Student's Answer",
 		"explanation": "Explanation",
-		"scoreLabel": "Score:",
-		"feedback": "Feedback:",
-		"feedbackInputPlaceholder": "Enter feedback for student...",
-		"gradedAt": "Graded at {{time}}",
-		"gradedBy": "by teacher #{{id}}"
+		"scoreLabel": "Score",
+		"feedbackLabel": "Feedback",
+		"feedbackPlaceholder": "Enter feedback for student...",
+		"gradedAtBy": "Graded at {{time}}{{teacher}}"
 	},
 	"proctoring": {
 		"tamperCheck": {
@@ -1572,6 +1723,27 @@
 			"faceChangeDetected": "Face Change Detected",
 			"faceChangeDescription": "System detected a change in the number of people. Please verify your identity to continue.",
 			"startingCamera": "Starting camera..."
+		},
+		"monitor": {
+			"cameraTitle": "Monitoring Camera",
+			"violationCount": "Violations: {{count}}"
+		},
+		"violations": {
+			"faceNotDetected": "Face not detected",
+			"multipleFaces": "Multiple faces detected",
+			"mouthOpen": "Mouth open detected",
+			"headTurned": "Head turned away",
+			"eyesClosed": "Eyes closed",
+			"lookingAway": "Looking away from screen",
+			"tabSwitch": "Tab/window switch",
+			"tabReturn": "Returned to tab",
+			"fullscreenExit": "Exited fullscreen mode",
+			"copyPaste": "Detected {{action}}",
+			"copy": "copy",
+			"paste": "paste",
+			"cut": "cut",
+			"browserTamper": "DevTools detected",
+			"default": "Violation"
 		}
 	}
 }

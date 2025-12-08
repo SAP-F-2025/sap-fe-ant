@@ -283,27 +283,28 @@ const GroupDetail: React.FC = () => {
     return (
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
             {/* Header */}
-            <Flex justify="space-between" align="center">
-                <Space>
+            <Flex justify="space-between" align="flex-start" wrap="wrap" gap={12}>
+                <Space direction="vertical" size={4}>
                     <Button
                         icon={<ArrowLeftOutlined />}
                         onClick={() => navigate('/groups')}
+                        size="small"
                     >
                         Quay lại
                     </Button>
-                    <Title level={2} style={{ margin: 0 }}>
+                    <Title level={3} style={{ margin: 0, wordBreak: 'break-word' }}>
                         <TeamOutlined style={{ marginRight: 8 }} />
                         {group.display_name || group.name}
                     </Title>
                 </Space>
-                <Space>
+                <Space size={8} wrap>
                     {group.can_edit && (
-                        <Button
-                            icon={<EditOutlined />}
-                            onClick={() => navigate(`/groups/${groupId}/edit`)}
-                        >
-                            Chỉnh sửa
-                        </Button>
+                        <Tooltip title="Chỉnh sửa nhóm">
+                            <Button
+                                icon={<EditOutlined />}
+                                onClick={() => navigate(`/groups/${groupId}/edit`)}
+                            />
+                        </Tooltip>
                     )}
                     {group.can_delete && (
                         <Popconfirm
@@ -314,9 +315,9 @@ const GroupDetail: React.FC = () => {
                             cancelText="Hủy"
                             okButtonProps={{ danger: true }}
                         >
-                            <Button danger icon={<DeleteOutlined />}>
-                                Xóa nhóm
-                            </Button>
+                            <Tooltip title="Xóa nhóm">
+                                <Button danger icon={<DeleteOutlined />} />
+                            </Tooltip>
                         </Popconfirm>
                     )}
                 </Space>
@@ -324,33 +325,40 @@ const GroupDetail: React.FC = () => {
 
             {/* Group Info */}
             <Row gutter={16}>
-                <Col xs={24} lg={8}>
-                    <Card style={{ ...elevation[1], borderRadius: 16 }}>
-                        <Title level={5}>Thông tin nhóm</Title>
-                        <Descriptions column={1} size="small">
-                            <Descriptions.Item label="Mã nhóm">{group.name}</Descriptions.Item>
-                            <Descriptions.Item label="Loại">
-                                <Tag color={group.type === 'class' ? 'purple' : 'cyan'}>
+                <Col xs={24} lg={6} xl={5}>
+                    <Card size="small" style={{ ...elevation[1], borderRadius: 16 }}>
+                        <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                            <Text strong style={{ fontSize: 14 }}>Thông tin nhóm</Text>
+                            <Divider style={{ margin: '4px 0' }} />
+                            <Flex justify="space-between" align="center">
+                                <Text type="secondary">Mã:</Text>
+                                <Text style={{ textAlign: 'right', wordBreak: 'break-all' }}>{group.name}</Text>
+                            </Flex>
+                            <Flex justify="space-between" align="center">
+                                <Text type="secondary">Loại:</Text>
+                                <Tag color={group.type === 'class' ? 'purple' : 'cyan'} style={{ margin: 0 }}>
                                     {group.type === 'class' ? 'Lớp học' : group.type}
                                 </Tag>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Thành viên">
-                                {group.member_count || 0}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Ngày tạo">
-                                {dayjs(group.created_at).format('DD/MM/YYYY')}
-                            </Descriptions.Item>
-                        </Descriptions>
-                        {group.description && (
-                            <>
-                                <Divider style={{ margin: '12px 0' }} />
-                                <Text type="secondary">{group.description}</Text>
-                            </>
-                        )}
+                            </Flex>
+                            <Flex justify="space-between" align="center">
+                                <Text type="secondary">Thành viên:</Text>
+                                <Text strong>{group.member_count || 0}</Text>
+                            </Flex>
+                            <Flex justify="space-between" align="center">
+                                <Text type="secondary">Ngày tạo:</Text>
+                                <Text>{dayjs(group.created_at).format('DD/MM/YYYY')}</Text>
+                            </Flex>
+                            {group.description && (
+                                <>
+                                    <Divider style={{ margin: '4px 0' }} />
+                                    <Text type="secondary" style={{ fontSize: 12 }}>{group.description}</Text>
+                                </>
+                            )}
+                        </Space>
                     </Card>
                 </Col>
 
-                <Col xs={24} lg={16}>
+                <Col xs={24} lg={18} xl={19}>
                     {/* Tabs for Members and Assessments */}
                     <Card style={{ ...elevation[1], borderRadius: 16 }}>
                         <Tabs

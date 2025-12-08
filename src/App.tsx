@@ -328,6 +328,11 @@ const AppRoutes: React.FC = () => {
 						<Route path="manage-assessments/new" element={<AssessmentForm />} />
 						<Route path="manage-assessments/:id" element={<AssessmentDetail />} />
 						<Route path="manage-assessments/:id/edit" element={<AssessmentForm />} />
+
+						{/* Student Question Bank */}
+						<Route path="questions" element={<QuestionList />} />
+						<Route path="questions/new" element={<QuestionForm />} />
+						<Route path="questions/edit/:id" element={<QuestionForm />} />
 					</Route>
 
 					{/* Teacher routes */}

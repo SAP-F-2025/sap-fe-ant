@@ -24,7 +24,7 @@ import {
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import questionService from '../../services/questionService';
 import { DifficultyLevel, QuestionCreateRequest, QuestionType } from '../../types';
 import { showSuccess } from '../../utils/errorHandler';
@@ -34,6 +34,7 @@ const { TextArea } = Input;
 
 const QuestionForm: React.FC = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
 	const [form] = Form.useForm();
@@ -43,6 +44,10 @@ const QuestionForm: React.FC = () => {
 		QuestionType.MultipleChoice
 	);
 	const isEdit = Boolean(id);
+
+	// Detect if we're in student context
+	const isStudentContext = location.pathname.startsWith('/student');
+	const basePath = isStudentContext ? '/student/questions' : '/questions';
 
 	useEffect(() => {
 		if (isEdit && id) {
@@ -63,7 +68,7 @@ const QuestionForm: React.FC = () => {
 			setQuestionType(question.type);
 		} catch (error) {
 			// Error will be handled by axios interceptor
-			navigate('/questions');
+			navigate(basePath);
 		} finally {
 			setLoading(false);
 		}
@@ -94,7 +99,7 @@ const QuestionForm: React.FC = () => {
 			} else {
 				await questionService.createQuestion(data);
 				showSuccess(t('questionForm.createSuccess'));
-			} navigate('/questions');
+			} navigate(basePath);
 		} catch (error) {
 			// Error will be handled by axios interceptor with notification
 		} finally {

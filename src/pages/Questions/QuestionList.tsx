@@ -29,7 +29,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import questionService from '../../services/questionService';
 import { cardColors } from '../../styles/cardColors';
 import { elevation } from '../../styles/elevation';
@@ -43,6 +43,7 @@ const { Search } = Input;
 const QuestionList: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const token = useThemeToken();
 	const [loading, setLoading] = useState(false);
 	const [questions, setQuestions] = useState<Question[]>([]);
@@ -55,6 +56,10 @@ const QuestionList: React.FC = () => {
 		difficulty: undefined as string | undefined,
 		search: '',
 	});
+
+	// Detect if we're in student context
+	const isStudentContext = location.pathname.startsWith('/student');
+	const basePath = isStudentContext ? '/student/questions' : '/questions';
 
 	// Calculate statistics from ALL questions, not just current page
 	const stats = useMemo(() => {
@@ -211,7 +216,7 @@ const QuestionList: React.FC = () => {
 						<Button
 							type="text"
 							icon={<EditOutlined />}
-							onClick={() => navigate(`/questions/edit/${record.id}`)}
+							onClick={() => navigate(`${basePath}/edit/${record.id}`)}
 						/>
 					</Tooltip>
 					<Tooltip title={t('questionList.duplicate')}>
@@ -257,7 +262,7 @@ const QuestionList: React.FC = () => {
 					type="primary"
 					icon={<PlusOutlined />}
 					size="large"
-					onClick={() => navigate('/questions/new')}
+					onClick={() => navigate(`${basePath}/new`)}
 					style={{ fontWeight: 500, height: 44, borderRadius: 10, paddingLeft: 24, paddingRight: 24 }}
 				>
 					{t('questionList.createNew')}

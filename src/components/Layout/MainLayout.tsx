@@ -5,6 +5,7 @@ import {
 	DashboardOutlined,
 	FileTextOutlined,
 	HistoryOutlined,
+	LogoutOutlined,
 	MenuFoldOutlined,
 	MenuUnfoldOutlined,
 	MoonOutlined,
@@ -84,14 +85,19 @@ const MainLayout: React.FC = () => {
 			label: t('layout.assessments'),
 		},
 		{
-			key: '/student/groups',
-			icon: <TeamOutlined />,
-			label: t('studentGroups.title'),
-		},
-		{
 			key: '/student/manage-assessments',
 			icon: <FileTextOutlined />,
 			label: t('layout.manageAssessments'),
+		},
+		{
+			key: '/student/questions',
+			icon: <QuestionCircleOutlined />,
+			label: t('layout.manageQuestions'),
+		},
+		{
+			key: '/student/groups',
+			icon: <TeamOutlined />,
+			label: t('studentGroups.title'),
 		},
 		{
 			key: '/student/history',
@@ -232,6 +238,7 @@ const MainLayout: React.FC = () => {
 		if (path.startsWith('/student/dashboard')) return '/student/dashboard';
 		if (path.startsWith('/student/assessments')) return '/student/assessments';
 		if (path.startsWith('/student/manage-assessments')) return '/student/manage-assessments';
+		if (path.startsWith('/student/questions')) return '/student/questions';
 		if (path.startsWith('/student/groups')) return '/student/groups';
 		if (path.startsWith('/student/history')) return '/student/history';
 		if (path.startsWith('/student/take')) return '/student/assessments';

@@ -3,6 +3,7 @@
  * Utility functions for assessment management
  */
 
+import i18n from 'i18next';
 import { Assessment, AssessmentStatus } from '../types';
 
 /**
@@ -17,28 +18,28 @@ import { Assessment, AssessmentStatus } from '../types';
  * @returns true if questions can be edited, false if locked
  */
 export const canEditQuestions = (assessment: Assessment): boolean => {
-  // Cannot edit archived assessments
-  if (assessment.status === AssessmentStatus.Archived) {
-    return false;
-  }
+	// Cannot edit archived assessments
+	if (assessment.status === AssessmentStatus.Archived) {
+		return false;
+	}
 
-  // Draft can always edit
-  if (assessment.status === AssessmentStatus.Draft) {
-    return true;
-  }
+	// Draft can always edit
+	if (assessment.status === AssessmentStatus.Draft) {
+		return true;
+	}
 
-  // Active/Expired: only if no attempts (when API provides this field)
-  if (assessment.has_attempts !== undefined) {
-    return !assessment.has_attempts;
-  }
+	// Active/Expired: only if no attempts (when API provides this field)
+	if (assessment.has_attempts !== undefined) {
+		return !assessment.has_attempts;
+	}
 
-  // Fallback: use can_edit flag if available
-  if (assessment.can_edit !== undefined) {
-    return assessment.can_edit;
-  }
+	// Fallback: use can_edit flag if available
+	if (assessment.can_edit !== undefined) {
+		return assessment.can_edit;
+	}
 
-  // Default: allow for now, will get error if attempts exist
-  return true;
+	// Default: allow for now, will get error if attempts exist
+	return true;
 };
 
 /**
@@ -48,28 +49,28 @@ export const canEditQuestions = (assessment: Assessment): boolean => {
  * @returns Localized message explaining why questions are locked
  */
 export const getQuestionsLockReason = (assessment: Assessment): string | null => {
-  if (assessment.status === AssessmentStatus.Archived) {
-    return 'Không thể chỉnh sửa câu hỏi - Assessment đã được lưu trữ';
-  }
+	if (assessment.status === AssessmentStatus.Archived) {
+		return i18n.t('assessment.lockReason.archived');
+	}
 
-  if (
-    (assessment.status === AssessmentStatus.Active ||
-      assessment.status === AssessmentStatus.Expired) &&
-    assessment.has_attempts
-  ) {
-    return 'Không thể chỉnh sửa câu hỏi - Sinh viên đã bắt đầu làm bài';
-  }
+	if (
+		(assessment.status === AssessmentStatus.Active ||
+			assessment.status === AssessmentStatus.Expired) &&
+		assessment.has_attempts
+	) {
+		return i18n.t('assessment.lockReason.hasAttempts');
+	}
 
-  return null;
+	return null;
 };
 
 /**
  * Constants for points validation
  */
 export const POINTS_VALIDATION = {
-  MIN: 1,
-  MAX: 100,
-  TOTAL_MAX: 100,
+	MIN: 1,
+	MAX: 100,
+	TOTAL_MAX: 100,
 } as const;
 
 /**
@@ -79,11 +80,11 @@ export const POINTS_VALIDATION = {
  * @returns true if valid, false otherwise
  */
 export const validateQuestionPoints = (points: number): boolean => {
-  return (
-    Number.isInteger(points) &&
-    points >= POINTS_VALIDATION.MIN &&
-    points <= POINTS_VALIDATION.MAX
-  );
+	return (
+		Number.isInteger(points) &&
+		points >= POINTS_VALIDATION.MIN &&
+		points <= POINTS_VALIDATION.MAX
+	);
 };
 
 /**
@@ -93,19 +94,19 @@ export const validateQuestionPoints = (points: number): boolean => {
  * @returns Validation result with error message if invalid
  */
 export const validateTotalPoints = (
-  questions: Array<{ points: number }>
+	questions: Array<{ points: number }>
 ): { valid: boolean; error?: string; total?: number } => {
-  const total = questions.reduce((sum, q) => sum + q.points, 0);
+	const total = questions.reduce((sum, q) => sum + q.points, 0);
 
-  if (total > POINTS_VALIDATION.TOTAL_MAX) {
-    return {
-      valid: false,
-      error: `Tổng điểm (${total}) vượt quá giới hạn cho phép (${POINTS_VALIDATION.TOTAL_MAX})`,
-      total,
-    };
-  }
+	if (total > POINTS_VALIDATION.TOTAL_MAX) {
+		return {
+			valid: false,
+			error: i18n.t('assessment.validation.totalPointsExceeded', { total, max: POINTS_VALIDATION.TOTAL_MAX }),
+			total,
+		};
+	}
 
-  return { valid: true, total };
+	return { valid: true, total };
 };
 
 /**
@@ -116,10 +117,10 @@ export const validateTotalPoints = (
  * @returns true if would exceed, false otherwise
  */
 export const wouldExceedTotalPoints = (
-  currentTotal: number,
-  newPoints: number
+	currentTotal: number,
+	newPoints: number
 ): boolean => {
-  return currentTotal + newPoints > POINTS_VALIDATION.TOTAL_MAX;
+	return currentTotal + newPoints > POINTS_VALIDATION.TOTAL_MAX;
 };
 
 /**
@@ -129,5 +130,5 @@ export const wouldExceedTotalPoints = (
  * @returns Remaining points (0 if already at or above max)
  */
 export const getRemainingPoints = (currentTotal: number): number => {
-  return Math.max(0, POINTS_VALIDATION.TOTAL_MAX - currentTotal);
+	return Math.max(0, POINTS_VALIDATION.TOTAL_MAX - currentTotal);
 };

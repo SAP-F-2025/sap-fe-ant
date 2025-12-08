@@ -1,47 +1,49 @@
-import React from 'react';
 import { Typography } from 'antd';
-import {
-  MultipleChoiceQuestion,
-  TrueFalseQuestion,
-  EssayQuestion,
-  ShortAnswerQuestion,
-  FillBlankQuestion,
-  MatchingQuestion,
-  OrderingQuestion,
-} from './QuestionTypes';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { DndQuestionProps } from '../types';
+import {
+	EssayQuestion,
+	FillBlankQuestion,
+	MatchingQuestion,
+	MultipleChoiceQuestion,
+	OrderingQuestion,
+	ShortAnswerQuestion,
+	TrueFalseQuestion,
+} from './QuestionTypes';
 
 const { Text } = Typography;
 
 export const QuestionRenderer: React.FC<DndQuestionProps> = (props) => {
-  const { question } = props;
+	const { question } = props;
+	const { t } = useTranslation();
 
-  if (!question) return null;
+	if (!question) return null;
 
-  switch (question.type) {
-    case 'multiple_choice':
-      return <MultipleChoiceQuestion {...props} />;
+	switch (question.type) {
+		case 'multiple_choice':
+			return <MultipleChoiceQuestion {...props} />;
 
-    case 'true_false':
-      return <TrueFalseQuestion {...props} />;
+		case 'true_false':
+			return <TrueFalseQuestion {...props} />;
 
-    case 'essay':
-      return <EssayQuestion {...props} />;
+		case 'essay':
+			return <EssayQuestion {...props} />;
 
-    case 'short_answer':
-      return <ShortAnswerQuestion {...props} />;
+		case 'short_answer':
+			return <ShortAnswerQuestion {...props} />;
 
-    case 'fill_blank':
-    case 'fill_in_blank':
-      return <FillBlankQuestion {...props} />;
+		case 'fill_blank':
+		case 'fill_in_blank':
+			return <FillBlankQuestion {...props} />;
 
-    case 'matching':
-      return <MatchingQuestion {...props} />;
+		case 'matching':
+			return <MatchingQuestion {...props} />;
 
-    case 'ordering':
-      return <OrderingQuestion {...props} />;
+		case 'ordering':
+			return <OrderingQuestion {...props} />;
 
-    default:
-      return <Text type="secondary">Loại câu hỏi không được hỗ trợ</Text>;
-  }
+		default:
+			return <Text type="secondary">{t('exam.unsupportedQuestionType')}</Text>;
+	}
 };

@@ -74,6 +74,20 @@ class ImportExportService {
     }
 
     /**
+     * Export assessment results to Excel
+     */
+    async exportAssessmentResults(assessmentId: number): Promise<Blob> {
+        const axiosInstance = apiService.getAxiosInstance();
+        const response = await axiosInstance.get(
+            API_ENDPOINTS.ASSESSMENT_RESULTS_EXPORT(assessmentId),
+            {
+                responseType: 'blob',
+            }
+        );
+        return response.data;
+    }
+
+    /**
      * Helper to trigger file download
      */
     downloadFile(blob: Blob, filename: string): void {

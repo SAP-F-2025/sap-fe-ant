@@ -58,6 +58,10 @@ const GradingList: React.FC = () => {
 	const [assessmentFilter, setAssessmentFilter] = useState<number | undefined>(undefined);
 	const [assessments, setAssessments] = useState<Assessment[]>([]);
 
+	// Selection state for attempts
+	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+	const [selectedAttempts, setSelectedAttempts] = useState<AttemptListItem[]>([]);
+
 	// Calculate statistics from ALL attempts, not just current page
 	const stats = useMemo(() => {
 		const graded = allAttemptsStats.filter((a) => a.score !== undefined).length;
@@ -403,12 +407,31 @@ const GradingList: React.FC = () => {
 
 
 			<Card style={{ ...elevation[1], borderRadius: 16 }}>
+				{selectedAttempts.length > 0 && (
+					<div style={{ marginBottom: 16, padding: 12, background: '#e6f7ff', borderRadius: 8 }}>
+						<Space>
+							<Text strong>
+								{t('gradingList.selectedCount', { count: selectedAttempts.length, defaultValue: `${selectedAttempts.length} attempt(s) selected` })}
+							</Text>
+							<Button size="small" onClick={() => { setSelectedRowKeys([]); setSelectedAttempts([]); }}>
+								{t('common.clearSelection', 'Clear Selection')}
+							</Button>
+						</Space>
+					</div>
+				)}
 				<Table
 					columns={columns}
 					dataSource={attempts}
 					rowKey="id"
 					loading={loading}
 					scroll={{ x: 1400 }}
+					rowSelection={{
+						selectedRowKeys,
+						onChange: (keys, rows) => {
+							setSelectedRowKeys(keys);
+							setSelectedAttempts(rows);
+						},
+					}}
 					pagination={{
 						current: pagination.current,
 						pageSize: pagination.pageSize,

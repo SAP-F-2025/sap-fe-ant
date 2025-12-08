@@ -16,6 +16,7 @@ import {
   Card,
   Flex,
   Avatar,
+  message,
 } from 'antd';
 import { StatusBadge } from '../../components/StatusBadge/StatusBadge';
 import { elevation } from '../../styles/elevation';
@@ -25,6 +26,7 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  DownloadOutlined,
   EyeOutlined,
   SearchOutlined,
   FileTextOutlined,
@@ -35,9 +37,10 @@ import {
 } from '@ant-design/icons';
 import { Assessment, AssessmentStatus } from '../../types';
 import assessmentService from '../../services/assessmentService';
+import importExportService from '../../services/importExportService';
 import dayjs from 'dayjs';
 import { useThemeToken } from '../../theme/ThemeProvider';
-import {showError, showSuccess} from '../../utils/errorHandler';
+import { showError, showSuccess } from '../../utils/errorHandler';
 
 
 const { Title, Text } = Typography;
@@ -59,6 +62,7 @@ const AssessmentList: React.FC = () => {
     status: undefined as string | undefined,
     search: '',
   });
+  const [exportingId, setExportingId] = useState<number | null>(null);
 
   // Calculate statistics from ALL assessments, not just current page
   const stats = useMemo(() => {
@@ -142,6 +146,20 @@ const AssessmentList: React.FC = () => {
     return <StatusBadge status={statusMap[status]} />;
   };
 
+  const handleExportResults = async (assessment: Assessment) => {
+    try {
+      setExportingId(assessment.id);
+      const blob = await importExportService.exportAssessmentResults(assessment.id);
+      const filename = `${assessment.title}_results.xlsx`;
+      importExportService.downloadFile(blob, filename);
+      message.success(t('assessmentList.exportSuccess', 'Results exported successfully'));
+    } catch (error: any) {
+      message.error(error.response?.data?.message || t('assessmentList.exportError', 'Failed to export results'));
+    } finally {
+      setExportingId(null);
+    }
+  };
+
   const columns: ColumnsType<Assessment> = [
     {
       title: t('assessmentList.columnTitle'),
@@ -210,7 +228,7 @@ const AssessmentList: React.FC = () => {
       title: t('assessmentList.columnActions'),
       key: 'action',
       fixed: 'right',
-      width: 200,
+      width: 220,
       render: (_, record) => (
         <Space size="small" style={{ display: 'flex' }}>
           <Tooltip title={t('assessmentList.viewDetail')}>
@@ -218,6 +236,14 @@ const AssessmentList: React.FC = () => {
               type="text"
               icon={<EyeOutlined />}
               onClick={() => navigate(`/assessments/${record.id}`)}
+            />
+          </Tooltip>
+          <Tooltip title={t('assessmentList.exportResults', 'Export Results')}>
+            <Button
+              type="text"
+              icon={<DownloadOutlined />}
+              loading={exportingId === record.id}
+              onClick={() => handleExportResults(record)}
             />
           </Tooltip>
           <Tooltip title={t('assessmentList.edit')}>
@@ -354,47 +380,47 @@ const AssessmentList: React.FC = () => {
       </Card>
 
       {/* Statistics Summary - Moved to bottom */}
-      <Card bordered={false} style={{...elevation[1], borderRadius: 16, background: '#f5f5f5'}}>
-        <Space direction="vertical" size={8} style={{width: '100%'}}>
-          <Text type="secondary" style={{fontSize: 13, fontWeight: 500}}>{t('assessmentList.statsTitle')}</Text>
+      <Card bordered={false} style={{ ...elevation[1], borderRadius: 16, background: '#f5f5f5' }}>
+        <Space direction="vertical" size={8} style={{ width: '100%' }}>
+          <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>{t('assessmentList.statsTitle')}</Text>
           <Row gutter={[12, 12]}>
             <Col xs={12} sm={6}>
               <Flex align="center" gap={8}>
-                <Avatar size={36} icon={<FileTextOutlined style={{fontSize: 16}}/>}
-                        style={{backgroundColor: cardColors.blue, flexShrink: 0}}/>
+                <Avatar size={36} icon={<FileTextOutlined style={{ fontSize: 16 }} />}
+                  style={{ backgroundColor: cardColors.blue, flexShrink: 0 }} />
                 <Space direction="vertical" size={0}>
-                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.total}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>{t('assessmentList.totalAssessments')}</Text>
+                  <Text style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{stats.total}</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{t('assessmentList.totalAssessments')}</Text>
                 </Space>
               </Flex>
             </Col>
             <Col xs={12} sm={6}>
               <Flex align="center" gap={8}>
-                <Avatar size={36} icon={<CheckCircleOutlined style={{fontSize: 16}}/>}
-                        style={{backgroundColor: cardColors.green, flexShrink: 0}}/>
+                <Avatar size={36} icon={<CheckCircleOutlined style={{ fontSize: 16 }} />}
+                  style={{ backgroundColor: cardColors.green, flexShrink: 0 }} />
                 <Space direction="vertical" size={0}>
-                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.active}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>{t('assessmentList.activeAssessments')}</Text>
+                  <Text style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{stats.active}</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{t('assessmentList.activeAssessments')}</Text>
                 </Space>
               </Flex>
             </Col>
             <Col xs={12} sm={6}>
               <Flex align="center" gap={8}>
-                <Avatar size={36} icon={<EditOutlined style={{fontSize: 16}}/>}
-                        style={{backgroundColor: cardColors.cyan, flexShrink: 0}}/>
+                <Avatar size={36} icon={<EditOutlined style={{ fontSize: 16 }} />}
+                  style={{ backgroundColor: cardColors.cyan, flexShrink: 0 }} />
                 <Space direction="vertical" size={0}>
-                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.draft}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>{t('assessmentList.draftAssessments')}</Text>
+                  <Text style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{stats.draft}</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{t('assessmentList.draftAssessments')}</Text>
                 </Space>
               </Flex>
             </Col>
             <Col xs={12} sm={6}>
               <Flex align="center" gap={8}>
-                <Avatar size={36} icon={<InboxOutlined style={{fontSize: 16}}/>}
-                        style={{backgroundColor: cardColors.orange, flexShrink: 0}}/>
+                <Avatar size={36} icon={<InboxOutlined style={{ fontSize: 16 }} />}
+                  style={{ backgroundColor: cardColors.orange, flexShrink: 0 }} />
                 <Space direction="vertical" size={0}>
-                  <Text style={{fontSize: 20, fontWeight: 700, lineHeight: 1.2}}>{stats.archived}</Text>
-                  <Text type="secondary" style={{fontSize: 12}}>{t('assessmentList.archivedAssessments')}</Text>
+                  <Text style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{stats.archived}</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{t('assessmentList.archivedAssessments')}</Text>
                 </Space>
               </Flex>
             </Col>

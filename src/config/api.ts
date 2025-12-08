@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
   ASSESSMENT_BULK_UPDATE_QUESTIONS: (id: number) => `/api/v1/assessments/${id}/questions/batch`,
   ASSESSMENT_REORDER_QUESTIONS: (id: number) => `/api/v1/assessments/${id}/questions/reorder`,
   ASSESSMENT_AUTO_ASSIGN_QUESTIONS: (id: number) => `/api/v1/assessments/${id}/questions/auto-assign`,
+  ASSESSMENT_RESULTS_EXPORT: (id: number) => `/api/v1/assessments/${id}/results/export`,
 
   // Questions
   QUESTIONS: '/api/v1/questions',

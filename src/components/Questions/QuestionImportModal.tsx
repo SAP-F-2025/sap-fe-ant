@@ -119,7 +119,16 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                 return Upload.LIST_IGNORE;
             }
 
-            setFileList([file as any]);
+            // Create proper UploadFile object with originFileObj
+            const uploadFile: UploadFile = {
+                uid: file.uid || `-${Date.now()}`,
+                name: file.name,
+                status: 'done',
+                size: file.size,
+                type: file.type,
+                originFileObj: file as any,
+            };
+            setFileList([uploadFile]);
             setImportResult(null);
             return false;
         },

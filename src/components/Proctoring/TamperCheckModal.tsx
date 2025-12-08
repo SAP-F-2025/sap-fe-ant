@@ -1,94 +1,96 @@
-import React, { useEffect } from 'react';
-import { Modal, Space, Typography, Alert, Button } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from '@ant-design/icons';
+import { Alert, Button, Modal, Space, Typography } from 'antd';
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBrowserTamperDetection } from '../../hooks/useBrowserTamperDetection';
 
 const { Text } = Typography;
 
 interface TamperCheckModalProps {
-  open: boolean;
-  onPass: () => void;
-  onCancel: () => void;
+	open: boolean;
+	onPass: () => void;
+	onCancel: () => void;
 }
 
 export const TamperCheckModal: React.FC<TamperCheckModalProps> = ({ open, onPass, onCancel }) => {
-  const { tamperStatus, hasTampering, performCheck, isBypassed } = useBrowserTamperDetection();
+	const { tamperStatus, hasTampering, performCheck, isBypassed } = useBrowserTamperDetection();
+	const { t } = useTranslation();
 
-  useEffect(() => {
-    if (open) {
-      performCheck();
-    }
-  }, [open, performCheck]);
+	useEffect(() => {
+		if (open) {
+			performCheck();
+		}
+	}, [open, performCheck]);
 
-  const CheckItem = ({ label, passed }: { label: string; passed: boolean }) => (
-    <Space>
-      {passed ? (
-        <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 18 }} />
-      ) : (
-        <CloseCircleOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />
-      )}
-      <Text>{label}</Text>
-    </Space>
-  );
+	const CheckItem = ({ label, passed }: { label: string; passed: boolean }) => (
+		<Space>
+			{passed ? (
+				<CheckCircleOutlined style={{ color: '#52c41a', fontSize: 18 }} />
+			) : (
+				<CloseCircleOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />
+			)}
+			<Text>{label}</Text>
+		</Space>
+	);
 
-  return (
-    <Modal
-      title="Kiểm tra bảo mật"
-      open={open}
-      onCancel={onCancel}
-      footer={[
-        <Button key="cancel" onClick={onCancel}>
-          Hủy
-        </Button>,
-        <Button key="recheck" onClick={performCheck}>
-          Kiểm tra lại
-        </Button>,
-        <Button key="start" type="primary" disabled={hasTampering} onClick={onPass}>
-          Bắt đầu làm bài
-        </Button>,
-      ]}
-    >
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
-        {isBypassed && (
-          <Alert
-            message="Chế độ phát triển"
-            description="Kiểm tra bảo mật đã được tắt trong môi trường phát triển."
-            type="info"
-            showIcon
-          />
-        )}
+	return (
+		<Modal
+			title={t('proctoring.tamperCheck.title')}
+			open={open}
+			onCancel={onCancel}
+			footer={[
+				<Button key="cancel" onClick={onCancel}>
+					{t('common.cancel')}
+				</Button>,
+				<Button key="recheck" onClick={performCheck}>
+					{t('proctoring.tamperCheck.recheck')}
+				</Button>,
+				<Button key="start" type="primary" disabled={hasTampering} onClick={onPass}>
+					{t('proctoring.tamperCheck.startExam')}
+				</Button>,
+			]}
+		>
+			<Space direction="vertical" style={{ width: '100%' }} size="large">
+				{isBypassed && (
+					<Alert
+						message={t('proctoring.tamperCheck.devMode')}
+						description={t('proctoring.tamperCheck.devModeDescription')}
+						type="info"
+						showIcon
+					/>
+				)}
 
-        {hasTampering && !isBypassed && (
-          <Alert
-            message="Phát hiện vấn đề bảo mật"
-            description="Vui lòng khắc phục các vấn đề dưới đây trước khi bắt đầu làm bài."
-            type="error"
-            showIcon
-            icon={<WarningOutlined />}
-          />
-        )}
+				{hasTampering && !isBypassed && (
+					<Alert
+						message={t('proctoring.tamperCheck.securityIssue')}
+						description={t('proctoring.tamperCheck.securityIssueDescription')}
+						type="error"
+						showIcon
+						icon={<WarningOutlined />}
+					/>
+				)}
 
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <CheckItem label="DevTools đã đóng" passed={!tamperStatus.devTools} />
-          <CheckItem label="Console không bị can thiệp" passed={!tamperStatus.consoleOverride} />
-          <CheckItem label="Không có tiện ích mở rộng đáng ngờ" passed={!tamperStatus.suspiciousExtensions} />
-        </Space>
+				<Space direction="vertical" style={{ width: '100%' }}>
+					<CheckItem label={t('proctoring.tamperCheck.devToolsClosed')} passed={!tamperStatus.devTools} />
+					<CheckItem label={t('proctoring.tamperCheck.consoleIntact')} passed={!tamperStatus.consoleOverride} />
+					<CheckItem label={t('proctoring.tamperCheck.noExtensions')} passed={!tamperStatus.suspiciousExtensions} />
+				</Space>
 
-        {!isBypassed && hasTampering && (
-          <Alert
-            message="Hướng dẫn khắc phục"
-            description={
-              <ul style={{ margin: 0, paddingLeft: 20 }}>
-                {tamperStatus.devTools && <li>Đóng DevTools (F12)</li>}
-                {tamperStatus.consoleOverride && <li>Tải lại trang để khôi phục console</li>}
-                {tamperStatus.suspiciousExtensions && <li>Tắt các tiện ích mở rộng không cần thiết</li>}
-              </ul>
-            }
-            type="warning"
-            showIcon
-          />
-        )}
-      </Space>
-    </Modal>
-  );
+				{!isBypassed && hasTampering && (
+					<Alert
+						message={t('proctoring.tamperCheck.fixInstructions')}
+						description={
+							<ul style={{ margin: 0, paddingLeft: 20 }}>
+								{tamperStatus.devTools && <li>{t('proctoring.tamperCheck.closeDevTools')}</li>}
+								{tamperStatus.consoleOverride && <li>{t('proctoring.tamperCheck.reloadPage')}</li>}
+								{tamperStatus.suspiciousExtensions && <li>{t('proctoring.tamperCheck.disableExtensions')}</li>}
+							</ul>
+						}
+						type="warning"
+						showIcon
+					/>
+				)}
+			</Space>
+		</Modal>
+	);
 };

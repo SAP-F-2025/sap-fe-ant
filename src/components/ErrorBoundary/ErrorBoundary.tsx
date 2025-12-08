@@ -1,19 +1,20 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Result, Button, Typography, Space } from 'antd';
-import { FrownOutlined, ReloadOutlined, HomeOutlined } from '@ant-design/icons';
+import { FrownOutlined, HomeOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Button, Result, Space, Typography } from 'antd';
+import { Component, ErrorInfo, ReactNode } from 'react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
 const { Paragraph, Text } = Typography;
 
-interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onReset?: () => void;
+interface Props extends WithTranslation {
+	children: ReactNode;
+	fallback?: ReactNode;
+	onReset?: () => void;
 }
 
 interface State {
-  hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
+	hasError: boolean;
+	error: Error | null;
+	errorInfo: ErrorInfo | null;
 }
 
 /**
@@ -22,121 +23,123 @@ interface State {
  * Includes error details in development mode
  */
 export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null,
-    };
-  }
+	constructor(props: Props) {
+		super(props);
+		this.state = {
+			hasError: false,
+			error: null,
+			errorInfo: null,
+		};
+	}
 
-  static getDerivedStateFromError(error: Error): Pick<State, 'hasError' | 'error'> {
-    return {
-      hasError: true,
-      error,
-    };
-  }
+	static getDerivedStateFromError(error: Error): Pick<State, 'hasError' | 'error'> {
+		return {
+			hasError: true,
+			error,
+		};
+	}
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // Log error to console in development
-    if (import.meta.env.DEV) {
-      console.error('Error caught by ErrorBoundary:', error, errorInfo);
-    }
+	componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+		// Log error to console in development
+		if (import.meta.env.DEV) {
+			console.error('Error caught by ErrorBoundary:', error, errorInfo);
+		}
 
-    // In production, you would send this to an error tracking service
-    // Example: Sentry.captureException(error, { extra: errorInfo });
+		// In production, you would send this to an error tracking service
+		// Example: Sentry.captureException(error, { extra: errorInfo });
 
-    this.setState({
-      errorInfo,
-    });
-  }
+		this.setState({
+			errorInfo,
+		});
+	}
 
-  handleReset = (): void => {
-    const { onReset } = this.props;
+	handleReset = (): void => {
+		const { onReset } = this.props;
 
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-    });
+		this.setState({
+			hasError: false,
+			error: null,
+			errorInfo: null,
+		});
 
-    onReset?.();
-  };
+		onReset?.();
+	};
 
-  handleGoHome = (): void => {
-    window.location.href = '/';
-  };
+	handleGoHome = (): void => {
+		window.location.href = '/';
+	};
 
-  render(): ReactNode {
-    const { hasError, error, errorInfo } = this.state;
-    const { children, fallback } = this.props;
+	render(): ReactNode {
+		const { hasError, error, errorInfo } = this.state;
+		const { children, fallback } = this.props;
 
-    if (hasError) {
-      // Use custom fallback if provided
-      if (fallback) {
-        return fallback;
-      }
+		if (hasError) {
+			// Use custom fallback if provided
+			if (fallback) {
+				return fallback;
+			}
 
-      // Default error UI
-      return (
-        <div
-          style={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '24px',
-          }}
-        >
-          <Result
-            status="error"
-            icon={<FrownOutlined />}
-            title="Đã xảy ra lỗi"
-            subTitle="Xin lỗi, có lỗi không mong muốn đã xảy ra. Vui lòng thử lại."
-            extra={
-              <Space size="middle">
-                <Button
-                  type="primary"
-                  icon={<ReloadOutlined />}
-                  onClick={this.handleReset}
-                >
-                  Thử lại
-                </Button>
-                <Button icon={<HomeOutlined />} onClick={this.handleGoHome}>
-                  Về trang chủ
-                </Button>
-              </Space>
-            }
-          >
-            {/* Show error details in development */}
-            {import.meta.env.DEV && error && (
-              <div style={{ textAlign: 'left', marginTop: '24px' }}>
-                <Paragraph>
-                  <Text strong>Error:</Text>
-                </Paragraph>
-                <Paragraph>
-                  <Text code>{error.toString()}</Text>
-                </Paragraph>
-                {errorInfo && (
-                  <>
-                    <Paragraph>
-                      <Text strong>Stack Trace:</Text>
-                    </Paragraph>
-                    <Paragraph>
-                      <Text code style={{ whiteSpace: 'pre-wrap' }}>
-                        {errorInfo.componentStack}
-                      </Text>
-                    </Paragraph>
-                  </>
-                )}
-              </div>
-            )}
-          </Result>
-        </div>
-      );
-    }
+			// Default error UI
+			return (
+				<div
+					style={{
+						minHeight: '100vh',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						padding: '24px',
+					}}
+				>
+					<Result
+						status="error"
+						icon={<FrownOutlined />}
+						title={this.props.t('errorBoundary.title')}
+						subTitle={this.props.t('errorBoundary.subtitle')}
+						extra={
+							<Space size="middle">
+								<Button
+									type="primary"
+									icon={<ReloadOutlined />}
+									onClick={this.handleReset}
+								>
+									{this.props.t('errorBoundary.retry')}
+								</Button>
+								<Button icon={<HomeOutlined />} onClick={this.handleGoHome}>
+									{this.props.t('errorBoundary.backToHome')}
+								</Button>
+							</Space>
+						}
+					>
+						{/* Show error details in development */}
+						{import.meta.env.DEV && error && (
+							<div style={{ textAlign: 'left', marginTop: '24px' }}>
+								<Paragraph>
+									<Text strong>Error:</Text>
+								</Paragraph>
+								<Paragraph>
+									<Text code>{error.toString()}</Text>
+								</Paragraph>
+								{errorInfo && (
+									<>
+										<Paragraph>
+											<Text strong>Stack Trace:</Text>
+										</Paragraph>
+										<Paragraph>
+											<Text code style={{ whiteSpace: 'pre-wrap' }}>
+												{errorInfo.componentStack}
+											</Text>
+										</Paragraph>
+									</>
+								)}
+							</div>
+						)}
+					</Result>
+				</div>
+			);
+		}
 
-    return children;
-  }
+		return children;
+	}
 }
+
+export default withTranslation()(ErrorBoundary);

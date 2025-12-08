@@ -105,7 +105,7 @@ const MainLayout: React.FC = () => {
 		...(user?.isAdmin ? [{
 			key: '/groups',
 			icon: <TeamOutlined />,
-			label: 'Quản lý nhóm',
+			label: t('layout.groups'),
 		}] : []),
 		{
 			key: '/assessments',

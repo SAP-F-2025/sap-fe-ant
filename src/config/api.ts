@@ -99,4 +99,16 @@ export const API_ENDPOINTS = {
   // Proctoring (uses PROCTORING_BASE_URL)
   PROCTORING_VIOLATIONS: '/api/v1/violations',
   PROCTORING_VIOLATIONS_BATCH: '/api/v1/violations/batch',
+
+  // Groups
+  GROUPS: '/api/v1/groups',
+  GROUP_DETAIL: (id: number) => `/api/v1/groups/${id}`,
+  GROUP_MEMBERS: (id: number) => `/api/v1/groups/${id}/members`,
+  GROUP_MEMBER: (id: number, userId: string) => `/api/v1/groups/${id}/members/${userId}`,
+  GROUP_MEMBER_ROLE: (id: number, userId: string) => `/api/v1/groups/${id}/members/${userId}/role`,
+
+  // Group Assessments
+  GROUP_ASSESSMENTS: (id: number) => `/api/v1/groups/${id}/assessments`,
+  GROUP_ASSESSMENT: (groupId: number, assessmentId: number) => `/api/v1/groups/${groupId}/assessments/${assessmentId}`,
+  ASSESSMENT_GROUPS: (assessmentId: number) => `/api/v1/assessments/${assessmentId}/groups`,
 };

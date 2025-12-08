@@ -101,6 +101,12 @@ const MainLayout: React.FC = () => {
 			icon: <TeamOutlined />,
 			label: t('layout.users'),
 		}] : []),
+		// Only show Groups menu for admin
+		...(user?.isAdmin ? [{
+			key: '/groups',
+			icon: <TeamOutlined />,
+			label: t('layout.groups'),
+		}] : []),
 		{
 			key: '/assessments',
 			icon: <FileTextOutlined />,
@@ -220,6 +226,7 @@ const MainLayout: React.FC = () => {
 		if (path.startsWith('/student/results')) return '/student/history';
 		// Admin/Teacher paths
 		if (path.startsWith('/users')) return '/users';
+		if (path.startsWith('/groups')) return '/groups';
 		if (path.startsWith('/assessments')) return '/assessments';
 		if (path.startsWith('/questions')) return '/questions';
 		if (path.startsWith('/question-banks')) return '/question-banks';

@@ -32,6 +32,11 @@ import QuestionForm from './pages/Questions/QuestionForm';
 import QuestionList from './pages/Questions/QuestionList';
 import UserManagement from './pages/Users/UserManagement';
 
+// Group Pages
+import GroupList from './pages/Groups/GroupList';
+import GroupDetail from './pages/Groups/GroupDetail';
+import GroupForm from './pages/Groups/GroupForm';
+
 // Student Pages
 import AssessmentResults from './pages/Student/AssessmentResults';
 import AvailableAssessments from './pages/Student/AvailableAssessments';
@@ -129,6 +134,42 @@ const AppRoutes: React.FC = () => {
 							</RoleBasedRedirect>
 						}
 					/>
+
+					{/* Groups Management - Admin only */}
+					<Route path="groups">
+						<Route
+							index
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<GroupList />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="new"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<GroupForm />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path=":id"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<GroupDetail />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path=":id/edit"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<GroupForm />
+								</RoleBasedRedirect>
+							}
+						/>
+					</Route>
 
 					{/* Assessment routes - Admin/Teacher only */}
 					<Route path="assessments">

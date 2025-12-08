@@ -307,6 +307,7 @@
 		"history": "Lịch sử",
 		"overview": "Tổng quan",
 		"users": "Người dùng",
+		"groups": "Quản lý nhóm",
 		"manageAssessments": "Quản lý bài thi",
 		"manageQuestions": "Quản lý câu hỏi",
 		"questionBanks": "Ngân hàng câu hỏi",
@@ -1744,6 +1745,215 @@
 			"cut": "cắt",
 			"browserTamper": "Phát hiện DevTools",
 			"default": "Vi phạm"
+		}
+	},
+	"groups": {
+		"title": "Quản lý nhóm",
+		"subtitle": "Quản lý các nhóm học và lớp học trong hệ thống",
+		"createGroup": "Tạo nhóm mới",
+		"editGroup": "Chỉnh sửa nhóm",
+		"deleteGroup": "Xóa nhóm",
+		"loadError": "Không thể tải danh sách nhóm",
+		"loadDetailError": "Không thể tải thông tin nhóm",
+		"deleteSuccess": "Đã xóa nhóm thành công",
+		"deleteError": "Không thể xóa nhóm",
+		"createSuccess": "Đã tạo nhóm thành công",
+		"createError": "Không thể tạo nhóm",
+		"updateSuccess": "Đã cập nhật nhóm thành công",
+		"updateError": "Không thể cập nhật nhóm",
+		"addMemberSuccess": "Đã thêm thành viên thành công",
+		"addMemberError": "Không thể thêm thành viên",
+		"removeMemberSuccess": "Đã xóa thành viên khỏi nhóm",
+		"removeMemberError": "Không thể xóa thành viên",
+		"changeRoleSuccess": "Đã thay đổi vai trò thành viên",
+		"changeRoleError": "Không thể thay đổi vai trò",
+		"assignSuccess": "Đã gán bài thi cho nhóm thành công",
+		"assignError": "Không thể gán bài thi cho nhóm",
+		"unassignSuccess": "Đã hủy gán bài thi khỏi nhóm thành công",
+		"unassignError": "Không thể hủy gán bài thi",
+		"pagination": {
+			"total": "Tổng: {{count}} nhóm"
+		},
+		"statistics": {
+			"title": "Thống kê nhóm"
+		},
+		"role": {
+			"owner": "Chủ sở hữu",
+			"coOwner": "Đồng quản lý",
+			"member": "Thành viên"
+		},
+		"type": {
+			"class": "Lớp học",
+			"studyGroup": "Nhóm học"
+		},
+		"columns": {
+			"name": "Tên nhóm",
+			"code": "Mã nhóm",
+			"displayName": "Tên hiển thị",
+			"type": "Loại",
+			"memberCount": "Thành viên",
+			"owner": "Chủ sở hữu",
+			"createdAt": "Ngày tạo",
+			"actions": "Hành động",
+			"email": "Email",
+			"role": "Vai trò",
+			"joinedAt": "Ngày tham gia"
+		},
+		"stats": {
+			"totalGroups": "Tổng số nhóm",
+			"classGroups": "Lớp học",
+			"studyGroups": "Nhóm học",
+			"totalMembers": "Thành viên"
+		},
+		"createModal": {
+			"title": "Tạo nhóm mới",
+			"editTitle": "Chỉnh sửa nhóm",
+			"submitCreate": "Tạo nhóm",
+			"submitUpdate": "Cập nhật"
+		},
+		"form": {
+			"name": "Mã nhóm",
+			"namePlaceholder": "vd: lop-12a1",
+			"nameRequired": "Vui lòng nhập mã nhóm",
+			"namePattern": "Chỉ chứa chữ thường, số và gạch ngang",
+			"nameExtra": "Mã định danh duy nhất, không thể thay đổi sau khi tạo",
+			"displayName": "Tên hiển thị",
+			"displayNamePlaceholder": "vd: Lớp 12A1 - Toán nâng cao",
+			"displayNameRequired": "Vui lòng nhập tên hiển thị",
+			"type": "Loại nhóm",
+			"typeRequired": "Vui lòng chọn loại nhóm",
+			"description": "Mô tả",
+			"descriptionPlaceholder": "Mô tả chi tiết về nhóm..."
+		},
+		"deleteConfirm": {
+			"title": "Xác nhận xóa nhóm",
+			"content": "Bạn có chắc chắn muốn xóa nhóm \"{{name}}\"?",
+			"warning": "Hành động này không thể hoàn tác",
+			"okText": "Xóa",
+			"cancelText": "Hủy"
+		},
+		"search": {
+			"placeholder": "Tìm kiếm nhóm...",
+			"byName": "Theo tên",
+			"byOwner": "Theo chủ sở hữu"
+		},
+		"empty": {
+			"title": "Chưa có nhóm nào",
+			"description": "Tạo nhóm mới để bắt đầu quản lý học viên"
+		},
+		"detail": {
+			"backToList": "Quay lại danh sách",
+			"info": "Thông tin nhóm",
+			"membersTab": "Thành viên",
+			"assessmentsTab": "Bài thi",
+			"editInfo": "Chỉnh sửa thông tin"
+		},
+		"members": {
+			"title": "Danh sách thành viên",
+			"add": "Thêm thành viên",
+			"remove": "Xóa khỏi nhóm",
+			"changeRole": "Thay đổi vai trò",
+			"empty": "Chưa có thành viên nào",
+			"searchPlaceholder": "Tìm thành viên...",
+			"loadError": "Không thể tải danh sách thành viên",
+			"addModal": {
+				"title": "Thêm thành viên",
+				"searchLabel": "Tìm người dùng",
+				"searchPlaceholder": "Nhập email hoặc tên để tìm...",
+				"selectRequired": "Vui lòng chọn người dùng",
+				"searching": "Đang tìm kiếm...",
+				"noResults": "Không tìm thấy người dùng",
+				"selectRole": "Vai trò",
+				"submit": "Thêm thành viên",
+				"cancel": "Hủy"
+			},
+			"changeRoleModal": {
+				"title": "Thay đổi vai trò",
+				"currentRole": "Vai trò hiện tại",
+				"newRole": "Vai trò mới",
+				"submit": "Cập nhật",
+				"cancel": "Hủy"
+			},
+			"removeConfirm": {
+				"title": "Xác nhận xóa thành viên",
+				"content": "Bạn có chắc chắn muốn xóa \"{{name}}\" khỏi nhóm?",
+				"okText": "Xóa",
+				"cancelText": "Hủy"
+			}
+		},
+		"assessments": {
+			"title": "Bài thi của nhóm",
+			"assign": "Gán bài thi",
+			"unassign": "Hủy gán",
+			"empty": "Chưa có bài thi nào được gán cho nhóm này",
+			"assignFirst": "Gán bài thi đầu tiên",
+			"viewAttempts": "Xem bài làm",
+			"loadError": "Không thể tải danh sách bài thi",
+			"assignSuccessCount": "Đã gán {{count}} bài thi cho nhóm",
+			"editTooltip": "Chỉnh sửa bài thi",
+			"unassignTooltip": "Hủy gán khỏi nhóm",
+			"totalPoints": "{{points}} điểm tổng",
+			"questionUnit": "câu",
+			"status": {
+				"draft": "Nháp",
+				"active": "Đang mở",
+				"expired": "Hết hạn",
+				"archived": "Lưu trữ"
+			},
+			"stats": {
+				"total": "Tổng bài thi",
+				"active": "Đang mở",
+				"available": "Có thể làm"
+			},
+			"columns": {
+				"title": "Bài thi",
+				"status": "Trạng thái",
+				"questions": "Câu hỏi",
+				"duration": "Thời lượng",
+				"passingScore": "Điểm đạt",
+				"timeLimit": "Thời gian",
+				"startTime": "Bắt đầu",
+				"endTime": "Kết thúc",
+				"actions": "Thao tác",
+				"attemptCount": "Lượt làm"
+			},
+			"assignModal": {
+				"title": "Gán bài thi cho nhóm",
+				"searchPlaceholder": "Tìm kiếm bài thi...",
+				"myAssessments": "Bài thi của tôi",
+				"allAssessments": "Tất cả bài thi",
+				"loading": "Đang tải danh sách bài thi...",
+				"noSearchResults": "Không tìm thấy bài thi phù hợp",
+				"noMyAssessments": "Bạn chưa tạo bài thi nào hoặc tất cả đã được gán",
+				"noOtherAssessments": "Không có bài thi nào khác",
+				"availableTab": "Có sẵn",
+				"allTab": "Tất cả",
+				"noAssessments": "Không có bài thi nào",
+				"noAvailableAssessments": "Không có bài thi khả dụng để gán",
+				"selected": "Đã chọn {{count}} bài thi",
+				"submitCount": "Gán {{count}} bài thi",
+				"deselectAll": "Bỏ chọn tất cả",
+				"submit": "Gán",
+				"cancel": "Hủy"
+			},
+			"unassignConfirm": {
+				"title": "Hủy gán bài thi?",
+				"description": "Thành viên nhóm sẽ không còn truy cập được bài thi này",
+				"content": "Bạn có chắc chắn muốn hủy gán bài thi \"{{name}}\" khỏi nhóm này?",
+				"okText": "Hủy gán",
+				"cancelText": "Đóng"
+			},
+			"unlimited": "Không giới hạn"
+		},
+		"filters": {
+			"all": "Tất cả",
+			"class": "Lớp học",
+			"studyGroup": "Nhóm học"
+		},
+		"tooltip": {
+			"edit": "Chỉnh sửa nhóm",
+			"delete": "Xóa nhóm",
+			"view": "Xem chi tiết"
 		}
 	}
 }

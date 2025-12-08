@@ -307,6 +307,7 @@
 		"history": "History",
 		"overview": "Overview",
 		"users": "Users",
+		"groups": "Manage Groups",
 		"manageAssessments": "Manage Assessments",
 		"manageQuestions": "Manage Questions",
 		"questionBanks": "Question Banks",
@@ -1744,6 +1745,215 @@
 			"cut": "cut",
 			"browserTamper": "DevTools detected",
 			"default": "Violation"
+		}
+	},
+	"groups": {
+		"title": "Group Management",
+		"subtitle": "Manage study groups and classes in the system",
+		"createGroup": "Create New Group",
+		"editGroup": "Edit Group",
+		"deleteGroup": "Delete Group",
+		"loadError": "Failed to load groups",
+		"loadDetailError": "Failed to load group details",
+		"deleteSuccess": "Group deleted successfully",
+		"deleteError": "Failed to delete group",
+		"createSuccess": "Group created successfully",
+		"createError": "Failed to create group",
+		"updateSuccess": "Group updated successfully",
+		"updateError": "Failed to update group",
+		"addMemberSuccess": "Member added successfully",
+		"addMemberError": "Failed to add member",
+		"removeMemberSuccess": "Member removed from group",
+		"removeMemberError": "Failed to remove member",
+		"changeRoleSuccess": "Member role changed successfully",
+		"changeRoleError": "Failed to change role",
+		"assignSuccess": "Assessment assigned to group successfully",
+		"assignError": "Failed to assign assessment to group",
+		"unassignSuccess": "Assessment unassigned from group successfully",
+		"unassignError": "Failed to unassign assessment",
+		"pagination": {
+			"total": "Total: {{count}} groups"
+		},
+		"statistics": {
+			"title": "Group Statistics"
+		},
+		"role": {
+			"owner": "Owner",
+			"coOwner": "Co-owner",
+			"member": "Member"
+		},
+		"type": {
+			"class": "Class",
+			"studyGroup": "Study Group"
+		},
+		"columns": {
+			"name": "Group Name",
+			"code": "Group Code",
+			"displayName": "Display Name",
+			"type": "Type",
+			"memberCount": "Members",
+			"owner": "Owner",
+			"createdAt": "Created At",
+			"actions": "Actions",
+			"email": "Email",
+			"role": "Role",
+			"joinedAt": "Joined At"
+		},
+		"stats": {
+			"totalGroups": "Total Groups",
+			"classGroups": "Classes",
+			"studyGroups": "Study Groups",
+			"totalMembers": "Members"
+		},
+		"createModal": {
+			"title": "Create New Group",
+			"editTitle": "Edit Group",
+			"submitCreate": "Create Group",
+			"submitUpdate": "Update"
+		},
+		"form": {
+			"name": "Group Code",
+			"namePlaceholder": "e.g., class-12a1",
+			"nameRequired": "Please enter group code",
+			"namePattern": "Only lowercase letters, numbers and hyphens allowed",
+			"nameExtra": "Unique identifier, cannot be changed after creation",
+			"displayName": "Display Name",
+			"displayNamePlaceholder": "e.g., Class 12A1 - Advanced Math",
+			"displayNameRequired": "Please enter display name",
+			"type": "Group Type",
+			"typeRequired": "Please select group type",
+			"description": "Description",
+			"descriptionPlaceholder": "Detailed description about the group..."
+		},
+		"deleteConfirm": {
+			"title": "Confirm Delete Group",
+			"content": "Are you sure you want to delete group \"{{name}}\"?",
+			"warning": "This action cannot be undone",
+			"okText": "Delete",
+			"cancelText": "Cancel"
+		},
+		"search": {
+			"placeholder": "Search groups...",
+			"byName": "By name",
+			"byOwner": "By owner"
+		},
+		"empty": {
+			"title": "No groups yet",
+			"description": "Create a new group to start managing students"
+		},
+		"detail": {
+			"backToList": "Back to list",
+			"info": "Group Information",
+			"membersTab": "Members",
+			"assessmentsTab": "Assessments",
+			"editInfo": "Edit Information"
+		},
+		"members": {
+			"title": "Member List",
+			"add": "Add Member",
+			"remove": "Remove from Group",
+			"changeRole": "Change Role",
+			"empty": "No members yet",
+			"searchPlaceholder": "Search members...",
+			"loadError": "Failed to load members list",
+			"addModal": {
+				"title": "Add Member",
+				"searchLabel": "Find User",
+				"searchPlaceholder": "Enter email or name to search...",
+				"selectRequired": "Please select a user",
+				"searching": "Searching...",
+				"noResults": "No users found",
+				"selectRole": "Role",
+				"submit": "Add Member",
+				"cancel": "Cancel"
+			},
+			"changeRoleModal": {
+				"title": "Change Role",
+				"currentRole": "Current Role",
+				"newRole": "New Role",
+				"submit": "Update",
+				"cancel": "Cancel"
+			},
+			"removeConfirm": {
+				"title": "Confirm Remove Member",
+				"content": "Are you sure you want to remove \"{{name}}\" from the group?",
+				"okText": "Remove",
+				"cancelText": "Cancel"
+			}
+		},
+		"assessments": {
+			"title": "Group Assessments",
+			"assign": "Assign Assessment",
+			"unassign": "Unassign",
+			"empty": "No assessments assigned to this group yet",
+			"viewAttempts": "View Attempts",
+			"loadError": "Failed to load assessments",
+			"assignFirst": "Assign First Assessment",
+			"assignSuccessCount": "Assigned {{count}} assessments to group",
+			"editTooltip": "Edit assessment",
+			"unassignTooltip": "Unassign from group",
+			"totalPoints": "{{points}} total points",
+			"questionUnit": "questions",
+			"status": {
+				"draft": "Draft",
+				"active": "Active",
+				"expired": "Expired",
+				"archived": "Archived"
+			},
+			"stats": {
+				"total": "Total Assessments",
+				"active": "Active",
+				"available": "Available"
+			},
+			"columns": {
+				"title": "Assessment",
+				"status": "Status",
+				"questions": "Questions",
+				"duration": "Duration",
+				"passingScore": "Passing Score",
+				"timeLimit": "Time Limit",
+				"startTime": "Start Time",
+				"endTime": "End Time",
+				"actions": "Actions",
+				"attemptCount": "Attempts"
+			},
+			"assignModal": {
+				"title": "Assign Assessment to Group",
+				"searchPlaceholder": "Search assessments...",
+				"myAssessments": "My Assessments",
+				"allAssessments": "All Assessments",
+				"loading": "Loading assessments...",
+				"noSearchResults": "No matching assessments found",
+				"noMyAssessments": "You haven't created any assessments or all are assigned",
+				"noOtherAssessments": "No other assessments available",
+				"availableTab": "Available",
+				"allTab": "All",
+				"noAssessments": "No assessments found",
+				"noAvailableAssessments": "No available assessments to assign",
+				"selected": "Selected {{count}} assessments",
+				"submitCount": "Assign {{count}} assessments",
+				"deselectAll": "Deselect all",
+				"submit": "Assign",
+				"cancel": "Cancel"
+			},
+			"unassignConfirm": {
+				"title": "Unassign Assessment?",
+				"description": "Group members will no longer have access to this assessment",
+				"content": "Are you sure you want to unassign assessment \"{{name}}\" from this group?",
+				"okText": "Unassign",
+				"cancelText": "Close"
+			},
+			"unlimited": "Unlimited"
+		},
+		"filters": {
+			"all": "All",
+			"class": "Class",
+			"studyGroup": "Study Group"
+		},
+		"tooltip": {
+			"edit": "Edit group",
+			"delete": "Delete group",
+			"view": "View details"
 		}
 	}
 }

@@ -44,6 +44,11 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
 					icon: <Badge count={5} size="small" offset={[10, 0]}><TeamOutlined /></Badge>,
 					label: t('sidebar.users'),
 				}] : []),
+        ...(user?.isAdmin ? [{
+          key: '/groups',
+          icon: <TeamOutlined />,
+          label: 'Quản lý nhóm',
+        }] : []),
 			],
 		},
 		{
@@ -91,6 +96,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
 	const getSelectedKey = () => {
 		const path = location.pathname;
 		if (path.startsWith('/users')) return '/users';
+    if (path.startsWith('/groups')) return '/groups';
 		if (path.startsWith('/assessments')) return '/assessments';
 		if (path.startsWith('/questions')) return '/questions';
 		if (path.startsWith('/question-banks')) return '/question-banks';

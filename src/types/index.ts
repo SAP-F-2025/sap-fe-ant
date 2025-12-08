@@ -761,3 +761,133 @@ export interface StudentProgressItem {
 	time_spent?: number;
 	attempt_number: number;
 }
+
+// Group types
+export enum GroupMemberRole {
+	Owner = 'owner',
+	CoOwner = 'co-owner',
+	Member = 'member',
+}
+
+export interface Group {
+	id: number;
+	name: string;
+	display_name: string;
+	description: string;
+	type: string;
+	created_by: string;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface GroupMember {
+	id: number;
+	group_id: number;
+	user_id: string;
+	role: GroupMemberRole;
+	joined_at: string;
+	deleted_at?: string | null;
+	user?: {
+		id: string;
+		full_name: string;
+		email: string;
+		role?: string;
+		avatar_url?: string;
+		created_at?: string;
+		updated_at?: string;
+	};
+}
+
+export interface GroupResponse extends Group {
+	can_edit: boolean;
+	can_delete: boolean;
+	can_manage: boolean;
+	member_count: number;
+	is_owner: boolean;
+	is_member: boolean;
+	member_role?: string;
+}
+
+export interface GroupMemberResponse extends GroupMember {
+	can_remove: boolean;
+	can_modify: boolean;
+}
+
+export interface GroupCreateRequest {
+	name: string;
+	display_name: string;
+	description?: string;
+	type?: string;
+}
+
+export interface GroupUpdateRequest {
+	display_name?: string;
+	description?: string;
+	type?: string;
+}
+
+export interface AddGroupMemberRequest {
+	user_id: string;
+	role?: string; // Optional: 'member' (default) or 'co-owner'
+}
+
+export interface UpdateMemberRoleRequest {
+	role: string;
+}
+
+export interface GroupListResponse {
+	groups: GroupResponse[];
+	total: number;
+	page: number;
+	size: number;
+}
+
+// Group Assessment Assignment - Matching backend GroupAssessmentItem
+export interface GroupAssessmentItem {
+	id: number;
+	title: string;
+	description?: string;
+	duration: number;
+	passing_score: number;
+	status: AssessmentStatus;
+	due_date?: string;
+	questions_count: number;
+	total_points: number;
+	is_expired: boolean;
+	// Permission fields
+	can_edit: boolean;
+	can_delete: boolean;
+	can_take: boolean;
+	// Student-specific fields (optional)
+	attempts_used?: number;
+	max_attempts?: number;
+	can_start?: boolean;
+	has_active_attempt?: boolean;
+	best_score?: number;
+	last_attempt_date?: string;
+}
+
+// Response from GET /groups/:id/assessments
+export interface GroupAssessmentListResponse {
+	group_id: number;
+	assessments: GroupAssessmentItem[];
+	total_count: number;
+}
+
+// Response from GET /assessments/:id/groups
+export interface AssessmentGroupAssignmentResponse {
+	assessment_id: number;
+	groups: GroupResponse[];
+	total_groups: number;
+}
+
+// Request for POST /assessments/:id/groups (assign to groups)
+export interface AssignToGroupsRequest {
+	group_ids: number[];
+}
+
+// Request for DELETE /assessments/:id/groups (unassign from groups)
+export interface UnassignFromGroupsRequest {
+	group_ids: number[];
+}
+

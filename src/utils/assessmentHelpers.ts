@@ -3,8 +3,8 @@
  * Utility functions for assessment management
  */
 
-import i18n from 'i18next';
-import { Assessment, AssessmentStatus } from '../types';
+import i18n from "i18next";
+import { Assessment, AssessmentStatus } from "../types";
 
 /**
  * Check if assessment questions can be edited
@@ -48,9 +48,11 @@ export const canEditQuestions = (assessment: Assessment): boolean => {
  * @param assessment - The assessment to check
  * @returns Localized message explaining why questions are locked
  */
-export const getQuestionsLockReason = (assessment: Assessment): string | null => {
+export const getQuestionsLockReason = (
+	assessment: Assessment,
+): string | null => {
 	if (assessment.status === AssessmentStatus.Archived) {
-		return i18n.t('assessment.lockReason.archived');
+		return i18n.t("assessment.lockReason.archived");
 	}
 
 	if (
@@ -58,7 +60,7 @@ export const getQuestionsLockReason = (assessment: Assessment): string | null =>
 			assessment.status === AssessmentStatus.Expired) &&
 		assessment.has_attempts
 	) {
-		return i18n.t('assessment.lockReason.hasAttempts');
+		return i18n.t("assessment.lockReason.hasAttempts");
 	}
 
 	return null;
@@ -94,14 +96,17 @@ export const validateQuestionPoints = (points: number): boolean => {
  * @returns Validation result with error message if invalid
  */
 export const validateTotalPoints = (
-	questions: Array<{ points: number }>
+	questions: Array<{ points: number }>,
 ): { valid: boolean; error?: string; total?: number } => {
 	const total = questions.reduce((sum, q) => sum + q.points, 0);
 
 	if (total > POINTS_VALIDATION.TOTAL_MAX) {
 		return {
 			valid: false,
-			error: i18n.t('assessment.validation.totalPointsExceeded', { total, max: POINTS_VALIDATION.TOTAL_MAX }),
+			error: i18n.t("assessment.validation.totalPointsExceeded", {
+				total,
+				max: POINTS_VALIDATION.TOTAL_MAX,
+			}),
 			total,
 		};
 	}
@@ -118,7 +123,7 @@ export const validateTotalPoints = (
  */
 export const wouldExceedTotalPoints = (
 	currentTotal: number,
-	newPoints: number
+	newPoints: number,
 ): boolean => {
 	return currentTotal + newPoints > POINTS_VALIDATION.TOTAL_MAX;
 };

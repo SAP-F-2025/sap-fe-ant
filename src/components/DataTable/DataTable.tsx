@@ -1,8 +1,8 @@
 import {
 	DownloadOutlined,
 	ReloadOutlined,
-	SettingOutlined
-} from '@ant-design/icons';
+	SettingOutlined,
+} from "@ant-design/icons";
 import {
 	Button,
 	Checkbox,
@@ -12,14 +12,18 @@ import {
 	Table,
 	Tooltip,
 	Typography,
-} from 'antd';
-import type { ColumnsType, TablePaginationConfig, TableProps } from 'antd/es/table';
-import type { FilterValue, SorterResult } from 'antd/es/table/interface';
-import Papa from 'papaparse';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { createTransition } from '../../styles/animations';
-import { useThemeToken } from '../../theme/ThemeProvider';
+} from "antd";
+import type {
+	ColumnsType,
+	TablePaginationConfig,
+	TableProps,
+} from "antd/es/table";
+import type { FilterValue, SorterResult } from "antd/es/table/interface";
+import Papa from "papaparse";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { createTransition } from "../../styles/animations";
+import { useThemeToken } from "../../theme/ThemeProvider";
 
 /**
  * Advanced DataTable Component
@@ -33,7 +37,7 @@ import { useThemeToken } from '../../theme/ThemeProvider';
  * - Loading skeletons
  */
 
-interface DataTableColumn<T> extends Omit<ColumnsType<T>[number], 'key'> {
+interface DataTableColumn<T> extends Omit<ColumnsType<T>[number], "key"> {
 	key: string;
 	title: string;
 	dataIndex?: string | string[];
@@ -41,8 +45,10 @@ interface DataTableColumn<T> extends Omit<ColumnsType<T>[number], 'key'> {
 	hideable?: boolean; // Can be hidden by user
 }
 
-export interface DataTableProps<T extends Record<string, any>>
-	extends Omit<TableProps<T>, 'columns'> {
+export interface DataTableProps<T extends Record<string, any>> extends Omit<
+	TableProps<T>,
+	"columns"
+> {
 	columns: DataTableColumn<T>[];
 	// Server-side pagination
 	total?: number;
@@ -50,7 +56,10 @@ export interface DataTableProps<T extends Record<string, any>>
 	pageSize?: number;
 	onPageChange?: (page: number, pageSize: number) => void;
 	// Server-side sorting
-	onSortChange?: (field: string | null, order: 'ascend' | 'descend' | null) => void;
+	onSortChange?: (
+		field: string | null,
+		order: "ascend" | "descend" | null,
+	) => void;
 	// Server-side filtering
 	onFilterChange?: (filters: Record<string, FilterValue | null>) => void;
 	// Row selection
@@ -89,31 +98,31 @@ export function DataTable<T extends Record<string, any>>({
 	selectedRowKeys,
 	onSelectionChange,
 	bulkActions,
-	exportFileName = 'export',
+	exportFileName = "export",
 	enableExport = true,
 	enableColumnToggle = true,
 	onRefresh,
 	emptyText,
 	emptyDescription,
-	rowKey = 'id',
+	rowKey = "id",
 	...tableProps
 }: DataTableProps<T>) {
 	const { token } = useThemeToken();
 	const { t } = useTranslation();
 	const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-		() => new Set(initialColumns.map((col) => col.key))
+		() => new Set(initialColumns.map((col) => col.key)),
 	);
 
 	// Filter columns based on visibility
 	const columns = initialColumns.filter((col) =>
-		visibleColumns.has(col.key)
+		visibleColumns.has(col.key),
 	) as ColumnsType<T>;
 
 	// Handle table change (pagination, filters, sorter)
 	const handleTableChange = (
 		pagination: TablePaginationConfig,
 		filters: Record<string, FilterValue | null>,
-		sorter: SorterResult<T> | SorterResult<T>[]
+		sorter: SorterResult<T> | SorterResult<T>[],
 	) => {
 		// Handle pagination
 		if (onPageChange && pagination.current && pagination.pageSize) {
@@ -126,7 +135,7 @@ export function DataTable<T extends Record<string, any>>({
 			if (singleSorter.field && singleSorter.order) {
 				onSortChange(
 					String(singleSorter.field),
-					singleSorter.order as 'ascend' | 'descend'
+					singleSorter.order as "ascend" | "descend",
 				);
 			} else {
 				onSortChange(null, null);
@@ -142,16 +151,16 @@ export function DataTable<T extends Record<string, any>>({
 	// Row selection configuration
 	const rowSelection = onSelectionChange
 		? {
-			selectedRowKeys,
-			onChange: (keys: React.Key[], rows: T[]) => {
-				onSelectionChange(keys, rows);
-			},
-			selections: [
-				Table.SELECTION_ALL,
-				Table.SELECTION_INVERT,
-				Table.SELECTION_NONE,
-			],
-		}
+				selectedRowKeys,
+				onChange: (keys: React.Key[], rows: T[]) => {
+					onSelectionChange(keys, rows);
+				},
+				selections: [
+					Table.SELECTION_ALL,
+					Table.SELECTION_INVERT,
+					Table.SELECTION_NONE,
+				],
+			}
 		: undefined;
 
 	// Export to CSV
@@ -160,7 +169,7 @@ export function DataTable<T extends Record<string, any>>({
 
 		// Get exportable columns
 		const exportColumns = initialColumns.filter(
-			(col) => col.exportable !== false && visibleColumns.has(col.key)
+			(col) => col.exportable !== false && visibleColumns.has(col.key),
 		);
 
 		// Prepare data
@@ -179,8 +188,10 @@ export function DataTable<T extends Record<string, any>>({
 
 		// Generate CSV
 		const csv = Papa.unparse(exportData);
-		const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-		const link = document.createElement('a');
+		const blob = new Blob(["\uFEFF" + csv], {
+			type: "text/csv;charset=utf-8;",
+		});
+		const link = document.createElement("a");
 		link.href = URL.createObjectURL(blob);
 		link.download = `${exportFileName}_${new Date().getTime()}.csv`;
 		link.click();
@@ -215,71 +226,94 @@ export function DataTable<T extends Record<string, any>>({
 	const selectedRows =
 		dataSource?.filter((row) =>
 			selectedRowKeys?.includes(
-				typeof rowKey === 'function' ? rowKey(row) : row[rowKey]
-			)
+				typeof rowKey === "function" ? rowKey(row) : row[rowKey],
+			),
 		) || [];
 
 	return (
-		<div style={{ animation: 'fadeIn 300ms ease-in-out' }}>
+		<div style={{ animation: "fadeIn 300ms ease-in-out" }}>
 			{/* Toolbar */}
 			<div
 				style={{
 					marginBottom: token.marginMD,
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					flexWrap: 'wrap',
+					display: "flex",
+					justifyContent: "space-between",
+					alignItems: "center",
+					flexWrap: "wrap",
 					gap: token.marginSM,
 				}}
 			>
 				{/* Bulk actions */}
 				<Space>
-					{bulkActions && selectedRowKeys && selectedRowKeys.length > 0 && (
-						<>
-							<Typography.Text type="secondary">
-								{t('common.selectedItems', { count: selectedRowKeys.length })}
-							</Typography.Text>
-							{bulkActions.map((action) => (
-								<Button
-									key={action.key}
-									icon={action.icon}
-									danger={action.danger}
-									onClick={() => action.onClick(selectedRows)}
-								>
-									{action.label}
-								</Button>
-							))}
-						</>
-					)}
+					{bulkActions &&
+						selectedRowKeys &&
+						selectedRowKeys.length > 0 && (
+							<>
+								<Typography.Text type="secondary">
+									{t("common.selectedItems", {
+										count: selectedRowKeys.length,
+									})}
+								</Typography.Text>
+								{bulkActions.map((action) => (
+									<Button
+										key={action.key}
+										icon={action.icon}
+										danger={action.danger}
+										onClick={() =>
+											action.onClick(selectedRows)
+										}
+									>
+										{action.label}
+									</Button>
+								))}
+							</>
+						)}
 				</Space>
 
 				{/* Toolbar actions */}
 				<Space>
 					{onRefresh && (
-						<Tooltip title={t('common.refresh')}>
+						<Tooltip title={t("common.refresh")}>
 							<Button
 								icon={<ReloadOutlined spin={loading} />}
 								onClick={onRefresh}
 								loading={loading}
-								style={{ transition: createTransition(['all'], 'fast') }}
+								style={{
+									transition: createTransition(
+										["all"],
+										"fast",
+									),
+								}}
 							/>
 						</Tooltip>
 					)}
 					{enableExport && (
-						<Tooltip title={t('common.exportCsv')}>
+						<Tooltip title={t("common.exportCsv")}>
 							<Button
 								icon={<DownloadOutlined />}
 								onClick={handleExport}
-								disabled={!dataSource || dataSource.length === 0}
-								style={{ transition: createTransition(['all'], 'fast') }}
+								disabled={
+									!dataSource || dataSource.length === 0
+								}
+								style={{
+									transition: createTransition(
+										["all"],
+										"fast",
+									),
+								}}
 							/>
 						</Tooltip>
 					)}
 					{enableColumnToggle && (
-						<Dropdown menu={columnToggleMenu} trigger={['click']}>
+						<Dropdown menu={columnToggleMenu} trigger={["click"]}>
 							<Button
 								icon={<SettingOutlined />}
-								style={{ transition: createTransition(['all'], 'fast') }}
+								style={{
+									transition: createTransition(
+										["all"],
+										"fast",
+									),
+								}}
 							/>
 						</Dropdown>
 					)}
@@ -301,16 +335,22 @@ export function DataTable<T extends Record<string, any>>({
 					total,
 					showSizeChanger: true,
 					showTotal: (total, range) =>
-						t('dataTable.pagination', { start: range[0], end: range[1], total }),
-					pageSizeOptions: ['10', '20', '50', '100'],
+						t("dataTable.pagination", {
+							start: range[0],
+							end: range[1],
+							total,
+						}),
+					pageSizeOptions: ["10", "20", "50", "100"],
 				}}
-				scroll={{ x: 'max-content' }}
+				scroll={{ x: "max-content" }}
 				locale={{
 					emptyText: (
 						<Empty
 							description={
 								<>
-									<Typography.Text strong>{emptyText}</Typography.Text>
+									<Typography.Text strong>
+										{emptyText}
+									</Typography.Text>
 									{emptyDescription && (
 										<div>
 											<Typography.Text type="secondary">

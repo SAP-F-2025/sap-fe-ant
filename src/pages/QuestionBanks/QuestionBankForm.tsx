@@ -1,4 +1,4 @@
-import { RollbackOutlined, SaveOutlined } from '@ant-design/icons';
+import { RollbackOutlined, SaveOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Card,
@@ -10,13 +10,13 @@ import {
 	Spin,
 	Switch,
 	Typography,
-} from 'antd';
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import questionBankService from '../../services/questionBankService';
-import { QuestionBankCreateRequest } from '../../types';
-import { showSuccess } from '../../utils/errorHandler';
+} from "antd";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import questionBankService from "../../services/questionBankService";
+import { QuestionBankCreateRequest } from "../../types";
+import { showSuccess } from "../../utils/errorHandler";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -42,11 +42,11 @@ const QuestionBankForm: React.FC = () => {
 			const bank = await questionBankService.getQuestionBank(bankId);
 			form.setFieldsValue({
 				...bank,
-				tags: bank.tags?.join(', '),
+				tags: bank.tags?.join(", "),
 			});
 		} catch (error) {
 			// Error will be handled by axios interceptor
-			navigate('/question-banks');
+			navigate("/question-banks");
 		} finally {
 			setLoading(false);
 		}
@@ -58,19 +58,22 @@ const QuestionBankForm: React.FC = () => {
 			const data: QuestionBankCreateRequest = {
 				...values,
 				tags: values.tags
-					? values.tags.split(',').map((tag: string) => tag.trim())
+					? values.tags.split(",").map((tag: string) => tag.trim())
 					: [],
 			};
 
 			if (isEdit && id) {
-				await questionBankService.updateQuestionBank(parseInt(id), data);
-				showSuccess(t('questionBankForm.updateSuccess'));
+				await questionBankService.updateQuestionBank(
+					parseInt(id),
+					data,
+				);
+				showSuccess(t("questionBankForm.updateSuccess"));
 			} else {
 				await questionBankService.createQuestionBank(data);
-				showSuccess(t('questionBankForm.createSuccess'));
+				showSuccess(t("questionBankForm.createSuccess"));
 			}
 
-			navigate('/question-banks');
+			navigate("/question-banks");
 		} catch (error) {
 			// Error will be handled by axios interceptor with notification
 		} finally {
@@ -80,26 +83,28 @@ const QuestionBankForm: React.FC = () => {
 
 	if (loading) {
 		return (
-			<div style={{ textAlign: 'center', padding: '100px 0' }}>
+			<div style={{ textAlign: "center", padding: "100px 0" }}>
 				<Spin size="large" />
 			</div>
 		);
 	}
 
 	return (
-		<Space direction="vertical" size="large" style={{ width: '100%' }}>
+		<Space direction="vertical" size="large" style={{ width: "100%" }}>
 			<Row justify="space-between" align="middle">
 				<Col>
 					<Title level={2}>
-						{isEdit ? t('questionBankForm.editTitle') : t('questionBankForm.createTitle')}
+						{isEdit
+							? t("questionBankForm.editTitle")
+							: t("questionBankForm.createTitle")}
 					</Title>
 				</Col>
 				<Col>
 					<Button
 						icon={<RollbackOutlined />}
-						onClick={() => navigate('/question-banks')}
+						onClick={() => navigate("/question-banks")}
 					>
-						{t('questionBankForm.back')}
+						{t("questionBankForm.back")}
 					</Button>
 				</Col>
 			</Row>
@@ -114,43 +119,58 @@ const QuestionBankForm: React.FC = () => {
 			>
 				<Card>
 					<Form.Item
-						label={t('questionBankForm.name')}
+						label={t("questionBankForm.name")}
 						name="name"
 						rules={[
-							{ required: true, message: t('questionBankForm.nameRequired') },
-							{ max: 200, message: t('questionBankForm.nameMaxLength') },
+							{
+								required: true,
+								message: t("questionBankForm.nameRequired"),
+							},
+							{
+								max: 200,
+								message: t("questionBankForm.nameMaxLength"),
+							},
 						]}
 					>
-						<Input placeholder={t('questionBankForm.namePlaceholder')} size="large" />
+						<Input
+							placeholder={t("questionBankForm.namePlaceholder")}
+							size="large"
+						/>
 					</Form.Item>
 
 					<Form.Item
-						label={t('questionBankForm.description')}
+						label={t("questionBankForm.description")}
 						name="description"
 						rules={[
-							{ max: 1000, message: t('questionBankForm.descriptionMaxLength') },
+							{
+								max: 1000,
+								message: t(
+									"questionBankForm.descriptionMaxLength",
+								),
+							},
 						]}
 					>
 						<TextArea
 							rows={4}
-							placeholder={t('questionBankForm.descriptionPlaceholder')}
+							placeholder={t(
+								"questionBankForm.descriptionPlaceholder",
+							)}
 							showCount
 							maxLength={1000}
 						/>
 					</Form.Item>
 
-					<Form.Item
-						label={t('questionBankForm.tags')}
-						name="tags"
-					>
-						<Input placeholder={t('questionBankForm.tagsPlaceholder')} />
+					<Form.Item label={t("questionBankForm.tags")} name="tags">
+						<Input
+							placeholder={t("questionBankForm.tagsPlaceholder")}
+						/>
 					</Form.Item>
 
 					<Form.Item
-						label={t('questionBankForm.isPublic')}
+						label={t("questionBankForm.isPublic")}
 						name="is_public"
 						valuePropName="checked"
-						tooltip={t('questionBankForm.isPublicTooltip')}
+						tooltip={t("questionBankForm.isPublicTooltip")}
 					>
 						<Switch />
 					</Form.Item>
@@ -165,10 +185,15 @@ const QuestionBankForm: React.FC = () => {
 							loading={submitting}
 							size="large"
 						>
-							{isEdit ? t('questionBankForm.updateBtn') : t('questionBankForm.createBtn')}
+							{isEdit
+								? t("questionBankForm.updateBtn")
+								: t("questionBankForm.createBtn")}
 						</Button>
-						<Button onClick={() => navigate('/question-banks')} size="large">
-							{t('questionBankForm.cancelBtn')}
+						<Button
+							onClick={() => navigate("/question-banks")}
+							size="large"
+						>
+							{t("questionBankForm.cancelBtn")}
 						</Button>
 					</Space>
 				</Form.Item>

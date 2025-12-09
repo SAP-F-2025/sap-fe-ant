@@ -398,7 +398,9 @@
 		"totalQuestions": "Tổng câu hỏi",
 		"easy": "Dễ",
 		"medium": "Trung bình",
-		"hard": "Khó"
+		"hard": "Khó",
+		"import": "Nhập",
+		"export": "Xuất"
 	},
 	"questionForm": {
 		"createTitle": "Tạo câu hỏi mới",
@@ -2003,5 +2005,57 @@
 			"ascending": "Tăng dần",
 			"descending": "Giảm dần"
 		}
+	},
+	"import": {
+		"title": "Nhập câu hỏi",
+		"templateDownloaded": "Đã tải mẫu thành công",
+		"templateError": "Tải mẫu thất bại",
+		"selectFile": "Vui lòng chọn tệp tin",
+		"success": "Nhập thành công {{count}} câu hỏi",
+		"error": "Nhập thất bại",
+		"invalidFileType": "Chỉ hỗ trợ tệp Excel (.xlsx, .xls) và CSV",
+		"fileTooLarge": "Tệp phải nhỏ hơn 10MB",
+		"row": "Hàng",
+		"column": "Cột",
+		"errorCode": "Mã lỗi",
+		"message": "Thông báo",
+		"value": "Giá trị",
+		"uploading": "Đang nhập...",
+		"start": "Bắt đầu nhập",
+		"step1": "Chọn tệp",
+		"step2": "Đang xử lý",
+		"step3": "Hoàn tất",
+		"templateInfo": "Tải mẫu trước",
+		"templateDesc": "Tải mẫu Excel để xem định dạng đúng cho việc nhập câu hỏi.",
+		"downloadTemplate": "Tải mẫu (.xlsx)",
+		"dragText": "Nhấp hoặc kéo tệp vào khu vực này để tải lên",
+		"supportedFormats": "Hỗ trợ: .xlsx, .xls, .csv (Tối đa 10MB, 1000 hàng)",
+		"supportedTypes": "Các loại câu hỏi được hỗ trợ",
+		"processing": "Đang xử lý tệp của bạn...",
+		"successCount": "Đã nhập",
+		"errorCount": "Lỗi",
+		"totalRows": "Tổng số hàng",
+		"successMessage": "Nhập hoàn tất thành công!",
+		"errorsFound": "Một số hàng có lỗi xác thực",
+		"errorsDesc": "Các hàng liệt kê dưới đây không được nhập do lỗi xác thực.",
+		"errorDetails": "Chi tiết lỗi"
+	},
+	"export": {
+		"title": "Xuất câu hỏi",
+		"noSelection": "Vui lòng chọn câu hỏi để xuất",
+		"success": "Xuất thành công {{count}} câu hỏi",
+		"error": "Xuất thất bại",
+		"exporting": "Đang xuất...",
+		"start": "Xuất",
+		"complete": "Xuất hoàn tất!",
+		"downloadStarted": "Tệp của bạn đã bắt đầu tải xuống.",
+		"allSelected": "Tất cả {{count}} câu hỏi đã được chọn",
+		"selectedCount": "{{count}} câu hỏi đã được chọn",
+		"selectFormat": "Chọn định dạng xuất",
+		"excelDesc": "Định dạng Microsoft Excel, hỗ trợ tất cả các tính năng",
+		"csvDesc": "Giá trị phân cách bằng dấu phẩy, tương thích với tất cả các ứng dụng bảng tính",
+		"preview": "Câu hỏi sẽ xuất",
+		"andMore": "...và {{count}} câu hỏi khác",
+		"generating": "Đang tạo tệp..."
 	}
 }

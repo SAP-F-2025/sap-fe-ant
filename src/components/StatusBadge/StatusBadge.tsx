@@ -5,67 +5,70 @@ import {
 	ExclamationCircleOutlined,
 	MinusCircleOutlined,
 	SyncOutlined,
-} from '@ant-design/icons';
-import type { TagProps } from 'antd';
-import { Tag } from 'antd';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+} from "@ant-design/icons";
+import type { TagProps } from "antd";
+import { Tag } from "antd";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 export type StatusType =
-	| 'active'
-	| 'inactive'
-	| 'draft'
-	| 'archived'
-	| 'pending'
-	| 'completed'
-	| 'failed'
-	| 'in-progress';
+	| "active"
+	| "inactive"
+	| "draft"
+	| "archived"
+	| "pending"
+	| "completed"
+	| "failed"
+	| "in-progress";
 
-interface StatusBadgeProps extends Omit<TagProps, 'color' | 'icon'> {
+interface StatusBadgeProps extends Omit<TagProps, "color" | "icon"> {
 	status: StatusType;
 	showIcon?: boolean;
 }
 
-const statusConfig: Record<StatusType, { color: string; icon: React.ReactNode; labelKey: string }> = {
+const statusConfig: Record<
+	StatusType,
+	{ color: string; icon: React.ReactNode; labelKey: string }
+> = {
 	active: {
-		color: 'success',
+		color: "success",
 		icon: <CheckCircleOutlined />,
-		labelKey: 'statusBadge.active',
+		labelKey: "statusBadge.active",
 	},
 	inactive: {
-		color: 'default',
+		color: "default",
 		icon: <MinusCircleOutlined />,
-		labelKey: 'statusBadge.inactive',
+		labelKey: "statusBadge.inactive",
 	},
 	draft: {
-		color: 'default',
+		color: "default",
 		icon: <ClockCircleOutlined />,
-		labelKey: 'statusBadge.draft',
+		labelKey: "statusBadge.draft",
 	},
 	archived: {
-		color: 'warning',
+		color: "warning",
 		icon: <ExclamationCircleOutlined />,
-		labelKey: 'statusBadge.archived',
+		labelKey: "statusBadge.archived",
 	},
 	pending: {
-		color: 'processing',
+		color: "processing",
 		icon: <ClockCircleOutlined />,
-		labelKey: 'statusBadge.pending',
+		labelKey: "statusBadge.pending",
 	},
 	completed: {
-		color: 'success',
+		color: "success",
 		icon: <CheckCircleOutlined />,
-		labelKey: 'statusBadge.completed',
+		labelKey: "statusBadge.completed",
 	},
 	failed: {
-		color: 'error',
+		color: "error",
 		icon: <CloseCircleOutlined />,
-		labelKey: 'statusBadge.failed',
+		labelKey: "statusBadge.failed",
 	},
-	'in-progress': {
-		color: 'processing',
+	"in-progress": {
+		color: "processing",
 		icon: <SyncOutlined spin />,
-		labelKey: 'statusBadge.inProgress',
+		labelKey: "statusBadge.inProgress",
 	},
 };
 

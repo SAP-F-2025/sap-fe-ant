@@ -1,480 +1,501 @@
 /* Animation keyframes */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 @keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+	from {
+		opacity: 0;
+		transform: translateX(20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 @keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+	from {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 @keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
+	0%,
+	100% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.05);
+	}
 }
 
 /* Score card animations */
 .score-card-animate {
-  animation: slideInRight 0.6s ease-out;
+	animation: slideInRight 0.6s ease-out;
 }
 
 .info-card-animate {
-  animation: slideInLeft 0.6s ease-out;
+	animation: slideInLeft 0.6s ease-out;
 }
 
 .statistic-animate {
-  animation: scaleIn 0.5s ease-out;
+	animation: scaleIn 0.5s ease-out;
 }
 
 .progress-animate {
-  animation: fadeIn 0.8s ease-out;
+	animation: fadeIn 0.8s ease-out;
 }
 
 /* Descriptions item animations */
 .ant-descriptions-item {
-  animation: fadeIn 0.5s ease-out;
+	animation: fadeIn 0.5s ease-out;
 }
 
 .ant-descriptions-item:nth-child(1) {
-  animation-delay: 0.1s;
+	animation-delay: 0.1s;
 }
 
 .ant-descriptions-item:nth-child(2) {
-  animation-delay: 0.2s;
+	animation-delay: 0.2s;
 }
 
 .ant-descriptions-item:nth-child(3) {
-  animation-delay: 0.3s;
+	animation-delay: 0.3s;
 }
 
 .ant-descriptions-item:nth-child(4) {
-  animation-delay: 0.4s;
+	animation-delay: 0.4s;
 }
 
 /* Statistic value animation */
 .ant-statistic-content-value {
-  transition: all 0.3s ease;
+	transition: all 0.3s ease;
 }
 
 .ant-statistic-content-value:hover {
-  transform: scale(1.05);
+	transform: scale(1.05);
 }
 
 /* Progress bar animation */
 .ant-progress-line {
-  animation: fadeIn 1s ease-out;
+	animation: fadeIn 1s ease-out;
 }
 
 /* Tag animation */
 .status-tag-animate {
-  animation: pulse 2s ease-in-out infinite;
+	animation: pulse 2s ease-in-out infinite;
 }
 
 /* Card hover effect */
 .score-card {
-  transition: all 0.3s ease;
+	transition: all 0.3s ease;
 }
 
 .score-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+	transform: translateY(-4px);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* Score Circle Styles */
 .score-circle-container {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 24px auto;
-  animation: scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin: 24px auto;
+	animation: scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .score-circle-svg {
-  filter: drop-shadow(0 4px 12px rgba(24, 144, 255, 0.15));
-  transition: filter 0.3s ease;
+	filter: drop-shadow(0 4px 12px rgba(24, 144, 255, 0.15));
+	transition: filter 0.3s ease;
 }
 
 .score-circle-svg:hover {
-  filter: drop-shadow(0 6px 16px rgba(24, 144, 255, 0.25));
+	filter: drop-shadow(0 6px 16px rgba(24, 144, 255, 0.25));
 }
 
 .score-circle-bg {
-  fill: none;
-  stroke: #f0f0f0;
-  stroke-linecap: round;
+	fill: none;
+	stroke: #f0f0f0;
+	stroke-linecap: round;
 }
 
 .score-circle-progress {
-  fill: none;
-  stroke-linecap: round;
-  /* Animation handled by JS counter */
+	fill: none;
+	stroke-linecap: round;
+	/* Animation handled by JS counter */
 }
 
 /* Color variants based on score */
 .score-circle-progress.excellent {
-  stroke: url(#gradient-excellent);
+	stroke: url(#gradient-excellent);
 }
 
 .score-circle-progress.good {
-  stroke: url(#gradient-good);
+	stroke: url(#gradient-good);
 }
 
 .score-circle-progress.average {
-  stroke: url(#gradient-average);
+	stroke: url(#gradient-average);
 }
 
 .score-circle-progress.poor {
-  stroke: url(#gradient-poor);
+	stroke: url(#gradient-poor);
 }
 
 .score-circle-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  animation: fadeInScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s backwards;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	text-align: center;
+	animation: fadeInScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s backwards;
 }
 
 @keyframes fadeInScale {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.5);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+	0% {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.5);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
 }
 
 .score-value {
-  margin: 0 !important;
-  font-size: 56px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-  background: linear-gradient(135deg, #1890ff 0%, #52c41a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  /* Counter animation will be handled by JS */
+	margin: 0 !important;
+	font-size: 56px !important;
+	font-weight: 700 !important;
+	line-height: 1 !important;
+	background: linear-gradient(135deg, #1890ff 0%, #52c41a 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	/* Counter animation will be handled by JS */
 }
 
 .score-percent {
-  font-size: 28px;
-  margin-left: 2px;
-  opacity: 0.8;
+	font-size: 28px;
+	margin-left: 2px;
+	opacity: 0.8;
 }
 
 .score-detail {
-  font-size: 14px !important;
-  color: #8c8c8c !important;
-  margin-top: 8px !important;
-  font-weight: 500 !important;
+	font-size: 14px !important;
+	color: #8c8c8c !important;
+	margin-top: 8px !important;
+	font-weight: 500 !important;
 }
 
 /* Enhanced Progress Card */
 .grading-progress-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: fadeIn 0.5s ease-out;
-  position: relative;
-  overflow: hidden;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	animation: fadeIn 0.5s ease-out;
+	position: relative;
+	overflow: hidden;
 }
 
 .grading-progress-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #1890ff 0%, #36cfc9 50%, #52c41a 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: linear-gradient(90deg, #1890ff 0%, #36cfc9 50%, #52c41a 100%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
 }
 
 .grading-progress-card:hover::before {
-  opacity: 1;
+	opacity: 1;
 }
 
 .grading-progress-card:hover {
-  box-shadow: 0 8px 24px rgba(24, 144, 255, 0.12) !important;
-  transform: translateY(-2px);
-  border-color: #91caff !important;
+	box-shadow: 0 8px 24px rgba(24, 144, 255, 0.12) !important;
+	transform: translateY(-2px);
+	border-color: #91caff !important;
 }
 
 /* Grading progress icon animation */
 .grading-progress-card .anticon-check-circle {
-  animation: rotate-pulse 2s ease-in-out infinite;
+	animation: rotate-pulse 2s ease-in-out infinite;
 }
 
 @keyframes rotate-pulse {
-  0%, 100% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(5deg);
-  }
+	0%,
+	100% {
+		transform: scale(1) rotate(0deg);
+	}
+
+	50% {
+		transform: scale(1.1) rotate(5deg);
+	}
 }
 
 .progress-wrapper {
-  position: relative;
-  animation: fadeIn 0.6s ease-out;
+	position: relative;
+	animation: fadeIn 0.6s ease-out;
 }
 
 .progress-percentage {
-  font-size: 32px !important;
-  font-weight: 700 !important;
-  background: linear-gradient(135deg, #1890ff 0%, #52c41a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: countUp 0.8s ease-out;
-  /* Counter animation will be handled by JS */
+	font-size: 32px !important;
+	font-weight: 700 !important;
+	background: linear-gradient(135deg, #1890ff 0%, #52c41a 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	animation: countUp 0.8s ease-out;
+	/* Counter animation will be handled by JS */
 }
 
 @keyframes countUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+	from {
+		opacity: 0;
+		transform: translateY(15px) scale(0.9);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
 }
 
 .progress-label {
-  font-size: 15px !important;
-  color: #595959 !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.3px;
+	font-size: 15px !important;
+	color: #595959 !important;
+	font-weight: 500 !important;
+	letter-spacing: 0.3px;
 }
 
 /* Custom Progress Bar - Simple gradient, no loop */
 .animated-progress .ant-progress-bg {
-  background: linear-gradient(90deg, #1890ff 0%, #36cfc9 50%, #52c41a 100%) !important;
-  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.2);
-  transition: all 0.3s ease;
+	background: linear-gradient(
+		90deg,
+		#1890ff 0%,
+		#36cfc9 50%,
+		#52c41a 100%
+	) !important;
+	box-shadow: 0 2px 6px rgba(24, 144, 255, 0.2);
+	transition: all 0.3s ease;
 }
 
 .animated-progress .ant-progress-inner {
-  background-color: rgba(24, 144, 255, 0.08) !important;
-  border-radius: 100px !important;
-  overflow: hidden;
+	background-color: rgba(24, 144, 255, 0.08) !important;
+	border-radius: 100px !important;
+	overflow: hidden;
 }
 
 .animated-progress .ant-progress-outer {
-  padding-right: 0 !important;
+	padding-right: 0 !important;
 }
 
 /* Score Card Premium Styling */
 .premium-score-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: slideInRight 0.6s ease-out;
-  overflow: hidden;
-  position: relative;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	animation: slideInRight 0.6s ease-out;
+	overflow: hidden;
+	position: relative;
 }
 
 .premium-score-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #52c41a 0%, #73d13d 50%, #95de64 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: linear-gradient(90deg, #52c41a 0%, #73d13d 50%, #95de64 100%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
 }
 
 .premium-score-card:hover::before {
-  opacity: 1;
+	opacity: 1;
 }
 
 .premium-score-card:hover {
-  box-shadow: 0 12px 28px rgba(82, 196, 26, 0.15) !important;
-  transform: translateY(-4px);
+	box-shadow: 0 12px 28px rgba(82, 196, 26, 0.15) !important;
+	transform: translateY(-4px);
 }
 
 /* Score card icon animation */
 .premium-score-card .anticon-trophy {
-  animation: float 3s ease-in-out infinite;
+	animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+
+	50% {
+		transform: translateY(-4px);
+	}
 }
 
 /* Status Badge with Animation */
 .status-badge {
-  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  transition: all 0.3s ease;
+	animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+	transition: all 0.3s ease;
 }
 
 .status-badge:hover {
-  transform: scale(1.05);
+	transform: scale(1.05);
 }
 
 @keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  70% {
-    transform: scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+	0% {
+		opacity: 0;
+		transform: scale(0.3);
+	}
+
+	50% {
+		transform: scale(1.1);
+	}
+
+	70% {
+		transform: scale(0.9);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 /* Score Stats Section */
 .score-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
 }
 
 .score-divider {
-  margin: 20px 0 !important;
-  border-color: rgba(82, 196, 26, 0.15) !important;
+	margin: 20px 0 !important;
+	border-color: rgba(82, 196, 26, 0.15) !important;
 }
 
 /* Info Card Enhancement */
 .info-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid #f0f0f0 !important;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	border: 1px solid #f0f0f0 !important;
 }
 
 .info-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
-  transform: translateY(-2px);
-  border-color: #d9d9d9 !important;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+	transform: translateY(-2px);
+	border-color: #d9d9d9 !important;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .score-value {
-    font-size: 42px !important;
-  }
+	.score-value {
+		font-size: 42px !important;
+	}
 
-  .score-percent {
-    font-size: 22px;
-  }
+	.score-percent {
+		font-size: 22px;
+	}
 
-  .score-detail {
-    font-size: 12px !important;
-  }
+	.score-detail {
+		font-size: 12px !important;
+	}
 
-  .progress-percentage {
-    font-size: 26px !important;
-  }
+	.progress-percentage {
+		font-size: 26px !important;
+	}
 
-  .progress-label {
-    font-size: 13px !important;
-  }
+	.progress-label {
+		font-size: 13px !important;
+	}
 
-  /* Score card mobile adjustments */
-  .premium-score-card {
-    margin-bottom: 16px;
-  }
+	/* Score card mobile adjustments */
+	.premium-score-card {
+		margin-bottom: 16px;
+	}
 
-  .premium-score-card .ant-progress-circle {
-    width: 140px !important;
-    height: 140px !important;
-  }
+	.premium-score-card .ant-progress-circle {
+		width: 140px !important;
+		height: 140px !important;
+	}
 
-  .premium-score-card .ant-card-body {
-    padding: 16px;
-  }
+	.premium-score-card .ant-card-body {
+		padding: 16px;
+	}
 
-  /* Adjust score breakdown grid on mobile */
-  .premium-score-card .ant-row {
-    gap: 8px;
-  }
+	/* Adjust score breakdown grid on mobile */
+	.premium-score-card .ant-row {
+		gap: 8px;
+	}
 
-  .premium-score-card .ant-col-12 > div {
-    padding: 10px 8px !important;
-  }
+	.premium-score-card .ant-col-12 > div {
+		padding: 10px 8px !important;
+	}
 
-  .premium-score-card .ant-col-12 strong {
-    font-size: 18px !important;
-  }
+	.premium-score-card .ant-col-12 strong {
+		font-size: 18px !important;
+	}
 }
 
 @media (max-width: 576px) {
-  /* Extra small screens */
-  .premium-score-card .ant-progress-circle {
-    width: 120px !important;
-    height: 120px !important;
-  }
+	/* Extra small screens */
+	.premium-score-card .ant-progress-circle {
+		width: 120px !important;
+		height: 120px !important;
+	}
 
-  .premium-score-card .ant-space-vertical {
-    gap: 16px !important;
-  }
+	.premium-score-card .ant-space-vertical {
+		gap: 16px !important;
+	}
 }
 
 /* Loading Skeleton Animation */
 .loading-shimmer {
-  animation: shimmerLoading 1.5s ease-in-out;
-  background: linear-gradient(to right, #f0f0f0 4%, #f8f8f8 25%, #f0f0f0 36%);
-  background-size: 1000px 100%;
+	animation: shimmerLoading 1.5s ease-in-out;
+	background: linear-gradient(to right, #f0f0f0 4%, #f8f8f8 25%, #f0f0f0 36%);
+	background-size: 1000px 100%;
 }
 
 @keyframes shimmerLoading {
-  0% {
-    background-position: -500px 0;
-  }
-  100% {
-    background-position: 500px 0;
-  }
+	0% {
+		background-position: -500px 0;
+	}
+
+	100% {
+		background-position: 500px 0;
+	}
 }

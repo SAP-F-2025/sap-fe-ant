@@ -89,6 +89,7 @@
 		"invalidSession": "Authentication failed: Invalid session",
 		"loginSuccess": "Login successful!",
 		"authFailed": "Authentication failed. Redirecting to login page...",
+		"authFailedRedirecting": "Authentication failed. Redirecting to login page...",
 		"refreshTokenFailed": "Failed to refresh login session.",
 		"sessionExpired": "Your session has expired. Redirecting to login page..."
 	},
@@ -398,7 +399,9 @@
 		"totalQuestions": "Total Questions",
 		"easy": "Easy",
 		"medium": "Medium",
-		"hard": "Hard"
+		"hard": "Hard",
+		"import": "Import",
+		"export": "Export"
 	},
 	"questionForm": {
 		"createTitle": "Create New Question",
@@ -1136,7 +1139,9 @@
 		},
 		"unsupportedQuestionType": "Unsupported question type: {{type}}",
 		"defaultTrueLabel": "True",
-		"defaultFalseLabel": "False"
+		"defaultFalseLabel": "False",
+		"trueLabel": "True",
+		"falseLabel": "False"
 	},
 	"teacherDashboard": {
 		"title": "Teacher Dashboard",
@@ -1850,6 +1855,8 @@
 		},
 		"members": {
 			"title": "Member List",
+			"name": "Member",
+			"unknownUser": "Unknown User",
 			"add": "Add Member",
 			"remove": "Remove from Group",
 			"changeRole": "Change Role",
@@ -1955,5 +1962,103 @@
 			"delete": "Delete group",
 			"view": "View details"
 		}
+	},
+	"studentGroups": {
+		"title": "My Groups",
+		"create": "Create New Group",
+		"createFirst": "Create First Group",
+		"loadError": "Failed to load groups list",
+		"createSuccess": "Group created successfully",
+		"deleteSuccess": "Group deleted successfully",
+		"typeClass": "Class",
+		"typeStudyGroup": "Study Group",
+		"memberCount": "Member Count",
+		"assessmentCount": "Assessment Count",
+		"tabs": {
+			"myGroups": "Groups I Created",
+			"memberships": "Groups I Joined"
+		},
+		"empty": {
+			"myGroups": "You haven't created any groups yet",
+			"memberships": "You haven't joined any groups yet"
+		},
+		"deleteConfirm": {
+			"title": "Confirm Delete Group",
+			"description": "This action cannot be undone"
+		},
+		"createModal": {
+			"title": "Create New Group",
+			"code": "Group Code",
+			"codeRequired": "Please enter group code",
+			"codePattern": "Only letters, numbers, hyphens and underscores allowed",
+			"codePlaceholder": "e.g: math-study-group-k12",
+			"name": "Group Name",
+			"nameRequired": "Please enter group name",
+			"namePlaceholder": "e.g: Math Study Group K12",
+			"type": "Group Type",
+			"description": "Description",
+			"descriptionPlaceholder": "Description about the group...",
+			"submit": "Create Group"
+		},
+		"sort": {
+			"createdAt": "Created Date",
+			"name": "Group Name",
+			"type": "Group Type",
+			"memberCount": "Member Count",
+			"ascending": "Ascending",
+			"descending": "Descending"
+		}
+	},
+	"import": {
+		"title": "Import Questions",
+		"templateDownloaded": "Template downloaded successfully",
+		"templateError": "Failed to download template",
+		"selectFile": "Please select a file",
+		"success": "Successfully imported {{count}} questions",
+		"error": "Import failed",
+		"invalidFileType": "Only Excel (.xlsx, .xls) and CSV files are supported",
+		"fileTooLarge": "File must be smaller than 10MB",
+		"row": "Row",
+		"column": "Column",
+		"errorCode": "Error Code",
+		"message": "Message",
+		"value": "Value",
+		"uploading": "Importing...",
+		"start": "Start Import",
+		"step1": "Select File",
+		"step2": "Processing",
+		"step3": "Complete",
+		"templateInfo": "Download Template First",
+		"templateDesc": "Download the Excel template to see the correct format for importing questions.",
+		"downloadTemplate": "Download Template (.xlsx)",
+		"dragText": "Click or drag file to this area to upload",
+		"supportedFormats": "Supported: .xlsx, .xls, .csv (Max 10MB, 1000 rows)",
+		"supportedTypes": "Supported Question Types",
+		"processing": "Processing your file...",
+		"successCount": "Imported",
+		"errorCount": "Errors",
+		"totalRows": "Total Rows",
+		"successMessage": "Import completed successfully!",
+		"errorsFound": "Some rows have validation errors",
+		"errorsDesc": "The rows listed below were not imported due to validation errors.",
+		"errorDetails": "Error Details"
+	},
+	"export": {
+		"title": "Export Questions",
+		"noSelection": "Please select questions to export",
+		"success": "Successfully exported {{count}} questions",
+		"error": "Export failed",
+		"exporting": "Exporting...",
+		"start": "Export",
+		"complete": "Export Complete!",
+		"downloadStarted": "Your file download has started.",
+		"allSelected": "All {{count}} questions selected",
+		"selectedCount": "{{count}} questions selected",
+		"selectFormat": "Select Export Format",
+		"excelDesc": "Microsoft Excel format, supports all features",
+		"csvDesc": "Comma-separated values, compatible with all spreadsheet applications",
+		"preview": "Questions to export",
+		"andMore": "...and {{count}} more",
+		"generating": "Generating file..."
 	}
 }

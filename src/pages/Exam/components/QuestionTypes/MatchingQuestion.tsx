@@ -1,10 +1,10 @@
-import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core';
-import { Alert, Card, Col, Row, Space, Typography } from 'antd';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import type { DndQuestionProps } from '../../types';
-import { DraggableMatchAnswer } from '../Matching/DraggableMatchAnswer';
-import { DroppableMatchZone } from '../Matching/DroppableMatchZone';
+import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
+import { Alert, Card, Col, Row, Space, Typography } from "antd";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import type { DndQuestionProps } from "../../types";
+import { DraggableMatchAnswer } from "../Matching/DraggableMatchAnswer";
+import { DroppableMatchZone } from "../Matching/DroppableMatchZone";
 
 const { Text } = Typography;
 
@@ -19,7 +19,11 @@ export const MatchingQuestion: React.FC<DndQuestionProps> = ({
 	const { t } = useTranslation();
 
 	if (!question.content?.left_items || !question.content?.right_items) {
-		return <Text type="secondary">{t('exam.questionTypes.matching.invalidQuestion')}</Text>;
+		return (
+			<Text type="secondary">
+				{t("exam.questionTypes.matching.invalidQuestion")}
+			</Text>
+		);
 	}
 
 	const { left_items, right_items } = question.content;
@@ -60,36 +64,54 @@ export const MatchingQuestion: React.FC<DndQuestionProps> = ({
 			onDragEnd={handleMatchDragEnd}
 			onDragCancel={() => setActiveMatchingId(null)}
 		>
-			<Space direction="vertical" style={{ width: '100%' }} size="middle">
+			<Space direction="vertical" style={{ width: "100%" }} size="middle">
 				<Row gutter={16}>
 					<Col span={12}>
-						<Card title={t('exam.questionTypes.matching.questions')} size="small">
-							<Space direction="vertical" style={{ width: '100%' }} size="middle">
+						<Card
+							title={t("exam.questionTypes.matching.questions")}
+							size="small"
+						>
+							<Space
+								direction="vertical"
+								style={{ width: "100%" }}
+								size="middle"
+							>
 								{left_items.map((leftItem: any) => {
-									const matchedRightId = currentMatches[leftItem.id];
-									const matchedRightItem = right_items.find((r: any) => r.id === matchedRightId);
+									const matchedRightId =
+										currentMatches[leftItem.id];
+									const matchedRightItem = right_items.find(
+										(r: any) => r.id === matchedRightId,
+									);
 
 									return (
 										<div key={leftItem.id}>
-											<div style={{ marginBottom: '8px' }}>
+											<div
+												style={{ marginBottom: "8px" }}
+											>
 												{leftItem.image_url && (
 													<img
 														src={leftItem.image_url}
 														alt={leftItem.text}
 														style={{
-															maxWidth: '100%',
-															maxHeight: '100px',
-															marginBottom: '8px',
-															borderRadius: '4px',
+															maxWidth: "100%",
+															maxHeight: "100px",
+															marginBottom: "8px",
+															borderRadius: "4px",
 														}}
 													/>
 												)}
-												<Text strong>{leftItem.text}</Text>
+												<Text strong>
+													{leftItem.text}
+												</Text>
 											</div>
 											<DroppableMatchZone
 												id={leftItem.id}
-												matchedItem={matchedRightItem || null}
-												onRemove={() => removeMatch(leftItem.id)}
+												matchedItem={
+													matchedRightItem || null
+												}
+												onRemove={() =>
+													removeMatch(leftItem.id)
+												}
 											/>
 										</div>
 									);
@@ -99,14 +121,22 @@ export const MatchingQuestion: React.FC<DndQuestionProps> = ({
 					</Col>
 
 					<Col span={12}>
-						<Card title={t('exam.questionTypes.matching.answers')} size="small">
-							<Space direction="vertical" style={{ width: '100%' }}>
+						<Card
+							title={t("exam.questionTypes.matching.answers")}
+							size="small"
+						>
+							<Space
+								direction="vertical"
+								style={{ width: "100%" }}
+							>
 								{right_items.map((rightItem: any) => (
 									<DraggableMatchAnswer
 										key={rightItem.id}
 										id={rightItem.id}
 										item={rightItem}
-										isUsed={usedRightIds.includes(rightItem.id)}
+										isUsed={usedRightIds.includes(
+											rightItem.id,
+										)}
 									/>
 								))}
 							</Space>
@@ -115,10 +145,13 @@ export const MatchingQuestion: React.FC<DndQuestionProps> = ({
 				</Row>
 
 				<Alert
-					message={t('exam.questionTypes.matching.matched', { current: Object.keys(currentMatches).length, total: left_items.length })}
+					message={t("exam.questionTypes.matching.matched", {
+						current: Object.keys(currentMatches).length,
+						total: left_items.length,
+					})}
 					type="warning"
 					showIcon={false}
-					style={{ fontSize: '13px', padding: '4px 12px' }}
+					style={{ fontSize: "13px", padding: "4px 12px" }}
 				/>
 			</Space>
 
@@ -127,14 +160,16 @@ export const MatchingQuestion: React.FC<DndQuestionProps> = ({
 					<Card
 						size="small"
 						style={{
-							cursor: 'grabbing',
-							border: '1px solid #d9d9d9',
-							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+							cursor: "grabbing",
+							border: "1px solid #d9d9d9",
+							boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
 						}}
 					>
 						<Space>
 							{(() => {
-								const item = right_items.find((r: any) => r.id === activeMatchingId);
+								const item = right_items.find(
+									(r: any) => r.id === activeMatchingId,
+								);
 								if (!item) return null;
 								return (
 									<>
@@ -142,7 +177,10 @@ export const MatchingQuestion: React.FC<DndQuestionProps> = ({
 											<img
 												src={item.image_url}
 												alt={item.text}
-												style={{ maxHeight: '50px', borderRadius: '4px' }}
+												style={{
+													maxHeight: "50px",
+													borderRadius: "4px",
+												}}
 											/>
 										)}
 										<Text>{item.text}</Text>

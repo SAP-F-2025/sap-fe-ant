@@ -3,11 +3,11 @@ import {
 	QueryCache,
 	QueryClient,
 	QueryClientProvider,
-} from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { App } from 'antd';
-import i18n from 'i18next';
-import React, { ReactNode } from 'react';
+} from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { App } from "antd";
+import i18n from "i18next";
+import React, { ReactNode } from "react";
 
 /**
  * React Query Provider with global error handling
@@ -49,7 +49,7 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
 						const errorMessage =
 							error instanceof Error
 								? error.message
-								: i18n.t('errors.queryError');
+								: i18n.t("errors.queryError");
 						message.error(errorMessage);
 					},
 				}),
@@ -59,11 +59,11 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
 						const errorMessage =
 							error instanceof Error
 								? error.message
-								: i18n.t('errors.mutationError');
+								: i18n.t("errors.mutationError");
 						message.error(errorMessage);
 					},
 				}),
-			})
+			}),
 	);
 
 	return (

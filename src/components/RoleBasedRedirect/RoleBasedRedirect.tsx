@@ -1,8 +1,8 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import { Spin } from "antd";
-import { hasAnyRole, type UserRole } from "../../utils/roleChecker";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { Spin } from 'antd';
+import { hasAnyRole, type UserRole } from '../../utils/roleChecker';
 
 interface RoleBasedRedirectProps {
 	allowedRoles?: UserRole[];
@@ -16,7 +16,7 @@ interface RoleBasedRedirectProps {
  */
 const RoleBasedRedirect: React.FC<RoleBasedRedirectProps> = ({
 	allowedRoles = [],
-	redirectTo = "/student/dashboard",
+	redirectTo = '/student/dashboard',
 	children,
 }) => {
 	const { user, isLoading } = useAuth();
@@ -25,10 +25,10 @@ const RoleBasedRedirect: React.FC<RoleBasedRedirectProps> = ({
 		return (
 			<div
 				style={{
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					minHeight: "100vh",
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					minHeight: '100vh',
 				}}
 			>
 				<Spin size="large" />

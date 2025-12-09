@@ -1,6 +1,6 @@
-import axios, { AxiosInstance } from "axios";
-import { API_CONFIG, API_ENDPOINTS } from "../config/api";
-import { TokenService } from "./tokenService";
+import axios, { AxiosInstance } from 'axios';
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+import { TokenService } from './tokenService';
 
 export interface VerifyResponse {
 	verified: boolean;
@@ -37,25 +37,25 @@ class FaceVerificationService {
 
 	async checkRegistrationStatus(): Promise<RegistrationStatusResponse> {
 		const response = await this.instance.get<RegistrationStatusResponse>(
-			API_ENDPOINTS.FACE_REGISTRATION_STATUS,
+			API_ENDPOINTS.FACE_REGISTRATION_STATUS
 		);
 		return response.data;
 	}
 
 	async registerFace(imageBlob: Blob): Promise<void> {
 		const formData = new FormData();
-		formData.append("image", imageBlob, "face.jpg");
+		formData.append('image', imageBlob, 'face.jpg');
 
 		await this.instance.post(API_ENDPOINTS.FACE_REGISTER, formData, {
 			headers: {
-				"Content-Type": "multipart/form-data",
+				'Content-Type': 'multipart/form-data',
 			},
 		});
 	}
 
 	async verifyFace(imageBlob: Blob): Promise<VerifyResponse> {
 		const formData = new FormData();
-		formData.append("image", imageBlob, "face.jpg");
+		formData.append('image', imageBlob, 'face.jpg');
 
 		try {
 			const response = await this.instance.post<VerifyResponse>(
@@ -63,9 +63,9 @@ class FaceVerificationService {
 				formData,
 				{
 					headers: {
-						"Content-Type": "multipart/form-data",
+						'Content-Type': 'multipart/form-data',
 					},
-				},
+				}
 			);
 			return response.data;
 		} catch (error: any) {

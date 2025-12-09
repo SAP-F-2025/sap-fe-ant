@@ -1,13 +1,9 @@
-import axios, {
-	AxiosError,
-	AxiosInstance,
-	InternalAxiosRequestConfig,
-} from "axios";
-import i18n from "i18next";
-import { API_CONFIG } from "../config/api";
-import type { ErrorResponse } from "../types";
-import { handleError } from "../utils/errorHandler";
-import { TokenService } from "./tokenService";
+import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import i18n from 'i18next';
+import { API_CONFIG } from '../config/api';
+import type { ErrorResponse } from '../types';
+import { handleError } from '../utils/errorHandler';
+import { TokenService } from './tokenService';
 
 class ApiService {
 	private instance: AxiosInstance;
@@ -22,7 +18,7 @@ class ApiService {
 			baseURL: API_CONFIG.BASE_URL,
 			timeout: API_CONFIG.TIMEOUT,
 			headers: {
-				"Content-Type": "application/json",
+				'Content-Type': 'application/json',
 			},
 		});
 
@@ -52,17 +48,16 @@ class ApiService {
 				}
 				return config;
 			},
-			(error) => Promise.reject(error),
+			(error) => Promise.reject(error)
 		);
 
 		// Response interceptor - Handle token refresh on 401 and show error messages
 		this.instance.interceptors.response.use(
 			(response) => response,
 			async (error: AxiosError<ErrorResponse>) => {
-				const originalRequest =
-					error.config as InternalAxiosRequestConfig & {
-						_retry?: boolean;
-					};
+				const originalRequest = error.config as InternalAxiosRequestConfig & {
+					_retry?: boolean;
+				};
 
 				// If error is 401 and we haven't retried yet
 				if (error.response?.status === 401 && !originalRequest._retry) {
@@ -88,8 +83,7 @@ class ApiService {
 
 					try {
 						// Attempt to refresh the token
-						const newToken =
-							await TokenService.refreshAccessToken();
+						const newToken = await TokenService.refreshAccessToken();
 
 						if (newToken) {
 							// Update the failed requests with new token
@@ -102,14 +96,11 @@ class ApiService {
 							return this.instance(originalRequest);
 						} else {
 							// Refresh failed, redirect to login
-							this.processQueue(
-								new Error("Token refresh failed"),
-								null,
-							);
+							this.processQueue(new Error('Token refresh failed'), null);
 							TokenService.clearTokens();
-							handleError(error, i18n.t("auth.sessionExpired"));
+							handleError(error, i18n.t('auth.sessionExpired'));
 							setTimeout(() => {
-								window.location.href = "/login";
+								window.location.href = '/login';
 							}, 1000);
 							return Promise.reject(error);
 						}
@@ -117,12 +108,9 @@ class ApiService {
 						// Refresh failed, clear queue and redirect
 						this.processQueue(refreshError, null);
 						TokenService.clearTokens();
-						handleError(
-							refreshError,
-							i18n.t("auth.sessionExpired"),
-						);
+						handleError(refreshError, i18n.t('auth.sessionExpired'));
 						setTimeout(() => {
-							window.location.href = "/login";
+							window.location.href = '/login';
 						}, 1000);
 						return Promise.reject(refreshError);
 					} finally {
@@ -133,7 +121,7 @@ class ApiService {
 				// Handle other errors and show toast messages
 				handleError(error);
 				return Promise.reject(error);
-			},
+			}
 		);
 	}
 

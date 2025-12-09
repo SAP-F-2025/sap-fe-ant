@@ -20,29 +20,23 @@ export const CHART_HEIGHT = 300;
 
 // Theme colors - should match Ant Design theme
 export const STAT_CARD_COLORS = {
-	primary: "#1890ff",
-	success: "#52c41a",
-	cyan: "#13c2c2",
-	warning: "#faad14",
+	primary: '#1890ff',
+	success: '#52c41a',
+	cyan: '#13c2c2',
+	warning: '#faad14',
 } as const;
 
 // Pie chart colors
-export const PIE_COLORS = [
-	"#1890ff",
-	"#52c41a",
-	"#faad14",
-	"#eb2f96",
-	"#722ed1",
-] as const;
+export const PIE_COLORS = ['#1890ff', '#52c41a', '#faad14', '#eb2f96', '#722ed1'] as const;
 
 // Action text mapping for activities - now handled by i18n
 export const getActionTextKey = (action: string): string => {
 	const keyMap: Record<string, string> = {
-		completed_assessment: "activities.completedAssessment",
-		started_assessment: "activities.startedAssessment",
-		created_question: "activities.createdQuestion",
-		created_assessment: "activities.createdAssessment",
-		published_assessment: "activities.publishedAssessment",
+		completed_assessment: 'activities.completedAssessment',
+		started_assessment: 'activities.startedAssessment',
+		created_question: 'activities.createdQuestion',
+		created_assessment: 'activities.createdAssessment',
+		published_assessment: 'activities.publishedAssessment',
 	};
 	return keyMap[action] || action;
 };

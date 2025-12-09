@@ -1,11 +1,5 @@
-import React, {
-	createContext,
-	ReactNode,
-	useCallback,
-	useContext,
-	useState,
-} from "react";
-import { SettingsModal, type SettingsSection } from "./SettingsModal";
+import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+import { SettingsModal, type SettingsSection } from './SettingsModal';
 
 interface SettingsModalContextType {
 	isOpen: boolean;
@@ -13,9 +7,7 @@ interface SettingsModalContextType {
 	closeSettings: () => void;
 }
 
-const SettingsModalContext = createContext<
-	SettingsModalContextType | undefined
->(undefined);
+const SettingsModalContext = createContext<SettingsModalContextType | undefined>(undefined);
 
 interface SettingsModalProviderProps {
 	children: ReactNode;
@@ -25,35 +17,23 @@ interface SettingsModalProviderProps {
  * Provider component for settings modal
  * Wrap your app with this to enable the useSettingsModal hook
  */
-export const SettingsModalProvider: React.FC<SettingsModalProviderProps> = ({
-	children,
-}) => {
+export const SettingsModalProvider: React.FC<SettingsModalProviderProps> = ({ children }) => {
 	const [isOpen, setIsOpen] = useState(false);
-	const [defaultSection, setDefaultSection] =
-		useState<SettingsSection>("my-account");
+	const [defaultSection, setDefaultSection] = useState<SettingsSection>('my-account');
 
-	const openSettings = useCallback(
-		(section: SettingsSection = "my-account") => {
-			setDefaultSection(section);
-			setIsOpen(true);
-		},
-		[],
-	);
+	const openSettings = useCallback((section: SettingsSection = 'my-account') => {
+		setDefaultSection(section);
+		setIsOpen(true);
+	}, []);
 
 	const closeSettings = useCallback(() => {
 		setIsOpen(false);
 	}, []);
 
 	return (
-		<SettingsModalContext.Provider
-			value={{ isOpen, openSettings, closeSettings }}
-		>
+		<SettingsModalContext.Provider value={{ isOpen, openSettings, closeSettings }}>
 			{children}
-			<SettingsModal
-				open={isOpen}
-				onClose={closeSettings}
-				defaultSection={defaultSection}
-			/>
+			<SettingsModal open={isOpen} onClose={closeSettings} defaultSection={defaultSection} />
 		</SettingsModalContext.Provider>
 	);
 };
@@ -69,9 +49,7 @@ export const SettingsModalProvider: React.FC<SettingsModalProviderProps> = ({
 export const useSettingsModal = (): SettingsModalContextType => {
 	const context = useContext(SettingsModalContext);
 	if (!context) {
-		throw new Error(
-			"useSettingsModal must be used within a SettingsModalProvider",
-		);
+		throw new Error('useSettingsModal must be used within a SettingsModalProvider');
 	}
 	return context;
 };

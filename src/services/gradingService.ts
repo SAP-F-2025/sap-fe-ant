@@ -1,9 +1,5 @@
-import { apiService } from "./api";
-import type {
-	ApiResponse,
-	PaginationParams,
-	GradeAnswerRequest,
-} from "../types";
+import { apiService } from './api';
+import type { ApiResponse, PaginationParams, GradeAnswerRequest } from '../types';
 
 // Extended types for grading
 export interface StudentAnswerDetail {
@@ -36,15 +32,10 @@ export interface StudentAnswerDetail {
 export interface ProctoringEvent {
 	id: number;
 	attempt_id: number;
-	event_type:
-		| "tab_switch"
-		| "window_blur"
-		| "copy_paste"
-		| "right_click"
-		| "suspicious_activity";
+	event_type: 'tab_switch' | 'window_blur' | 'copy_paste' | 'right_click' | 'suspicious_activity';
 	timestamp: string;
 	details?: any;
-	severity: "low" | "medium" | "high" | "critical";
+	severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
 export interface AttemptDetailResponse {
@@ -167,7 +158,7 @@ export interface AutoGradeAssessmentResponse {
 
 export interface GenerateFeedbackRequest {
 	attempt_id: number;
-	feedback_type?: "summary" | "detailed" | "improvement";
+	feedback_type?: 'summary' | 'detailed' | 'improvement';
 	include_suggestions?: boolean;
 }
 
@@ -184,7 +175,7 @@ export interface CalculateScoreRequest {
 		score: number;
 		max_score: number;
 	}>;
-	grading_method?: "weighted" | "simple" | "curved";
+	grading_method?: 'weighted' | 'simple' | 'curved';
 }
 
 export interface CalculateScoreResponse {
@@ -203,59 +194,37 @@ class GradingService {
 			assessment_id?: number;
 			student_id?: number;
 			status?: string;
-		},
+		}
 	): Promise<PaginatedAttemptResponse> {
-		return apiService.get<PaginatedAttemptResponse>(
-			"/api/v1/attempts",
-			params,
-		);
+		return apiService.get<PaginatedAttemptResponse>('/api/v1/attempts', params);
 	}
 
 	/**
 	 * Get attempt detail with answers and proctoring events
 	 */
 	async getAttemptDetail(attemptId: number): Promise<AttemptDetailResponse> {
-		return apiService.get<AttemptDetailResponse>(
-			`/api/v1/attempts/${attemptId}/details`,
-		);
+		return apiService.get<AttemptDetailResponse>(`/api/v1/attempts/${attemptId}/details`);
 	}
 
 	/**
 	 * Grade a single answer
 	 */
-	async gradeAnswer(
-		answerId: number,
-		data: GradeAnswerRequest,
-	): Promise<ApiResponse<any>> {
-		return apiService.post<ApiResponse<any>>(
-			`/api/v1/grading/answers/${answerId}`,
-			data,
-		);
+	async gradeAnswer(answerId: number, data: GradeAnswerRequest): Promise<ApiResponse<any>> {
+		return apiService.post<ApiResponse<any>>(`/api/v1/grading/answers/${answerId}`, data);
 	}
 
 	/**
 	 * Grade multiple answers at once
 	 */
-	async batchGradeAnswers(
-		data: BatchGradeRequest,
-	): Promise<BatchGradeResponse> {
-		return apiService.post<BatchGradeResponse>(
-			"/api/v1/grading/answers/batch",
-			data,
-		);
+	async batchGradeAnswers(data: BatchGradeRequest): Promise<BatchGradeResponse> {
+		return apiService.post<BatchGradeResponse>('/api/v1/grading/answers/batch', data);
 	}
 
 	/**
 	 * Grade entire attempt (manual grading with optional final score and feedback)
 	 */
-	async gradeAttempt(
-		attemptId: number,
-		data?: GradeAttemptRequest,
-	): Promise<ApiResponse<any>> {
-		return apiService.post<ApiResponse<any>>(
-			`/api/v1/grading/attempts/${attemptId}`,
-			data,
-		);
+	async gradeAttempt(attemptId: number, data?: GradeAttemptRequest): Promise<ApiResponse<any>> {
+		return apiService.post<ApiResponse<any>>(`/api/v1/grading/attempts/${attemptId}`, data);
 	}
 
 	/**
@@ -276,47 +245,33 @@ class GradingService {
 	/**
 	 * Auto-grade an entire attempt
 	 */
-	async autoGradeAttempt(
-		attemptId: number,
-	): Promise<AutoGradeAttemptResponse> {
+	async autoGradeAttempt(attemptId: number): Promise<AutoGradeAttemptResponse> {
 		return apiService.post<AutoGradeAttemptResponse>(
-			`/api/v1/grading/attempts/${attemptId}/auto`,
+			`/api/v1/grading/attempts/${attemptId}/auto`
 		);
 	}
 
 	/**
 	 * Auto-grade all attempts for an assessment
 	 */
-	async autoGradeAssessment(
-		assessmentId: number,
-	): Promise<AutoGradeAssessmentResponse> {
+	async autoGradeAssessment(assessmentId: number): Promise<AutoGradeAssessmentResponse> {
 		return apiService.post<AutoGradeAssessmentResponse>(
-			`/api/v1/grading/assessments/${assessmentId}/auto`,
+			`/api/v1/grading/assessments/${assessmentId}/auto`
 		);
 	}
 
 	/**
 	 * Generate AI feedback for an attempt
 	 */
-	async generateFeedback(
-		data: GenerateFeedbackRequest,
-	): Promise<GenerateFeedbackResponse> {
-		return apiService.post<GenerateFeedbackResponse>(
-			"/api/v1/grading/generate-feedback",
-			data,
-		);
+	async generateFeedback(data: GenerateFeedbackRequest): Promise<GenerateFeedbackResponse> {
+		return apiService.post<GenerateFeedbackResponse>('/api/v1/grading/generate-feedback', data);
 	}
 
 	/**
 	 * Calculate score based on answers
 	 */
-	async calculateScore(
-		data: CalculateScoreRequest,
-	): Promise<CalculateScoreResponse> {
-		return apiService.post<CalculateScoreResponse>(
-			"/api/v1/grading/calculate-score",
-			data,
-		);
+	async calculateScore(data: CalculateScoreRequest): Promise<CalculateScoreResponse> {
+		return apiService.post<CalculateScoreResponse>('/api/v1/grading/calculate-score', data);
 	}
 
 	/**
@@ -324,7 +279,7 @@ class GradingService {
 	 */
 	async getGradingOverview(assessmentId: number): Promise<GradingOverview> {
 		return apiService.get<GradingOverview>(
-			`/api/v1/grading/assessments/${assessmentId}/overview`,
+			`/api/v1/grading/assessments/${assessmentId}/overview`
 		);
 	}
 
@@ -337,7 +292,7 @@ class GradingService {
 			reason?: string;
 			new_correct_answer?: any;
 			point_adjustment?: number;
-		},
+		}
 	): Promise<{
 		affected_answers: number;
 		score_changes: Array<{
@@ -346,10 +301,7 @@ class GradingService {
 			new_score: number;
 		}>;
 	}> {
-		return apiService.post(
-			`/api/v1/grading/questions/${questionId}/regrade`,
-			data,
-		);
+		return apiService.post(`/api/v1/grading/questions/${questionId}/regrade`, data);
 	}
 
 	/**
@@ -363,15 +315,12 @@ class GradingService {
 				question_id: number;
 				point_adjustment: number;
 			}>;
-		},
+		}
 	): Promise<{
 		affected_attempts: number;
 		total_score_changes: number;
 	}> {
-		return apiService.post(
-			`/api/v1/grading/assessments/${assessmentId}/regrade`,
-			data,
-		);
+		return apiService.post(`/api/v1/grading/assessments/${assessmentId}/regrade`, data);
 	}
 
 	/**
@@ -379,11 +328,11 @@ class GradingService {
 	 */
 	async getAttemptsByStudent(
 		studentId: string,
-		params?: PaginationParams,
+		params?: PaginationParams
 	): Promise<PaginatedAttemptResponse> {
 		return apiService.get<PaginatedAttemptResponse>(
 			`/api/v1/attempts/student/${studentId}`,
-			params,
+			params
 		);
 	}
 
@@ -392,11 +341,11 @@ class GradingService {
 	 */
 	async getAttemptsByAssessment(
 		assessmentId: number,
-		params?: PaginationParams,
+		params?: PaginationParams
 	): Promise<PaginatedAttemptResponse> {
 		return apiService.get<PaginatedAttemptResponse>(
 			`/api/v1/attempts/assessment/${assessmentId}`,
-			params,
+			params
 		);
 	}
 }

@@ -8,7 +8,7 @@ import {
 	RollbackOutlined,
 	TrophyOutlined,
 	UserOutlined,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
 import {
 	App,
 	Button,
@@ -22,14 +22,14 @@ import {
 	Tag,
 	Typography,
 	message,
-} from "antd";
-import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { ManageAssessmentQuestions } from "../../components/Assessment/ManageAssessmentQuestions";
-import assessmentService from "../../services/assessmentService";
-import { Assessment, AssessmentStats, AssessmentStatus } from "../../types";
+} from 'antd';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ManageAssessmentQuestions } from '../../components/Assessment/ManageAssessmentQuestions';
+import assessmentService from '../../services/assessmentService';
+import { Assessment, AssessmentStats, AssessmentStatus } from '../../types';
 
 const { Title } = Typography;
 
@@ -44,13 +44,9 @@ const AssessmentDetail: React.FC = () => {
 	const { modal } = App.useApp();
 
 	// Detect if we're in student context
-	const isStudentContext = location.pathname.startsWith("/student");
-	const basePath = isStudentContext
-		? "/student/manage-assessments"
-		: "/assessments";
-	const editPath = isStudentContext
-		? `${basePath}/${id}/edit`
-		: `/assessments/edit/${id}`;
+	const isStudentContext = location.pathname.startsWith('/student');
+	const basePath = isStudentContext ? '/student/manage-assessments' : '/assessments';
+	const editPath = isStudentContext ? `${basePath}/${id}/edit` : `/assessments/edit/${id}`;
 
 	useEffect(() => {
 		if (id) {
@@ -65,7 +61,7 @@ const AssessmentDetail: React.FC = () => {
 			const data = await assessmentService.getAssessment(assessmentId);
 			setAssessment(data);
 		} catch (error) {
-			message.error(t("assessmentDetail.loadError"));
+			message.error(t('assessmentDetail.loadError'));
 			navigate(basePath);
 		} finally {
 			setLoading(false);
@@ -74,31 +70,30 @@ const AssessmentDetail: React.FC = () => {
 
 	const fetchStats = async (assessmentId: number) => {
 		try {
-			const data =
-				await assessmentService.getAssessmentStats(assessmentId);
+			const data = await assessmentService.getAssessmentStats(assessmentId);
 			setStats(data);
 		} catch (error) {
-			console.error("Failed to fetch stats");
+			console.error('Failed to fetch stats');
 		}
 	};
 
 	const getStatusTag = (status: AssessmentStatus) => {
 		const statusConfig = {
 			[AssessmentStatus.Draft]: {
-				color: "default",
-				text: t("assessmentDetail.status.draft"),
+				color: 'default',
+				text: t('assessmentDetail.status.draft'),
 			},
 			[AssessmentStatus.Active]: {
-				color: "success",
-				text: t("assessmentDetail.status.active"),
+				color: 'success',
+				text: t('assessmentDetail.status.active'),
 			},
 			[AssessmentStatus.Expired]: {
-				color: "warning",
-				text: t("assessmentDetail.status.expired"),
+				color: 'warning',
+				text: t('assessmentDetail.status.expired'),
 			},
 			[AssessmentStatus.Archived]: {
-				color: "error",
-				text: t("assessmentDetail.status.archived"),
+				color: 'error',
+				text: t('assessmentDetail.status.archived'),
 			},
 		};
 		const config = statusConfig[status];
@@ -115,61 +110,54 @@ const AssessmentDetail: React.FC = () => {
 
 		// Show warning modal
 		modal.confirm({
-			title: t("assessmentDetail.publish.title"),
+			title: t('assessmentDetail.publish.title'),
 			icon: <ExclamationCircleOutlined />,
 			content: (
 				<div>
 					<p>
-						<strong>
-							⚠️ {t("assessmentDetail.publish.warning")}:
-						</strong>{" "}
-						{t("assessmentDetail.publish.warningText")}
+						<strong>⚠️ {t('assessmentDetail.publish.warning')}:</strong>{' '}
+						{t('assessmentDetail.publish.warningText')}
 					</p>
-					<p>{t("assessmentDetail.publish.checkBefore")}:</p>
+					<p>{t('assessmentDetail.publish.checkBefore')}:</p>
 					<ul style={{ marginLeft: 20 }}>
-						<li style={{ color: hasQuestions ? "green" : "red" }}>
-							{hasQuestions ? "✓" : "✗"}{" "}
-							{t("assessmentDetail.publish.hasQuestions")}
+						<li style={{ color: hasQuestions ? 'green' : 'red' }}>
+							{hasQuestions ? '✓' : '✗'} {t('assessmentDetail.publish.hasQuestions')}
 						</li>
 						<li
 							style={{
-								color: hasValidPoints ? "green" : "orange",
+								color: hasValidPoints ? 'green' : 'orange',
 							}}
 						>
-							{hasValidPoints ? "✓" : "⚠"}{" "}
-							{t("assessmentDetail.publish.totalPoints", {
+							{hasValidPoints ? '✓' : '⚠'}{' '}
+							{t('assessmentDetail.publish.totalPoints', {
 								current: totalPoints,
 							})}
 						</li>
 						<li
 							style={{
-								color: assessment.description
-									? "green"
-									: "orange",
+								color: assessment.description ? 'green' : 'orange',
 							}}
 						>
-							{assessment.description ? "✓" : "⚠"}{" "}
-							{t("assessmentDetail.publish.hasDescription")}
+							{assessment.description ? '✓' : '⚠'}{' '}
+							{t('assessmentDetail.publish.hasDescription')}
 						</li>
 					</ul>
 				</div>
 			),
-			okText: t("assessmentDetail.publish.confirm"),
-			cancelText: t("common.cancel"),
+			okText: t('assessmentDetail.publish.confirm'),
+			cancelText: t('common.cancel'),
 			onOk: async () => {
 				if (!hasQuestions) {
-					message.error(
-						t("assessmentDetail.publish.noQuestionsError"),
-					);
+					message.error(t('assessmentDetail.publish.noQuestionsError'));
 					return;
 				}
 
 				try {
 					await assessmentService.publishAssessment(parseInt(id));
-					message.success(t("assessmentDetail.publish.success"));
+					message.success(t('assessmentDetail.publish.success'));
 					fetchAssessment(parseInt(id));
 				} catch (error) {
-					message.error(t("assessmentDetail.publish.error"));
+					message.error(t('assessmentDetail.publish.error'));
 				}
 			},
 		});
@@ -179,31 +167,28 @@ const AssessmentDetail: React.FC = () => {
 		if (!id) return;
 		try {
 			await assessmentService.archiveAssessment(parseInt(id));
-			message.success(t("assessmentDetail.archive.success"));
+			message.success(t('assessmentDetail.archive.success'));
 			fetchAssessment(parseInt(id));
 		} catch (error) {
-			message.error(t("assessmentDetail.archive.error"));
+			message.error(t('assessmentDetail.archive.error'));
 		}
 	};
 
 	if (loading || !assessment) {
 		return (
-			<div style={{ textAlign: "center", padding: "100px 0" }}>
+			<div style={{ textAlign: 'center', padding: '100px 0' }}>
 				<Spin size="large" />
 			</div>
 		);
 	}
 
 	return (
-		<Space direction="vertical" size="large" style={{ width: "100%" }}>
+		<Space direction="vertical" size="large" style={{ width: '100%' }}>
 			<Row justify="space-between" align="middle">
 				<Col>
 					<Space>
-						<Button
-							icon={<RollbackOutlined />}
-							onClick={() => navigate(basePath)}
-						>
-							{t("common.back")}
+						<Button icon={<RollbackOutlined />} onClick={() => navigate(basePath)}>
+							{t('common.back')}
 						</Button>
 					</Space>
 				</Col>
@@ -215,15 +200,12 @@ const AssessmentDetail: React.FC = () => {
 								icon={<CheckCircleOutlined />}
 								onClick={handlePublish}
 							>
-								{t("assessmentDetail.publish.button")}
+								{t('assessmentDetail.publish.button')}
 							</Button>
 						)}
 						{assessment.status === AssessmentStatus.Active && (
-							<Button
-								icon={<CloseCircleOutlined />}
-								onClick={handleArchive}
-							>
-								{t("assessmentDetail.archive.button")}
+							<Button icon={<CloseCircleOutlined />} onClick={handleArchive}>
+								{t('assessmentDetail.archive.button')}
 							</Button>
 						)}
 						<Button
@@ -231,18 +213,14 @@ const AssessmentDetail: React.FC = () => {
 							icon={<EditOutlined />}
 							onClick={() => navigate(editPath)}
 						>
-							{t("common.edit")}
+							{t('common.edit')}
 						</Button>
 					</Space>
 				</Col>
 			</Row>
 
 			<Card>
-				<Space
-					direction="vertical"
-					size="middle"
-					style={{ width: "100%" }}
-				>
+				<Space direction="vertical" size="middle" style={{ width: '100%' }}>
 					<div>
 						<Title level={2} style={{ marginBottom: 8 }}>
 							{assessment.title}
@@ -251,9 +229,7 @@ const AssessmentDetail: React.FC = () => {
 					</div>
 
 					{assessment.description && (
-						<Typography.Paragraph>
-							{assessment.description}
-						</Typography.Paragraph>
+						<Typography.Paragraph>{assessment.description}</Typography.Paragraph>
 					)}
 				</Space>
 			</Card>
@@ -263,177 +239,133 @@ const AssessmentDetail: React.FC = () => {
 					<Col xs={24} sm={12} lg={6}>
 						<Card>
 							<Statistic
-								title={t(
-									"assessmentDetail.stats.totalAttempts",
-								)}
+								title={t('assessmentDetail.stats.totalAttempts')}
 								value={stats.total_attempts}
 								prefix={<UserOutlined />}
-								valueStyle={{ color: "#3f8600" }}
+								valueStyle={{ color: '#3f8600' }}
 							/>
 						</Card>
 					</Col>
 					<Col xs={24} sm={12} lg={6}>
 						<Card>
 							<Statistic
-								title={t("assessmentDetail.stats.averageScore")}
+								title={t('assessmentDetail.stats.averageScore')}
 								value={stats.average_score}
 								precision={1}
 								prefix={<TrophyOutlined />}
-								valueStyle={{ color: "#1890ff" }}
+								valueStyle={{ color: '#1890ff' }}
 							/>
 						</Card>
 					</Col>
 					<Col xs={24} sm={12} lg={6}>
 						<Card>
 							<Statistic
-								title={t("assessmentDetail.stats.passRate")}
+								title={t('assessmentDetail.stats.passRate')}
 								value={stats.pass_rate}
 								precision={1}
 								suffix="%"
 								prefix={<CheckCircleOutlined />}
-								valueStyle={{ color: "#52c41a" }}
+								valueStyle={{ color: '#52c41a' }}
 							/>
 						</Card>
 					</Col>
 					<Col xs={24} sm={12} lg={6}>
 						<Card>
 							<Statistic
-								title={t("assessmentDetail.stats.averageTime")}
+								title={t('assessmentDetail.stats.averageTime')}
 								value={stats.average_time}
-								suffix={t("common.minutes")}
+								suffix={t('common.minutes')}
 								prefix={<ClockCircleOutlined />}
-								valueStyle={{ color: "#722ed1" }}
+								valueStyle={{ color: '#722ed1' }}
 							/>
 						</Card>
 					</Col>
 				</Row>
 			)}
 
-			<Card title={t("assessmentDetail.details.title")}>
+			<Card title={t('assessmentDetail.details.title')}>
 				<Descriptions column={{ xs: 1, sm: 2, lg: 3 }} bordered>
-					<Descriptions.Item
-						label={t("assessmentDetail.details.duration")}
-					>
-						{assessment.duration} {t("common.minutes")}
+					<Descriptions.Item label={t('assessmentDetail.details.duration')}>
+						{assessment.duration} {t('common.minutes')}
 					</Descriptions.Item>
-					<Descriptions.Item
-						label={t("assessmentDetail.details.passingScore")}
-					>
+					<Descriptions.Item label={t('assessmentDetail.details.passingScore')}>
 						{assessment.passing_score}%
 					</Descriptions.Item>
-					<Descriptions.Item
-						label={t("assessmentDetail.details.maxAttempts")}
-					>
+					<Descriptions.Item label={t('assessmentDetail.details.maxAttempts')}>
 						{assessment.max_attempts}
 					</Descriptions.Item>
-					<Descriptions.Item
-						label={t("assessmentDetail.details.questionsCount")}
-					>
-						<FileTextOutlined /> {assessment.questions_count || 0}{" "}
-						{t("assessmentDetail.details.questionsUnit")}
+					<Descriptions.Item label={t('assessmentDetail.details.questionsCount')}>
+						<FileTextOutlined /> {assessment.questions_count || 0}{' '}
+						{t('assessmentDetail.details.questionsUnit')}
 					</Descriptions.Item>
-					<Descriptions.Item
-						label={t("assessmentDetail.details.totalPoints")}
-					>
-						{assessment.total_points || 0}{" "}
-						{t("assessmentDetail.details.pointsUnit")}
+					<Descriptions.Item label={t('assessmentDetail.details.totalPoints')}>
+						{assessment.total_points || 0} {t('assessmentDetail.details.pointsUnit')}
 					</Descriptions.Item>
-					<Descriptions.Item
-						label={t("assessmentDetail.details.dueDate")}
-					>
+					<Descriptions.Item label={t('assessmentDetail.details.dueDate')}>
 						{assessment.due_date
-							? dayjs(assessment.due_date).format(
-									"DD/MM/YYYY HH:mm",
-								)
-							: t("assessmentDetail.details.noLimit")}
+							? dayjs(assessment.due_date).format('DD/MM/YYYY HH:mm')
+							: t('assessmentDetail.details.noLimit')}
 					</Descriptions.Item>
-					<Descriptions.Item
-						label={t("assessmentDetail.details.createdAt")}
-						span={3}
-					>
-						{dayjs(assessment.created_at).format(
-							"DD/MM/YYYY HH:mm",
-						)}
+					<Descriptions.Item label={t('assessmentDetail.details.createdAt')} span={3}>
+						{dayjs(assessment.created_at).format('DD/MM/YYYY HH:mm')}
 					</Descriptions.Item>
 				</Descriptions>
 			</Card>
 
 			{assessment.settings && (
-				<Card title={t("assessmentDetail.settings.title")}>
+				<Card title={t('assessmentDetail.settings.title')}>
 					<Descriptions column={{ xs: 1, sm: 2, lg: 3 }} bordered>
 						<Descriptions.Item
-							label={t(
-								"assessmentDetail.settings.randomizeQuestions",
-							)}
+							label={t('assessmentDetail.settings.randomizeQuestions')}
 						>
 							{assessment.settings.randomize_questions ? (
-								<Tag color="success">{t("common.yes")}</Tag>
+								<Tag color="success">{t('common.yes')}</Tag>
 							) : (
-								<Tag>{t("common.no")}</Tag>
+								<Tag>{t('common.no')}</Tag>
 							)}
 						</Descriptions.Item>
-						<Descriptions.Item
-							label={t(
-								"assessmentDetail.settings.randomizeOptions",
-							)}
-						>
+						<Descriptions.Item label={t('assessmentDetail.settings.randomizeOptions')}>
 							{assessment.settings.randomize_options ? (
-								<Tag color="success">{t("common.yes")}</Tag>
+								<Tag color="success">{t('common.yes')}</Tag>
 							) : (
-								<Tag>{t("common.no")}</Tag>
+								<Tag>{t('common.no')}</Tag>
 							)}
 						</Descriptions.Item>
-						<Descriptions.Item
-							label={t(
-								"assessmentDetail.settings.showProgressBar",
-							)}
-						>
+						<Descriptions.Item label={t('assessmentDetail.settings.showProgressBar')}>
 							{assessment.settings.show_progress_bar ? (
-								<Tag color="success">{t("common.yes")}</Tag>
+								<Tag color="success">{t('common.yes')}</Tag>
 							) : (
-								<Tag>{t("common.no")}</Tag>
+								<Tag>{t('common.no')}</Tag>
 							)}
 						</Descriptions.Item>
-						<Descriptions.Item
-							label={t(
-								"assessmentDetail.settings.timeLimitEnforced",
-							)}
-						>
+						<Descriptions.Item label={t('assessmentDetail.settings.timeLimitEnforced')}>
 							{assessment.settings.time_limit_enforced ? (
-								<Tag color="warning">{t("common.yes")}</Tag>
+								<Tag color="warning">{t('common.yes')}</Tag>
 							) : (
-								<Tag>{t("common.no")}</Tag>
+								<Tag>{t('common.no')}</Tag>
 							)}
 						</Descriptions.Item>
-						<Descriptions.Item
-							label={t("assessmentDetail.settings.requireWebcam")}
-						>
+						<Descriptions.Item label={t('assessmentDetail.settings.requireWebcam')}>
 							{assessment.settings.require_webcam ? (
-								<Tag color="warning">{t("common.yes")}</Tag>
+								<Tag color="warning">{t('common.yes')}</Tag>
 							) : (
-								<Tag>{t("common.no")}</Tag>
+								<Tag>{t('common.no')}</Tag>
 							)}
 						</Descriptions.Item>
 						<Descriptions.Item
-							label={t(
-								"assessmentDetail.settings.preventTabSwitching",
-							)}
+							label={t('assessmentDetail.settings.preventTabSwitching')}
 						>
 							{assessment.settings.prevent_tab_switching ? (
-								<Tag color="warning">{t("common.yes")}</Tag>
+								<Tag color="warning">{t('common.yes')}</Tag>
 							) : (
-								<Tag>{t("common.no")}</Tag>
+								<Tag>{t('common.no')}</Tag>
 							)}
 						</Descriptions.Item>
-						<Descriptions.Item
-							label={t(
-								"assessmentDetail.settings.requireFullScreen",
-							)}
-						>
+						<Descriptions.Item label={t('assessmentDetail.settings.requireFullScreen')}>
 							{assessment.settings.require_full_screen ? (
-								<Tag color="warning">{t("common.yes")}</Tag>
+								<Tag color="warning">{t('common.yes')}</Tag>
 							) : (
-								<Tag>{t("common.no")}</Tag>
+								<Tag>{t('common.no')}</Tag>
 							)}
 						</Descriptions.Item>
 					</Descriptions>

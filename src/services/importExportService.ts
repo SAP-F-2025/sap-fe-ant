@@ -1,5 +1,5 @@
-import { API_ENDPOINTS } from "../config/api";
-import apiService from "./api";
+import { API_ENDPOINTS } from '../config/api';
+import apiService from './api';
 
 // Import result types
 export interface ImportValidationError {
@@ -32,7 +32,7 @@ class ImportExportService {
 	 */
 	async importQuestions(file: File): Promise<ImportResponse> {
 		const formData = new FormData();
-		formData.append("file", file);
+		formData.append('file', file);
 
 		const axiosInstance = apiService.getAxiosInstance();
 		const response = await axiosInstance.post<ImportResponse>(
@@ -40,9 +40,9 @@ class ImportExportService {
 			formData,
 			{
 				headers: {
-					"Content-Type": "multipart/form-data",
+					'Content-Type': 'multipart/form-data',
 				},
-			},
+			}
 		);
 		return response.data;
 	}
@@ -50,21 +50,15 @@ class ImportExportService {
 	/**
 	 * Export questions to Excel or CSV
 	 */
-	async exportQuestions(
-		questionIds: number[],
-		format: "xlsx" | "csv" = "xlsx",
-	): Promise<Blob> {
+	async exportQuestions(questionIds: number[], format: 'xlsx' | 'csv' = 'xlsx'): Promise<Blob> {
 		const axiosInstance = apiService.getAxiosInstance();
-		const response = await axiosInstance.get(
-			API_ENDPOINTS.QUESTIONS_EXPORT,
-			{
-				params: {
-					question_ids: questionIds.join(","),
-					format,
-				},
-				responseType: "blob",
+		const response = await axiosInstance.get(API_ENDPOINTS.QUESTIONS_EXPORT, {
+			params: {
+				question_ids: questionIds.join(','),
+				format,
 			},
-		);
+			responseType: 'blob',
+		});
 		return response.data;
 	}
 
@@ -73,12 +67,9 @@ class ImportExportService {
 	 */
 	async downloadTemplate(): Promise<Blob> {
 		const axiosInstance = apiService.getAxiosInstance();
-		const response = await axiosInstance.get(
-			API_ENDPOINTS.QUESTIONS_TEMPLATE,
-			{
-				responseType: "blob",
-			},
-		);
+		const response = await axiosInstance.get(API_ENDPOINTS.QUESTIONS_TEMPLATE, {
+			responseType: 'blob',
+		});
 		return response.data;
 	}
 
@@ -90,8 +81,8 @@ class ImportExportService {
 		const response = await axiosInstance.get(
 			API_ENDPOINTS.ASSESSMENT_RESULTS_EXPORT(assessmentId),
 			{
-				responseType: "blob",
-			},
+				responseType: 'blob',
+			}
 		);
 		return response.data;
 	}
@@ -101,9 +92,9 @@ class ImportExportService {
 	 */
 	downloadFile(blob: Blob, filename: string): void {
 		const url = window.URL.createObjectURL(blob);
-		const link = document.createElement("a");
+		const link = document.createElement('a');
 		link.href = url;
-		link.setAttribute("download", filename);
+		link.setAttribute('download', filename);
 		document.body.appendChild(link);
 		link.click();
 		link.remove();

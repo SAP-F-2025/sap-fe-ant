@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
 	Modal,
 	Button,
@@ -12,16 +12,16 @@ import {
 	List,
 	Tag,
 	Divider,
-} from "antd";
+} from 'antd';
 import {
 	DownloadOutlined,
 	FileExcelOutlined,
 	FileTextOutlined,
 	CheckCircleOutlined,
-} from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
-import importExportService from "../../services/importExportService";
-import { Question } from "../../types";
+} from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import importExportService from '../../services/importExportService';
+import { Question } from '../../types';
 
 const { Text, Title } = Typography;
 
@@ -41,33 +41,28 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 	totalCount = 0,
 }) => {
 	const { t } = useTranslation();
-	const [format, setFormat] = useState<"xlsx" | "csv">("xlsx");
+	const [format, setFormat] = useState<'xlsx' | 'csv'>('xlsx');
 	const [exporting, setExporting] = useState(false);
 	const [exportComplete, setExportComplete] = useState(false);
 
 	const handleExport = async () => {
 		if (selectedQuestions.length === 0) {
-			message.warning(t("export.noSelection"));
+			message.warning(t('export.noSelection'));
 			return;
 		}
 
 		setExporting(true);
 		try {
 			const questionIds = selectedQuestions.map((q) => q.id);
-			const blob = await importExportService.exportQuestions(
-				questionIds,
-				format,
-			);
+			const blob = await importExportService.exportQuestions(questionIds, format);
 
-			const filename = `questions_export_${new Date().toISOString().split("T")[0]}.${format}`;
+			const filename = `questions_export_${new Date().toISOString().split('T')[0]}.${format}`;
 			importExportService.downloadFile(blob, filename);
 
 			setExportComplete(true);
-			message.success(
-				t("export.success", { count: selectedQuestions.length }),
-			);
+			message.success(t('export.success', { count: selectedQuestions.length }));
 		} catch (error: any) {
-			message.error(error.response?.data?.message || t("export.error"));
+			message.error(error.response?.data?.message || t('export.error'));
 		} finally {
 			setExporting(false);
 		}
@@ -79,21 +74,21 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 	};
 
 	const questionTypeColors: Record<string, string> = {
-		multiple_choice: "blue",
-		true_false: "green",
-		essay: "purple",
-		short_answer: "geekblue",
-		fill_blank: "orange",
-		matching: "cyan",
-		ordering: "magenta",
+		multiple_choice: 'blue',
+		true_false: 'green',
+		essay: 'purple',
+		short_answer: 'geekblue',
+		fill_blank: 'orange',
+		matching: 'cyan',
+		ordering: 'magenta',
 	};
 
 	return (
 		<Modal
 			title={
 				<Space>
-					<DownloadOutlined style={{ color: "#1890ff" }} />
-					<span>{t("export.title")}</span>
+					<DownloadOutlined style={{ color: '#1890ff' }} />
+					<span>{t('export.title')}</span>
 				</Space>
 			}
 			open={open}
@@ -101,7 +96,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 			width={600}
 			footer={[
 				<Button key="cancel" onClick={handleClose}>
-					{exportComplete ? t("common.close") : t("common.cancel")}
+					{exportComplete ? t('common.close') : t('common.cancel')}
 				</Button>,
 				!exportComplete && (
 					<Button
@@ -112,36 +107,30 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 						disabled={selectedQuestions.length === 0}
 						icon={<DownloadOutlined />}
 					>
-						{exporting ? t("export.exporting") : t("export.start")}
+						{exporting ? t('export.exporting') : t('export.start')}
 					</Button>
 				),
 			]}
 		>
 			{exportComplete ? (
-				<div style={{ textAlign: "center", padding: 40 }}>
-					<CheckCircleOutlined
-						style={{ fontSize: 64, color: "#52c41a" }}
-					/>
+				<div style={{ textAlign: 'center', padding: 40 }}>
+					<CheckCircleOutlined style={{ fontSize: 64, color: '#52c41a' }} />
 					<Title level={4} style={{ marginTop: 16 }}>
-						{t("export.complete")}
+						{t('export.complete')}
 					</Title>
-					<Text type="secondary">{t("export.downloadStarted")}</Text>
+					<Text type="secondary">{t('export.downloadStarted')}</Text>
 				</div>
 			) : (
-				<Space
-					direction="vertical"
-					size="large"
-					style={{ width: "100%" }}
-				>
+				<Space direction="vertical" size="large" style={{ width: '100%' }}>
 					{/* Selection summary */}
 					<Alert
 						message={
 							allSelected
-								? t("export.allSelected", {
+								? t('export.allSelected', {
 										count: totalCount,
 										defaultValue: `All ${totalCount} questions selected`,
 									})
-								: t("export.selectedCount", {
+								: t('export.selectedCount', {
 										count: selectedQuestions.length,
 										defaultValue: `${selectedQuestions.length} questions selected`,
 									})
@@ -152,11 +141,8 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 
 					{/* Format selection */}
 					<div>
-						<Text
-							strong
-							style={{ display: "block", marginBottom: 12 }}
-						>
-							{t("export.selectFormat")}
+						<Text strong style={{ display: 'block', marginBottom: 12 }}>
+							{t('export.selectFormat')}
 						</Text>
 						<Radio.Group
 							value={format}
@@ -168,18 +154,15 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 									<Space>
 										<FileExcelOutlined
 											style={{
-												color: "#52c41a",
+												color: '#52c41a',
 												fontSize: 20,
 											}}
 										/>
 										<div>
 											<Text strong>Excel (.xlsx)</Text>
 											<br />
-											<Text
-												type="secondary"
-												style={{ fontSize: 12 }}
-											>
-												{t("export.excelDesc")}
+											<Text type="secondary" style={{ fontSize: 12 }}>
+												{t('export.excelDesc')}
 											</Text>
 										</div>
 									</Space>
@@ -188,18 +171,15 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 									<Space>
 										<FileTextOutlined
 											style={{
-												color: "#1890ff",
+												color: '#1890ff',
 												fontSize: 20,
 											}}
 										/>
 										<div>
 											<Text strong>CSV (.csv)</Text>
 											<br />
-											<Text
-												type="secondary"
-												style={{ fontSize: 12 }}
-											>
-												{t("export.csvDesc")}
+											<Text type="secondary" style={{ fontSize: 12 }}>
+												{t('export.csvDesc')}
 											</Text>
 										</div>
 									</Space>
@@ -212,32 +192,21 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 
 					{/* Preview of selected questions */}
 					<div>
-						<Text
-							strong
-							style={{ display: "block", marginBottom: 12 }}
-						>
-							{t("export.preview")} ({selectedQuestions.length})
+						<Text strong style={{ display: 'block', marginBottom: 12 }}>
+							{t('export.preview')} ({selectedQuestions.length})
 						</Text>
 						<List
 							size="small"
 							bordered
 							dataSource={selectedQuestions.slice(0, 5)}
-							style={{ maxHeight: 200, overflow: "auto" }}
+							style={{ maxHeight: 200, overflow: 'auto' }}
 							renderItem={(item) => (
 								<List.Item>
 									<Space>
-										<Tag
-											color={
-												questionTypeColors[item.type] ||
-												"default"
-											}
-										>
+										<Tag color={questionTypeColors[item.type] || 'default'}>
 											{item.type}
 										</Tag>
-										<Text
-											ellipsis
-											style={{ maxWidth: 350 }}
-										>
+										<Text ellipsis style={{ maxWidth: 350 }}>
 											{item.text}
 										</Text>
 									</Space>
@@ -248,12 +217,12 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 							<Text
 								type="secondary"
 								style={{
-									display: "block",
+									display: 'block',
 									marginTop: 8,
-									textAlign: "center",
+									textAlign: 'center',
 								}}
 							>
-								{t("export.andMore", {
+								{t('export.andMore', {
 									count: selectedQuestions.length - 5,
 									defaultValue: `...and ${selectedQuestions.length - 5} more`,
 								})}
@@ -262,15 +231,9 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 					</div>
 
 					{exporting && (
-						<div style={{ textAlign: "center" }}>
-							<Progress
-								percent={50}
-								status="active"
-								showInfo={false}
-							/>
-							<Text type="secondary">
-								{t("export.generating")}
-							</Text>
+						<div style={{ textAlign: 'center' }}>
+							<Progress percent={50} status="active" showInfo={false} />
+							<Text type="secondary">{t('export.generating')}</Text>
 						</div>
 					)}
 				</Space>

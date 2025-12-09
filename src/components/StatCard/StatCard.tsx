@@ -1,8 +1,8 @@
-import React from "react";
-import { Card, Flex, Avatar, Typography } from "antd";
-import { useThemeToken } from "../../theme/ThemeProvider";
-import { gradients, getTextColor } from "../../theme/gradients";
-import { createTransition, getStaggerDelay } from "../../styles/animations";
+import React from 'react';
+import { Card, Flex, Avatar, Typography } from 'antd';
+import { useThemeToken } from '../../theme/ThemeProvider';
+import { gradients, getTextColor } from '../../theme/gradients';
+import { createTransition, getStaggerDelay } from '../../styles/animations';
 
 const { Title, Text } = Typography;
 
@@ -21,16 +21,10 @@ export interface StatCardProps {
  * Statistic Card Component
  * Consistent card design for displaying statistics
  */
-export const StatCard: React.FC<StatCardProps> = ({
-	icon,
-	value,
-	label,
-	gradient,
-	trend,
-}) => {
+export const StatCard: React.FC<StatCardProps> = ({ icon, value, label, gradient, trend }) => {
 	const token = useThemeToken();
 	const textColor = getTextColor(gradient);
-	const isLight = textColor === "#333333";
+	const isLight = textColor === '#333333';
 
 	return (
 		<Card
@@ -39,23 +33,20 @@ export const StatCard: React.FC<StatCardProps> = ({
 				background: gradients[gradient],
 				borderRadius: token.borderRadiusLG,
 				minHeight: 140,
-				boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-				transition: createTransition(
-					["all", "transform", "box-shadow"],
-					"normal",
-				),
-				animation: "slideInUp 400ms ease-out",
+				boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+				transition: createTransition(['all', 'transform', 'box-shadow'], 'normal'),
+				animation: 'slideInUp 400ms ease-out',
 			}}
 			styles={{
 				body: {
 					padding: token.paddingLG,
-					height: "100%",
+					height: '100%',
 				},
 			}}
 			hoverable
 			className="stat-card"
 		>
-			<Flex vertical gap={token.marginSM} style={{ height: "100%" }}>
+			<Flex vertical gap={token.marginSM} style={{ height: '100%' }}>
 				<Flex justify="space-between" align="start">
 					<div>
 						<Title
@@ -72,12 +63,10 @@ export const StatCard: React.FC<StatCardProps> = ({
 						</Title>
 						<Text
 							style={{
-								color: isLight
-									? "#666"
-									: "rgba(255,255,255,0.85)",
+								color: isLight ? '#666' : 'rgba(255,255,255,0.85)',
 								fontSize: 14,
 								fontWeight: 500,
-								display: "block",
+								display: 'block',
 								marginTop: token.marginXS,
 							}}
 						>
@@ -86,11 +75,9 @@ export const StatCard: React.FC<StatCardProps> = ({
 						{trend && (
 							<Text
 								style={{
-									color: isLight
-										? "#888"
-										: "rgba(255,255,255,0.7)",
+									color: isLight ? '#888' : 'rgba(255,255,255,0.7)',
 									fontSize: 12,
-									display: "block",
+									display: 'block',
 									marginTop: 4,
 								}}
 							>
@@ -102,13 +89,11 @@ export const StatCard: React.FC<StatCardProps> = ({
 						size={56}
 						icon={icon}
 						style={{
-							backgroundColor: isLight
-								? "rgba(0,0,0,0.06)"
-								: "rgba(255,255,255,0.2)",
+							backgroundColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.2)',
 							color: textColor,
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
 							fontSize: 24,
 						}}
 					/>

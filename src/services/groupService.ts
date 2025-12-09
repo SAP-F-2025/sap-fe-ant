@@ -1,5 +1,5 @@
-import { API_ENDPOINTS } from "../config/api";
-import apiService from "./api";
+import { API_ENDPOINTS } from '../config/api';
+import apiService from './api';
 import {
 	GroupResponse,
 	GroupMemberResponse,
@@ -13,14 +13,14 @@ import {
 	AssignToGroupsRequest,
 	UnassignFromGroupsRequest,
 	AssessmentGroupAssignmentResponse,
-} from "../types";
+} from '../types';
 
 class GroupService {
 	/**
 	 * Get paginated list of groups
 	 */
 	async getGroups(
-		params?: PaginationParams & { type?: string; search?: string },
+		params?: PaginationParams & { type?: string; search?: string }
 	): Promise<GroupListResponse> {
 		return apiService.get<GroupListResponse>(API_ENDPOINTS.GROUPS, params);
 	}
@@ -36,9 +36,7 @@ class GroupService {
 	 * Get groups where current user is a member
 	 */
 	async getMyMemberships(): Promise<GroupListResponse> {
-		return apiService.get<GroupListResponse>(
-			API_ENDPOINTS.GROUPS_MEMBERSHIPS,
-		);
+		return apiService.get<GroupListResponse>(API_ENDPOINTS.GROUPS_MEMBERSHIPS);
 	}
 
 	/**
@@ -58,14 +56,8 @@ class GroupService {
 	/**
 	 * Update a group
 	 */
-	async updateGroup(
-		id: number,
-		data: GroupUpdateRequest,
-	): Promise<GroupResponse> {
-		return apiService.put<GroupResponse>(
-			API_ENDPOINTS.GROUP_DETAIL(id),
-			data,
-		);
+	async updateGroup(id: number, data: GroupUpdateRequest): Promise<GroupResponse> {
+		return apiService.put<GroupResponse>(API_ENDPOINTS.GROUP_DETAIL(id), data);
 	}
 
 	/**
@@ -79,18 +71,13 @@ class GroupService {
 	 * Get group members
 	 */
 	async getMembers(groupId: number): Promise<GroupMemberResponse[]> {
-		return apiService.get<GroupMemberResponse[]>(
-			API_ENDPOINTS.GROUP_MEMBERS(groupId),
-		);
+		return apiService.get<GroupMemberResponse[]>(API_ENDPOINTS.GROUP_MEMBERS(groupId));
 	}
 
 	/**
 	 * Add member to group
 	 */
-	async addMember(
-		groupId: number,
-		data: AddGroupMemberRequest,
-	): Promise<void> {
+	async addMember(groupId: number, data: AddGroupMemberRequest): Promise<void> {
 		return apiService.post(API_ENDPOINTS.GROUP_MEMBERS(groupId), data);
 	}
 
@@ -107,12 +94,9 @@ class GroupService {
 	async updateMemberRole(
 		groupId: number,
 		userId: string,
-		data: UpdateMemberRoleRequest,
+		data: UpdateMemberRoleRequest
 	): Promise<void> {
-		return apiService.put(
-			API_ENDPOINTS.GROUP_MEMBER_ROLE(groupId, userId),
-			data,
-		);
+		return apiService.put(API_ENDPOINTS.GROUP_MEMBER_ROLE(groupId, userId), data);
 	}
 
 	// ============ Assessment-Group Management ============
@@ -121,11 +105,9 @@ class GroupService {
 	 * Get assessments assigned to a group
 	 * GET /groups/:id/assessments
 	 */
-	async getGroupAssessments(
-		groupId: number,
-	): Promise<GroupAssessmentListResponse> {
+	async getGroupAssessments(groupId: number): Promise<GroupAssessmentListResponse> {
 		return apiService.get<GroupAssessmentListResponse>(
-			API_ENDPOINTS.GROUP_ASSESSMENTS(groupId),
+			API_ENDPOINTS.GROUP_ASSESSMENTS(groupId)
 		);
 	}
 
@@ -133,11 +115,9 @@ class GroupService {
 	 * Get groups assigned to an assessment
 	 * GET /assessments/:id/groups
 	 */
-	async getAssessmentGroups(
-		assessmentId: number,
-	): Promise<AssessmentGroupAssignmentResponse> {
+	async getAssessmentGroups(assessmentId: number): Promise<AssessmentGroupAssignmentResponse> {
 		return apiService.get<AssessmentGroupAssignmentResponse>(
-			API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId),
+			API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId)
 		);
 	}
 
@@ -145,30 +125,18 @@ class GroupService {
 	 * Assign assessment to multiple groups
 	 * POST /assessments/:id/groups
 	 */
-	async assignAssessmentToGroups(
-		assessmentId: number,
-		groupIds: number[],
-	): Promise<void> {
+	async assignAssessmentToGroups(assessmentId: number, groupIds: number[]): Promise<void> {
 		const data: AssignToGroupsRequest = { group_ids: groupIds };
-		return apiService.post(
-			API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId),
-			data,
-		);
+		return apiService.post(API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId), data);
 	}
 
 	/**
 	 * Unassign assessment from multiple groups
 	 * DELETE /assessments/:id/groups
 	 */
-	async unassignAssessmentFromGroups(
-		assessmentId: number,
-		groupIds: number[],
-	): Promise<void> {
+	async unassignAssessmentFromGroups(assessmentId: number, groupIds: number[]): Promise<void> {
 		const data: UnassignFromGroupsRequest = { group_ids: groupIds };
-		return apiService.delete(
-			API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId),
-			{ data },
-		);
+		return apiService.delete(API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId), { data });
 	}
 }
 

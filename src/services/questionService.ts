@@ -1,13 +1,13 @@
-import { API_CONFIG, API_ENDPOINTS } from "../config/api";
-import apiService from "./api";
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+import apiService from './api';
 import {
 	Question,
 	QuestionCreateRequest,
 	PaginatedResponse,
 	PaginationParams,
 	PaginatedQuestionResponse,
-} from "../types";
-import { mockQuestions, paginateData, delay } from "./mockData";
+} from '../types';
+import { mockQuestions, paginateData, delay } from './mockData';
 
 class QuestionService {
 	async getQuestions(
@@ -15,19 +15,16 @@ class QuestionService {
 			type?: string;
 			difficulty?: string;
 			search?: string;
-		},
+		}
 	): Promise<PaginatedQuestionResponse<Question>> {
-		return apiService.get<PaginatedQuestionResponse<Question>>(
-			API_ENDPOINTS.QUESTIONS,
-			params,
-		);
+		return apiService.get<PaginatedQuestionResponse<Question>>(API_ENDPOINTS.QUESTIONS, params);
 	}
 
 	async getQuestion(id: number): Promise<Question> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const question = mockQuestions.find((q) => q.id === id);
-			if (!question) throw new Error("Question not found");
+			if (!question) throw new Error('Question not found');
 			return question;
 		}
 
@@ -52,14 +49,11 @@ class QuestionService {
 		return apiService.post<Question>(API_ENDPOINTS.QUESTIONS, data);
 	}
 
-	async updateQuestion(
-		id: number,
-		data: Partial<QuestionCreateRequest>,
-	): Promise<Question> {
+	async updateQuestion(id: number, data: Partial<QuestionCreateRequest>): Promise<Question> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const index = mockQuestions.findIndex((q) => q.id === id);
-			if (index === -1) throw new Error("Question not found");
+			if (index === -1) throw new Error('Question not found');
 
 			mockQuestions[index] = {
 				...mockQuestions[index],
@@ -69,10 +63,7 @@ class QuestionService {
 			return mockQuestions[index];
 		}
 
-		return apiService.put<Question>(
-			API_ENDPOINTS.QUESTION_DETAIL(id),
-			data,
-		);
+		return apiService.put<Question>(API_ENDPOINTS.QUESTION_DETAIL(id), data);
 	}
 
 	async deleteQuestion(id: number): Promise<void> {
@@ -88,9 +79,7 @@ class QuestionService {
 		return apiService.delete(API_ENDPOINTS.QUESTION_DETAIL(id));
 	}
 
-	async batchCreateQuestions(
-		questions: QuestionCreateRequest[],
-	): Promise<Question[]> {
+	async batchCreateQuestions(questions: QuestionCreateRequest[]): Promise<Question[]> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const newQuestions = questions.map((data, index) => ({

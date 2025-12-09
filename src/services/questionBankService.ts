@@ -1,5 +1,5 @@
-import { API_CONFIG, API_ENDPOINTS } from "../config/api";
-import apiService from "./api";
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+import apiService from './api';
 import {
 	QuestionBank,
 	QuestionBankCreateRequest,
@@ -13,16 +13,16 @@ import {
 	UpdateSharePermissionRequest,
 	QuestionBankShare,
 	QuestionBankStats,
-} from "../types";
-import { mockQuestionBanks, paginateData, delay } from "./mockData";
+} from '../types';
+import { mockQuestionBanks, paginateData, delay } from './mockData';
 
 class QuestionBankService {
 	async getQuestionBanks(
-		params?: PaginationParams & { search?: string; is_public?: boolean },
+		params?: PaginationParams & { search?: string; is_public?: boolean }
 	): Promise<PaginatedQuestionBankResponse<QuestionBank>> {
 		return apiService.get<PaginatedQuestionBankResponse<QuestionBank>>(
 			API_ENDPOINTS.QUESTION_BANKS,
-			params,
+			params
 		);
 	}
 
@@ -30,18 +30,14 @@ class QuestionBankService {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const bank = mockQuestionBanks.find((qb) => qb.id === id);
-			if (!bank) throw new Error("Question bank not found");
+			if (!bank) throw new Error('Question bank not found');
 			return bank;
 		}
 
-		return apiService.get<QuestionBank>(
-			API_ENDPOINTS.QUESTION_BANK_DETAIL(id),
-		);
+		return apiService.get<QuestionBank>(API_ENDPOINTS.QUESTION_BANK_DETAIL(id));
 	}
 
-	async createQuestionBank(
-		data: QuestionBankCreateRequest,
-	): Promise<QuestionBank> {
+	async createQuestionBank(data: QuestionBankCreateRequest): Promise<QuestionBank> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const newBank: QuestionBank = {
@@ -57,20 +53,17 @@ class QuestionBankService {
 			return newBank;
 		}
 
-		return apiService.post<QuestionBank>(
-			API_ENDPOINTS.QUESTION_BANKS,
-			data,
-		);
+		return apiService.post<QuestionBank>(API_ENDPOINTS.QUESTION_BANKS, data);
 	}
 
 	async updateQuestionBank(
 		id: number,
-		data: Partial<QuestionBankCreateRequest>,
+		data: Partial<QuestionBankCreateRequest>
 	): Promise<QuestionBank> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const index = mockQuestionBanks.findIndex((qb) => qb.id === id);
-			if (index === -1) throw new Error("Question bank not found");
+			if (index === -1) throw new Error('Question bank not found');
 
 			mockQuestionBanks[index] = {
 				...mockQuestionBanks[index],
@@ -80,10 +73,7 @@ class QuestionBankService {
 			return mockQuestionBanks[index];
 		}
 
-		return apiService.put<QuestionBank>(
-			API_ENDPOINTS.QUESTION_BANK_DETAIL(id),
-			data,
-		);
+		return apiService.put<QuestionBank>(API_ENDPOINTS.QUESTION_BANK_DETAIL(id), data);
 	}
 
 	async deleteQuestionBank(id: number): Promise<void> {
@@ -102,7 +92,7 @@ class QuestionBankService {
 	// Question Management
 	async getQuestionBankQuestions(
 		id: number,
-		params?: PaginationParams,
+		params?: PaginationParams
 	): Promise<PaginatedQuestionResponse<Question>> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
@@ -118,64 +108,49 @@ class QuestionBankService {
 
 		return apiService.get<PaginatedQuestionResponse<Question>>(
 			API_ENDPOINTS.QUESTION_BANK_QUESTIONS(id),
-			params,
+			params
 		);
 	}
 
-	async addQuestionsToBank(
-		bankId: number,
-		data: AddQuestionsRequest,
-	): Promise<void> {
+	async addQuestionsToBank(bankId: number, data: AddQuestionsRequest): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
 		}
 
-		return apiService.post(
-			API_ENDPOINTS.QUESTION_BANK_ADD_QUESTIONS(bankId),
-			data,
-		);
+		return apiService.post(API_ENDPOINTS.QUESTION_BANK_ADD_QUESTIONS(bankId), data);
 	}
 
-	async removeQuestionsFromBank(
-		bankId: number,
-		data: RemoveQuestionsRequest,
-	): Promise<void> {
+	async removeQuestionsFromBank(bankId: number, data: RemoveQuestionsRequest): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
 		}
 
-		return apiService.delete(
-			API_ENDPOINTS.QUESTION_BANK_REMOVE_QUESTIONS(bankId),
-			data,
-		);
+		return apiService.delete(API_ENDPOINTS.QUESTION_BANK_REMOVE_QUESTIONS(bankId), data);
 	}
 
 	// Public & Shared Question Banks
 	async getPublicQuestionBanks(
-		params?: PaginationParams & { search?: string },
+		params?: PaginationParams & { search?: string }
 	): Promise<PaginatedQuestionBankResponse<QuestionBank>> {
 		return apiService.get<PaginatedQuestionBankResponse<QuestionBank>>(
 			API_ENDPOINTS.QUESTION_BANKS_PUBLIC,
-			params,
+			params
 		);
 	}
 
 	async getSharedQuestionBanks(
-		params?: PaginationParams,
+		params?: PaginationParams
 	): Promise<PaginatedQuestionBankResponse<QuestionBank>> {
 		return apiService.get<PaginatedQuestionBankResponse<QuestionBank>>(
 			API_ENDPOINTS.QUESTION_BANKS_SHARED,
-			params,
+			params
 		);
 	}
 
 	// Sharing Management
-	async shareQuestionBank(
-		bankId: number,
-		data: ShareQuestionBankRequest,
-	): Promise<void> {
+	async shareQuestionBank(bankId: number, data: ShareQuestionBankRequest): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
@@ -185,10 +160,9 @@ class QuestionBankService {
 		const promises = data.user_ids.map((userId) =>
 			apiService.post(API_ENDPOINTS.QUESTION_BANK_SHARE(bankId), {
 				user_id: userId,
-				can_edit:
-					data.permission === "edit" || data.permission === "delete",
-				can_delete: data.permission === "delete",
-			}),
+				can_edit: data.permission === 'edit' || data.permission === 'delete',
+				can_delete: data.permission === 'delete',
+			})
 		);
 
 		await Promise.all(promises);
@@ -200,18 +174,12 @@ class QuestionBankService {
 			return [];
 		}
 
-		const shares = await apiService.get<any[]>(
-			API_ENDPOINTS.QUESTION_BANK_SHARES(bankId),
-		);
+		const shares = await apiService.get<any[]>(API_ENDPOINTS.QUESTION_BANK_SHARES(bankId));
 
 		// Map can_edit/can_delete to permission enum
 		return shares.map((share) => ({
 			...share,
-			permission: share.can_delete
-				? "delete"
-				: share.can_edit
-					? "edit"
-					: "view",
+			permission: share.can_delete ? 'delete' : share.can_edit ? 'edit' : 'view',
 		}));
 	}
 
@@ -221,29 +189,23 @@ class QuestionBankService {
 			return;
 		}
 
-		return apiService.delete(
-			API_ENDPOINTS.QUESTION_BANK_UNSHARE(bankId, userId),
-		);
+		return apiService.delete(API_ENDPOINTS.QUESTION_BANK_UNSHARE(bankId, userId));
 	}
 
 	async updateSharePermission(
 		bankId: number,
 		userId: string,
-		data: UpdateSharePermissionRequest,
+		data: UpdateSharePermissionRequest
 	): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
 		}
 
-		return apiService.put(
-			API_ENDPOINTS.QUESTION_BANK_UPDATE_SHARE(bankId, userId),
-			{
-				can_edit:
-					data.permission === "edit" || data.permission === "delete",
-				can_delete: data.permission === "delete",
-			},
-		);
+		return apiService.put(API_ENDPOINTS.QUESTION_BANK_UPDATE_SHARE(bankId, userId), {
+			can_edit: data.permission === 'edit' || data.permission === 'delete',
+			can_delete: data.permission === 'delete',
+		});
 	}
 
 	// Statistics
@@ -259,9 +221,7 @@ class QuestionBankService {
 			};
 		}
 
-		return apiService.get<QuestionBankStats>(
-			API_ENDPOINTS.QUESTION_BANK_STATS(bankId),
-		);
+		return apiService.get<QuestionBankStats>(API_ENDPOINTS.QUESTION_BANK_STATS(bankId));
 	}
 }
 

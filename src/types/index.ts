@@ -1,32 +1,32 @@
 // Base enums
 export enum AssessmentStatus {
-	Draft = "Draft",
-	Active = "Active",
-	Expired = "Expired",
-	Archived = "Archived",
+	Draft = 'Draft',
+	Active = 'Active',
+	Expired = 'Expired',
+	Archived = 'Archived',
 }
 
 export enum QuestionType {
-	MultipleChoice = "multiple_choice",
-	TrueFalse = "true_false",
-	Essay = "essay",
-	FillBlank = "fill_blank",
-	Matching = "matching",
-	Ordering = "ordering",
-	ShortAnswer = "short_answer",
+	MultipleChoice = 'multiple_choice',
+	TrueFalse = 'true_false',
+	Essay = 'essay',
+	FillBlank = 'fill_blank',
+	Matching = 'matching',
+	Ordering = 'ordering',
+	ShortAnswer = 'short_answer',
 }
 
 export enum DifficultyLevel {
-	Easy = "easy",
-	Medium = "medium",
-	Hard = "hard",
+	Easy = 'easy',
+	Medium = 'medium',
+	Hard = 'hard',
 }
 
 export enum AttemptStatus {
-	InProgress = "in_progress",
-	Completed = "completed",
-	Abandoned = "abandoned",
-	Timeout = "timeout",
+	InProgress = 'in_progress',
+	Completed = 'completed',
+	Abandoned = 'abandoned',
+	Timeout = 'timeout',
 }
 
 // Assessment types
@@ -204,9 +204,9 @@ export interface Question {
 
 // Question Bank types
 export enum QuestionBankSharePermission {
-	ViewOnly = "view",
-	CanEdit = "edit",
-	CanDelete = "delete",
+	ViewOnly = 'view',
+	CanEdit = 'edit',
+	CanDelete = 'delete',
 }
 
 export interface QuestionBankCreateRequest {
@@ -503,11 +503,11 @@ export interface ActivityTrend {
 }
 
 export enum RecentActivityAction {
-	CompletedAssessment = "completed_assessment",
-	StartedAssessment = "started_assessment",
-	CreatedQuestion = "created_question",
-	CreatedAssessment = "created_assessment",
-	PublishedAssessment = "published_assessment",
+	CompletedAssessment = 'completed_assessment',
+	StartedAssessment = 'started_assessment',
+	CreatedQuestion = 'created_question',
+	CreatedAssessment = 'created_assessment',
+	PublishedAssessment = 'published_assessment',
 }
 
 export interface RecentActivity {
@@ -764,9 +764,9 @@ export interface StudentProgressItem {
 
 // Group types
 export enum GroupMemberRole {
-	Owner = "owner",
-	CoOwner = "co-owner",
-	Member = "member",
+	Owner = 'owner',
+	CoOwner = 'co-owner',
+	Member = 'member',
 }
 
 export interface Group {

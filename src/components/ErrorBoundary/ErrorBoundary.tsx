@@ -1,7 +1,7 @@
-import { FrownOutlined, HomeOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Button, Result, Space, Typography } from "antd";
-import { Component, ErrorInfo, ReactNode } from "react";
-import { withTranslation, WithTranslation } from "react-i18next";
+import { FrownOutlined, HomeOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Button, Result, Space, Typography } from 'antd';
+import { Component, ErrorInfo, ReactNode } from 'react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
 const { Paragraph, Text } = Typography;
 
@@ -32,9 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
 		};
 	}
 
-	static getDerivedStateFromError(
-		error: Error,
-	): Pick<State, "hasError" | "error"> {
+	static getDerivedStateFromError(error: Error): Pick<State, 'hasError' | 'error'> {
 		return {
 			hasError: true,
 			error,
@@ -44,7 +42,7 @@ export class ErrorBoundary extends Component<Props, State> {
 	componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
 		// Log error to console in development
 		if (import.meta.env.DEV) {
-			console.error("Error caught by ErrorBoundary:", error, errorInfo);
+			console.error('Error caught by ErrorBoundary:', error, errorInfo);
 		}
 
 		// In production, you would send this to an error tracking service
@@ -68,7 +66,7 @@ export class ErrorBoundary extends Component<Props, State> {
 	};
 
 	handleGoHome = (): void => {
-		window.location.href = "/";
+		window.location.href = '/';
 	};
 
 	render(): ReactNode {
@@ -85,18 +83,18 @@ export class ErrorBoundary extends Component<Props, State> {
 			return (
 				<div
 					style={{
-						minHeight: "100vh",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-						padding: "24px",
+						minHeight: '100vh',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						padding: '24px',
 					}}
 				>
 					<Result
 						status="error"
 						icon={<FrownOutlined />}
-						title={this.props.t("errorBoundary.title")}
-						subTitle={this.props.t("errorBoundary.subtitle")}
+						title={this.props.t('errorBoundary.title')}
+						subTitle={this.props.t('errorBoundary.subtitle')}
 						extra={
 							<Space size="middle">
 								<Button
@@ -104,22 +102,17 @@ export class ErrorBoundary extends Component<Props, State> {
 									icon={<ReloadOutlined />}
 									onClick={this.handleReset}
 								>
-									{this.props.t("errorBoundary.retry")}
+									{this.props.t('errorBoundary.retry')}
 								</Button>
-								<Button
-									icon={<HomeOutlined />}
-									onClick={this.handleGoHome}
-								>
-									{this.props.t("errorBoundary.backToHome")}
+								<Button icon={<HomeOutlined />} onClick={this.handleGoHome}>
+									{this.props.t('errorBoundary.backToHome')}
 								</Button>
 							</Space>
 						}
 					>
 						{/* Show error details in development */}
 						{import.meta.env.DEV && error && (
-							<div
-								style={{ textAlign: "left", marginTop: "24px" }}
-							>
+							<div style={{ textAlign: 'left', marginTop: '24px' }}>
 								<Paragraph>
 									<Text strong>Error:</Text>
 								</Paragraph>
@@ -135,7 +128,7 @@ export class ErrorBoundary extends Component<Props, State> {
 											<Text
 												code
 												style={{
-													whiteSpace: "pre-wrap",
+													whiteSpace: 'pre-wrap',
 												}}
 											>
 												{errorInfo.componentStack}

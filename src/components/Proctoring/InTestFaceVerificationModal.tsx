@@ -1,8 +1,8 @@
-import { CheckCircleOutlined } from "@ant-design/icons";
-import { Alert, Button, Modal, Space, Spin, Typography } from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import faceVerificationService from "../../services/faceVerificationService";
+import { CheckCircleOutlined } from '@ant-design/icons';
+import { Alert, Button, Modal, Space, Spin, Typography } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import faceVerificationService from '../../services/faceVerificationService';
 
 const { Text } = Typography;
 
@@ -12,9 +12,11 @@ interface InTestFaceVerificationModalProps {
 	onFail: () => void;
 }
 
-export const InTestFaceVerificationModal: React.FC<
-	InTestFaceVerificationModalProps
-> = ({ open, onSuccess, onFail }) => {
+export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalProps> = ({
+	open,
+	onSuccess,
+	onFail,
+}) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const streamRef = useRef<MediaStream | null>(null);
 	const [verifying, setVerifying] = useState(false);
@@ -43,8 +45,8 @@ export const InTestFaceVerificationModal: React.FC<
 			setCameraReady(true);
 			setError(null);
 		} catch (err) {
-			setError(t("proctoring.inTestFaceVerification.cameraError"));
-			console.error("Camera error:", err);
+			setError(t('proctoring.inTestFaceVerification.cameraError'));
+			console.error('Camera error:', err);
 		}
 	};
 
@@ -59,17 +61,17 @@ export const InTestFaceVerificationModal: React.FC<
 	const captureFrame = (): Promise<Blob> => {
 		return new Promise((resolve, reject) => {
 			if (!videoRef.current) {
-				reject(new Error("Video not ready"));
+				reject(new Error('Video not ready'));
 				return;
 			}
 
-			const canvas = document.createElement("canvas");
+			const canvas = document.createElement('canvas');
 			canvas.width = videoRef.current.videoWidth;
 			canvas.height = videoRef.current.videoHeight;
-			const ctx = canvas.getContext("2d");
+			const ctx = canvas.getContext('2d');
 
 			if (!ctx) {
-				reject(new Error("Canvas context not available"));
+				reject(new Error('Canvas context not available'));
 				return;
 			}
 
@@ -80,11 +82,11 @@ export const InTestFaceVerificationModal: React.FC<
 					if (blob) {
 						resolve(blob);
 					} else {
-						reject(new Error("Failed to capture image"));
+						reject(new Error('Failed to capture image'));
 					}
 				},
-				"image/jpeg",
-				0.95,
+				'image/jpeg',
+				0.95
 			);
 		});
 	};
@@ -102,22 +104,19 @@ export const InTestFaceVerificationModal: React.FC<
 			} else {
 				const similarity = (result.similarity * 100).toFixed(1);
 				setError(
-					t("proctoring.inTestFaceVerification.verificationFailed", {
+					t('proctoring.inTestFaceVerification.verificationFailed', {
 						similarity,
 						reason:
-							result.reason ||
-							t(
-								"proctoring.inTestFaceVerification.pleaseTryAgain",
-							),
-					}),
+							result.reason || t('proctoring.inTestFaceVerification.pleaseTryAgain'),
+					})
 				);
 			}
 		} catch (err: any) {
 			setError(
 				err.response?.data?.detail ||
-					t("proctoring.inTestFaceVerification.verificationError"),
+					t('proctoring.inTestFaceVerification.verificationError')
 			);
-			console.error("Verification error:", err);
+			console.error('Verification error:', err);
 		} finally {
 			setVerifying(false);
 		}
@@ -125,7 +124,7 @@ export const InTestFaceVerificationModal: React.FC<
 
 	return (
 		<Modal
-			title={t("proctoring.inTestFaceVerification.title")}
+			title={t('proctoring.inTestFaceVerification.title')}
 			open={open}
 			closable={false}
 			maskClosable={false}
@@ -138,52 +137,43 @@ export const InTestFaceVerificationModal: React.FC<
 					loading={verifying}
 					disabled={!cameraReady || !!error}
 				>
-					{t("proctoring.inTestFaceVerification.verify")}
+					{t('proctoring.inTestFaceVerification.verify')}
 				</Button>,
 				error && (
 					<Button key="retry" onClick={() => setError(null)}>
-						{t("proctoring.inTestFaceVerification.retry")}
+						{t('proctoring.inTestFaceVerification.retry')}
 					</Button>
 				),
 			].filter(Boolean)}
 			width={600}
 		>
-			<Space direction="vertical" style={{ width: "100%" }} size="large">
+			<Space direction="vertical" style={{ width: '100%' }} size="large">
 				<Alert
-					message={t(
-						"proctoring.inTestFaceVerification.faceChangeDetected",
-					)}
-					description={t(
-						"proctoring.inTestFaceVerification.faceChangeDescription",
-					)}
+					message={t('proctoring.inTestFaceVerification.faceChangeDetected')}
+					description={t('proctoring.inTestFaceVerification.faceChangeDescription')}
 					type="warning"
 					showIcon
 				/>
 
-				<div style={{ textAlign: "center" }}>
+				<div style={{ textAlign: 'center' }}>
 					<video
 						ref={videoRef}
 						autoPlay
 						playsInline
 						muted
 						style={{
-							width: "100%",
-							maxWidth: "480px",
-							borderRadius: "8px",
-							border: "2px solid #d9d9d9",
-							transform: "scaleX(-1)",
+							width: '100%',
+							maxWidth: '480px',
+							borderRadius: '8px',
+							border: '2px solid #d9d9d9',
+							transform: 'scaleX(-1)',
 						}}
 					/>
 					{!cameraReady && (
 						<div style={{ marginTop: 16 }}>
 							<Spin />
-							<Text
-								type="secondary"
-								style={{ display: "block", marginTop: 8 }}
-							>
-								{t(
-									"proctoring.inTestFaceVerification.startingCamera",
-								)}
+							<Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+								{t('proctoring.inTestFaceVerification.startingCamera')}
 							</Text>
 						</div>
 					)}

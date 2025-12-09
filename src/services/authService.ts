@@ -1,5 +1,5 @@
-import { CasdoorConfig } from "../config/casdoor";
-import { TokenService } from "./tokenService";
+import { CasdoorConfig } from '../config/casdoor';
+import { TokenService } from './tokenService';
 
 export class AuthService {
 	/**
@@ -20,25 +20,20 @@ export class AuthService {
 
 				try {
 					await fetch(logoutUrl, {
-						method: "POST",
+						method: 'POST',
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
-							"Content-Type": "application/json",
+							'Content-Type': 'application/json',
 						},
-						credentials: "include", // Include cookies for session handling
+						credentials: 'include', // Include cookies for session handling
 						signal: controller.signal,
 					});
 				} catch (fetchError) {
 					// Log error but don't throw - we'll clear local state anyway
-					if (
-						fetchError instanceof Error &&
-						fetchError.name === "AbortError"
-					) {
-						console.warn(
-							"Logout request timed out after 5 seconds",
-						);
+					if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+						console.warn('Logout request timed out after 5 seconds');
 					} else {
-						console.error("Logout API error:", fetchError);
+						console.error('Logout API error:', fetchError);
 					}
 				} finally {
 					clearTimeout(timeoutId);
@@ -46,7 +41,7 @@ export class AuthService {
 			}
 		} catch (error) {
 			// Log unexpected errors but continue to clear local state
-			console.error("Unexpected logout error:", error);
+			console.error('Unexpected logout error:', error);
 		} finally {
 			// Always clear local authentication state regardless of API success
 			// This ensures the user appears logged out even if the endpoint fails

@@ -1,7 +1,7 @@
-import { API_CONFIG, API_ENDPOINTS } from "../config/api";
-import apiService from "./api";
-import { User, PaginationParams } from "../types";
-import { delay } from "./mockData";
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+import apiService from './api';
+import { User, PaginationParams } from '../types';
+import { delay } from './mockData';
 
 interface UserListResponse {
 	users: User[];
@@ -21,31 +21,31 @@ class UserService {
 			await delay();
 			const mockUsers: User[] = [
 				{
-					id: "user_1",
-					full_name: "Nguyễn Văn A",
-					email: "nguyenvana@example.com",
-					role: "teacher",
-					avatar_url: "https://i.pravatar.cc/150?img=1",
+					id: 'user_1',
+					full_name: 'Nguyễn Văn A',
+					email: 'nguyenvana@example.com',
+					role: 'teacher',
+					avatar_url: 'https://i.pravatar.cc/150?img=1',
 					email_verified: true,
 					created_at: new Date().toISOString(),
 					updated_at: new Date().toISOString(),
 				},
 				{
-					id: "user_2",
-					full_name: "Trần Thị B",
-					email: "tranthib@example.com",
-					role: "teacher",
-					avatar_url: "https://i.pravatar.cc/150?img=2",
+					id: 'user_2',
+					full_name: 'Trần Thị B',
+					email: 'tranthib@example.com',
+					role: 'teacher',
+					avatar_url: 'https://i.pravatar.cc/150?img=2',
 					email_verified: true,
 					created_at: new Date().toISOString(),
 					updated_at: new Date().toISOString(),
 				},
 				{
-					id: "user_3",
-					full_name: "Lê Văn C",
-					email: "levanc@example.com",
-					role: "student",
-					avatar_url: "https://i.pravatar.cc/150?img=3",
+					id: 'user_3',
+					full_name: 'Lê Văn C',
+					email: 'levanc@example.com',
+					role: 'student',
+					avatar_url: 'https://i.pravatar.cc/150?img=3',
 					email_verified: true,
 					created_at: new Date().toISOString(),
 					updated_at: new Date().toISOString(),
@@ -58,7 +58,7 @@ class UserService {
 				filtered = filtered.filter(
 					(u) =>
 						u.full_name.toLowerCase().includes(search) ||
-						u.email.toLowerCase().includes(search),
+						u.email.toLowerCase().includes(search)
 				);
 			}
 
@@ -87,10 +87,7 @@ class UserService {
 			return this.getUsers(params);
 		}
 
-		return apiService.get<UserListResponse>(
-			API_ENDPOINTS.USERS_SEARCH,
-			params,
-		);
+		return apiService.get<UserListResponse>(API_ENDPOINTS.USERS_SEARCH, params);
 	}
 
 	async getUser(id: string): Promise<User> {
@@ -98,9 +95,9 @@ class UserService {
 			await delay();
 			return {
 				id,
-				full_name: "Mock User",
-				email: "mock@example.com",
-				role: "teacher",
+				full_name: 'Mock User',
+				email: 'mock@example.com',
+				role: 'teacher',
 				email_verified: true,
 				created_at: new Date().toISOString(),
 				updated_at: new Date().toISOString(),

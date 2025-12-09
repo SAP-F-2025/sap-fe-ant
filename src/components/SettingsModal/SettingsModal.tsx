@@ -13,9 +13,9 @@ import {
 	SafetyOutlined,
 	SunOutlined,
 	UserOutlined,
-} from "@ant-design/icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { MenuProps } from "antd";
+} from '@ant-design/icons';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { MenuProps } from 'antd';
 import {
 	Alert,
 	App,
@@ -30,37 +30,37 @@ import {
 	Switch,
 	Tag,
 	Typography,
-} from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { CasdoorConfig } from "../../config/casdoor";
-import { useAuth } from "../../hooks/useAuth";
+} from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CasdoorConfig } from '../../config/casdoor';
+import { useAuth } from '../../hooks/useAuth';
 import {
 	changeLanguage,
 	getCurrentLanguage,
 	supportedLanguages,
 	type SupportedLanguage,
-} from "../../i18n";
-import faceVerificationService from "../../services/faceVerificationService";
-import { useTheme, useThemeToken } from "../../theme/ThemeProvider";
-import type { ThemeMode } from "../../theme/tokens";
-import { getUserRole } from "../../utils/roleChecker";
-import { ShortcutsModal } from "../ShortcutsModal";
-import "./SettingsModal.css";
+} from '../../i18n';
+import faceVerificationService from '../../services/faceVerificationService';
+import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
+import type { ThemeMode } from '../../theme/tokens';
+import { getUserRole } from '../../utils/roleChecker';
+import { ShortcutsModal } from '../ShortcutsModal';
+import './SettingsModal.css';
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 
 // Settings section types
 export type SettingsSection =
-	| "my-account"
-	| "profile"
-	| "security"
-	| "notifications"
-	| "appearance"
-	| "accessibility"
-	| "language"
-	| "about";
+	| 'my-account'
+	| 'profile'
+	| 'security'
+	| 'notifications'
+	| 'appearance'
+	| 'accessibility'
+	| 'language'
+	| 'about';
 
 interface SettingsModalProps {
 	open: boolean;
@@ -78,28 +78,21 @@ interface SettingItemProps {
 /**
  * Individual setting item with title and optional description
  */
-const SettingItem: React.FC<SettingItemProps> = ({
-	title,
-	description,
-	children,
-	noBorder,
-}) => {
+const SettingItem: React.FC<SettingItemProps> = ({ title, description, children, noBorder }) => {
 	const { token } = useThemeToken();
 
 	return (
 		<div
 			style={{
-				display: "flex",
-				justifyContent: "space-between",
-				alignItems: "center",
-				padding: "12px 0",
-				borderBottom: noBorder
-					? "none"
-					: `1px solid ${token.colorBorderSecondary}`,
+				display: 'flex',
+				justifyContent: 'space-between',
+				alignItems: 'center',
+				padding: '12px 0',
+				borderBottom: noBorder ? 'none' : `1px solid ${token.colorBorderSecondary}`,
 			}}
 		>
 			<div style={{ flex: 1, marginRight: 16 }}>
-				<Text strong style={{ display: "block", marginBottom: 4 }}>
+				<Text strong style={{ display: 'block', marginBottom: 4 }}>
 					{title}
 				</Text>
 				{description && (
@@ -120,37 +113,34 @@ const SettingItem: React.FC<SettingItemProps> = ({
 export const SettingsModal: React.FC<SettingsModalProps> = ({
 	open,
 	onClose,
-	defaultSection = "my-account",
+	defaultSection = 'my-account',
 }) => {
 	const { token } = useThemeToken();
 	const { mode, setMode, toggleDark } = useTheme();
 	const { user, logout } = useAuth();
 	const { t } = useTranslation();
-	const [activeSection, setActiveSection] =
-		useState<SettingsSection>(defaultSection);
-	const [searchQuery, setSearchQuery] = useState("");
+	const [activeSection, setActiveSection] = useState<SettingsSection>(defaultSection);
+	const [searchQuery, setSearchQuery] = useState('');
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 	const [blinkRed, setBlinkRed] = useState(false);
-	const [shortcutContext, setShortcutContext] = useState<
-		string | undefined
-	>();
+	const [shortcutContext, setShortcutContext] = useState<string | undefined>();
 
 	const sections: SettingsSection[] = [
-		"my-account",
-		"profile",
-		"security",
-		"notifications",
-		"appearance",
-		"accessibility",
-		"language",
-		"about",
+		'my-account',
+		'profile',
+		'security',
+		'notifications',
+		'appearance',
+		'accessibility',
+		'language',
+		'about',
 	];
 
 	// Reset to default section when modal opens
 	useEffect(() => {
 		if (open) {
 			setActiveSection(defaultSection);
-			setSearchQuery("");
+			setSearchQuery('');
 		}
 	}, [open, defaultSection]);
 
@@ -158,7 +148,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	useEffect(() => {
 		const handleClose = (e: KeyboardEvent) => {
 			if (!open) return;
-			if (e.key === "Escape" || (e.ctrlKey && e.key === ",")) {
+			if (e.key === 'Escape' || (e.ctrlKey && e.key === ',')) {
 				if (hasUnsavedChanges) {
 					setBlinkRed(true);
 					setTimeout(() => setBlinkRed(false), 300);
@@ -168,109 +158,109 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 				onClose();
 			}
 		};
-		window.addEventListener("keydown", handleClose);
-		return () => window.removeEventListener("keydown", handleClose);
+		window.addEventListener('keydown', handleClose);
+		return () => window.removeEventListener('keydown', handleClose);
 	}, [open, onClose, hasUnsavedChanges]);
 
 	// Menu items for sidebar
-	const menuItems: MenuProps["items"] = [
+	const menuItems: MenuProps['items'] = [
 		{
-			key: "user-settings",
-			type: "group",
+			key: 'user-settings',
+			type: 'group',
 			label: (
 				<Text
 					type="secondary"
 					style={{
 						fontSize: 11,
 						fontWeight: 700,
-						textTransform: "uppercase",
+						textTransform: 'uppercase',
 					}}
 				>
-					{t("settings.userSettings")}
+					{t('settings.userSettings')}
 				</Text>
 			),
 			children: [
 				{
-					key: "my-account",
+					key: 'my-account',
 					icon: <UserOutlined />,
-					label: t("settings.account"),
+					label: t('settings.account'),
 				},
 				{
-					key: "profile",
+					key: 'profile',
 					icon: <UserOutlined />,
-					label: t("settings.profile"),
+					label: t('settings.profile'),
 				},
 				{
-					key: "security",
+					key: 'security',
 					icon: <SafetyOutlined />,
-					label: t("settings.securityAuth"),
+					label: t('settings.securityAuth'),
 				},
 			],
 		},
 		{
-			key: "app-settings",
-			type: "group",
+			key: 'app-settings',
+			type: 'group',
 			label: (
 				<Text
 					type="secondary"
 					style={{
 						fontSize: 11,
 						fontWeight: 700,
-						textTransform: "uppercase",
+						textTransform: 'uppercase',
 					}}
 				>
-					{t("settings.appSettings")}
+					{t('settings.appSettings')}
 				</Text>
 			),
 			children: [
 				{
-					key: "notifications",
+					key: 'notifications',
 					icon: <BellOutlined />,
-					label: t("settings.notifications"),
+					label: t('settings.notifications'),
 				},
 				{
-					key: "appearance",
+					key: 'appearance',
 					icon: <BgColorsOutlined />,
-					label: t("settings.appearance"),
+					label: t('settings.appearance'),
 				},
 				{
-					key: "accessibility",
+					key: 'accessibility',
 					icon: <EyeOutlined />,
-					label: t("settings.accessibility"),
+					label: t('settings.accessibility'),
 				},
 				{
-					key: "language",
+					key: 'language',
 					icon: <GlobalOutlined />,
-					label: t("settings.language"),
+					label: t('settings.language'),
 				},
 			],
 		},
 		{
-			type: "divider",
+			type: 'divider',
 		},
 		{
-			key: "about",
+			key: 'about',
 			icon: <InfoCircleOutlined />,
-			label: t("settings.about"),
+			label: t('settings.about'),
 		},
 		{
-			type: "divider",
+			type: 'divider',
 		},
 		{
-			key: "logout",
+			key: 'logout',
 			icon: <CloseOutlined />,
-			label: <Text type="danger">{t("auth.logout")}</Text>,
+			label: <Text type="danger">{t('auth.logout')}</Text>,
 			danger: true,
 		},
 	];
 
-	const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
+	const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
 		if (hasUnsavedChanges) {
 			setBlinkRed(true);
 			setTimeout(() => setBlinkRed(false), 300);
 			return;
 		}
-		if (key === "logout") {
+		if (key === 'logout') {
 			logout();
 			onClose();
 		} else {
@@ -294,8 +284,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	};
 
 	useEffect(() => {
-		if (activeSection === "notifications" && hasUnsavedChanges) {
-			setShortcutContext("settings-notifications");
+		if (activeSection === 'notifications' && hasUnsavedChanges) {
+			setShortcutContext('settings-notifications');
 		} else {
 			setShortcutContext(undefined);
 		}
@@ -306,123 +296,104 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
 		const handleKeyDown = (e: KeyboardEvent) => {
 			// Allow Ctrl+Backspace and Ctrl+Enter to pass through for notifications section
-			if (e.ctrlKey && (e.key === "Backspace" || e.key === "Enter"))
-				return;
+			if (e.ctrlKey && (e.key === 'Backspace' || e.key === 'Enter')) return;
 
 			if (hasUnsavedChanges && (e.altKey || e.shiftKey)) return;
 
 			// Alt+Arrow: Navigate between tabs
-			if (e.altKey && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+			if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
 				e.preventDefault();
 				const currentIndex = sections.indexOf(activeSection);
 				const nextIndex =
-					e.key === "ArrowDown"
+					e.key === 'ArrowDown'
 						? (currentIndex + 1) % sections.length
-						: (currentIndex - 1 + sections.length) %
-							sections.length;
+						: (currentIndex - 1 + sections.length) % sections.length;
 				setActiveSection(sections[nextIndex]);
 			}
 
 			// Shift+Arrow: Navigate within tab
-			if (e.shiftKey && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+			if (e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
 				e.preventDefault();
-				const contentArea = document.querySelector(
-					".settings-content-area",
-				);
+				const contentArea = document.querySelector('.settings-content-area');
 				if (!contentArea) return;
 				const focusableElements = contentArea.querySelectorAll(
-					'button:not([disabled]), [role="switch"]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])',
+					'button:not([disabled]), [role="switch"]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
 				);
 				const elements = Array.from(focusableElements).filter((el) => {
 					const rect = el.getBoundingClientRect();
 					return rect.width > 0 && rect.height > 0;
 				});
 				if (elements.length === 0) return;
-				const currentIndex = elements.indexOf(
-					document.activeElement as Element,
-				);
+				const currentIndex = elements.indexOf(document.activeElement as Element);
 				const nextIndex =
-					e.key === "ArrowDown"
+					e.key === 'ArrowDown'
 						? currentIndex === -1
 							? 0
 							: (currentIndex + 1) % elements.length
 						: currentIndex === -1
 							? elements.length - 1
-							: (currentIndex - 1 + elements.length) %
-								elements.length;
+							: (currentIndex - 1 + elements.length) % elements.length;
 				(elements[nextIndex] as HTMLElement).focus();
 			}
 		};
 
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, [open, activeSection, sections, hasUnsavedChanges]);
 
 	// Render content based on active section
 	const renderContent = () => {
 		switch (activeSection) {
-			case "my-account":
+			case 'my-account':
 				return (
 					<MyAccountSection
 						user={user}
-						onEditProfile={() =>
-							(window.location.href = getCasdoorAccountUrl())
-						}
+						onEditProfile={() => (window.location.href = getCasdoorAccountUrl())}
 					/>
 				);
-			case "profile":
+			case 'profile':
 				return <ProfileSection user={user} />;
-			case "security":
+			case 'security':
 				return (
 					<SecuritySection
 						user={user}
-						onEditProfile={() =>
-							(window.location.href = getCasdoorAccountUrl())
-						}
+						onEditProfile={() => (window.location.href = getCasdoorAccountUrl())}
 					/>
 				);
-			case "notifications":
+			case 'notifications':
 				return (
 					<NotificationsSection
 						onChangesStateChange={setHasUnsavedChanges}
 						blinkRed={blinkRed}
 					/>
 				);
-			case "appearance":
-				return (
-					<AppearanceSection
-						mode={mode}
-						setMode={setMode}
-						toggleDark={toggleDark}
-					/>
-				);
-			case "accessibility":
+			case 'appearance':
+				return <AppearanceSection mode={mode} setMode={setMode} toggleDark={toggleDark} />;
+			case 'accessibility':
 				return <AccessibilitySection />;
-			case "language":
+			case 'language':
 				return <LanguageSection />;
-			case "about":
+			case 'about':
 				return <AboutSection />;
 			default:
 				return (
 					<MyAccountSection
 						user={user}
-						onEditProfile={() =>
-							(window.location.href = getCasdoorAccountUrl())
-						}
+						onEditProfile={() => (window.location.href = getCasdoorAccountUrl())}
 					/>
 				);
 		}
 	};
 
 	const sectionTitles: Record<SettingsSection, string> = {
-		"my-account": t("settings.myAccount"),
-		profile: t("settings.profile"),
-		security: t("settings.securityAuth"),
-		notifications: t("settings.notifications"),
-		appearance: t("settings.appearance"),
-		accessibility: t("settings.accessibility"),
-		language: t("settings.language"),
-		about: t("settings.about"),
+		'my-account': t('settings.myAccount'),
+		profile: t('settings.profile'),
+		security: t('settings.securityAuth'),
+		notifications: t('settings.notifications'),
+		appearance: t('settings.appearance'),
+		accessibility: t('settings.accessibility'),
+		language: t('settings.language'),
+		about: t('settings.about'),
 	};
 
 	return (
@@ -440,22 +411,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 			styles={{
 				body: {
 					padding: 0,
-					border: "none",
+					border: 'none',
 				},
 				content: {
 					borderRadius: 12,
-					height: "85vh",
-					overflow: "hidden",
-					boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-					border: "none",
+					height: '85vh',
+					overflow: 'hidden',
+					boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+					border: 'none',
 					padding: 0,
 				},
 				header: {
-					display: "none",
+					display: 'none',
 				},
 				mask: {
-					background: "rgba(0, 0, 0, 0.75)",
-					backdropFilter: "blur(4px)",
+					background: 'rgba(0, 0, 0, 0.75)',
+					backdropFilter: 'blur(4px)',
 				},
 			}}
 			maskClosable={true}
@@ -463,11 +434,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		>
 			<div
 				style={{
-					display: "flex",
-					height: "85vh",
+					display: 'flex',
+					height: '85vh',
 					background: token.colorBgContainer,
 					borderRadius: 12,
-					overflow: "hidden",
+					overflow: 'hidden',
 				}}
 			>
 				{/* Left Sidebar */}
@@ -476,34 +447,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						width: 220,
 						background: token.colorBgLayout,
 						borderRight: `1px solid ${token.colorBorderSecondary}`,
-						display: "flex",
-						flexDirection: "column",
+						display: 'flex',
+						flexDirection: 'column',
 						flexShrink: 0,
 					}}
 				>
 					{/* Search */}
-					<div style={{ padding: "16px 12px 8px" }}>
+					<div style={{ padding: '16px 12px 8px' }}>
 						<Search
-							placeholder={t("settings.search")}
+							placeholder={t('settings.search')}
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							style={{ width: "100%" }}
+							style={{ width: '100%' }}
 							size="small"
 						/>
 					</div>
 
 					{/* Navigation Menu */}
-					<div
-						style={{ flex: 1, overflow: "auto", padding: "0 8px" }}
-					>
+					<div style={{ flex: 1, overflow: 'auto', padding: '0 8px' }}>
 						<Menu
 							mode="inline"
 							selectedKeys={[activeSection]}
 							onClick={handleMenuClick}
 							items={menuItems}
 							style={{
-								border: "none",
-								background: "transparent",
+								border: 'none',
+								background: 'transparent',
 							}}
 						/>
 					</div>
@@ -513,19 +482,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 				<div
 					style={{
 						flex: 1,
-						display: "flex",
-						flexDirection: "column",
-						overflow: "hidden",
+						display: 'flex',
+						flexDirection: 'column',
+						overflow: 'hidden',
 					}}
 				>
 					{/* Header */}
 					<div
 						style={{
-							padding: "16px 24px",
+							padding: '16px 24px',
 							borderBottom: `1px solid ${token.colorBorderSecondary}`,
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "center",
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
 							background: token.colorBgContainer,
 						}}
 					>
@@ -545,15 +514,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						className="settings-content-area"
 						style={{
 							flex: 1,
-							overflow: "auto",
-							padding: "24px 48px",
-							display: "flex",
-							justifyContent: "center",
+							overflow: 'auto',
+							padding: '24px 48px',
+							display: 'flex',
+							justifyContent: 'center',
 						}}
 					>
-						<div style={{ width: "100%", maxWidth: 660 }}>
-							{renderContent()}
-						</div>
+						<div style={{ width: '100%', maxWidth: 660 }}>{renderContent()}</div>
 						<style>{`
 							.settings-content-area *:focus {
 								outline: 2px solid ${token.colorPrimary} !important;
@@ -578,10 +545,7 @@ interface MyAccountSectionProps {
 	onEditProfile: () => void;
 }
 
-const MyAccountSection: React.FC<MyAccountSectionProps> = ({
-	user,
-	onEditProfile,
-}) => {
+const MyAccountSection: React.FC<MyAccountSectionProps> = ({ user, onEditProfile }) => {
 	const { token } = useThemeToken();
 	const { t } = useTranslation();
 
@@ -591,7 +555,7 @@ const MyAccountSection: React.FC<MyAccountSectionProps> = ({
 			<div
 				style={{
 					borderRadius: 8,
-					overflow: "hidden",
+					overflow: 'hidden',
 					marginBottom: 24,
 				}}
 			>
@@ -606,9 +570,9 @@ const MyAccountSection: React.FC<MyAccountSectionProps> = ({
 				{/* User Info */}
 				<div
 					style={{
-						padding: "0 16px 16px",
+						padding: '0 16px 16px',
 						background: token.colorBgElevated,
-						position: "relative",
+						position: 'relative',
 					}}
 				>
 					<Avatar
@@ -624,19 +588,17 @@ const MyAccountSection: React.FC<MyAccountSectionProps> = ({
 					<div style={{ marginTop: 8 }}>
 						<Space>
 							<Text strong style={{ fontSize: 20 }}>
-								{user?.displayName || user?.name || "User"}
+								{user?.displayName || user?.name || 'User'}
 							</Text>
-							<Text type="secondary">
-								#{user?.id?.slice(-4) || "0000"}
-							</Text>
+							<Text type="secondary">#{user?.id?.slice(-4) || '0000'}</Text>
 						</Space>
 					</div>
 					<Button
 						type="primary"
-						style={{ position: "absolute", top: 16, right: 16 }}
+						style={{ position: 'absolute', top: 16, right: 16 }}
 						onClick={onEditProfile}
 					>
-						{t("settings.editProfile")}
+						{t('settings.editProfile')}
 					</Button>
 				</div>
 			</div>
@@ -650,36 +612,30 @@ const MyAccountSection: React.FC<MyAccountSectionProps> = ({
 				}}
 			>
 				<SettingItem
-					title={t("settings.displayName")}
-					description={user?.displayName || user?.name || "-"}
+					title={t('settings.displayName')}
+					description={user?.displayName || user?.name || '-'}
 				>
 					<Button size="small" onClick={onEditProfile}>
-						{t("common.edit")}
+						{t('common.edit')}
+					</Button>
+				</SettingItem>
+				<SettingItem title={t('settings.username')} description={user?.name || '-'}>
+					<Button size="small" onClick={onEditProfile}>
+						{t('common.edit')}
+					</Button>
+				</SettingItem>
+				<SettingItem title={t('settings.email')} description={user?.email || '-'}>
+					<Button size="small" onClick={onEditProfile}>
+						{t('common.edit')}
 					</Button>
 				</SettingItem>
 				<SettingItem
-					title={t("settings.username")}
-					description={user?.name || "-"}
-				>
-					<Button size="small" onClick={onEditProfile}>
-						{t("common.edit")}
-					</Button>
-				</SettingItem>
-				<SettingItem
-					title={t("settings.email")}
-					description={user?.email || "-"}
-				>
-					<Button size="small" onClick={onEditProfile}>
-						{t("common.edit")}
-					</Button>
-				</SettingItem>
-				<SettingItem
-					title={t("settings.phone")}
-					description={user?.phone || t("settings.notAdded")}
+					title={t('settings.phone')}
+					description={user?.phone || t('settings.notAdded')}
 					noBorder
 				>
 					<Button size="small" onClick={onEditProfile}>
-						{t("common.edit")}
+						{t('common.edit')}
 					</Button>
 				</SettingItem>
 			</div>
@@ -696,12 +652,12 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 	const { t } = useTranslation();
 
 	const formatDate = (dateString?: string) => {
-		if (!dateString) return "-";
+		if (!dateString) return '-';
 		const date = new Date(dateString);
-		return date.toLocaleDateString("vi-VN", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
+		return date.toLocaleDateString('vi-VN', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
 		});
 	};
 
@@ -710,7 +666,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				{t("settings.publicProfileInfo")}
+				{t('settings.publicProfileInfo')}
 			</Paragraph>
 
 			{/* Basic Info */}
@@ -722,28 +678,19 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 					marginBottom: 24,
 				}}
 			>
-				<SettingItem
-					title={t("settings.avatar")}
-					description={t("settings.yourAvatar")}
-				>
-					<Avatar
-						size={64}
-						src={user?.avatar}
-						icon={<UserOutlined />}
-					/>
+				<SettingItem title={t('settings.avatar')} description={t('settings.yourAvatar')}>
+					<Avatar size={64} src={user?.avatar} icon={<UserOutlined />} />
 				</SettingItem>
-				<SettingItem title={t("settings.role")} noBorder>
+				<SettingItem title={t('settings.role')} noBorder>
 					<Space>
-						{userRole === "admin" && (
+						{userRole === 'admin' && (
 							<Tag color="red" icon={<SafetyOutlined />}>
 								Admin
 							</Tag>
 						)}
-						{userRole === "teacher" && (
-							<Tag color="blue">{t("user.role.teacher")}</Tag>
-						)}
-						{userRole === "student" && (
-							<Tag color="green">{t("user.role.student")}</Tag>
+						{userRole === 'teacher' && <Tag color="blue">{t('user.role.teacher')}</Tag>}
+						{userRole === 'student' && (
+							<Tag color="green">{t('user.role.student')}</Tag>
 						)}
 					</Space>
 				</SettingItem>
@@ -751,7 +698,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 
 			{/* Detailed Info */}
 			<Title level={5} style={{ marginBottom: 16 }}>
-				{t("settings.detailedInfo")}
+				{t('settings.detailedInfo')}
 			</Title>
 			<div
 				style={{
@@ -761,23 +708,15 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 					marginBottom: 24,
 				}}
 			>
-				<Descriptions
-					column={1}
-					size="small"
-					labelStyle={{ width: 140 }}
-				>
-					{user?.id && (
-						<Descriptions.Item label="ID">
-							{user.id}
-						</Descriptions.Item>
-					)}
+				<Descriptions column={1} size="small" labelStyle={{ width: 140 }}>
+					{user?.id && <Descriptions.Item label="ID">{user.id}</Descriptions.Item>}
 					{(user as any)?.education && (
-						<Descriptions.Item label={t("settings.school")}>
+						<Descriptions.Item label={t('settings.school')}>
 							{(user as any).education}
 						</Descriptions.Item>
 					)}
 					{user?.owner && (
-						<Descriptions.Item label={t("settings.organization")}>
+						<Descriptions.Item label={t('settings.organization')}>
 							{user.owner}
 						</Descriptions.Item>
 					)}
@@ -785,8 +724,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 						<Descriptions.Item
 							label={
 								<>
-									<ClockCircleOutlined />{" "}
-									{t("settings.createdDate")}
+									<ClockCircleOutlined /> {t('settings.createdDate')}
 								</>
 							}
 						>
@@ -800,7 +738,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 			{(user?.roles?.length > 0 || user?.permissions?.length > 0) && (
 				<>
 					<Title level={5} style={{ marginBottom: 16 }}>
-						{t("settings.rolesPermissions")}
+						{t('settings.rolesPermissions')}
 					</Title>
 					<div
 						style={{
@@ -812,30 +750,24 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 						{user?.roles?.length > 0 && (
 							<div
 								style={{
-									marginBottom: user?.permissions?.length
-										? 16
-										: 0,
+									marginBottom: user?.permissions?.length ? 16 : 0,
 								}}
 							>
 								<Text
 									strong
 									style={{
-										display: "block",
+										display: 'block',
 										marginBottom: 8,
 									}}
 								>
-									{t("settings.roles")}:
+									{t('settings.roles')}:
 								</Text>
 								<Space size={[0, 8]} wrap>
-									{user.roles.map(
-										(role: any, index: number) => (
-											<Tag key={index} color="blue">
-												{role.displayName ||
-													role.name ||
-													role}
-											</Tag>
-										),
-									)}
+									{user.roles.map((role: any, index: number) => (
+										<Tag key={index} color="blue">
+											{role.displayName || role.name || role}
+										</Tag>
+									))}
 								</Space>
 							</div>
 						)}
@@ -844,22 +776,20 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
 								<Text
 									strong
 									style={{
-										display: "block",
+										display: 'block',
 										marginBottom: 8,
 									}}
 								>
-									{t("settings.permissions")}:
+									{t('settings.permissions')}:
 								</Text>
 								<Space size={[0, 8]} wrap>
-									{user.permissions.map(
-										(permission: any, index: number) => (
-											<Tag key={index} color="green">
-												{permission.displayName ||
-													permission.name ||
-													permission}
-											</Tag>
-										),
-									)}
+									{user.permissions.map((permission: any, index: number) => (
+										<Tag key={index} color="green">
+											{permission.displayName ||
+												permission.name ||
+												permission}
+										</Tag>
+									))}
 								</Space>
 							</div>
 						)}
@@ -875,10 +805,7 @@ interface SecuritySectionProps {
 	onEditProfile: () => void;
 }
 
-const SecuritySection: React.FC<SecuritySectionProps> = ({
-	user,
-	onEditProfile,
-}) => {
+const SecuritySection: React.FC<SecuritySectionProps> = ({ user, onEditProfile }) => {
 	const { token } = useThemeToken();
 	const { message, modal } = App.useApp();
 	const queryClient = useQueryClient();
@@ -893,22 +820,20 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 
 	// Face registration status query
 	const { data: registrationStatus, isLoading: statusLoading } = useQuery({
-		queryKey: ["face-registration-status"],
+		queryKey: ['face-registration-status'],
 		queryFn: () => faceVerificationService.checkRegistrationStatus(),
 	});
 
 	const deleteFaceMutation = useMutation({
 		mutationFn: () => faceVerificationService.deleteFace(),
 		onSuccess: () => {
-			message.success(t("settings.faceDeleted"));
+			message.success(t('settings.faceDeleted'));
 			queryClient.invalidateQueries({
-				queryKey: ["face-registration-status"],
+				queryKey: ['face-registration-status'],
 			});
 		},
 		onError: (error: any) => {
-			message.error(
-				error.response?.data?.detail || t("settings.faceDeleteError"),
-			);
+			message.error(error.response?.data?.detail || t('settings.faceDeleteError'));
 		},
 	});
 
@@ -923,7 +848,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 			}
 			setCameraReady(true);
 		} catch (err) {
-			message.error(t("settings.cameraAccessError"));
+			message.error(t('settings.cameraAccessError'));
 		}
 	};
 
@@ -938,15 +863,15 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 	const captureFrame = (): Promise<Blob> => {
 		return new Promise((resolve, reject) => {
 			if (!videoRef.current) {
-				reject(new Error("Video not ready"));
+				reject(new Error('Video not ready'));
 				return;
 			}
-			const canvas = document.createElement("canvas");
+			const canvas = document.createElement('canvas');
 			canvas.width = videoRef.current.videoWidth;
 			canvas.height = videoRef.current.videoHeight;
-			const ctx = canvas.getContext("2d");
+			const ctx = canvas.getContext('2d');
 			if (!ctx) {
-				reject(new Error("Canvas context not available"));
+				reject(new Error('Canvas context not available'));
 				return;
 			}
 			ctx.scale(-1, 1);
@@ -954,10 +879,10 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 			canvas.toBlob(
 				(blob) => {
 					if (blob) resolve(blob);
-					else reject(new Error("Failed to capture image"));
+					else reject(new Error('Failed to capture image'));
 				},
-				"image/jpeg",
-				0.95,
+				'image/jpeg',
+				0.95
 			);
 		});
 	};
@@ -967,16 +892,14 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 		try {
 			const imageBlob = await captureFrame();
 			await faceVerificationService.registerFace(imageBlob);
-			message.success(t("settings.faceRegisteredSuccess"));
+			message.success(t('settings.faceRegisteredSuccess'));
 			setRegisterModalOpen(false);
 			stopCamera();
 			queryClient.invalidateQueries({
-				queryKey: ["face-registration-status"],
+				queryKey: ['face-registration-status'],
 			});
 		} catch (err: any) {
-			message.error(
-				err.response?.data?.detail || t("settings.faceRegisterError"),
-			);
+			message.error(err.response?.data?.detail || t('settings.faceRegisterError'));
 		} finally {
 			setRegistering(false);
 		}
@@ -984,11 +907,11 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 
 	const handleDeleteFace = () => {
 		modal.confirm({
-			title: t("settings.deleteFaceConfirm"),
-			content: t("settings.deleteFaceConfirmDesc"),
-			okText: t("common.delete"),
-			okType: "danger",
-			cancelText: t("common.cancel"),
+			title: t('settings.deleteFaceConfirm'),
+			content: t('settings.deleteFaceConfirmDesc'),
+			okText: t('common.delete'),
+			okType: 'danger',
+			cancelText: t('common.cancel'),
 			onOk: () => deleteFaceMutation.mutate(),
 		});
 	};
@@ -996,12 +919,12 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				{t("settings.manageSecurityAuth")}
+				{t('settings.manageSecurityAuth')}
 			</Paragraph>
 
 			{/* Password Section */}
 			<Title level={5} style={{ marginBottom: 16 }}>
-				{t("settings.password")}
+				{t('settings.password')}
 			</Title>
 			<div
 				style={{
@@ -1012,19 +935,19 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 				}}
 			>
 				<SettingItem
-					title={t("settings.changePassword")}
-					description={t("settings.updatePasswordDesc")}
+					title={t('settings.changePassword')}
+					description={t('settings.updatePasswordDesc')}
 					noBorder
 				>
 					<Button type="primary" ghost onClick={onEditProfile}>
-						{t("settings.changePassword")}
+						{t('settings.changePassword')}
 					</Button>
 				</SettingItem>
 			</div>
 
 			{/* Face Registration */}
 			<Title level={5} style={{ marginBottom: 16 }}>
-				{t("settings.faceAuth")}
+				{t('settings.faceAuth')}
 			</Title>
 			<div
 				style={{
@@ -1034,17 +957,17 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 				}}
 			>
 				<Paragraph type="secondary" style={{ marginBottom: 16 }}>
-					{t("settings.useFaceAuthDesc")}
+					{t('settings.useFaceAuthDesc')}
 				</Paragraph>
 				{statusLoading ? (
-					<div style={{ textAlign: "center", padding: 16 }}>
+					<div style={{ textAlign: 'center', padding: 16 }}>
 						<Spin />
 					</div>
 				) : registrationStatus?.registered ? (
-					<Space direction="vertical" style={{ width: "100%" }}>
+					<Space direction="vertical" style={{ width: '100%' }}>
 						<Alert
-							message={t("settings.faceRegistered")}
-							description={t("settings.faceRegisteredDesc")}
+							message={t('settings.faceRegistered')}
+							description={t('settings.faceRegisteredDesc')}
 							type="success"
 							showIcon
 							icon={<CheckCircleOutlined />}
@@ -1055,14 +978,14 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 							onClick={handleDeleteFace}
 							loading={deleteFaceMutation.isPending}
 						>
-							{t("settings.deleteFaceData")}
+							{t('settings.deleteFaceData')}
 						</Button>
 					</Space>
 				) : (
-					<Space direction="vertical" style={{ width: "100%" }}>
+					<Space direction="vertical" style={{ width: '100%' }}>
 						<Alert
-							message={t("settings.faceNotRegistered")}
-							description={t("settings.faceNotRegisteredDesc")}
+							message={t('settings.faceNotRegistered')}
+							description={t('settings.faceNotRegisteredDesc')}
 							type="info"
 							showIcon
 						/>
@@ -1074,7 +997,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 								setTimeout(startCamera, 100);
 							}}
 						>
-							{t("settings.registerFace")}
+							{t('settings.registerFace')}
 						</Button>
 					</Space>
 				)}
@@ -1082,7 +1005,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 
 			{/* Face Registration Modal */}
 			<Modal
-				title={t("settings.registerFaceTitle")}
+				title={t('settings.registerFaceTitle')}
 				open={registerModalOpen}
 				onCancel={() => {
 					setRegisterModalOpen(false);
@@ -1096,7 +1019,7 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 							stopCamera();
 						}}
 					>
-						{t("common.cancel")}
+						{t('common.cancel')}
 					</Button>,
 					<Button
 						key="register"
@@ -1106,44 +1029,38 @@ const SecuritySection: React.FC<SecuritySectionProps> = ({
 						loading={registering}
 						disabled={!cameraReady}
 					>
-						{t("settings.register")}
+						{t('settings.register')}
 					</Button>,
 				]}
 				width={600}
 				maskClosable={false}
 			>
-				<Space
-					direction="vertical"
-					style={{ width: "100%" }}
-					size="large"
-				>
+				<Space direction="vertical" style={{ width: '100%' }} size="large">
 					<Alert
-						message={t("settings.instructions")}
-						description={t("settings.faceInstructions")}
+						message={t('settings.instructions')}
+						description={t('settings.faceInstructions')}
 						type="info"
 						showIcon
 					/>
-					<div style={{ textAlign: "center" }}>
+					<div style={{ textAlign: 'center' }}>
 						<video
 							ref={videoRef}
 							autoPlay
 							playsInline
 							muted
 							style={{
-								width: "100%",
-								maxWidth: "480px",
-								borderRadius: "8px",
-								border: "2px solid #d9d9d9",
-								transform: "scaleX(-1)",
+								width: '100%',
+								maxWidth: '480px',
+								borderRadius: '8px',
+								border: '2px solid #d9d9d9',
+								transform: 'scaleX(-1)',
 							}}
 						/>
 						{!cameraReady && (
 							<div style={{ marginTop: 16 }}>
 								<Spin />
 								<div style={{ marginTop: 8 }}>
-									<Text type="secondary">
-										{t("settings.startingCamera")}
-									</Text>
+									<Text type="secondary">{t('settings.startingCamera')}</Text>
 								</div>
 							</div>
 						)}
@@ -1182,8 +1099,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 
 	useEffect(() => {
 		const changed =
-			JSON.stringify({ enableNotifications, settings }) !==
-			JSON.stringify(originalSettings);
+			JSON.stringify({ enableNotifications, settings }) !== JSON.stringify(originalSettings);
 		setHasChanges(changed);
 		onChangesStateChange(changed);
 	}, [enableNotifications, settings, originalSettings, onChangesStateChange]);
@@ -1191,16 +1107,16 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (!hasChanges) return;
-			if (e.ctrlKey && e.key === "Enter") {
+			if (e.ctrlKey && e.key === 'Enter') {
 				e.preventDefault();
 				handleSave();
-			} else if (e.ctrlKey && e.key === "Backspace") {
+			} else if (e.ctrlKey && e.key === 'Backspace') {
 				e.preventDefault();
 				handleReset();
 			}
 		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, [hasChanges]);
 
 	const handleSave = async () => {
@@ -1225,10 +1141,10 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				{t("settings.chooseNotifications")}
+				{t('settings.chooseNotifications')}
 			</Paragraph>
 
-			<Title level={5}>{t("settings.generalNotifications")}</Title>
+			<Title level={5}>{t('settings.generalNotifications')}</Title>
 			<div
 				style={{
 					background: token.colorBgElevated,
@@ -1238,26 +1154,23 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 				}}
 			>
 				<SettingItem
-					title={t("notification.enableNotifications")}
-					description={t("notification.enableNotificationsDesc")}
+					title={t('notification.enableNotifications')}
+					description={t('notification.enableNotificationsDesc')}
 					noBorder
 				>
-					<Switch
-						checked={enableNotifications}
-						onChange={setEnableNotifications}
-					/>
+					<Switch checked={enableNotifications} onChange={setEnableNotifications} />
 				</SettingItem>
 			</div>
 
 			<div
 				style={{
-					maxHeight: enableNotifications ? "1000px" : "0",
+					maxHeight: enableNotifications ? '1000px' : '0',
 					opacity: enableNotifications ? 1 : 0,
-					overflow: "hidden",
-					transition: "max-height 0.3s ease, opacity 0.3s ease",
+					overflow: 'hidden',
+					transition: 'max-height 0.3s ease, opacity 0.3s ease',
 				}}
 			>
-				<Title level={5}>{t("settings.notificationTypes")}</Title>
+				<Title level={5}>{t('settings.notificationTypes')}</Title>
 				<div
 					style={{
 						background: token.colorBgElevated,
@@ -1274,9 +1187,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 					>
 						<div
 							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "center",
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
 								marginBottom: 8,
 							}}
 						>
@@ -1284,14 +1197,14 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 								<Text
 									strong
 									style={{
-										display: "block",
+										display: 'block',
 										marginBottom: 4,
 									}}
 								>
-									{t("notification.assessmentAssigned")}
+									{t('notification.assessmentAssigned')}
 								</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t("notification.assessmentAssignedDesc")}
+									{t('notification.assessmentAssignedDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1310,15 +1223,10 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 						</div>
 						<div
 							style={{
-								maxHeight: settings.assessmentAssigned.enabled
-									? "100px"
-									: "0",
-								opacity: settings.assessmentAssigned.enabled
-									? 1
-									: 0,
-								overflow: "hidden",
-								transition:
-									"max-height 0.3s ease, opacity 0.3s ease",
+								maxHeight: settings.assessmentAssigned.enabled ? '100px' : '0',
+								opacity: settings.assessmentAssigned.enabled ? 1 : 0,
+								overflow: 'hidden',
+								transition: 'max-height 0.3s ease, opacity 0.3s ease',
 							}}
 						>
 							<Space size="middle" style={{ marginTop: 8 }}>
@@ -1326,9 +1234,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 									<Text>Email</Text>
 									<Switch
 										size="small"
-										checked={
-											settings.assessmentAssigned.email
-										}
+										checked={settings.assessmentAssigned.email}
 										onChange={(checked) =>
 											setSettings({
 												...settings,
@@ -1348,9 +1254,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 									<Text>Push</Text>
 									<Switch
 										size="small"
-										checked={
-											settings.assessmentAssigned.push
-										}
+										checked={settings.assessmentAssigned.push}
 										onChange={(checked) =>
 											setSettings({
 												...settings,
@@ -1380,9 +1284,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 					>
 						<div
 							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "center",
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
 								marginBottom: 8,
 							}}
 						>
@@ -1390,14 +1294,14 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 								<Text
 									strong
 									style={{
-										display: "block",
+										display: 'block',
 										marginBottom: 4,
 									}}
 								>
-									{t("notification.assessmentReminders")}
+									{t('notification.assessmentReminders')}
 								</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t("notification.assessmentRemindersDesc")}
+									{t('notification.assessmentRemindersDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1416,15 +1320,10 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 						</div>
 						<div
 							style={{
-								maxHeight: settings.assessmentReminders.enabled
-									? "100px"
-									: "0",
-								opacity: settings.assessmentReminders.enabled
-									? 1
-									: 0,
-								overflow: "hidden",
-								transition:
-									"max-height 0.3s ease, opacity 0.3s ease",
+								maxHeight: settings.assessmentReminders.enabled ? '100px' : '0',
+								opacity: settings.assessmentReminders.enabled ? 1 : 0,
+								overflow: 'hidden',
+								transition: 'max-height 0.3s ease, opacity 0.3s ease',
 							}}
 						>
 							<Space size="middle" style={{ marginTop: 8 }}>
@@ -1432,9 +1331,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 									<Text>Email</Text>
 									<Switch
 										size="small"
-										checked={
-											settings.assessmentReminders.email
-										}
+										checked={settings.assessmentReminders.email}
 										onChange={(checked) =>
 											setSettings({
 												...settings,
@@ -1446,8 +1343,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 										}
 										disabled={
 											!enableNotifications ||
-											!settings.assessmentReminders
-												.enabled
+											!settings.assessmentReminders.enabled
 										}
 									/>
 								</Space>
@@ -1455,9 +1351,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 									<Text>Push</Text>
 									<Switch
 										size="small"
-										checked={
-											settings.assessmentReminders.push
-										}
+										checked={settings.assessmentReminders.push}
 										onChange={(checked) =>
 											setSettings({
 												...settings,
@@ -1469,8 +1363,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 										}
 										disabled={
 											!enableNotifications ||
-											!settings.assessmentReminders
-												.enabled
+											!settings.assessmentReminders.enabled
 										}
 									/>
 								</Space>
@@ -1488,9 +1381,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 					>
 						<div
 							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "center",
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
 								marginBottom: 8,
 							}}
 						>
@@ -1498,14 +1391,14 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 								<Text
 									strong
 									style={{
-										display: "block",
+										display: 'block',
 										marginBottom: 4,
 									}}
 								>
-									{t("notification.gradeNotifications")}
+									{t('notification.gradeNotifications')}
 								</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t("notification.gradeNotificationsDesc")}
+									{t('notification.gradeNotificationsDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1524,15 +1417,10 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 						</div>
 						<div
 							style={{
-								maxHeight: settings.gradeNotifications.enabled
-									? "100px"
-									: "0",
-								opacity: settings.gradeNotifications.enabled
-									? 1
-									: 0,
-								overflow: "hidden",
-								transition:
-									"max-height 0.3s ease, opacity 0.3s ease",
+								maxHeight: settings.gradeNotifications.enabled ? '100px' : '0',
+								opacity: settings.gradeNotifications.enabled ? 1 : 0,
+								overflow: 'hidden',
+								transition: 'max-height 0.3s ease, opacity 0.3s ease',
 							}}
 						>
 							<Space size="middle" style={{ marginTop: 8 }}>
@@ -1540,9 +1428,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 									<Text>Email</Text>
 									<Switch
 										size="small"
-										checked={
-											settings.gradeNotifications.email
-										}
+										checked={settings.gradeNotifications.email}
 										onChange={(checked) =>
 											setSettings({
 												...settings,
@@ -1562,9 +1448,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 									<Text>Push</Text>
 									<Switch
 										size="small"
-										checked={
-											settings.gradeNotifications.push
-										}
+										checked={settings.gradeNotifications.push}
 										onChange={(checked) =>
 											setSettings({
 												...settings,
@@ -1594,9 +1478,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 					>
 						<div
 							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "center",
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
 								marginBottom: 8,
 							}}
 						>
@@ -1604,14 +1488,14 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 								<Text
 									strong
 									style={{
-										display: "block",
+										display: 'block',
 										marginBottom: 4,
 									}}
 								>
-									{t("notification.comments")}
+									{t('notification.comments')}
 								</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t("notification.commentsDesc")}
+									{t('notification.commentsDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1630,13 +1514,10 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 						</div>
 						<div
 							style={{
-								maxHeight: settings.comments.enabled
-									? "100px"
-									: "0",
+								maxHeight: settings.comments.enabled ? '100px' : '0',
 								opacity: settings.comments.enabled ? 1 : 0,
-								overflow: "hidden",
-								transition:
-									"max-height 0.3s ease, opacity 0.3s ease",
+								overflow: 'hidden',
+								transition: 'max-height 0.3s ease, opacity 0.3s ease',
 							}}
 						>
 							<Space size="middle" style={{ marginTop: 8 }}>
@@ -1655,8 +1536,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 											})
 										}
 										disabled={
-											!enableNotifications ||
-											!settings.comments.enabled
+											!enableNotifications || !settings.comments.enabled
 										}
 									/>
 								</Space>
@@ -1675,8 +1555,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 											})
 										}
 										disabled={
-											!enableNotifications ||
-											!settings.comments.enabled
+											!enableNotifications || !settings.comments.enabled
 										}
 									/>
 								</Space>
@@ -1688,9 +1567,9 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 					<div style={{ paddingTop: 12 }}>
 						<div
 							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "center",
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
 								marginBottom: 8,
 							}}
 						>
@@ -1698,14 +1577,14 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 								<Text
 									strong
 									style={{
-										display: "block",
+										display: 'block',
 										marginBottom: 4,
 									}}
 								>
-									{t("notification.systemUpdates")}
+									{t('notification.systemUpdates')}
 								</Text>
 								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t("notification.systemUpdatesDesc")}
+									{t('notification.systemUpdatesDesc')}
 								</Text>
 							</div>
 							<Switch
@@ -1724,13 +1603,10 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 						</div>
 						<div
 							style={{
-								maxHeight: settings.systemUpdates.enabled
-									? "100px"
-									: "0",
+								maxHeight: settings.systemUpdates.enabled ? '100px' : '0',
 								opacity: settings.systemUpdates.enabled ? 1 : 0,
-								overflow: "hidden",
-								transition:
-									"max-height 0.3s ease, opacity 0.3s ease",
+								overflow: 'hidden',
+								transition: 'max-height 0.3s ease, opacity 0.3s ease',
 							}}
 						>
 							<Space size="middle" style={{ marginTop: 8 }}>
@@ -1749,8 +1625,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 											})
 										}
 										disabled={
-											!enableNotifications ||
-											!settings.systemUpdates.enabled
+											!enableNotifications || !settings.systemUpdates.enabled
 										}
 									/>
 								</Space>
@@ -1769,8 +1644,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 											})
 										}
 										disabled={
-											!enableNotifications ||
-											!settings.systemUpdates.enabled
+											!enableNotifications || !settings.systemUpdates.enabled
 										}
 									/>
 								</Space>
@@ -1783,43 +1657,35 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 			{hasChanges && (
 				<div
 					style={{
-						position: "fixed",
+						position: 'fixed',
 						bottom: 24,
-						left: "50%",
-						transform: "translateX(-50%)",
-						background: blinkRed
-							? "rgba(255, 77, 79, 0.95)"
-							: token.colorBgElevated,
-						border: `1px solid ${blinkRed ? "#ff4d4f" : token.colorBorder}`,
+						left: '50%',
+						transform: 'translateX(-50%)',
+						background: blinkRed ? 'rgba(255, 77, 79, 0.95)' : token.colorBgElevated,
+						border: `1px solid ${blinkRed ? '#ff4d4f' : token.colorBorder}`,
 						borderRadius: 8,
-						padding: "14px 20px",
-						boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+						padding: '14px 20px',
+						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
 						zIndex: 1000,
-						display: "flex",
-						alignItems: "center",
+						display: 'flex',
+						alignItems: 'center',
 						gap: 16,
-						animation: blinkRed ? "shake 0.3s ease" : "none",
-						transition: "all 0.3s ease",
+						animation: blinkRed ? 'shake 0.3s ease' : 'none',
+						transition: 'all 0.3s ease',
 					}}
 				>
 					<Text
 						style={{
-							color: blinkRed ? "#fff" : undefined,
+							color: blinkRed ? '#fff' : undefined,
 							fontSize: 14,
 						}}
 					>
-						{t("notification.unsavedChanges")}
+						{t('notification.unsavedChanges')}
 					</Text>
 					<Space size="middle">
-						<Button onClick={handleReset}>
-							{t("common.cancel")}
-						</Button>
-						<Button
-							type="primary"
-							onClick={handleSave}
-							loading={saving}
-						>
-							{t("notification.saveChanges")}
+						<Button onClick={handleReset}>{t('common.cancel')}</Button>
+						<Button type="primary" onClick={handleSave} loading={saving}>
+							{t('notification.saveChanges')}
 						</Button>
 					</Space>
 				</div>
@@ -1841,11 +1707,7 @@ interface AppearanceSectionProps {
 	toggleDark: () => void;
 }
 
-const AppearanceSection: React.FC<AppearanceSectionProps> = ({
-	mode,
-	setMode,
-	toggleDark,
-}) => {
+const AppearanceSection: React.FC<AppearanceSectionProps> = ({ mode, setMode, toggleDark }) => {
 	const { token } = useThemeToken();
 	const { t } = useTranslation();
 
@@ -1857,38 +1719,38 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 		color: string;
 	}> = [
 		{
-			key: "light",
+			key: 'light',
 			icon: <SunOutlined />,
-			label: t("settings.light"),
-			bg: "#ffffff",
-			color: "#333333",
+			label: t('settings.light'),
+			bg: '#ffffff',
+			color: '#333333',
 		},
 		{
-			key: "dark",
+			key: 'dark',
 			icon: <MoonOutlined />,
-			label: t("settings.dark"),
-			bg: "#1a1a1a",
-			color: "#ffffff",
+			label: t('settings.dark'),
+			bg: '#1a1a1a',
+			color: '#ffffff',
 		},
 		{
-			key: "highContrast",
+			key: 'highContrast',
 			icon: <EyeOutlined />,
-			label: t("settings.highContrast"),
-			bg: "#000000",
-			color: "#ffff00",
+			label: t('settings.highContrast'),
+			bg: '#000000',
+			color: '#ffff00',
 		},
 	];
 
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				{t("settings.customizeAppearance")}
+				{t('settings.customizeAppearance')}
 			</Paragraph>
 
-			<Title level={5}>{t("settings.theme")}</Title>
+			<Title level={5}>{t('settings.theme')}</Title>
 			<div
 				style={{
-					display: "flex",
+					display: 'flex',
 					gap: 16,
 					marginBottom: 24,
 				}}
@@ -1897,9 +1759,7 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 					<div
 						key={theme.key}
 						onClick={() => setMode(theme.key)}
-						onKeyDown={(e) =>
-							e.key === "Enter" && setMode(theme.key)
-						}
+						onKeyDown={(e) => e.key === 'Enter' && setMode(theme.key)}
 						tabIndex={0}
 						role="button"
 						style={{
@@ -1908,9 +1768,9 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 							borderRadius: 8,
 							border: `2px solid ${mode === theme.key ? token.colorPrimary : token.colorBorder}`,
 							background: theme.bg,
-							cursor: "pointer",
-							textAlign: "center",
-							transition: "all 0.2s",
+							cursor: 'pointer',
+							textAlign: 'center',
+							transition: 'all 0.2s',
 						}}
 					>
 						<div
@@ -1922,9 +1782,7 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 						>
 							{theme.icon}
 						</div>
-						<Text style={{ color: theme.color }}>
-							{theme.label}
-						</Text>
+						<Text style={{ color: theme.color }}>{theme.label}</Text>
 					</div>
 				))}
 			</div>
@@ -1937,12 +1795,12 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 				}}
 			>
 				<SettingItem
-					title={t("settings.darkMode")}
-					description={t("settings.darkModeDescription")}
+					title={t('settings.darkMode')}
+					description={t('settings.darkModeDescription')}
 					noBorder
 				>
 					<Switch
-						checked={mode === "dark"}
+						checked={mode === 'dark'}
 						onChange={toggleDark}
 						checkedChildren={<MoonOutlined />}
 						unCheckedChildren={<SunOutlined />}
@@ -1965,7 +1823,7 @@ const AccessibilitySection: React.FC = () => {
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				{t("settings.accessibilityOptions")}
+				{t('settings.accessibilityOptions')}
 			</Paragraph>
 
 			<div
@@ -1976,37 +1834,31 @@ const AccessibilitySection: React.FC = () => {
 				}}
 			>
 				<SettingItem
-					title={t("settings.reduceMotion")}
-					description={t("settings.reduceMotionDesc")}
+					title={t('settings.reduceMotion')}
+					description={t('settings.reduceMotionDesc')}
 				>
 					<Switch
 						checked={settings.reduceMotion}
-						onChange={(checked) =>
-							setSettings({ ...settings, reduceMotion: checked })
-						}
+						onChange={(checked) => setSettings({ ...settings, reduceMotion: checked })}
 					/>
 				</SettingItem>
 				<SettingItem
-					title={t("settings.highContrastMode")}
-					description={t("settings.highContrastDesc")}
+					title={t('settings.highContrastMode')}
+					description={t('settings.highContrastDesc')}
 				>
 					<Switch
 						checked={settings.highContrast}
-						onChange={(checked) =>
-							setSettings({ ...settings, highContrast: checked })
-						}
+						onChange={(checked) => setSettings({ ...settings, highContrast: checked })}
 					/>
 				</SettingItem>
 				<SettingItem
-					title={t("settings.largerText")}
-					description={t("settings.largerTextDesc")}
+					title={t('settings.largerText')}
+					description={t('settings.largerTextDesc')}
 					noBorder
 				>
 					<Switch
 						checked={settings.largeText}
-						onChange={(checked) =>
-							setSettings({ ...settings, largeText: checked })
-						}
+						onChange={(checked) => setSettings({ ...settings, largeText: checked })}
 					/>
 				</SettingItem>
 			</div>
@@ -2017,8 +1869,7 @@ const AccessibilitySection: React.FC = () => {
 const LanguageSection: React.FC = () => {
 	const { token } = useThemeToken();
 	const { t } = useTranslation();
-	const [selectedLang, setSelectedLang] =
-		useState<SupportedLanguage>(getCurrentLanguage());
+	const [selectedLang, setSelectedLang] = useState<SupportedLanguage>(getCurrentLanguage());
 
 	const handleLanguageChange = (langCode: SupportedLanguage) => {
 		setSelectedLang(langCode);
@@ -2028,47 +1879,41 @@ const LanguageSection: React.FC = () => {
 	return (
 		<div>
 			<Paragraph type="secondary" style={{ marginBottom: 24 }}>
-				{t("settings.languageDescription")}
+				{t('settings.languageDescription')}
 			</Paragraph>
 
 			<div
 				style={{
 					background: token.colorBgElevated,
 					borderRadius: 8,
-					overflow: "hidden",
+					overflow: 'hidden',
 				}}
 			>
 				{supportedLanguages.map((lang, index) => (
 					<div
 						key={lang.code}
 						onClick={() => handleLanguageChange(lang.code)}
-						onKeyDown={(e) =>
-							e.key === "Enter" && handleLanguageChange(lang.code)
-						}
+						onKeyDown={(e) => e.key === 'Enter' && handleLanguageChange(lang.code)}
 						tabIndex={0}
 						role="button"
 						style={{
-							padding: "16px",
-							display: "flex",
-							alignItems: "center",
+							padding: '16px',
+							display: 'flex',
+							alignItems: 'center',
 							gap: 12,
-							cursor: "pointer",
+							cursor: 'pointer',
 							borderBottom:
 								index < supportedLanguages.length - 1
 									? `1px solid ${token.colorBorderSecondary}`
-									: "none",
+									: 'none',
 							background:
-								selectedLang === lang.code
-									? token.colorPrimaryBg
-									: "transparent",
+								selectedLang === lang.code ? token.colorPrimaryBg : 'transparent',
 						}}
 					>
 						<span style={{ fontSize: 24 }}>{lang.flag}</span>
-						<Text strong={selectedLang === lang.code}>
-							{lang.label}
-						</Text>
+						<Text strong={selectedLang === lang.code}>{lang.label}</Text>
 						{selectedLang === lang.code && (
-							<Text type="success" style={{ marginLeft: "auto" }}>
+							<Text type="success" style={{ marginLeft: 'auto' }}>
 								✓
 							</Text>
 						)}
@@ -2087,15 +1932,15 @@ const AboutSection: React.FC = () => {
 		<div>
 			<div
 				style={{
-					textAlign: "center",
+					textAlign: 'center',
 					marginBottom: 32,
 				}}
 			>
 				<div style={{ fontSize: 64, marginBottom: 16 }}>🎓</div>
 				<Title level={3} style={{ margin: 0 }}>
-					{t("settings.appName")}
+					{t('settings.appName')}
 				</Title>
-				<Text type="secondary">{t("settings.version")} 1.0.0</Text>
+				<Text type="secondary">{t('settings.version')} 1.0.0</Text>
 			</div>
 
 			<div
@@ -2105,30 +1950,30 @@ const AboutSection: React.FC = () => {
 					padding: 16,
 				}}
 			>
-				<SettingItem title={t("settings.version")} description="1.0.0">
-					<Button size="small">{t("settings.checkUpdates")}</Button>
+				<SettingItem title={t('settings.version')} description="1.0.0">
+					<Button size="small">{t('settings.checkUpdates')}</Button>
 				</SettingItem>
 				<SettingItem
-					title={t("settings.termsOfService")}
-					description={t("settings.viewTerms")}
+					title={t('settings.termsOfService')}
+					description={t('settings.viewTerms')}
 				>
 					<Button size="small" type="link">
-						{t("common.view")}
+						{t('common.view')}
 					</Button>
 				</SettingItem>
 				<SettingItem
-					title={t("settings.privacyPolicy")}
-					description={t("settings.viewPrivacy")}
+					title={t('settings.privacyPolicy')}
+					description={t('settings.viewPrivacy')}
 					noBorder
 				>
 					<Button size="small" type="link">
-						{t("common.view")}
+						{t('common.view')}
 					</Button>
 				</SettingItem>
 			</div>
 
-			<div style={{ textAlign: "center", marginTop: 32 }}>
-				<Text type="secondary">{t("settings.copyright")}</Text>
+			<div style={{ textAlign: 'center', marginTop: 32 }}>
+				<Text type="secondary">{t('settings.copyright')}</Text>
 			</div>
 		</div>
 	);

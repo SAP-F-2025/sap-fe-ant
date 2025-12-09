@@ -1,8 +1,8 @@
-import axios, { AxiosInstance } from "axios";
-import { API_CONFIG, API_ENDPOINTS } from "../config/api";
-import { TokenService } from "./tokenService";
-import type { ProctoringEvent } from "../hooks/useProctoring";
-import type { BrowserProctoringEvent } from "../hooks/useBrowserProctoring";
+import axios, { AxiosInstance } from 'axios';
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+import { TokenService } from './tokenService';
+import type { ProctoringEvent } from '../hooks/useProctoring';
+import type { BrowserProctoringEvent } from '../hooks/useBrowserProctoring';
 
 // Violation type mapping (string → number)
 // Based on backend ViolationType constants
@@ -97,12 +97,12 @@ class ViolationService {
 	 * Generate device fingerprint
 	 */
 	private generateDeviceFingerprint(): string {
-		const canvas = document.createElement("canvas");
-		const ctx = canvas.getContext("2d");
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
 		if (ctx) {
-			ctx.textBaseline = "top";
-			ctx.font = "14px Arial";
-			ctx.fillText("fingerprint", 2, 2);
+			ctx.textBaseline = 'top';
+			ctx.font = '14px Arial';
+			ctx.fillText('fingerprint', 2, 2);
 		}
 		const canvasData = canvas.toDataURL();
 
@@ -141,7 +141,7 @@ class ViolationService {
 		userId: string,
 		attemptId: number,
 		assessmentId: number,
-		snapshotUrl?: string,
+		snapshotUrl?: string
 	): Promise<void> {
 		const isInstant = event.duration === 0 && event.endTime === 0;
 		const isProlongedEnded = event.duration > 0 && event.endTime > 0;
@@ -156,7 +156,7 @@ class ViolationService {
 			attemptId,
 			assessmentId,
 			0.95,
-			snapshotUrl,
+			snapshotUrl
 		);
 
 		await this.instance.post(API_ENDPOINTS.PROCTORING_VIOLATIONS, payload);
@@ -171,7 +171,7 @@ class ViolationService {
 		event: BrowserProctoringEvent,
 		userId: string,
 		attemptId: number,
-		assessmentId: number,
+		assessmentId: number
 	): Promise<void> {
 		const isInstant = event.duration === 0 && event.endTime === 0;
 		const isProlongedEnded = event.duration > 0 && event.endTime > 0;
@@ -180,13 +180,7 @@ class ViolationService {
 			return;
 		}
 
-		const payload = this.buildViolationPayload(
-			event,
-			userId,
-			attemptId,
-			assessmentId,
-			1.0,
-		);
+		const payload = this.buildViolationPayload(event, userId, attemptId, assessmentId, 1.0);
 
 		await this.instance.post(API_ENDPOINTS.PROCTORING_VIOLATIONS, payload);
 	}
@@ -200,7 +194,7 @@ class ViolationService {
 		attemptId: number,
 		assessmentId: number,
 		confidenceScore: number,
-		snapshotUrl?: string,
+		snapshotUrl?: string
 	): ViolationPayload {
 		return {
 			user_id: userId,
@@ -225,12 +219,12 @@ class ViolationService {
 	async submitViolationsBatch(
 		violations: Array<{
 			event: ProctoringEvent | BrowserProctoringEvent;
-			type: "camera" | "browser";
+			type: 'camera' | 'browser';
 			snapshotUrl?: string;
 		}>,
 		userId: string,
 		attemptId: number,
-		assessmentId: number,
+		assessmentId: number
 	): Promise<void> {
 		if (violations.length === 0) return;
 
@@ -242,14 +236,14 @@ class ViolationService {
 				event.duration = event.endTime - event.startTime;
 			}
 
-			const confidenceScore = violation.type === "camera" ? 0.95 : 1.0;
+			const confidenceScore = violation.type === 'camera' ? 0.95 : 1.0;
 			return this.buildViolationPayload(
 				event,
 				userId,
 				attemptId,
 				assessmentId,
 				confidenceScore,
-				violation.snapshotUrl,
+				violation.snapshotUrl
 			);
 		});
 

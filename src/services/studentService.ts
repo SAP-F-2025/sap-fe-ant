@@ -1,6 +1,6 @@
-import { API_CONFIG, API_ENDPOINTS } from "../config/api";
-import apiService from "./api";
-import faceVerificationService from "./faceVerificationService";
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+import apiService from './api';
+import faceVerificationService from './faceVerificationService';
 import {
 	Assessment,
 	AssessmentStatus,
@@ -20,8 +20,8 @@ import {
 	PaginationParams,
 	PaginatedResponse,
 	AssessmentQuestion,
-} from "../types";
-import { delay } from "./mockData";
+} from '../types';
+import { delay } from './mockData';
 
 class StudentService {
 	/**
@@ -33,11 +33,11 @@ class StudentService {
 			search?: string;
 			status?: string;
 			sort_by?: string;
-		},
+		}
 	): Promise<PaginatedResponse<StudentAssessment>> {
 		const response = await apiService.get<StudentAssessmentsResponse>(
 			API_ENDPOINTS.STUDENT_ASSESSMENTS,
-			params,
+			params
 		);
 
 		return {
@@ -53,11 +53,9 @@ class StudentService {
 	 * Get assessment detail with settings
 	 * Uses GET /api/v1/students/me/assessments/:id
 	 */
-	async getAssessmentDetail(
-		assessmentId: number,
-	): Promise<StudentAssessment> {
+	async getAssessmentDetail(assessmentId: number): Promise<StudentAssessment> {
 		return apiService.get<StudentAssessment>(
-			API_ENDPOINTS.STUDENT_ASSESSMENT_DETAIL(assessmentId),
+			API_ENDPOINTS.STUDENT_ASSESSMENT_DETAIL(assessmentId)
 		);
 	}
 
@@ -86,9 +84,7 @@ class StudentService {
 			};
 		}
 
-		return apiService.get<StudentDashboardStats>(
-			API_ENDPOINTS.STUDENT_STATS,
-		);
+		return apiService.get<StudentDashboardStats>(API_ENDPOINTS.STUDENT_STATS);
 	}
 
 	/**
@@ -101,7 +97,7 @@ class StudentService {
 			status?: string;
 			from_date?: string;
 			to_date?: string;
-		},
+		}
 	): Promise<PaginatedResponse<AttemptWithAssessment>> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
@@ -116,7 +112,7 @@ class StudentService {
 
 		const response = await apiService.get<StudentAttemptsResponse>(
 			API_ENDPOINTS.STUDENT_ATTEMPTS,
-			params,
+			params
 		);
 
 		return {
@@ -133,10 +129,7 @@ class StudentService {
 	 * Returns full attempt details including questions
 	 */
 	async startAttempt(data: AttemptStartRequest): Promise<AttemptDetail> {
-		return apiService.post<AttemptDetail>(
-			API_ENDPOINTS.ATTEMPT_START,
-			data,
-		);
+		return apiService.post<AttemptDetail>(API_ENDPOINTS.ATTEMPT_START, data);
 	}
 
 	/**
@@ -149,9 +142,7 @@ class StudentService {
 		}
 
 		try {
-			return await apiService.get<Attempt>(
-				API_ENDPOINTS.ATTEMPT_CURRENT(assessmentId),
-			);
+			return await apiService.get<Attempt>(API_ENDPOINTS.ATTEMPT_CURRENT(assessmentId));
 		} catch {
 			return null;
 		}
@@ -161,18 +152,13 @@ class StudentService {
 	 * Get attempt details with answers
 	 */
 	async getAttemptDetails(attemptId: number): Promise<AttemptDetail> {
-		return apiService.get<AttemptDetail>(
-			API_ENDPOINTS.ATTEMPT_DETAIL_FULL(attemptId),
-		);
+		return apiService.get<AttemptDetail>(API_ENDPOINTS.ATTEMPT_DETAIL_FULL(attemptId));
 	}
 
 	/**
 	 * Submit answer for a question
 	 */
-	async submitAnswer(
-		attemptId: number,
-		data: SubmitAnswerRequest,
-	): Promise<void> {
+	async submitAnswer(attemptId: number, data: SubmitAnswerRequest): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
@@ -192,7 +178,7 @@ class StudentService {
 				id: data.attempt_id,
 				assessment_id: 1,
 				student_id: 1,
-				status: "completed" as any,
+				status: 'completed' as any,
 				started_at: new Date().toISOString(),
 				completed_at: new Date().toISOString(),
 				score: 85,
@@ -211,13 +197,13 @@ class StudentService {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return {
-				message: "Time remaining retrieved successfully",
+				message: 'Time remaining retrieved successfully',
 				data: 1800,
 			};
 		}
 
 		return apiService.get<TimeRemainingResponse>(
-			API_ENDPOINTS.ATTEMPT_TIME_REMAINING(attemptId),
+			API_ENDPOINTS.ATTEMPT_TIME_REMAINING(attemptId)
 		);
 	}
 
@@ -231,15 +217,13 @@ class StudentService {
 				id: attemptId,
 				assessment_id: 1,
 				student_id: 1,
-				status: "in_progress" as any,
+				status: 'in_progress' as any,
 				started_at: new Date().toISOString(),
 				time_remaining: 1800,
 			};
 		}
 
-		return apiService.post<Attempt>(
-			API_ENDPOINTS.ATTEMPT_RESUME(attemptId),
-		);
+		return apiService.post<Attempt>(API_ENDPOINTS.ATTEMPT_RESUME(attemptId));
 	}
 
 	/**
@@ -247,11 +231,11 @@ class StudentService {
 	 */
 	async getAssessmentQuestions(
 		assessmentId: number,
-		params?: PaginationParams,
+		params?: PaginationParams
 	): Promise<PaginatedResponse<AssessmentQuestion>> {
 		const response = await apiService.get<any>(
 			API_ENDPOINTS.ASSESSMENT_QUESTIONS(assessmentId),
-			params,
+			params
 		);
 
 		return {
@@ -267,19 +251,17 @@ class StudentService {
 	 * Check if student can start assessment
 	 * Returns {message, can_start}
 	 */
-	async canStartAssessment(
-		assessmentId: number,
-	): Promise<CanStartAttemptResponse> {
+	async canStartAssessment(assessmentId: number): Promise<CanStartAttemptResponse> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return {
-				message: "Can start attempt check completed",
+				message: 'Can start attempt check completed',
 				can_start: true,
 			};
 		}
 
 		return apiService.get<CanStartAttemptResponse>(
-			API_ENDPOINTS.ATTEMPT_CAN_START(assessmentId),
+			API_ENDPOINTS.ATTEMPT_CAN_START(assessmentId)
 		);
 	}
 

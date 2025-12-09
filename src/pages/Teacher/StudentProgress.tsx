@@ -4,8 +4,8 @@ import {
 	FileTextOutlined,
 	SearchOutlined,
 	UserOutlined,
-} from "@ant-design/icons";
-import { useQuery } from "@tanstack/react-query";
+} from '@ant-design/icons';
+import { useQuery } from '@tanstack/react-query';
 import {
 	Button,
 	Card,
@@ -18,14 +18,14 @@ import {
 	Table,
 	Tag,
 	Typography,
-} from "antd";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import teacherService from "../../services/teacherService";
-import type { Assessment, Attempt } from "../../types";
+} from 'antd';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import teacherService from '../../services/teacherService';
+import type { Assessment, Attempt } from '../../types';
 
 dayjs.extend(relativeTime);
 
@@ -35,22 +35,20 @@ const { Option } = Select;
 const StudentProgress: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [selectedAssessment, setSelectedAssessment] = useState<
-		number | undefined
-	>();
-	const [searchText, setSearchText] = useState("");
+	const [selectedAssessment, setSelectedAssessment] = useState<number | undefined>();
+	const [searchText, setSearchText] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 10;
 
 	// Fetch teacher's assessments
 	const { data: assessmentsData, isLoading: loadingAssessments } = useQuery({
-		queryKey: ["teacher-assessments"],
+		queryKey: ['teacher-assessments'],
 		queryFn: () => teacherService.getMyAssessments({ page: 1, size: 100 }),
 	});
 
 	// Fetch attempts for selected assessment
 	const { data: attemptsData, isLoading: loadingAttempts } = useQuery({
-		queryKey: ["assessment-attempts", selectedAssessment, currentPage],
+		queryKey: ['assessment-attempts', selectedAssessment, currentPage],
 		queryFn: () =>
 			teacherService.getAssessmentAttempts(selectedAssessment!, {
 				page: currentPage,
@@ -61,17 +59,16 @@ const StudentProgress: React.FC = () => {
 
 	// Fetch assessment stats
 	const { data: assessmentStats } = useQuery({
-		queryKey: ["assessment-attempts-stats", selectedAssessment],
-		queryFn: () =>
-			teacherService.getAssessmentAttemptsStats(selectedAssessment!),
+		queryKey: ['assessment-attempts-stats', selectedAssessment],
+		queryFn: () => teacherService.getAssessmentAttemptsStats(selectedAssessment!),
 		enabled: !!selectedAssessment,
 	});
 
 	const columns = [
 		{
-			title: t("studentProgress.columns.student"),
-			dataIndex: "student_id",
-			key: "student_id",
+			title: t('studentProgress.columns.student'),
+			dataIndex: 'student_id',
+			key: 'student_id',
 			render: (studentId: string | number, record: Attempt) => (
 				<Space>
 					<UserOutlined />
@@ -80,37 +77,37 @@ const StudentProgress: React.FC = () => {
 			),
 		},
 		{
-			title: t("studentProgress.columns.status"),
-			dataIndex: "status",
-			key: "status",
+			title: t('studentProgress.columns.status'),
+			dataIndex: 'status',
+			key: 'status',
 			render: (status: string) => {
 				const statusMap: Record<
 					string,
 					{ color: string; text: string; icon: React.ReactNode }
 				> = {
 					in_progress: {
-						color: "processing",
-						text: t("studentProgress.status.inProgress"),
+						color: 'processing',
+						text: t('studentProgress.status.inProgress'),
 						icon: <ClockCircleOutlined />,
 					},
 					completed: {
-						color: "success",
-						text: t("studentProgress.status.completed"),
+						color: 'success',
+						text: t('studentProgress.status.completed'),
 						icon: <CheckCircleOutlined />,
 					},
 					abandoned: {
-						color: "default",
-						text: t("studentProgress.status.abandoned"),
+						color: 'default',
+						text: t('studentProgress.status.abandoned'),
 						icon: null,
 					},
 					timeout: {
-						color: "error",
-						text: t("studentProgress.status.timeout"),
+						color: 'error',
+						text: t('studentProgress.status.timeout'),
 						icon: null,
 					},
 				};
 				const mapped = statusMap[status] || {
-					color: "default",
+					color: 'default',
 					text: status,
 					icon: null,
 				};
@@ -122,13 +119,13 @@ const StudentProgress: React.FC = () => {
 			},
 		},
 		{
-			title: t("studentProgress.columns.score"),
-			dataIndex: "score",
-			key: "score",
+			title: t('studentProgress.columns.score'),
+			dataIndex: 'score',
+			key: 'score',
 			sorter: (a: Attempt, b: Attempt) => (a.score || 0) - (b.score || 0),
 			render: (score: number | undefined, record: Attempt) =>
-				record.status === "completed" && score !== undefined ? (
-					<Text type={score >= 70 ? "success" : "danger"} strong>
+				record.status === 'completed' && score !== undefined ? (
+					<Text type={score >= 70 ? 'success' : 'danger'} strong>
 						{score.toFixed(1)}%
 					</Text>
 				) : (
@@ -136,30 +133,29 @@ const StudentProgress: React.FC = () => {
 				),
 		},
 		{
-			title: t("studentProgress.columns.result"),
-			dataIndex: "passed",
-			key: "passed",
+			title: t('studentProgress.columns.result'),
+			dataIndex: 'passed',
+			key: 'passed',
 			render: (passed: boolean | undefined, record: Attempt) =>
-				record.status === "completed" && passed !== undefined ? (
-					<Tag color={passed ? "success" : "error"}>
+				record.status === 'completed' && passed !== undefined ? (
+					<Tag color={passed ? 'success' : 'error'}>
 						{passed
-							? t("studentProgress.result.passed")
-							: t("studentProgress.result.failed")}
+							? t('studentProgress.result.passed')
+							: t('studentProgress.result.failed')}
 					</Tag>
 				) : (
 					<Text type="secondary">-</Text>
 				),
 		},
 		{
-			title: t("studentProgress.columns.startedAt"),
-			dataIndex: "started_at",
-			key: "started_at",
+			title: t('studentProgress.columns.startedAt'),
+			dataIndex: 'started_at',
+			key: 'started_at',
 			sorter: (a: Attempt, b: Attempt) =>
-				new Date(a.started_at).getTime() -
-				new Date(b.started_at).getTime(),
+				new Date(a.started_at).getTime() - new Date(b.started_at).getTime(),
 			render: (date: string) => (
 				<Space direction="vertical" size={0}>
-					<Text>{dayjs(date).format("DD/MM/YYYY HH:mm")}</Text>
+					<Text>{dayjs(date).format('DD/MM/YYYY HH:mm')}</Text>
 					<Text type="secondary" style={{ fontSize: 12 }}>
 						{dayjs(date).fromNow()}
 					</Text>
@@ -167,13 +163,13 @@ const StudentProgress: React.FC = () => {
 			),
 		},
 		{
-			title: t("studentProgress.columns.completedAt"),
-			dataIndex: "completed_at",
-			key: "completed_at",
+			title: t('studentProgress.columns.completedAt'),
+			dataIndex: 'completed_at',
+			key: 'completed_at',
 			render: (date: string | undefined, record: Attempt) =>
-				record.status === "completed" && date ? (
+				record.status === 'completed' && date ? (
 					<Space direction="vertical" size={0}>
-						<Text>{dayjs(date).format("DD/MM/YYYY HH:mm")}</Text>
+						<Text>{dayjs(date).format('DD/MM/YYYY HH:mm')}</Text>
 						<Text type="secondary" style={{ fontSize: 12 }}>
 							{dayjs(date).fromNow()}
 						</Text>
@@ -183,8 +179,8 @@ const StudentProgress: React.FC = () => {
 				),
 		},
 		{
-			title: t("studentProgress.columns.actions"),
-			key: "action",
+			title: t('studentProgress.columns.actions'),
+			key: 'action',
 			render: (_: any, record: Attempt) => (
 				<Space>
 					<Button
@@ -192,15 +188,15 @@ const StudentProgress: React.FC = () => {
 						size="small"
 						onClick={() => navigate(`/grading/${record.id}`)}
 					>
-						{t("common.viewDetails")}
+						{t('common.viewDetails')}
 					</Button>
-					{record.status === "completed" && (
+					{record.status === 'completed' && (
 						<Button
 							type="link"
 							size="small"
 							onClick={() => navigate(`/grading/${record.id}`)}
 						>
-							{t("studentProgress.grading")}
+							{t('studentProgress.grading')}
 						</Button>
 					)}
 				</Space>
@@ -210,54 +206,44 @@ const StudentProgress: React.FC = () => {
 	const filteredData = attemptsData?.attempts || [];
 
 	return (
-		<div style={{ padding: "24px" }}>
-			<Title level={2}>{t("studentProgress.title")}</Title>
-			<Text type="secondary">{t("studentProgress.description")}</Text>
+		<div style={{ padding: '24px' }}>
+			<Title level={2}>{t('studentProgress.title')}</Title>
+			<Text type="secondary">{t('studentProgress.description')}</Text>
 
 			{/* Assessment Selection */}
-			<Card style={{ marginTop: "24px" }}>
-				<Space
-					direction="vertical"
-					style={{ width: "100%" }}
-					size="large"
-				>
-					<Space style={{ width: "100%" }} size="middle">
+			<Card style={{ marginTop: '24px' }}>
+				<Space direction="vertical" style={{ width: '100%' }} size="large">
+					<Space style={{ width: '100%' }} size="middle">
 						<Select
 							style={{ width: 400 }}
-							placeholder={t("studentProgress.selectAssessment")}
+							placeholder={t('studentProgress.selectAssessment')}
 							loading={loadingAssessments}
 							value={selectedAssessment}
 							onChange={setSelectedAssessment}
 							showSearch
 							filterOption={(input, option) =>
-								(option?.label ?? "")
-									.toLowerCase()
-									.includes(input.toLowerCase())
+								(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
 							}
-							options={assessmentsData?.assessments.map(
-								(assessment: Assessment) => ({
-									label: assessment.title,
-									value: assessment.id,
-								}),
-							)}
+							options={assessmentsData?.assessments.map((assessment: Assessment) => ({
+								label: assessment.title,
+								value: assessment.id,
+							}))}
 						/>
 						<Input
-							placeholder={t("studentProgress.searchStudent")}
+							placeholder={t('studentProgress.searchStudent')}
 							prefix={<SearchOutlined />}
 							value={searchText}
 							onChange={(e) => setSearchText(e.target.value)}
 							style={{ width: 300 }}
 						/>
-					</Space>{" "}
+					</Space>{' '}
 					{/* Stats for selected assessment */}
 					{selectedAssessment && assessmentStats && (
 						<Row gutter={[16, 16]}>
 							<Col xs={24} sm={12} md={6}>
 								<Card>
 									<Statistic
-										title={t(
-											"studentProgress.stats.totalAttempts",
-										)}
+										title={t('studentProgress.stats.totalAttempts')}
 										value={assessmentStats.total_attempts}
 										prefix={<FileTextOutlined />}
 									/>
@@ -266,40 +252,32 @@ const StudentProgress: React.FC = () => {
 							<Col xs={24} sm={12} md={6}>
 								<Card>
 									<Statistic
-										title={t(
-											"studentProgress.stats.completed",
-										)}
-										value={
-											assessmentStats.completed_attempts
-										}
+										title={t('studentProgress.stats.completed')}
+										value={assessmentStats.completed_attempts}
 										prefix={<CheckCircleOutlined />}
-										valueStyle={{ color: "#52c41a" }}
+										valueStyle={{ color: '#52c41a' }}
 									/>
 								</Card>
 							</Col>
 							<Col xs={24} sm={12} md={6}>
 								<Card>
 									<Statistic
-										title={t(
-											"studentProgress.stats.averageScore",
-										)}
+										title={t('studentProgress.stats.averageScore')}
 										value={assessmentStats.average_score}
 										precision={1}
 										suffix="%"
-										valueStyle={{ color: "#1890ff" }}
+										valueStyle={{ color: '#1890ff' }}
 									/>
 								</Card>
 							</Col>
 							<Col xs={24} sm={12} md={6}>
 								<Card>
 									<Statistic
-										title={t(
-											"studentProgress.stats.passRate",
-										)}
+										title={t('studentProgress.stats.passRate')}
 										value={assessmentStats.pass_rate}
 										precision={1}
 										suffix="%"
-										valueStyle={{ color: "#52c41a" }}
+										valueStyle={{ color: '#52c41a' }}
 									/>
 								</Card>
 							</Col>
@@ -310,7 +288,7 @@ const StudentProgress: React.FC = () => {
 
 			{/* Attempts Table */}
 			{selectedAssessment && (
-				<Card style={{ marginTop: "24px" }}>
+				<Card style={{ marginTop: '24px' }}>
 					<Table
 						columns={columns}
 						dataSource={filteredData}
@@ -323,33 +301,31 @@ const StudentProgress: React.FC = () => {
 							onChange: (page) => setCurrentPage(page),
 							showSizeChanger: false,
 							showTotal: (total) =>
-								t("studentProgress.totalAttempts", {
+								t('studentProgress.totalAttempts', {
 									count: total,
 								}),
 						}}
 						locale={{
-							emptyText: t("studentProgress.noAttempts"),
+							emptyText: t('studentProgress.noAttempts'),
 						}}
 					/>
 				</Card>
 			)}
 
 			{!selectedAssessment && (
-				<Card style={{ marginTop: "24px" }}>
+				<Card style={{ marginTop: '24px' }}>
 					<div
 						style={{
-							textAlign: "center",
-							padding: "60px 20px",
+							textAlign: 'center',
+							padding: '60px 20px',
 						}}
 					>
-						<FileTextOutlined
-							style={{ fontSize: 64, color: "#d9d9d9" }}
-						/>
+						<FileTextOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />
 						<Title level={4} style={{ marginTop: 16 }}>
-							{t("studentProgress.selectAssessmentTitle")}
+							{t('studentProgress.selectAssessmentTitle')}
 						</Title>
 						<Text type="secondary">
-							{t("studentProgress.selectAssessmentDescription")}
+							{t('studentProgress.selectAssessmentDescription')}
 						</Text>
 					</div>
 				</Card>

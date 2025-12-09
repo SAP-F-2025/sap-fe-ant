@@ -5,17 +5,17 @@ import {
 	EyeOutlined,
 	HourglassOutlined,
 	PlayCircleOutlined,
-} from "@ant-design/icons";
-import { useQuery } from "@tanstack/react-query";
-import { Button, Card, Select, Space, Table, Tag, Typography } from "antd";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import studentService from "../../services/studentService";
-import type { AttemptStatus, AttemptWithAssessment } from "../../types";
+} from '@ant-design/icons';
+import { useQuery } from '@tanstack/react-query';
+import { Button, Card, Select, Space, Table, Tag, Typography } from 'antd';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import studentService from '../../services/studentService';
+import type { AttemptStatus, AttemptWithAssessment } from '../../types';
 
 dayjs.extend(relativeTime);
 
@@ -28,12 +28,10 @@ const StudentHistory: React.FC = () => {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
-	const [statusFilter, setStatusFilter] = useState<
-		AttemptStatus | undefined
-	>();
+	const [statusFilter, setStatusFilter] = useState<AttemptStatus | undefined>();
 
 	const { data, isLoading } = useQuery({
-		queryKey: ["student-history", page, pageSize, statusFilter],
+		queryKey: ['student-history', page, pageSize, statusFilter],
 		queryFn: () =>
 			studentService.getAttemptHistory({
 				page,
@@ -45,7 +43,7 @@ const StudentHistory: React.FC = () => {
 	// Helper function to check if results should be hidden
 	const isPendingGrading = (record: AttemptWithAssessment): boolean => {
 		// Only completed attempts can be pending grading
-		if (record.status !== "completed") {
+		if (record.status !== 'completed') {
 			return false;
 		}
 
@@ -54,34 +52,32 @@ const StudentHistory: React.FC = () => {
 	};
 
 	const getStatusTag = (status: string) => {
-		const statusMap: Record<
-			string,
-			{ color: string; icon: React.ReactNode; textKey: string }
-		> = {
-			in_progress: {
-				color: "processing",
-				icon: <ClockCircleOutlined />,
-				textKey: "studentHistory.status.inProgress",
-			},
-			completed: {
-				color: "success",
-				icon: <CheckCircleOutlined />,
-				textKey: "studentHistory.status.completed",
-			},
-			abandoned: {
-				color: "default",
-				icon: <CloseCircleOutlined />,
-				textKey: "studentHistory.status.abandoned",
-			},
-			timeout: {
-				color: "error",
-				icon: <ClockCircleOutlined />,
-				textKey: "studentHistory.status.timeout",
-			},
-		};
+		const statusMap: Record<string, { color: string; icon: React.ReactNode; textKey: string }> =
+			{
+				in_progress: {
+					color: 'processing',
+					icon: <ClockCircleOutlined />,
+					textKey: 'studentHistory.status.inProgress',
+				},
+				completed: {
+					color: 'success',
+					icon: <CheckCircleOutlined />,
+					textKey: 'studentHistory.status.completed',
+				},
+				abandoned: {
+					color: 'default',
+					icon: <CloseCircleOutlined />,
+					textKey: 'studentHistory.status.abandoned',
+				},
+				timeout: {
+					color: 'error',
+					icon: <ClockCircleOutlined />,
+					textKey: 'studentHistory.status.timeout',
+				},
+			};
 
 		const statusInfo = statusMap[status] || {
-			color: "default",
+			color: 'default',
 			icon: null,
 			textKey: status,
 		};
@@ -95,50 +91,46 @@ const StudentHistory: React.FC = () => {
 
 	const columns = [
 		{
-			title: t("studentHistory.columns.assessment"),
-			dataIndex: "assessment_title",
-			key: "assessment",
+			title: t('studentHistory.columns.assessment'),
+			dataIndex: 'assessment_title',
+			key: 'assessment',
 			render: (title: string) => (
 				<div>
-					<Text strong>{title || t("studentHistory.unknown")}</Text>
+					<Text strong>{title || t('studentHistory.unknown')}</Text>
 				</div>
 			),
 		},
 		{
-			title: t("studentHistory.columns.status"),
-			dataIndex: "status",
-			key: "status",
+			title: t('studentHistory.columns.status'),
+			dataIndex: 'status',
+			key: 'status',
 			width: 140,
 			render: (status: string) => getStatusTag(status),
 			filters: [
 				{
-					text: t("studentHistory.status.inProgress"),
-					value: "in_progress",
+					text: t('studentHistory.status.inProgress'),
+					value: 'in_progress',
 				},
 				{
-					text: t("studentHistory.status.completed"),
-					value: "completed",
+					text: t('studentHistory.status.completed'),
+					value: 'completed',
 				},
 				{
-					text: t("studentHistory.status.abandoned"),
-					value: "abandoned",
+					text: t('studentHistory.status.abandoned'),
+					value: 'abandoned',
 				},
-				{ text: t("studentHistory.status.timeout"), value: "timeout" },
+				{ text: t('studentHistory.status.timeout'), value: 'timeout' },
 			],
-			onFilter: (value: any, record: AttemptWithAssessment) =>
-				record.status === value,
+			onFilter: (value: any, record: AttemptWithAssessment) => record.status === value,
 		},
 		{
-			title: t("studentHistory.columns.score"),
-			dataIndex: "score",
-			key: "score",
+			title: t('studentHistory.columns.score'),
+			dataIndex: 'score',
+			key: 'score',
 			width: 120,
-			render: (
-				score: number | undefined,
-				record: AttemptWithAssessment,
-			) => {
+			render: (score: number | undefined, record: AttemptWithAssessment) => {
 				// Check if not completed
-				if (record.status !== "completed") {
+				if (record.status !== 'completed') {
 					return <Text type="secondary">-</Text>;
 				}
 
@@ -146,7 +138,7 @@ const StudentHistory: React.FC = () => {
 				if (isPendingGrading(record)) {
 					return (
 						<Tag icon={<HourglassOutlined />} color="warning">
-							{t("studentHistory.grading")}
+							{t('studentHistory.grading')}
 						</Tag>
 					);
 				}
@@ -158,7 +150,7 @@ const StudentHistory: React.FC = () => {
 
 				const percentage = record.percentage ?? score;
 				return (
-					<Text type={record.passed ? "success" : "danger"} strong>
+					<Text type={record.passed ? 'success' : 'danger'} strong>
 						{percentage.toFixed(1)}%
 					</Text>
 				);
@@ -167,16 +159,13 @@ const StudentHistory: React.FC = () => {
 				(a.score || 0) - (b.score || 0),
 		},
 		{
-			title: t("studentHistory.columns.result"),
-			dataIndex: "passed",
-			key: "passed",
+			title: t('studentHistory.columns.result'),
+			dataIndex: 'passed',
+			key: 'passed',
 			width: 120,
-			render: (
-				passed: boolean | undefined,
-				record: AttemptWithAssessment,
-			) => {
+			render: (passed: boolean | undefined, record: AttemptWithAssessment) => {
 				// Check if not completed
-				if (record.status !== "completed") {
+				if (record.status !== 'completed') {
 					return <Text type="secondary">-</Text>;
 				}
 
@@ -184,7 +173,7 @@ const StudentHistory: React.FC = () => {
 				if (isPendingGrading(record)) {
 					return (
 						<Tag icon={<HourglassOutlined />} color="warning">
-							{t("studentHistory.grading")}
+							{t('studentHistory.grading')}
 						</Tag>
 					);
 				}
@@ -192,43 +181,43 @@ const StudentHistory: React.FC = () => {
 				// Show pass/fail status
 				return passed ? (
 					<Tag color="success" icon={<CheckCircleOutlined />}>
-						{t("studentHistory.passed")}
+						{t('studentHistory.passed')}
 					</Tag>
 				) : (
 					<Tag color="error" icon={<CloseCircleOutlined />}>
-						{t("studentHistory.failed")}
+						{t('studentHistory.failed')}
 					</Tag>
 				);
 			},
 		},
 		{
-			title: t("studentHistory.columns.startedAt"),
-			dataIndex: "started_at",
-			key: "started_at",
+			title: t('studentHistory.columns.startedAt'),
+			dataIndex: 'started_at',
+			key: 'started_at',
 			width: 180,
 			render: (date: string) => (
 				<div>
-					<div>{dayjs(date).format("DD/MM/YYYY")}</div>
-					<Text type="secondary" style={{ fontSize: "12px" }}>
-						{dayjs(date).format("HH:mm")}
+					<div>{dayjs(date).format('DD/MM/YYYY')}</div>
+					<Text type="secondary" style={{ fontSize: '12px' }}>
+						{dayjs(date).format('HH:mm')}
 					</Text>
 				</div>
 			),
 			sorter: (a: AttemptWithAssessment, b: AttemptWithAssessment) =>
 				dayjs(a.started_at).unix() - dayjs(b.started_at).unix(),
-			defaultSortOrder: "descend" as const,
+			defaultSortOrder: 'descend' as const,
 		},
 		{
-			title: t("studentHistory.columns.completedAt"),
-			dataIndex: "completed_at",
-			key: "completed_at",
+			title: t('studentHistory.columns.completedAt'),
+			dataIndex: 'completed_at',
+			key: 'completed_at',
 			width: 180,
 			render: (date: string | undefined) =>
 				date ? (
 					<div>
-						<div>{dayjs(date).format("DD/MM/YYYY")}</div>
-						<Text type="secondary" style={{ fontSize: "12px" }}>
-							{dayjs(date).format("HH:mm")}
+						<div>{dayjs(date).format('DD/MM/YYYY')}</div>
+						<Text type="secondary" style={{ fontSize: '12px' }}>
+							{dayjs(date).format('HH:mm')}
 						</Text>
 					</div>
 				) : (
@@ -236,8 +225,8 @@ const StudentHistory: React.FC = () => {
 				),
 		},
 		{
-			title: t("studentHistory.columns.timeSpent"),
-			key: "time_spent",
+			title: t('studentHistory.columns.timeSpent'),
+			key: 'time_spent',
 			width: 120,
 			render: (_: any, record: AttemptWithAssessment) => {
 				if (!record.completed_at) {
@@ -245,43 +234,35 @@ const StudentHistory: React.FC = () => {
 				}
 				const duration = dayjs(record.completed_at).diff(
 					dayjs(record.started_at),
-					"minute",
+					'minute'
 				);
-				return (
-					<Text>
-						{t("studentHistory.minutes", { count: duration })}
-					</Text>
-				);
+				return <Text>{t('studentHistory.minutes', { count: duration })}</Text>;
 			},
 		},
 		{
-			title: t("studentHistory.columns.action"),
-			key: "action",
+			title: t('studentHistory.columns.action'),
+			key: 'action',
 			width: 120,
-			fixed: "right" as const,
+			fixed: 'right' as const,
 			render: (_: any, record: AttemptWithAssessment) => (
 				<Space>
-					{record.status === "in_progress" ? (
+					{record.status === 'in_progress' ? (
 						<Button
 							type="primary"
 							size="small"
 							icon={<PlayCircleOutlined />}
-							onClick={() =>
-								navigate(`/student/take/${record.id}`)
-							}
+							onClick={() => navigate(`/student/take/${record.id}`)}
 						>
-							{t("studentHistory.continue")}
+							{t('studentHistory.continue')}
 						</Button>
 					) : (
 						<Button
 							type="link"
 							size="small"
 							icon={<EyeOutlined />}
-							onClick={() =>
-								navigate(`/student/results/${record.id}`)
-							}
+							onClick={() => navigate(`/student/results/${record.id}`)}
 						>
-							{t("studentHistory.view")}
+							{t('studentHistory.view')}
 						</Button>
 					)}
 				</Space>
@@ -290,39 +271,33 @@ const StudentHistory: React.FC = () => {
 	];
 
 	return (
-		<div style={{ padding: "24px" }}>
-			<div style={{ marginBottom: "24px" }}>
-				<Title level={2}>{t("studentHistory.title")}</Title>
-				<Text type="secondary">{t("studentHistory.subtitle")}</Text>
+		<div style={{ padding: '24px' }}>
+			<div style={{ marginBottom: '24px' }}>
+				<Title level={2}>{t('studentHistory.title')}</Title>
+				<Text type="secondary">{t('studentHistory.subtitle')}</Text>
 			</div>
 
 			<Card>
-				<Space
-					direction="vertical"
-					size="large"
-					style={{ width: "100%" }}
-				>
+				<Space direction="vertical" size="large" style={{ width: '100%' }}>
 					{/* Filters */}
 					<Space size="middle">
 						<Select
-							placeholder={t("studentHistory.filterPlaceholder")}
+							placeholder={t('studentHistory.filterPlaceholder')}
 							allowClear
 							style={{ width: 200 }}
 							value={statusFilter}
 							onChange={setStatusFilter}
 						>
 							<Option value="in_progress">
-								{t("studentHistory.status.inProgress")}
+								{t('studentHistory.status.inProgress')}
 							</Option>
 							<Option value="completed">
-								{t("studentHistory.status.completed")}
+								{t('studentHistory.status.completed')}
 							</Option>
 							<Option value="abandoned">
-								{t("studentHistory.status.abandoned")}
+								{t('studentHistory.status.abandoned')}
 							</Option>
-							<Option value="timeout">
-								{t("studentHistory.status.timeout")}
-							</Option>
+							<Option value="timeout">{t('studentHistory.status.timeout')}</Option>
 						</Select>
 					</Space>
 
@@ -338,7 +313,7 @@ const StudentHistory: React.FC = () => {
 							total: data?.total || 0,
 							showSizeChanger: true,
 							showTotal: (total) =>
-								t("studentHistory.totalAttempts", {
+								t('studentHistory.totalAttempts', {
 									count: total,
 								}),
 							onChange: (page, pageSize) => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 export const useCamera = (enabled: boolean) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -25,7 +25,7 @@ export const useCamera = (enabled: boolean) => {
 				}
 			} catch (err: any) {
 				if (mounted) {
-					setError(err.message || "Failed to access camera");
+					setError(err.message || 'Failed to access camera');
 					setIsActive(false);
 				}
 			}

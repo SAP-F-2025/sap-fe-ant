@@ -1,1 +1,1 @@
-export { ShortcutsModal, default } from "./ShortcutsModal";
+export { ShortcutsModal, default } from './ShortcutsModal';

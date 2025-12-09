@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { shouldBypassTamperDetection } from "../config/proctoring.config";
+import { useState, useCallback } from 'react';
+import { shouldBypassTamperDetection } from '../config/proctoring.config';
 
 export interface TamperStatus {
 	devTools: boolean;
@@ -38,10 +38,7 @@ export const useBrowserTamperDetection = () => {
 		if (isBypassed) return false;
 
 		try {
-			const descriptor = Object.getOwnPropertyDescriptor(
-				window,
-				"console",
-			);
+			const descriptor = Object.getOwnPropertyDescriptor(window, 'console');
 			return descriptor ? !descriptor.writable : false;
 		} catch {
 			return false;
@@ -52,13 +49,13 @@ export const useBrowserTamperDetection = () => {
 		if (isBypassed) return false;
 
 		const suspiciousSelectors = [
-			"[data-extension]",
+			'[data-extension]',
 			'[class*="extension"]',
 			'[id*="extension"]',
 		];
 
 		return suspiciousSelectors.some(
-			(selector) => document.querySelectorAll(selector).length > 0,
+			(selector) => document.querySelectorAll(selector).length > 0
 		);
 	}, [isBypassed]);
 
@@ -73,9 +70,7 @@ export const useBrowserTamperDetection = () => {
 	}, [checkDevTools, checkConsoleOverride, checkSuspiciousExtensions]);
 
 	const hasTampering =
-		tamperStatus.devTools ||
-		tamperStatus.consoleOverride ||
-		tamperStatus.suspiciousExtensions;
+		tamperStatus.devTools || tamperStatus.consoleOverride || tamperStatus.suspiciousExtensions;
 
 	return {
 		tamperStatus,

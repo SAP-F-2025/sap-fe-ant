@@ -1,5 +1,5 @@
-import { API_CONFIG, API_ENDPOINTS } from "../config/api";
-import apiService from "./api";
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+import apiService from './api';
 import {
 	Assessment,
 	AssessmentCreateRequest,
@@ -13,17 +13,12 @@ import {
 	BulkAddQuestionsRequest,
 	ReorderQuestionsRequest,
 	PaginatedQuestionResponse,
-} from "../types";
-import {
-	mockAssessments,
-	mockAssessmentStats,
-	paginateData,
-	delay,
-} from "./mockData";
+} from '../types';
+import { mockAssessments, mockAssessmentStats, paginateData, delay } from './mockData';
 
 class AssessmentService {
 	async getAssessments(
-		params?: PaginationParams & { status?: string; search?: string },
+		params?: PaginationParams & { status?: string; search?: string }
 	): Promise<PaginatedAssessmentResponse<Assessment>> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
@@ -38,7 +33,7 @@ class AssessmentService {
 				filtered = filtered.filter(
 					(a) =>
 						a.title.toLowerCase().includes(search) ||
-						a.description?.toLowerCase().includes(search),
+						a.description?.toLowerCase().includes(search)
 				);
 			}
 
@@ -47,7 +42,7 @@ class AssessmentService {
 
 		return apiService.get<PaginatedAssessmentResponse<Assessment>>(
 			API_ENDPOINTS.ASSESSMENTS,
-			params,
+			params
 		);
 	}
 
@@ -55,7 +50,7 @@ class AssessmentService {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const assessment = mockAssessments.find((a) => a.id === id);
-			if (!assessment) throw new Error("Assessment not found");
+			if (!assessment) throw new Error('Assessment not found');
 			return assessment;
 		}
 
@@ -68,7 +63,7 @@ class AssessmentService {
 			const newAssessment: Assessment = {
 				id: mockAssessments.length + 1,
 				...data,
-				status: "Draft" as any,
+				status: 'Draft' as any,
 				creator_id: 1,
 				max_attempts: data.max_attempts || 1,
 				created_at: new Date().toISOString(),
@@ -85,12 +80,12 @@ class AssessmentService {
 
 	async updateAssessment(
 		id: number,
-		data: Partial<AssessmentCreateRequest>,
+		data: Partial<AssessmentCreateRequest>
 	): Promise<Assessment> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const index = mockAssessments.findIndex((a) => a.id === id);
-			if (index === -1) throw new Error("Assessment not found");
+			if (index === -1) throw new Error('Assessment not found');
 
 			mockAssessments[index] = {
 				...mockAssessments[index],
@@ -100,10 +95,7 @@ class AssessmentService {
 			return mockAssessments[index];
 		}
 
-		return apiService.put<Assessment>(
-			API_ENDPOINTS.ASSESSMENT_UPDATE(id),
-			data,
-		);
+		return apiService.put<Assessment>(API_ENDPOINTS.ASSESSMENT_UPDATE(id), data);
 	}
 
 	async deleteAssessment(id: number): Promise<void> {
@@ -123,30 +115,26 @@ class AssessmentService {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const index = mockAssessments.findIndex((a) => a.id === id);
-			if (index === -1) throw new Error("Assessment not found");
+			if (index === -1) throw new Error('Assessment not found');
 
-			mockAssessments[index].status = "Active" as any;
+			mockAssessments[index].status = 'Active' as any;
 			return mockAssessments[index];
 		}
 
-		return apiService.post<Assessment>(
-			API_ENDPOINTS.ASSESSMENT_PUBLISH(id),
-		);
+		return apiService.post<Assessment>(API_ENDPOINTS.ASSESSMENT_PUBLISH(id));
 	}
 
 	async archiveAssessment(id: number): Promise<Assessment> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			const index = mockAssessments.findIndex((a) => a.id === id);
-			if (index === -1) throw new Error("Assessment not found");
+			if (index === -1) throw new Error('Assessment not found');
 
-			mockAssessments[index].status = "Archived" as any;
+			mockAssessments[index].status = 'Archived' as any;
 			return mockAssessments[index];
 		}
 
-		return apiService.post<Assessment>(
-			API_ENDPOINTS.ASSESSMENT_ARCHIVE(id),
-		);
+		return apiService.post<Assessment>(API_ENDPOINTS.ASSESSMENT_ARCHIVE(id));
 	}
 
 	async getAssessmentStats(id: number): Promise<AssessmentStats> {
@@ -163,15 +151,13 @@ class AssessmentService {
 			);
 		}
 
-		return apiService.get<AssessmentStats>(
-			API_ENDPOINTS.ASSESSMENT_STATS(id),
-		);
+		return apiService.get<AssessmentStats>(API_ENDPOINTS.ASSESSMENT_STATS(id));
 	}
 
 	// Question Management
 	async getAssessmentQuestions(
 		id: number,
-		params?: PaginationParams,
+		params?: PaginationParams
 	): Promise<PaginatedQuestionResponse<AssessmentQuestion>> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
@@ -187,14 +173,14 @@ class AssessmentService {
 
 		return apiService.get<PaginatedQuestionResponse<AssessmentQuestion>>(
 			API_ENDPOINTS.ASSESSMENT_QUESTIONS(id),
-			params,
+			params
 		);
 	}
 
 	async addQuestionToAssessment(
 		assessmentId: number,
 		questionId: number,
-		settings?: AddQuestionToAssessmentRequest,
+		settings?: AddQuestionToAssessmentRequest
 	): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
@@ -203,7 +189,7 @@ class AssessmentService {
 
 		return apiService.post(
 			API_ENDPOINTS.ASSESSMENT_ADD_QUESTION(assessmentId, questionId),
-			settings || {},
+			settings || {}
 		);
 	}
 
@@ -213,67 +199,58 @@ class AssessmentService {
 			question_id: number;
 			order: number;
 			points: number;
-		}>,
+		}>
 	): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
 		}
 
-		return apiService.post(
-			API_ENDPOINTS.ASSESSMENT_BULK_ADD_QUESTIONS(assessmentId),
-			{ questions },
-		);
+		return apiService.post(API_ENDPOINTS.ASSESSMENT_BULK_ADD_QUESTIONS(assessmentId), {
+			questions,
+		});
 	}
 
-	async autoAssignQuestions(
-		assessmentId: number,
-		questionIds: number[],
-	): Promise<void> {
+	async autoAssignQuestions(assessmentId: number, questionIds: number[]): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
 		}
 
-		return apiService.post(
-			API_ENDPOINTS.ASSESSMENT_AUTO_ASSIGN_QUESTIONS(assessmentId),
-			{ question_ids: questionIds },
-		);
+		return apiService.post(API_ENDPOINTS.ASSESSMENT_AUTO_ASSIGN_QUESTIONS(assessmentId), {
+			question_ids: questionIds,
+		});
 	}
 
 	async bulkRemoveQuestionsFromAssessment(
 		assessmentId: number,
-		questionIds: number[],
+		questionIds: number[]
 	): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
 		}
 
-		return apiService.delete(
-			API_ENDPOINTS.ASSESSMENT_BULK_REMOVE_QUESTIONS(assessmentId),
-			{ data: { question_ids: questionIds } },
-		);
+		return apiService.delete(API_ENDPOINTS.ASSESSMENT_BULK_REMOVE_QUESTIONS(assessmentId), {
+			data: { question_ids: questionIds },
+		});
 	}
 
-	async removeQuestionFromAssessment(
-		assessmentId: number,
-		questionId: number,
-	): Promise<void> {
+	async removeQuestionFromAssessment(assessmentId: number, questionId: number): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
 		}
 
 		return apiService.delete(
-			API_ENDPOINTS.ASSESSMENT_REMOVE_QUESTION(assessmentId, questionId),
+			API_ENDPOINTS.ASSESSMENT_REMOVE_QUESTION(assessmentId, questionId)
 		);
 	}
 
 	async updateQuestionSettings(
 		assessmentId: number,
 		questionId: number,
-		settings: UpdateQuestionSettingsRequest,
+		settings: UpdateQuestionSettingsRequest
 	): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
@@ -282,7 +259,7 @@ class AssessmentService {
 
 		return apiService.put(
 			API_ENDPOINTS.ASSESSMENT_UPDATE_QUESTION(assessmentId, questionId),
-			settings,
+			settings
 		);
 	}
 
@@ -292,7 +269,7 @@ class AssessmentService {
 			question_id: number;
 			points?: number;
 			time_limit?: number;
-		}>,
+		}>
 	): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
@@ -301,23 +278,20 @@ class AssessmentService {
 
 		return apiService.put(
 			API_ENDPOINTS.ASSESSMENT_BULK_UPDATE_QUESTIONS(assessmentId),
-			updates,
+			updates
 		);
 	}
 
 	async reorderAssessmentQuestions(
 		assessmentId: number,
-		data: ReorderQuestionsRequest,
+		data: ReorderQuestionsRequest
 	): Promise<void> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();
 			return;
 		}
 
-		return apiService.put(
-			API_ENDPOINTS.ASSESSMENT_REORDER_QUESTIONS(assessmentId),
-			data,
-		);
+		return apiService.put(API_ENDPOINTS.ASSESSMENT_REORDER_QUESTIONS(assessmentId), data);
 	}
 }
 

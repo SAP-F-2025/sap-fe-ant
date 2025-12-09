@@ -1,58 +1,58 @@
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import dashboardService from "../../../services/dashboardService";
-import { PIE_COLORS, REFETCH_INTERVAL, STALE_TIME } from "../constants";
+import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import dashboardService from '../../../services/dashboardService';
+import { PIE_COLORS, REFETCH_INTERVAL, STALE_TIME } from '../constants';
 
 // Map API question types to translation keys
 const questionTypeToTranslationKey: Record<string, string> = {
-	multiple_choice: "question.type.multipleChoice",
-	true_false: "question.type.trueFalse",
-	essay: "question.type.essay",
-	fill_blank: "question.type.fillBlank",
-	matching: "question.type.matching",
-	ordering: "question.type.ordering",
-	short_answer: "question.type.shortAnswer",
-	others: "question.type.others",
+	multiple_choice: 'question.type.multipleChoice',
+	true_false: 'question.type.trueFalse',
+	essay: 'question.type.essay',
+	fill_blank: 'question.type.fillBlank',
+	matching: 'question.type.matching',
+	ordering: 'question.type.ordering',
+	short_answer: 'question.type.shortAnswer',
+	others: 'question.type.others',
 };
 
 /**
  * Custom hook for all dashboard data fetching
  * Centralizes React Query logic and data transformations
  */
-export const useDashboardData = (timePeriod: "week" | "month" | "year") => {
+export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
 	const { t } = useTranslation();
 	// Dashboard stats
 	const statsQuery = useQuery({
-		queryKey: ["dashboard-stats"],
+		queryKey: ['dashboard-stats'],
 		queryFn: () => dashboardService.getDashboardStats(),
 		staleTime: STALE_TIME.MEDIUM,
 	});
 
 	// Activity trends - depends on time period
 	const activityQuery = useQuery({
-		queryKey: ["activity-trends", timePeriod],
+		queryKey: ['activity-trends', timePeriod],
 		queryFn: () => dashboardService.getActivityTrends(timePeriod),
 		staleTime: STALE_TIME.LONG,
 	});
 
 	// Question distribution
 	const questionQuery = useQuery({
-		queryKey: ["question-distribution"],
+		queryKey: ['question-distribution'],
 		queryFn: () => dashboardService.getQuestionDistribution(),
 		staleTime: STALE_TIME.VERY_LONG,
 	});
 
 	// Performance by subject
 	const performanceQuery = useQuery({
-		queryKey: ["performance-by-subject"],
+		queryKey: ['performance-by-subject'],
 		queryFn: () => dashboardService.getPerformanceBySubject(5),
 		staleTime: STALE_TIME.LONG,
 	});
 
 	// Recent activities - real-time updates
 	const activitiesQuery = useQuery({
-		queryKey: ["recent-activities"],
+		queryKey: ['recent-activities'],
 		queryFn: () => dashboardService.getRecentActivities(4),
 		staleTime: STALE_TIME.SHORT,
 		refetchInterval: REFETCH_INTERVAL.REALTIME,

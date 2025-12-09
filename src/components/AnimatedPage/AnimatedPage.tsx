@@ -1,5 +1,5 @@
-import React from "react";
-import { fadeIn } from "../../styles/animations";
+import React from 'react';
+import { fadeIn } from '../../styles/animations';
 
 interface AnimatedPageProps {
 	children: React.ReactNode;
@@ -10,10 +10,7 @@ interface AnimatedPageProps {
  * AnimatedPage wrapper component
  * Adds fade-in animation to page content
  */
-export const AnimatedPage: React.FC<AnimatedPageProps> = ({
-	children,
-	delay = 0,
-}) => {
+export const AnimatedPage: React.FC<AnimatedPageProps> = ({ children, delay = 0 }) => {
 	return (
 		<div
 			style={{

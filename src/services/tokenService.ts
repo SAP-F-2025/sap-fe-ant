@@ -1,4 +1,4 @@
-import { CasdoorConfig } from "../config/casdoor";
+import { CasdoorConfig } from '../config/casdoor';
 
 export interface TokenResponse {
 	access_token: string;
@@ -17,21 +17,21 @@ export class TokenService {
 	 * Get the current access token from localStorage
 	 */
 	static getAccessToken(): string | null {
-		return localStorage.getItem("casdoor_token");
+		return localStorage.getItem('casdoor_token');
 	}
 
 	/**
 	 * Get the current refresh token from localStorage
 	 */
 	static getRefreshToken(): string | null {
-		return localStorage.getItem("casdoor_refresh_token");
+		return localStorage.getItem('casdoor_refresh_token');
 	}
 
 	/**
 	 * Get the token expiry time from localStorage
 	 */
 	static getTokenExpiry(): number | null {
-		const expiry = localStorage.getItem("casdoor_token_expiry");
+		const expiry = localStorage.getItem('casdoor_token_expiry');
 		return expiry ? parseInt(expiry, 10) : null;
 	}
 
@@ -53,16 +53,16 @@ export class TokenService {
 	 */
 	static setTokens(data: TokenResponse): void {
 		if (data.access_token) {
-			localStorage.setItem("casdoor_token", data.access_token);
+			localStorage.setItem('casdoor_token', data.access_token);
 		}
 
 		if (data.refresh_token) {
-			localStorage.setItem("casdoor_refresh_token", data.refresh_token);
+			localStorage.setItem('casdoor_refresh_token', data.refresh_token);
 		}
 
 		if (data.expires_in) {
 			const expiryTime = Date.now() + data.expires_in * 1000;
-			localStorage.setItem("casdoor_token_expiry", expiryTime.toString());
+			localStorage.setItem('casdoor_token_expiry', expiryTime.toString());
 		}
 	}
 
@@ -70,9 +70,9 @@ export class TokenService {
 	 * Clear all tokens from localStorage
 	 */
 	static clearTokens(): void {
-		localStorage.removeItem("casdoor_token");
-		localStorage.removeItem("casdoor_refresh_token");
-		localStorage.removeItem("casdoor_token_expiry");
+		localStorage.removeItem('casdoor_token');
+		localStorage.removeItem('casdoor_refresh_token');
+		localStorage.removeItem('casdoor_token_expiry');
 	}
 
 	/**
@@ -104,33 +104,29 @@ export class TokenService {
 		const refreshToken = this.getRefreshToken();
 
 		if (!refreshToken) {
-			console.warn("No refresh token available");
+			console.warn('No refresh token available');
 			return null;
 		}
 
 		try {
 			const tokenUrl = `${CasdoorConfig.serverUrl}/api/login/oauth/refresh_token`;
 			const tokenParams = new URLSearchParams({
-				grant_type: "refresh_token",
+				grant_type: 'refresh_token',
 				refresh_token: refreshToken,
-				scope: "read",
+				scope: 'read',
 				client_id: CasdoorConfig.clientId,
 			});
 
 			const response = await fetch(tokenUrl, {
-				method: "POST",
+				method: 'POST',
 				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
+					'Content-Type': 'application/x-www-form-urlencoded',
 				},
 				body: tokenParams.toString(),
 			});
 
 			if (!response.ok) {
-				console.error(
-					"Token refresh failed:",
-					response.status,
-					response.statusText,
-				);
+				console.error('Token refresh failed:', response.status, response.statusText);
 				// If refresh fails, clear tokens to force re-login
 				this.clearTokens();
 				return null;
@@ -146,7 +142,7 @@ export class TokenService {
 
 			return null;
 		} catch (error) {
-			console.error("Error refreshing token:", error);
+			console.error('Error refreshing token:', error);
 			// Clear tokens on error
 			this.clearTokens();
 			return null;
@@ -171,7 +167,7 @@ export class TokenService {
 		}
 
 		// Token is expired, try to refresh
-		console.log("Access token expired, refreshing...");
+		console.log('Access token expired, refreshing...');
 		return this.refreshAccessToken();
 	}
 }

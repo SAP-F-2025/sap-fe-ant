@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from 'react';
 import {
 	Card,
 	Button,
@@ -12,18 +12,18 @@ import {
 	Row,
 	Col,
 	Tag,
-} from "antd";
+} from 'antd';
 import {
 	CameraOutlined,
 	CheckCircleOutlined,
 	PlayCircleOutlined,
 	ArrowLeftOutlined,
-} from "@ant-design/icons";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { useAuth } from "../../hooks/useAuth";
-import studentService from "../../services/studentService";
-import faceVerificationService from "../../services/faceVerificationService";
+} from '@ant-design/icons';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../hooks/useAuth';
+import studentService from '../../services/studentService';
+import faceVerificationService from '../../services/faceVerificationService';
 
 const { Title, Text } = Typography;
 const { useToken } = theme;
@@ -50,7 +50,7 @@ const FaceVerification: React.FC = () => {
 
 	useEffect(() => {
 		if (!assessmentData) {
-			navigate("/student/assessments");
+			navigate('/student/assessments');
 			return;
 		}
 		checkRegistration();
@@ -58,11 +58,10 @@ const FaceVerification: React.FC = () => {
 
 	const checkRegistration = async () => {
 		try {
-			const status =
-				await faceVerificationService.checkRegistrationStatus();
+			const status = await faceVerificationService.checkRegistrationStatus();
 			setIsRegistered(status.registered);
 		} catch (err) {
-			console.error("Failed to check registration:", err);
+			console.error('Failed to check registration:', err);
 			// Assume not registered or error, but let's try to proceed to camera to at least show something
 		} finally {
 			setCheckingStatus(false);
@@ -84,22 +83,14 @@ const FaceVerification: React.FC = () => {
 				setCameraReady(true);
 			}
 		} catch (err: any) {
-			console.error("Camera error:", err);
-			if (
-				err.name === "NotAllowedError" ||
-				err.name === "PermissionDeniedError"
-			) {
+			console.error('Camera error:', err);
+			if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
 				setPermissionDenied(true);
-				setError(t("faceVerification.cameraPermissionError"));
-			} else if (
-				err.name === "NotFoundError" ||
-				err.name === "DevicesNotFoundError"
-			) {
-				setError(t("faceVerification.cameraNotFoundError"));
+				setError(t('faceVerification.cameraPermissionError'));
+			} else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+				setError(t('faceVerification.cameraNotFoundError'));
 			} else {
-				setError(
-					err.message || t("faceVerification.cameraAccessError"),
-				);
+				setError(err.message || t('faceVerification.cameraAccessError'));
 			}
 		}
 	};
@@ -115,17 +106,17 @@ const FaceVerification: React.FC = () => {
 	const captureFrame = (): Promise<Blob> => {
 		return new Promise((resolve, reject) => {
 			if (!videoRef.current) {
-				reject(new Error("Video not ready"));
+				reject(new Error('Video not ready'));
 				return;
 			}
 
-			const canvas = document.createElement("canvas");
+			const canvas = document.createElement('canvas');
 			canvas.width = videoRef.current.videoWidth;
 			canvas.height = videoRef.current.videoHeight;
-			const ctx = canvas.getContext("2d");
+			const ctx = canvas.getContext('2d');
 
 			if (!ctx) {
-				reject(new Error("Canvas context not available"));
+				reject(new Error('Canvas context not available'));
 				return;
 			}
 
@@ -136,11 +127,11 @@ const FaceVerification: React.FC = () => {
 					if (blob) {
 						resolve(blob);
 					} else {
-						reject(new Error("Failed to capture image"));
+						reject(new Error('Failed to capture image'));
 					}
 				},
-				"image/jpeg",
-				0.95,
+				'image/jpeg',
+				0.95
 			);
 		});
 	};
@@ -151,11 +142,11 @@ const FaceVerification: React.FC = () => {
 		try {
 			const imageBlob = await captureFrame();
 			await faceVerificationService.registerFace(imageBlob);
-			message.success(t("faceVerification.registerSuccess"));
+			message.success(t('faceVerification.registerSuccess'));
 			setIsRegistered(true);
 		} catch (err: any) {
-			console.error("Registration error:", err);
-			setError(err.message || t("faceVerification.registerError"));
+			console.error('Registration error:', err);
+			setError(err.message || t('faceVerification.registerError'));
 		} finally {
 			setRegistering(false);
 		}
@@ -175,12 +166,10 @@ const FaceVerification: React.FC = () => {
 				setVerifying(false);
 				const similarity = (result.similarity * 100).toFixed(1);
 				setError(
-					t("faceVerification.verifyFailed", {
+					t('faceVerification.verifyFailed', {
 						similarity,
-						reason:
-							result.reason ||
-							t("faceVerification.verifyFailedHint"),
-					}),
+						reason: result.reason || t('faceVerification.verifyFailedHint'),
+					})
 				);
 				return;
 			}
@@ -190,57 +179,55 @@ const FaceVerification: React.FC = () => {
 			startAssessment();
 		} catch (err: any) {
 			setVerifying(false);
-			console.error("Verification error:", err);
-			const errorMsg = err.message || t("faceVerification.verifyError");
+			console.error('Verification error:', err);
+			const errorMsg = err.message || t('faceVerification.verifyError');
 			setError(errorMsg);
 		}
 	};
 
 	const startAssessment = () => {
 		modal.confirm({
-			title: t("faceVerification.startExamTitle"),
+			title: t('faceVerification.startExamTitle'),
 			content: (
 				<div>
 					<p>
 						<strong>{assessmentData.title}</strong>
 					</p>
 					<p>
-						{t("faceVerification.duration")}:{" "}
-						{assessmentData.duration} {t("common.minutes")}
+						{t('faceVerification.duration')}: {assessmentData.duration}{' '}
+						{t('common.minutes')}
 					</p>
 					<Alert
-						message={t("faceVerification.goodLuck")}
+						message={t('faceVerification.goodLuck')}
 						type="success"
 						showIcon
 						style={{ marginTop: 16 }}
 					/>
 				</div>
 			),
-			okText: t("faceVerification.startNow"),
-			cancelText: t("common.cancel"),
+			okText: t('faceVerification.startNow'),
+			cancelText: t('common.cancel'),
 			onOk: async () => {
 				setIsStarting(true);
 				try {
 					const attempt = await studentService.startAttempt({
 						assessment_id: assessmentData.id,
-						student_id: user?.id || "",
+						student_id: user?.id || '',
 					});
 
 					if (streamRef.current) {
-						streamRef.current
-							.getTracks()
-							.forEach((track) => track.stop());
+						streamRef.current.getTracks().forEach((track) => track.stop());
 					}
 
 					navigate(`/student/take/${attempt.id}`);
 				} catch (error: any) {
 					setIsStarting(false);
 					modal.error({
-						title: t("common.error"),
+						title: t('common.error'),
 						content:
 							error.response?.data?.message ||
 							error.message ||
-							t("faceVerification.startError"),
+							t('faceVerification.startError'),
 					});
 				}
 			},
@@ -252,113 +239,83 @@ const FaceVerification: React.FC = () => {
 	return (
 		<div
 			style={{
-				minHeight: "100vh",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
+				minHeight: '100vh',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
 				padding: 24,
 				background: token.colorBgLayout,
 			}}
 		>
-			<Card style={{ maxWidth: 900, width: "100%" }}>
+			<Card style={{ maxWidth: 900, width: '100%' }}>
 				<Row gutter={[24, 24]}>
 					{/* Left Side: Instructions & Status */}
 					<Col xs={24} md={10}>
-						<Space
-							direction="vertical"
-							size="large"
-							style={{ width: "100%" }}
-						>
+						<Space direction="vertical" size="large" style={{ width: '100%' }}>
 							<div>
 								<Title level={3} style={{ marginBottom: 0 }}>
 									{assessmentData.title}
 								</Title>
-								<Text type="secondary">
-									{t("faceVerification.preparingRoom")}
-								</Text>
+								<Text type="secondary">{t('faceVerification.preparingRoom')}</Text>
 							</div>
 
-							<Card
-								size="small"
-								style={{ background: token.colorFillAlter }}
-							>
+							<Card size="small" style={{ background: token.colorFillAlter }}>
 								<Space direction="vertical" size="small">
 									<Space>
 										<Text type="secondary">
-											{t("faceVerification.duration")}:
+											{t('faceVerification.duration')}:
 										</Text>
 										<Text strong>
-											{assessmentData.duration}{" "}
-											{t("common.minutes")}
+											{assessmentData.duration} {t('common.minutes')}
 										</Text>
 									</Space>
 									<Space>
 										<Text type="secondary">
-											{t("faceVerification.attemptsUsed")}
-											:
+											{t('faceVerification.attemptsUsed')}:
 										</Text>
 										<Text strong>
-											{assessmentData.attempts_used} /{" "}
+											{assessmentData.attempts_used} /{' '}
 											{assessmentData.max_attempts}
 										</Text>
 									</Space>
 									<Space>
 										<Text type="secondary">
-											{t("faceVerification.passingScore")}
-											:
+											{t('faceVerification.passingScore')}:
 										</Text>
-										<Text strong>
-											{assessmentData.passing_score}%
-										</Text>
+										<Text strong>{assessmentData.passing_score}%</Text>
 									</Space>
 								</Space>
 							</Card>
 
-							<div style={{ padding: "0 12px" }}>
+							<div style={{ padding: '0 12px' }}>
 								<Steps
 									direction="vertical"
-									current={
-										checkingStatus
-											? 0
-											: isRegistered
-												? 2
-												: 1
-									}
+									current={checkingStatus ? 0 : isRegistered ? 2 : 1}
 									items={[
 										{
-											title: t(
-												"faceVerification.steps.deviceCheck",
-											),
+											title: t('faceVerification.steps.deviceCheck'),
 											description: t(
-												"faceVerification.steps.deviceCheckDesc",
+												'faceVerification.steps.deviceCheckDesc'
 											),
-											status: cameraReady
-												? "finish"
-												: "process",
+											status: cameraReady ? 'finish' : 'process',
 										},
 										{
-											title: t(
-												"faceVerification.steps.faceRegister",
-											),
+											title: t('faceVerification.steps.faceRegister'),
 											description: t(
-												"faceVerification.steps.faceRegisterDesc",
+												'faceVerification.steps.faceRegisterDesc'
 											),
 											status: isRegistered
-												? "finish"
+												? 'finish'
 												: checkingStatus
-													? "wait"
-													: "process",
+													? 'wait'
+													: 'process',
 										},
 										{
-											title: t(
-												"faceVerification.steps.identityVerify",
-											),
+											title: t('faceVerification.steps.identityVerify'),
 											description: t(
-												"faceVerification.steps.identityVerifyDesc",
+												'faceVerification.steps.identityVerifyDesc'
 											),
-											status: isRegistered
-												? "process"
-												: "wait",
+											status: isRegistered ? 'process' : 'wait',
 										},
 									]}
 								/>
@@ -366,9 +323,9 @@ const FaceVerification: React.FC = () => {
 
 							<Button
 								icon={<ArrowLeftOutlined />}
-								onClick={() => navigate("/student/assessments")}
+								onClick={() => navigate('/student/assessments')}
 							>
-								{t("faceVerification.backToList")}
+								{t('faceVerification.backToList')}
 							</Button>
 						</Space>
 					</Col>
@@ -378,87 +335,71 @@ const FaceVerification: React.FC = () => {
 						<Card
 							title={
 								isRegistered
-									? t(
-											"faceVerification.identityVerificationTitle",
-										)
-									: t("faceVerification.faceRegisterTitle")
+									? t('faceVerification.identityVerificationTitle')
+									: t('faceVerification.faceRegisterTitle')
 							}
 							extra={
 								isRegistered ? (
-									<Tag color="blue">
-										{t("faceVerification.step3")}
-									</Tag>
+									<Tag color="blue">{t('faceVerification.step3')}</Tag>
 								) : (
-									<Tag color="orange">
-										{t("faceVerification.step2")}
-									</Tag>
+									<Tag color="orange">{t('faceVerification.step2')}</Tag>
 								)
 							}
 						>
 							<div
 								style={{
-									position: "relative",
-									width: "100%",
-									background: "#000",
+									position: 'relative',
+									width: '100%',
+									background: '#000',
 									borderRadius: 8,
-									overflow: "hidden",
-									aspectRatio: "4/3",
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "center",
+									overflow: 'hidden',
+									aspectRatio: '4/3',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
 									marginBottom: 16,
 								}}
 							>
 								{permissionDenied ? (
 									<div
 										style={{
-											textAlign: "center",
+											textAlign: 'center',
 											padding: 20,
-											color: "#fff",
+											color: '#fff',
 										}}
 									>
-										<Title
-											level={4}
-											style={{ color: "#fff" }}
-										>
-											{t(
-												"faceVerification.permissionDenied",
-											)}
+										<Title level={4} style={{ color: '#fff' }}>
+											{t('faceVerification.permissionDenied')}
 										</Title>
 										<Text
 											style={{
-												color: "rgba(255,255,255,0.8)",
+												color: 'rgba(255,255,255,0.8)',
 											}}
 										>
-											{t(
-												"faceVerification.allowCameraAccess",
-											)}
+											{t('faceVerification.allowCameraAccess')}
 										</Text>
 										<Button
 											type="primary"
 											onClick={startCamera}
 											style={{ marginTop: 16 }}
 										>
-											{t("faceVerification.retry")}
+											{t('faceVerification.retry')}
 										</Button>
 									</div>
 								) : error && !cameraReady ? (
 									<div
 										style={{
-											textAlign: "center",
+											textAlign: 'center',
 											padding: 20,
-											color: "#fff",
+											color: '#fff',
 										}}
 									>
-										<Title
-											level={4}
-											style={{ color: "#ff4d4f" }}
-										>
-											{t("faceVerification.cameraError")}
+										<Title level={4} style={{ color: '#ff4d4f' }}>
+											{t('faceVerification.cameraError')}
 										</Title>
 										<Text
 											style={{
-												color: "rgba(255,255,255,0.8)",
+												color: 'rgba(255,255,255,0.8)',
 											}}
 										>
 											{error}
@@ -468,21 +409,19 @@ const FaceVerification: React.FC = () => {
 											onClick={startCamera}
 											style={{ marginTop: 16 }}
 										>
-											{t("faceVerification.retry")}
+											{t('faceVerification.retry')}
 										</Button>
 									</div>
 								) : !cameraReady ? (
-									<div style={{ textAlign: "center" }}>
+									<div style={{ textAlign: 'center' }}>
 										<Spin size="large" />
 										<div
 											style={{
 												marginTop: 16,
-												color: "#fff",
+												color: '#fff',
 											}}
 										>
-											{t(
-												"faceVerification.startingCamera",
-											)}
+											{t('faceVerification.startingCamera')}
 										</div>
 									</div>
 								) : null}
@@ -493,14 +432,12 @@ const FaceVerification: React.FC = () => {
 									playsInline
 									muted
 									style={{
-										width: "100%",
-										height: "100%",
-										objectFit: "cover",
-										transform: "scaleX(-1)",
+										width: '100%',
+										height: '100%',
+										objectFit: 'cover',
+										transform: 'scaleX(-1)',
 										display:
-											cameraReady && !permissionDenied
-												? "block"
-												: "none",
+											cameraReady && !permissionDenied ? 'block' : 'none',
 									}}
 								/>
 							</div>
@@ -514,13 +451,9 @@ const FaceVerification: React.FC = () => {
 								/>
 							)}
 
-							<div style={{ textAlign: "center" }}>
+							<div style={{ textAlign: 'center' }}>
 								{checkingStatus ? (
-									<Spin
-										tip={t(
-											"faceVerification.checkingStatus",
-										)}
-									/>
+									<Spin tip={t('faceVerification.checkingStatus')} />
 								) : isRegistered ? (
 									<Button
 										type="primary"
@@ -532,23 +465,16 @@ const FaceVerification: React.FC = () => {
 										block
 									>
 										{verifying
-											? t("faceVerification.verifying")
-											: t(
-													"faceVerification.verifyAndStart",
-												)}
+											? t('faceVerification.verifying')
+											: t('faceVerification.verifyAndStart')}
 									</Button>
 								) : (
-									<Space
-										direction="vertical"
-										style={{ width: "100%" }}
-									>
+									<Space direction="vertical" style={{ width: '100%' }}>
 										<Alert
 											type="info"
-											message={t(
-												"faceVerification.noFaceData",
-											)}
+											message={t('faceVerification.noFaceData')}
 											showIcon
-											style={{ textAlign: "left" }}
+											style={{ textAlign: 'left' }}
 										/>
 										<Button
 											type="primary"
@@ -560,12 +486,8 @@ const FaceVerification: React.FC = () => {
 											block
 										>
 											{registering
-												? t(
-														"faceVerification.registering",
-													)
-												: t(
-														"faceVerification.captureToRegister",
-													)}
+												? t('faceVerification.registering')
+												: t('faceVerification.captureToRegister')}
 										</Button>
 									</Space>
 								)}

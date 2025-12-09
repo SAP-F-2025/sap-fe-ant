@@ -10,7 +10,7 @@ import {
 	SearchOutlined,
 	ShareAltOutlined,
 	UnlockOutlined,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
 import {
 	Avatar,
 	Badge,
@@ -26,19 +26,19 @@ import {
 	Table,
 	Tooltip,
 	Typography,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import dayjs from "dayjs";
-import React, { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { ShareQuestionBankModal } from "../../components/QuestionBank/ShareQuestionBankModal";
-import questionBankService from "../../services/questionBankService";
-import { cardColors } from "../../styles/cardColors";
-import { elevation } from "../../styles/elevation";
-import { useThemeToken } from "../../theme/ThemeProvider";
-import { QuestionBank } from "../../types";
-import { showSuccess } from "../../utils/errorHandler";
+} from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { ShareQuestionBankModal } from '../../components/QuestionBank/ShareQuestionBankModal';
+import questionBankService from '../../services/questionBankService';
+import { cardColors } from '../../styles/cardColors';
+import { elevation } from '../../styles/elevation';
+import { useThemeToken } from '../../theme/ThemeProvider';
+import { QuestionBank } from '../../types';
+import { showSuccess } from '../../utils/errorHandler';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -54,7 +54,7 @@ const QuestionBankList: React.FC = () => {
 	const [filters, setFilters] = useState({
 		page: 1,
 		size: 10,
-		search: "",
+		search: '',
 	});
 	const [shareModalVisible, setShareModalVisible] = useState(false);
 	const [selectedBank, setSelectedBank] = useState<QuestionBank | null>(null);
@@ -63,7 +63,7 @@ const QuestionBankList: React.FC = () => {
 	const stats = useMemo(() => {
 		const totalQuestions = allBanksStats.reduce(
 			(sum, bank) => sum + (bank.question_count || 0),
-			0,
+			0
 		);
 		return {
 			total: total,
@@ -85,12 +85,11 @@ const QuestionBankList: React.FC = () => {
 	const fetchQuestionBanks = async () => {
 		setLoading(true);
 		try {
-			const response =
-				await questionBankService.getQuestionBanks(filters);
+			const response = await questionBankService.getQuestionBanks(filters);
 			setQuestionBanks(response.banks);
 			setTotal(response.total);
 		} catch (error) {
-			message.error(t("questionBankList.loadError"));
+			message.error(t('questionBankList.loadError'));
 		} finally {
 			setLoading(false);
 		}
@@ -105,17 +104,17 @@ const QuestionBankList: React.FC = () => {
 			});
 			setAllBanksStats(response.banks || []);
 		} catch (error) {
-			console.error("Failed to fetch question bank statistics:", error);
+			console.error('Failed to fetch question bank statistics:', error);
 		}
 	};
 
 	const handleDelete = async (id: number) => {
 		try {
 			await questionBankService.deleteQuestionBank(id);
-			showSuccess(t("questionBankList.deleteSuccess"));
+			showSuccess(t('questionBankList.deleteSuccess'));
 			fetchQuestionBanks();
 		} catch (error) {
-			message.error(t("questionBankList.deleteError"));
+			message.error(t('questionBankList.deleteError'));
 		}
 	};
 
@@ -132,33 +131,26 @@ const QuestionBankList: React.FC = () => {
 
 	const columns: ColumnsType<QuestionBank> = [
 		{
-			title: t("questionBankList.columnName"),
-			dataIndex: "name",
-			key: "name",
+			title: t('questionBankList.columnName'),
+			dataIndex: 'name',
+			key: 'name',
 			width: 300,
 			render: (text, record) => (
 				<Space direction="vertical" size={0}>
 					<Space>
 						<Typography.Text strong>{text}</Typography.Text>
 						{record.is_public ? (
-							<Tooltip
-								title={t("questionBankList.publicTooltip")}
-							>
-								<UnlockOutlined style={{ color: "#52c41a" }} />
+							<Tooltip title={t('questionBankList.publicTooltip')}>
+								<UnlockOutlined style={{ color: '#52c41a' }} />
 							</Tooltip>
 						) : (
-							<Tooltip
-								title={t("questionBankList.privateTooltip")}
-							>
-								<LockOutlined style={{ color: "#faad14" }} />
+							<Tooltip title={t('questionBankList.privateTooltip')}>
+								<LockOutlined style={{ color: '#faad14' }} />
 							</Tooltip>
 						)}
 					</Space>
 					{record.description && (
-						<Typography.Text
-							type="secondary"
-							style={{ fontSize: 12 }}
-						>
+						<Typography.Text type="secondary" style={{ fontSize: 12 }}>
 							{record.description.length > 80
 								? `${record.description.substring(0, 80)}...`
 								: record.description}
@@ -168,53 +160,44 @@ const QuestionBankList: React.FC = () => {
 			),
 		},
 		{
-			title: t("questionBankList.columnQuestions"),
-			dataIndex: "question_count",
-			key: "question_count",
+			title: t('questionBankList.columnQuestions'),
+			dataIndex: 'question_count',
+			key: 'question_count',
 			width: 120,
-			align: "center",
+			align: 'center',
 			render: (count) => (
-				<Badge
-					count={count || 0}
-					showZero
-					color="#1890ff"
-					style={{ fontSize: 14 }}
-				/>
+				<Badge count={count || 0} showZero color="#1890ff" style={{ fontSize: 14 }} />
 			),
 		},
 		{
-			title: t("questionBankList.columnCreated"),
-			dataIndex: "created_at",
-			key: "created_at",
+			title: t('questionBankList.columnCreated'),
+			dataIndex: 'created_at',
+			key: 'created_at',
 			width: 150,
-			render: (date) => dayjs(date).format("DD/MM/YYYY"),
+			render: (date) => dayjs(date).format('DD/MM/YYYY'),
 		},
 		{
-			title: t("questionBankList.columnActions"),
-			key: "action",
-			fixed: "right",
+			title: t('questionBankList.columnActions'),
+			key: 'action',
+			fixed: 'right',
 			width: 120,
 			render: (_, record) => (
 				<Space size="small">
-					<Tooltip title={t("questionBankList.viewDetail")}>
+					<Tooltip title={t('questionBankList.viewDetail')}>
 						<Button
 							type="text"
 							icon={<EyeOutlined />}
-							onClick={() =>
-								navigate(`/question-banks/${record.id}`)
-							}
+							onClick={() => navigate(`/question-banks/${record.id}`)}
 						/>
 					</Tooltip>
-					<Tooltip title={t("questionBankList.edit")}>
+					<Tooltip title={t('questionBankList.edit')}>
 						<Button
 							type="text"
 							icon={<EditOutlined />}
-							onClick={() =>
-								navigate(`/question-banks/edit/${record.id}`)
-							}
+							onClick={() => navigate(`/question-banks/edit/${record.id}`)}
 						/>
 					</Tooltip>
-					<Tooltip title={t("questionBankList.share")}>
+					<Tooltip title={t('questionBankList.share')}>
 						<Button
 							type="text"
 							icon={<ShareAltOutlined />}
@@ -222,19 +205,15 @@ const QuestionBankList: React.FC = () => {
 						/>
 					</Tooltip>
 					<Popconfirm
-						title={t("questionBankList.confirmDelete")}
-						description={t("questionBankList.confirmDeleteDesc")}
+						title={t('questionBankList.confirmDelete')}
+						description={t('questionBankList.confirmDeleteDesc')}
 						onConfirm={() => handleDelete(record.id)}
-						okText={t("common.delete")}
-						cancelText={t("common.cancel")}
+						okText={t('common.delete')}
+						cancelText={t('common.cancel')}
 						okButtonProps={{ danger: true }}
 					>
-						<Tooltip title={t("questionBankList.delete")}>
-							<Button
-								type="text"
-								danger
-								icon={<DeleteOutlined />}
-							/>
+						<Tooltip title={t('questionBankList.delete')}>
+							<Button type="text" danger icon={<DeleteOutlined />} />
 						</Tooltip>
 					</Popconfirm>
 				</Space>
@@ -243,39 +222,38 @@ const QuestionBankList: React.FC = () => {
 	];
 
 	return (
-		<Space direction="vertical" size="large" style={{ width: "100%" }}>
+		<Space direction="vertical" size="large" style={{ width: '100%' }}>
 			<Flex justify="space-between" align="center">
 				<Space direction="vertical" size={4}>
 					<Title level={2} style={{ margin: 0, fontWeight: 600 }}>
-						<BankOutlined style={{ marginRight: 8 }} />{" "}
-						{t("questionBankList.title")}
+						<BankOutlined style={{ marginRight: 8 }} /> {t('questionBankList.title')}
 					</Title>
 					<Text type="secondary" style={{ fontSize: 14 }}>
-						{t("questionBankList.subtitle")}
+						{t('questionBankList.subtitle')}
 					</Text>
 				</Space>
 				<Space>
 					<Button
 						icon={<GlobalOutlined />}
 						size="large"
-						onClick={() => navigate("/question-banks/public")}
+						onClick={() => navigate('/question-banks/public')}
 						style={{ height: 44, borderRadius: 10 }}
 					>
-						{t("questionBankList.public")}
+						{t('questionBankList.public')}
 					</Button>
 					<Button
 						icon={<ShareAltOutlined />}
 						size="large"
-						onClick={() => navigate("/question-banks/shared")}
+						onClick={() => navigate('/question-banks/shared')}
 						style={{ height: 44, borderRadius: 10 }}
 					>
-						{t("questionBankList.shared")}
+						{t('questionBankList.shared')}
 					</Button>
 					<Button
 						type="primary"
 						icon={<PlusOutlined />}
 						size="large"
-						onClick={() => navigate("/question-banks/new")}
+						onClick={() => navigate('/question-banks/new')}
 						style={{
 							fontWeight: 500,
 							height: 44,
@@ -284,25 +262,19 @@ const QuestionBankList: React.FC = () => {
 							paddingRight: 24,
 						}}
 					>
-						{t("questionBankList.createNew")}
+						{t('questionBankList.createNew')}
 					</Button>
 				</Space>
 			</Flex>
 
 			<Card style={{ ...elevation[1], borderRadius: 16 }}>
-				<Space
-					direction="vertical"
-					size="middle"
-					style={{ width: "100%" }}
-				>
+				<Space direction="vertical" size="middle" style={{ width: '100%' }}>
 					<Search
-						placeholder={t("questionBankList.searchPlaceholder")}
+						placeholder={t('questionBankList.searchPlaceholder')}
 						allowClear
 						enterButton={<SearchOutlined />}
 						size="large"
-						onSearch={(value) =>
-							setFilters({ ...filters, search: value, page: 1 })
-						}
+						onSearch={(value) => setFilters({ ...filters, search: value, page: 1 })}
 					/>
 
 					<Table
@@ -317,11 +289,10 @@ const QuestionBankList: React.FC = () => {
 							total: total,
 							showSizeChanger: true,
 							showTotal: (total) =>
-								t("questionBankList.totalItems", {
+								t('questionBankList.totalItems', {
 									count: total,
 								}),
-							onChange: (page, size) =>
-								setFilters({ ...filters, page, size }),
+							onChange: (page, size) => setFilters({ ...filters, page, size }),
 						}}
 					/>
 				</Space>
@@ -333,26 +304,19 @@ const QuestionBankList: React.FC = () => {
 				style={{
 					...elevation[1],
 					borderRadius: 16,
-					background: "#f5f5f5",
+					background: '#f5f5f5',
 				}}
 			>
-				<Space direction="vertical" size={8} style={{ width: "100%" }}>
-					<Text
-						type="secondary"
-						style={{ fontSize: 13, fontWeight: 500 }}
-					>
-						{t("questionBankList.statsTitle")}
+				<Space direction="vertical" size={8} style={{ width: '100%' }}>
+					<Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
+						{t('questionBankList.statsTitle')}
 					</Text>
 					<Row gutter={[12, 12]}>
 						<Col xs={12} sm={6}>
 							<Flex align="center" gap={8}>
 								<Avatar
 									size={36}
-									icon={
-										<BankOutlined
-											style={{ fontSize: 16 }}
-										/>
-									}
+									icon={<BankOutlined style={{ fontSize: 16 }} />}
 									style={{
 										backgroundColor: cardColors.cyan,
 										flexShrink: 0,
@@ -368,11 +332,8 @@ const QuestionBankList: React.FC = () => {
 									>
 										{stats.total}
 									</Text>
-									<Text
-										type="secondary"
-										style={{ fontSize: 12 }}
-									>
-										{t("questionBankList.totalBanks")}
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{t('questionBankList.totalBanks')}
 									</Text>
 								</Space>
 							</Flex>
@@ -381,11 +342,7 @@ const QuestionBankList: React.FC = () => {
 							<Flex align="center" gap={8}>
 								<Avatar
 									size={36}
-									icon={
-										<GlobalOutlined
-											style={{ fontSize: 16 }}
-										/>
-									}
+									icon={<GlobalOutlined style={{ fontSize: 16 }} />}
 									style={{
 										backgroundColor: cardColors.blue,
 										flexShrink: 0,
@@ -401,11 +358,8 @@ const QuestionBankList: React.FC = () => {
 									>
 										{stats.public}
 									</Text>
-									<Text
-										type="secondary"
-										style={{ fontSize: 12 }}
-									>
-										{t("questionBankList.publicBanks")}
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{t('questionBankList.publicBanks')}
 									</Text>
 								</Space>
 							</Flex>
@@ -414,11 +368,7 @@ const QuestionBankList: React.FC = () => {
 							<Flex align="center" gap={8}>
 								<Avatar
 									size={36}
-									icon={
-										<LockOutlined
-											style={{ fontSize: 16 }}
-										/>
-									}
+									icon={<LockOutlined style={{ fontSize: 16 }} />}
 									style={{
 										backgroundColor: cardColors.magenta,
 										flexShrink: 0,
@@ -434,11 +384,8 @@ const QuestionBankList: React.FC = () => {
 									>
 										{stats.private}
 									</Text>
-									<Text
-										type="secondary"
-										style={{ fontSize: 12 }}
-									>
-										{t("questionBankList.privateBanks")}
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{t('questionBankList.privateBanks')}
 									</Text>
 								</Space>
 							</Flex>
@@ -447,11 +394,7 @@ const QuestionBankList: React.FC = () => {
 							<Flex align="center" gap={8}>
 								<Avatar
 									size={36}
-									icon={
-										<FolderOutlined
-											style={{ fontSize: 16 }}
-										/>
-									}
+									icon={<FolderOutlined style={{ fontSize: 16 }} />}
 									style={{
 										backgroundColor: cardColors.gold,
 										flexShrink: 0,
@@ -467,11 +410,8 @@ const QuestionBankList: React.FC = () => {
 									>
 										{stats.totalQuestions}
 									</Text>
-									<Text
-										type="secondary"
-										style={{ fontSize: 12 }}
-									>
-										{t("questionBankList.totalQuestions")}
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{t('questionBankList.totalQuestions')}
 									</Text>
 								</Space>
 							</Flex>
@@ -482,7 +422,7 @@ const QuestionBankList: React.FC = () => {
 
 			<ShareQuestionBankModal
 				bankId={selectedBank?.id || 0}
-				bankName={selectedBank?.name || ""}
+				bankName={selectedBank?.name || ''}
 				visible={shareModalVisible}
 				onCancel={handleShareModalClose}
 				onSuccess={() => {

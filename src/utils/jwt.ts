@@ -57,10 +57,10 @@ export interface DecodedToken {
 export const decodeJWT = (token: string): DecodedToken | null => {
 	try {
 		// JWT format: header.payload.signature
-		const parts = token.split(".");
+		const parts = token.split('.');
 
 		if (parts.length !== 3) {
-			console.error("Invalid JWT format");
+			console.error('Invalid JWT format');
 			return null;
 		}
 
@@ -68,22 +68,19 @@ export const decodeJWT = (token: string): DecodedToken | null => {
 		const payload = parts[1];
 
 		// Replace URL-safe characters
-		const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+		const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
 
 		// Decode base64
 		const jsonPayload = decodeURIComponent(
 			atob(base64)
-				.split("")
-				.map(
-					(c) =>
-						"%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2),
-				)
-				.join(""),
+				.split('')
+				.map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+				.join('')
 		);
 
 		return JSON.parse(jsonPayload);
 	} catch (error) {
-		console.error("Failed to decode JWT:", error);
+		console.error('Failed to decode JWT:', error);
 		return null;
 	}
 };

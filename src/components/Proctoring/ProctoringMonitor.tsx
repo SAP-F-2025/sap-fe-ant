@@ -1,17 +1,9 @@
-import {
-	DragOutlined,
-	MinusOutlined,
-	PlusOutlined,
-	VideoCameraOutlined,
-} from "@ant-design/icons";
-import { Alert, Badge, Button, Card, Tag } from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useBrowserProctoring } from "../../hooks/useBrowserProctoring";
-import {
-	ProctoringEvent,
-	useMediaPipeFaceDetection,
-} from "../../hooks/useProctoring";
+import { DragOutlined, MinusOutlined, PlusOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { Alert, Badge, Button, Card, Tag } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useBrowserProctoring } from '../../hooks/useBrowserProctoring';
+import { ProctoringEvent, useMediaPipeFaceDetection } from '../../hooks/useProctoring';
 
 interface ProctoringMonitorProps {
 	onViolation?: (event: ProctoringEvent) => void;
@@ -39,23 +31,23 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	const { t } = useTranslation();
 	const cardRef = useRef<HTMLDivElement>(null);
 	const [position, setPosition] = useState(() => {
-		const saved = localStorage.getItem("proctoring-position");
+		const saved = localStorage.getItem('proctoring-position');
 		return saved ? JSON.parse(saved) : { x: 20, y: 20 };
 	});
 	const [isDragging, setIsDragging] = useState(false);
 	const [isResizing, setIsResizing] = useState(false);
 	const dragOffset = useRef({ x: 0, y: 0 });
 	const [scale, setScale] = useState(() => {
-		const saved = localStorage.getItem("proctoring-scale");
+		const saved = localStorage.getItem('proctoring-scale');
 		return saved ? parseFloat(saved) : 1;
 	});
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [videoReady, setVideoReady] = useState(false);
-	const [activeViolations, setActiveViolations] = useState<
-		Map<string, ProctoringEvent>
-	>(new Map());
+	const [activeViolations, setActiveViolations] = useState<Map<string, ProctoringEvent>>(
+		new Map()
+	);
 	const streamRef = useRef<MediaStream | null>(null);
 	const violationTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -69,8 +61,8 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 
 	useEffect(() => {
 		const handleResize = () => setWindowWidth(window.innerWidth);
-		window.addEventListener("resize", handleResize);
-		return () => window.removeEventListener("resize", handleResize);
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
 	}, []);
 
 	useEffect(() => {
@@ -107,7 +99,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		canvasRef.current,
 		videoReady,
 		showLandmarks,
-		handleViolation,
+		handleViolation
 	);
 
 	useEffect(() => {
@@ -140,7 +132,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 				}
 			} catch (err: any) {
 				if (mounted) {
-					setError(err.message || "Failed to access camera");
+					setError(err.message || 'Failed to access camera');
 				}
 			}
 		};
@@ -153,38 +145,24 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 				streamRef.current.getTracks().forEach((track) => track.stop());
 				streamRef.current = null;
 			}
-			violationTimeoutsRef.current.forEach((timeout) =>
-				clearTimeout(timeout),
-			);
+			violationTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
 			violationTimeoutsRef.current.clear();
 		};
 	}, []);
 
 	useEffect(() => {
-		if (
-			videoRef.current &&
-			streamRef.current &&
-			!videoRef.current.srcObject
-		) {
+		if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
 			videoRef.current.srcObject = streamRef.current;
 			videoRef.current.onloadedmetadata = () => {
 				setVideoReady(true);
 			};
-			videoRef.current
-				.play()
-				.catch((err) => console.error("Video play failed:", err));
+			videoRef.current.play().catch((err) => console.error('Video play failed:', err));
 		}
 	}, [streamRef.current, isExpanded, isMobile]);
 
 	const getSize = () => {
 		const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;
-		const baseHeight = isMobile
-			? 180
-			: isTablet
-				? 240
-				: compact
-					? 240
-					: 480;
+		const baseHeight = isMobile ? 180 : isTablet ? 240 : compact ? 240 : 480;
 		return {
 			width: Math.round(baseWidth * scale),
 			height: Math.round(baseHeight * scale),
@@ -194,10 +172,10 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		const target = e.target as HTMLElement;
-		if (target.classList.contains("resize-handle")) {
+		if (target.classList.contains('resize-handle')) {
 			setIsResizing(true);
 			e.stopPropagation();
-		} else if (target.closest(".ant-card-head")) {
+		} else if (target.closest('.ant-card-head')) {
 			setIsDragging(true);
 			dragOffset.current = {
 				x: e.clientX - position.x,
@@ -213,14 +191,8 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 				let newX = e.clientX - dragOffset.current.x;
 				let newY = e.clientY - dragOffset.current.y;
 
-				newX = Math.max(
-					0,
-					Math.min(newX, window.innerWidth - cardRect.width),
-				);
-				newY = Math.max(
-					0,
-					Math.min(newY, window.innerHeight - cardRect.height),
-				);
+				newX = Math.max(0, Math.min(newX, window.innerWidth - cardRect.width));
+				newY = Math.max(0, Math.min(newY, window.innerHeight - cardRect.height));
 
 				setPosition({ x: newX, y: newY });
 			} else if (isResizing) {
@@ -229,16 +201,10 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 					startScaleRef.current = scale;
 				}
 				const deltaX = e.clientX - startXRef.current;
-				const baseWidth = isMobile
-					? 240
-					: isTablet
-						? 320
-						: compact
-							? 320
-							: 640;
+				const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;
 				const newScale = Math.max(
 					0.5,
-					Math.min(2, startScaleRef.current + deltaX / baseWidth),
+					Math.min(2, startScaleRef.current + deltaX / baseWidth)
 				);
 				setScale(newScale);
 			}
@@ -247,26 +213,23 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		const handleMouseUp = () => {
 			if (isDragging) {
 				setIsDragging(false);
-				localStorage.setItem(
-					"proctoring-position",
-					JSON.stringify(position),
-				);
+				localStorage.setItem('proctoring-position', JSON.stringify(position));
 			}
 			if (isResizing) {
 				setIsResizing(false);
 				startXRef.current = 0;
-				localStorage.setItem("proctoring-scale", scale.toString());
+				localStorage.setItem('proctoring-scale', scale.toString());
 			}
 		};
 
 		if (isDragging || isResizing) {
-			document.addEventListener("mousemove", handleMouseMove);
-			document.addEventListener("mouseup", handleMouseUp);
+			document.addEventListener('mousemove', handleMouseMove);
+			document.addEventListener('mouseup', handleMouseUp);
 		}
 
 		return () => {
-			document.removeEventListener("mousemove", handleMouseMove);
-			document.removeEventListener("mouseup", handleMouseUp);
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
 		};
 	}, [isDragging, isResizing, position, scale, isMobile, isTablet, compact]);
 
@@ -291,17 +254,14 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 
 			if (newX !== position.x || newY !== position.y) {
 				setPosition({ x: newX, y: newY });
-				localStorage.setItem(
-					"proctoring-position",
-					JSON.stringify({ x: newX, y: newY }),
-				);
+				localStorage.setItem('proctoring-position', JSON.stringify({ x: newX, y: newY }));
 			}
 		};
 
-		window.addEventListener("resize", handleResize);
+		window.addEventListener('resize', handleResize);
 		handleResize(); // Check on mount
 
-		return () => window.removeEventListener("resize", handleResize);
+		return () => window.removeEventListener('resize', handleResize);
 	}, [position]);
 
 	return (
@@ -309,7 +269,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 			{!isExpanded && isMobile && (
 				<div
 					style={{
-						position: "fixed",
+						position: 'fixed',
 						bottom: 20,
 						right: 20,
 						zIndex: 1000,
@@ -330,17 +290,13 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 			<div
 				ref={cardRef}
 				style={{
-					position: "fixed",
+					position: 'fixed',
 					left: isMobile ? 10 : position.x,
 					top: isMobile ? 10 : position.y,
 					zIndex: 1000,
-					cursor: isDragging
-						? "grabbing"
-						: isResizing
-							? "ew-resize"
-							: "default",
-					maxWidth: isMobile ? "calc(100vw - 20px)" : "none",
-					display: !isExpanded && isMobile ? "none" : "block",
+					cursor: isDragging ? 'grabbing' : isResizing ? 'ew-resize' : 'default',
+					maxWidth: isMobile ? 'calc(100vw - 20px)' : 'none',
+					display: !isExpanded && isMobile ? 'none' : 'block',
 				}}
 				onMouseDown={handleMouseDown}
 			>
@@ -348,12 +304,12 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 					<div
 						className="resize-handle"
 						style={{
-							position: "absolute",
+							position: 'absolute',
 							right: -4,
 							top: 0,
 							width: 8,
-							height: "100%",
-							cursor: "ew-resize",
+							height: '100%',
+							cursor: 'ew-resize',
 							zIndex: 10,
 						}}
 					/>
@@ -362,26 +318,22 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 					title={
 						<span
 							style={{
-								cursor: isMobile ? "default" : "grab",
-								userSelect: "none",
-								fontSize: Math.round(
-									(isMobile ? 12 : 14) * scale,
-								),
+								cursor: isMobile ? 'default' : 'grab',
+								userSelect: 'none',
+								fontSize: Math.round((isMobile ? 12 : 14) * scale),
 							}}
 						>
-							{!isMobile && <DragOutlined />}{" "}
-							{isMobile
-								? "📹"
-								: t("proctoring.monitor.cameraTitle")}
+							{!isMobile && <DragOutlined />}{' '}
+							{isMobile ? '📹' : t('proctoring.monitor.cameraTitle')}
 						</span>
 					}
 					size="small"
 					extra={
 						<div
 							style={{
-								display: "flex",
+								display: 'flex',
 								gap: 8 * scale,
-								alignItems: "center",
+								alignItems: 'center',
 							}}
 						>
 							{violationCount > 0 && (
@@ -389,29 +341,20 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 									color="error"
 									style={{
 										margin: 0,
-										fontSize: Math.round(
-											(isMobile ? 10 : 12) * scale,
-										),
+										fontSize: Math.round((isMobile ? 10 : 12) * scale),
 									}}
 								>
 									{isMobile
 										? violationCount
-										: t(
-												"proctoring.monitor.violationCount",
-												{ count: violationCount },
-											)}
+										: t('proctoring.monitor.violationCount', {
+												count: violationCount,
+											})}
 								</Tag>
 							)}
 							<Button
 								type="text"
 								size="small"
-								icon={
-									isExpanded ? (
-										<MinusOutlined />
-									) : (
-										<PlusOutlined />
-									)
-								}
+								icon={isExpanded ? <MinusOutlined /> : <PlusOutlined />}
 								onClick={() => setIsExpanded(!isExpanded)}
 								style={{ fontSize: Math.round(14 * scale) }}
 							/>
@@ -432,10 +375,10 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 
 					<div
 						style={{
-							position: "relative",
+							position: 'relative',
 							width: size.width,
 							height: size.height,
-							display: isExpanded ? "block" : "none",
+							display: isExpanded ? 'block' : 'none',
 						}}
 					>
 						<video
@@ -444,11 +387,11 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 							playsInline
 							muted
 							style={{
-								width: "100%",
-								height: "100%",
-								backgroundColor: "#000",
+								width: '100%',
+								height: '100%',
+								backgroundColor: '#000',
 								borderRadius: 8,
-								transform: "scaleX(-1)",
+								transform: 'scaleX(-1)',
 							}}
 						/>
 						<canvas
@@ -456,23 +399,23 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 							width={size.width}
 							height={size.height}
 							style={{
-								position: "absolute",
+								position: 'absolute',
 								top: 0,
 								left: 0,
-								transform: "scaleX(-1)",
+								transform: 'scaleX(-1)',
 							}}
 						/>
 
 						{isProcessing && (
 							<div
 								style={{
-									position: "absolute",
+									position: 'absolute',
 									top: 8 * scale,
 									right: 8 * scale,
-									background: "rgba(82, 196, 26, 0.8)",
+									background: 'rgba(82, 196, 26, 0.8)',
 									padding: `${4 * scale}px ${8 * scale}px`,
 									borderRadius: 4 * scale,
-									color: "white",
+									color: 'white',
 									fontSize: Math.round(12 * scale),
 								}}
 							>
@@ -481,103 +424,56 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 						)}
 					</div>
 
-					{Array.from(activeViolations.values()).map(
-						(violation, index) => {
-							const getMessage = (
-								type: string,
-								metadata?: any,
-							) => {
-								switch (type) {
-									case "face_not_detected":
-										return t(
-											"proctoring.violations.faceNotDetected",
-										);
-									case "multiple_faces":
-										return t(
-											"proctoring.violations.multipleFaces",
-										);
-									case "mouth_open":
-										return t(
-											"proctoring.violations.mouthOpen",
-										);
-									case "head_turned":
-										return t(
-											"proctoring.violations.headTurned",
-										);
-									case "eyes_closed":
-										return t(
-											"proctoring.violations.eyesClosed",
-										);
-									case "looking_away":
-										return t(
-											"proctoring.violations.lookingAway",
-										);
-									case "tab_switch":
-										return metadata?.hidden
-											? t(
-													"proctoring.violations.tabSwitch",
-												)
-											: t(
-													"proctoring.violations.tabReturn",
-												);
-									case "fullscreen_exit":
-										return t(
-											"proctoring.violations.fullscreenExit",
-										);
-									case "copy_paste":
-										return t(
-											"proctoring.violations.copyPaste",
-											{
-												action:
-													metadata?.action === "copy"
-														? t(
-																"proctoring.violations.copy",
-															)
-														: metadata?.action ===
-															  "paste"
-															? t(
-																	"proctoring.violations.paste",
-																)
-															: t(
-																	"proctoring.violations.cut",
-																),
-											},
-										);
-									case "browser_tamper":
-										return t(
-											"proctoring.violations.browserTamper",
-										);
-									default:
-										return t(
-											"proctoring.violations.default",
-										);
-								}
-							};
+					{Array.from(activeViolations.values()).map((violation, index) => {
+						const getMessage = (type: string, metadata?: any) => {
+							switch (type) {
+								case 'face_not_detected':
+									return t('proctoring.violations.faceNotDetected');
+								case 'multiple_faces':
+									return t('proctoring.violations.multipleFaces');
+								case 'mouth_open':
+									return t('proctoring.violations.mouthOpen');
+								case 'head_turned':
+									return t('proctoring.violations.headTurned');
+								case 'eyes_closed':
+									return t('proctoring.violations.eyesClosed');
+								case 'looking_away':
+									return t('proctoring.violations.lookingAway');
+								case 'tab_switch':
+									return metadata?.hidden
+										? t('proctoring.violations.tabSwitch')
+										: t('proctoring.violations.tabReturn');
+								case 'fullscreen_exit':
+									return t('proctoring.violations.fullscreenExit');
+								case 'copy_paste':
+									return t('proctoring.violations.copyPaste', {
+										action:
+											metadata?.action === 'copy'
+												? t('proctoring.violations.copy')
+												: metadata?.action === 'paste'
+													? t('proctoring.violations.paste')
+													: t('proctoring.violations.cut'),
+									});
+								case 'browser_tamper':
+									return t('proctoring.violations.browserTamper');
+								default:
+									return t('proctoring.violations.default');
+							}
+						};
 
-							return (
-								<Alert
-									key={violation.type}
-									type={
-										violation.duration === 0
-											? "error"
-											: "warning"
-									}
-									message={getMessage(
-										violation.type,
-										violation.metadata,
-									)}
-									showIcon
-									style={{
-										marginTop:
-											(index === 0 ? 12 : 8) * scale,
-										fontSize: Math.round(
-											(isMobile ? 11 : 14) * scale,
-										),
-									}}
-								/>
-							);
-						},
-					)}
+						return (
+							<Alert
+								key={violation.type}
+								type={violation.duration === 0 ? 'error' : 'warning'}
+								message={getMessage(violation.type, violation.metadata)}
+								showIcon
+								style={{
+									marginTop: (index === 0 ? 12 : 8) * scale,
+									fontSize: Math.round((isMobile ? 11 : 14) * scale),
+								}}
+							/>
+						);
+					})}
 				</Card>
 			</div>
 		</>

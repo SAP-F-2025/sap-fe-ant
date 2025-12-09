@@ -1,10 +1,7 @@
-import { useState, useEffect } from "react";
-import studentService from "../../../services/studentService";
+import { useState, useEffect } from 'react';
+import studentService from '../../../services/studentService';
 
-export const useExamTimer = (
-	attemptId: number | undefined,
-	onTimeUp: () => void,
-) => {
+export const useExamTimer = (attemptId: number | undefined, onTimeUp: () => void) => {
 	const [timeRemaining, setTimeRemaining] = useState<number>(0);
 	const [isActive, setIsActive] = useState(true);
 
@@ -13,8 +10,7 @@ export const useExamTimer = (
 
 		const fetchTimeRemaining = async () => {
 			try {
-				const timeData =
-					await studentService.getTimeRemaining(attemptId);
+				const timeData = await studentService.getTimeRemaining(attemptId);
 				const remainingSeconds = timeData.data;
 
 				if (remainingSeconds <= 0) {
@@ -26,7 +22,7 @@ export const useExamTimer = (
 			} catch (error: any) {
 				// Silence 409 errors (attempt already completed)
 				if (error?.response?.status !== 409) {
-					console.error("Error fetching time remaining:", error);
+					console.error('Error fetching time remaining:', error);
 				}
 			}
 		};
@@ -52,9 +48,9 @@ export const useExamTimer = (
 		const secs = seconds % 60;
 
 		if (hours > 0) {
-			return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+			return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 		}
-		return `${minutes}:${secs.toString().padStart(2, "0")}`;
+		return `${minutes}:${secs.toString().padStart(2, '0')}`;
 	};
 
 	const stopTimer = () => setIsActive(false);

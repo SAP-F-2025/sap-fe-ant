@@ -1,19 +1,10 @@
-import { BellOutlined, CloseOutlined } from "@ant-design/icons";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import {
-	Badge,
-	Button,
-	Dropdown,
-	Empty,
-	Modal,
-	Skeleton,
-	Space,
-	Typography,
-} from "antd";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useThemeToken } from "../../theme/ThemeProvider";
-import "./NotificationDropdown.css";
+import { BellOutlined, CloseOutlined } from '@ant-design/icons';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { Badge, Button, Dropdown, Empty, Modal, Skeleton, Space, Typography } from 'antd';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useThemeToken } from '../../theme/ThemeProvider';
+import './NotificationDropdown.css';
 
 const { Text, Title, Paragraph } = Typography;
 
@@ -33,31 +24,26 @@ interface NotificationPage {
 }
 
 // Mock API function - replace with actual API call
-const fetchNotifications = async (
-	cursor?: string,
-): Promise<NotificationPage> => {
+const fetchNotifications = async (cursor?: string): Promise<NotificationPage> => {
 	// Simulate API delay
 	await new Promise((resolve) => setTimeout(resolve, 500));
 
 	// Mock data - replace with actual API call
-	const mockNotifications: Notification[] = Array.from(
-		{ length: 10 },
-		(_, i) => {
-			const index = cursor ? parseInt(cursor) + i : i;
-			return {
-				id: `notification-${index}`,
-				title: `Notification ${index + 1}`,
-				content:
-					index % 3 === 0
-						? `This is the content of notification ${index + 1}. This content is very long and needs to be truncated when displayed in the list to ensure a beautiful and readable interface for users.`
-						: `Short notification content ${index + 1}.`,
-				createdAt: new Date(Date.now() - index * 3600000).toISOString(),
-				read: index > 2,
-			};
-		},
-	);
+	const mockNotifications: Notification[] = Array.from({ length: 10 }, (_, i) => {
+		const index = cursor ? parseInt(cursor) + i : i;
+		return {
+			id: `notification-${index}`,
+			title: `Notification ${index + 1}`,
+			content:
+				index % 3 === 0
+					? `This is the content of notification ${index + 1}. This content is very long and needs to be truncated when displayed in the list to ensure a beautiful and readable interface for users.`
+					: `Short notification content ${index + 1}.`,
+			createdAt: new Date(Date.now() - index * 3600000).toISOString(),
+			read: index > 2,
+		};
+	});
 
-	const nextCursor = cursor ? String(parseInt(cursor) + 10) : "10";
+	const nextCursor = cursor ? String(parseInt(cursor) + 10) : '10';
 
 	return {
 		notifications: mockNotifications,
@@ -74,12 +60,7 @@ interface NotificationItemProps {
 	i18n: { language: string };
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({
-	notification,
-	onClick,
-	t,
-	i18n,
-}) => {
+const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onClick, t, i18n }) => {
 	const { token } = useThemeToken();
 
 	const formatTime = (dateString: string) => {
@@ -90,16 +71,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 		const diffHours = Math.floor(diffMs / 3600000);
 		const diffDays = Math.floor(diffMs / 86400000);
 
-		if (diffMins < 1) return t("notificationDropdown.justNow");
-		if (diffMins < 60)
-			return t("notificationDropdown.minutesAgo", { count: diffMins });
-		if (diffHours < 24)
-			return t("notificationDropdown.hoursAgo", { count: diffHours });
-		if (diffDays < 7)
-			return t("notificationDropdown.daysAgo", { count: diffDays });
-		return date.toLocaleDateString(
-			i18n.language === "vi" ? "vi-VN" : "en-US",
-		);
+		if (diffMins < 1) return t('notificationDropdown.justNow');
+		if (diffMins < 60) return t('notificationDropdown.minutesAgo', { count: diffMins });
+		if (diffHours < 24) return t('notificationDropdown.hoursAgo', { count: diffHours });
+		if (diffDays < 7) return t('notificationDropdown.daysAgo', { count: diffDays });
+		return date.toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
 	};
 
 	return (
@@ -107,30 +83,28 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 			className="notification-item"
 			onClick={onClick}
 			style={{
-				padding: "12px 16px",
-				cursor: "pointer",
+				padding: '12px 16px',
+				cursor: 'pointer',
 				borderBottom: `1px solid ${token.colorBorderSecondary}`,
-				background: notification.read
-					? "transparent"
-					: token.colorPrimaryBg,
-				transition: "background 0.2s",
+				background: notification.read ? 'transparent' : token.colorPrimaryBg,
+				transition: 'background 0.2s',
 			}}
 			onMouseEnter={(e) => {
 				e.currentTarget.style.background = token.colorFillTertiary;
 			}}
 			onMouseLeave={(e) => {
 				e.currentTarget.style.background = notification.read
-					? "transparent"
+					? 'transparent'
 					: token.colorPrimaryBg;
 			}}
 		>
-			<div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+			<div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
 				{!notification.read && (
 					<div
 						style={{
 							width: 8,
 							height: 8,
-							borderRadius: "50%",
+							borderRadius: '50%',
 							background: token.colorPrimary,
 							marginTop: 6,
 							flexShrink: 0,
@@ -141,11 +115,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 					<Text
 						strong
 						style={{
-							display: "block",
+							display: 'block',
 							marginBottom: 4,
-							overflow: "hidden",
-							textOverflow: "ellipsis",
-							whiteSpace: "nowrap",
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
 						}}
 					>
 						{notification.title}
@@ -153,12 +127,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 					<Text
 						type="secondary"
 						style={{
-							display: "-webkit-box",
+							display: '-webkit-box',
 							WebkitLineClamp: 2,
-							WebkitBoxOrient: "vertical",
-							overflow: "hidden",
+							WebkitBoxOrient: 'vertical',
+							overflow: 'hidden',
 							fontSize: 13,
-							lineHeight: "1.4",
+							lineHeight: '1.4',
 						}}
 					>
 						{notification.content}
@@ -168,7 +142,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 						style={{
 							fontSize: 12,
 							marginTop: 4,
-							display: "block",
+							display: 'block',
 						}}
 					>
 						{formatTime(notification.createdAt)}
@@ -184,21 +158,18 @@ export const NotificationDropdown: React.FC = () => {
 	const { token } = useThemeToken();
 	const { t, i18n } = useTranslation();
 	const [open, setOpen] = useState(false);
-	const [selectedNotification, setSelectedNotification] =
-		useState<Notification | null>(null);
+	const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 	const [modalOpen, setModalOpen] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
 
-	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-		useInfiniteQuery({
-			queryKey: ["notifications"],
-			queryFn: ({ pageParam }) => fetchNotifications(pageParam),
-			getNextPageParam: (lastPage) => lastPage.nextCursor,
-			initialPageParam: undefined as string | undefined,
-		});
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+		queryKey: ['notifications'],
+		queryFn: ({ pageParam }) => fetchNotifications(pageParam),
+		getNextPageParam: (lastPage) => lastPage.nextCursor,
+		initialPageParam: undefined as string | undefined,
+	});
 
-	const notifications =
-		data?.pages.flatMap((page) => page.notifications) ?? [];
+	const notifications = data?.pages.flatMap((page) => page.notifications) ?? [];
 	const unreadCount = notifications.filter((n) => !n.read).length;
 
 	// Infinite scroll handler
@@ -206,11 +177,7 @@ export const NotificationDropdown: React.FC = () => {
 		if (!listRef.current) return;
 
 		const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-		if (
-			scrollHeight - scrollTop - clientHeight < 100 &&
-			hasNextPage &&
-			!isFetchingNextPage
-		) {
+		if (scrollHeight - scrollTop - clientHeight < 100 && hasNextPage && !isFetchingNextPage) {
 			fetchNextPage();
 		}
 	}, [fetchNextPage, hasNextPage, isFetchingNextPage]);
@@ -218,9 +185,8 @@ export const NotificationDropdown: React.FC = () => {
 	useEffect(() => {
 		const listElement = listRef.current;
 		if (listElement) {
-			listElement.addEventListener("scroll", handleScroll);
-			return () =>
-				listElement.removeEventListener("scroll", handleScroll);
+			listElement.addEventListener('scroll', handleScroll);
+			return () => listElement.removeEventListener('scroll', handleScroll);
 		}
 	}, [handleScroll, open]);
 
@@ -232,16 +198,13 @@ export const NotificationDropdown: React.FC = () => {
 
 	const formatFullDate = (dateString: string) => {
 		const date = new Date(dateString);
-		return date.toLocaleDateString(
-			i18n.language === "vi" ? "vi-VN" : "en-US",
-			{
-				year: "numeric",
-				month: "long",
-				day: "numeric",
-				hour: "2-digit",
-				minute: "2-digit",
-			},
-		);
+		return date.toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
 	};
 
 	// Dropdown content
@@ -252,26 +215,26 @@ export const NotificationDropdown: React.FC = () => {
 				maxHeight: 480,
 				background: token.colorBgElevated,
 				borderRadius: 12,
-				boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-				overflow: "hidden",
+				boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+				overflow: 'hidden',
 			}}
 		>
 			{/* Header */}
 			<div
 				style={{
-					padding: "16px",
+					padding: '16px',
 					borderBottom: `1px solid ${token.colorBorderSecondary}`,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
 				}}
 			>
 				<Title level={5} style={{ margin: 0 }}>
-					{t("notificationDropdown.title")}
+					{t('notificationDropdown.title')}
 				</Title>
 				{unreadCount > 0 && (
 					<Button type="link" size="small" style={{ padding: 0 }}>
-						{t("notificationDropdown.markAllRead")}
+						{t('notificationDropdown.markAllRead')}
 					</Button>
 				)}
 			</div>
@@ -281,7 +244,7 @@ export const NotificationDropdown: React.FC = () => {
 				ref={listRef}
 				style={{
 					maxHeight: 400,
-					overflowY: "auto",
+					overflowY: 'auto',
 				}}
 			>
 				{isLoading ? (
@@ -294,8 +257,8 @@ export const NotificationDropdown: React.FC = () => {
 					</div>
 				) : notifications.length === 0 ? (
 					<Empty
-						description={t("notificationDropdown.noNotifications")}
-						style={{ padding: "40px 16px" }}
+						description={t('notificationDropdown.noNotifications')}
+						style={{ padding: '40px 16px' }}
 					/>
 				) : (
 					<>
@@ -303,15 +266,13 @@ export const NotificationDropdown: React.FC = () => {
 							<NotificationItem
 								key={notification.id}
 								notification={notification}
-								onClick={() =>
-									handleNotificationClick(notification)
-								}
+								onClick={() => handleNotificationClick(notification)}
 								t={t}
 								i18n={i18n}
 							/>
 						))}
 						{isFetchingNextPage && (
-							<div style={{ padding: 16, textAlign: "center" }}>
+							<div style={{ padding: 16, textAlign: 'center' }}>
 								<Skeleton active paragraph={{ rows: 1 }} />
 							</div>
 						)}
@@ -328,7 +289,7 @@ export const NotificationDropdown: React.FC = () => {
 				onOpenChange={setOpen}
 				dropdownRender={() => dropdownContent}
 				placement="bottomRight"
-				trigger={["click"]}
+				trigger={['click']}
 			>
 				<Badge count={unreadCount} size="small" offset={[-2, 2]}>
 					<Button
@@ -358,12 +319,12 @@ export const NotificationDropdown: React.FC = () => {
 					},
 					content: {
 						borderRadius: 12,
-						overflow: "hidden",
-						boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+						overflow: 'hidden',
+						boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
 					},
 					mask: {
-						background: "rgba(0, 0, 0, 0.75)",
-						backdropFilter: "blur(4px)",
+						background: 'rgba(0, 0, 0, 0.75)',
+						backdropFilter: 'blur(4px)',
 					},
 				}}
 				rootClassName="notification-modal-root"
@@ -373,15 +334,15 @@ export const NotificationDropdown: React.FC = () => {
 						{/* Modal Header */}
 						<div
 							style={{
-								padding: "16px 24px",
+								padding: '16px 24px',
 								borderBottom: `1px solid ${token.colorBorderSecondary}`,
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "center",
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
 							}}
 						>
 							<Title level={4} style={{ margin: 0 }}>
-								{t("notificationDropdown.detailTitle")}
+								{t('notificationDropdown.detailTitle')}
 							</Title>
 							<Button
 								type="text"
@@ -392,20 +353,11 @@ export const NotificationDropdown: React.FC = () => {
 						</div>
 
 						{/* Modal Content */}
-						<div style={{ padding: "24px" }}>
-							<Space
-								direction="vertical"
-								size="middle"
-								style={{ width: "100%" }}
-							>
+						<div style={{ padding: '24px' }}>
+							<Space direction="vertical" size="middle" style={{ width: '100%' }}>
 								<div>
-									<Text
-										type="secondary"
-										style={{ fontSize: 12 }}
-									>
-										{formatFullDate(
-											selectedNotification.createdAt,
-										)}
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{formatFullDate(selectedNotification.createdAt)}
 									</Text>
 								</div>
 								<Title level={4} style={{ margin: 0 }}>
@@ -414,7 +366,7 @@ export const NotificationDropdown: React.FC = () => {
 								<Paragraph
 									style={{
 										margin: 0,
-										whiteSpace: "pre-wrap",
+										whiteSpace: 'pre-wrap',
 									}}
 								>
 									{selectedNotification.content}
@@ -425,15 +377,13 @@ export const NotificationDropdown: React.FC = () => {
 						{/* Modal Footer */}
 						<div
 							style={{
-								padding: "16px 24px",
+								padding: '16px 24px',
 								borderTop: `1px solid ${token.colorBorderSecondary}`,
-								display: "flex",
-								justifyContent: "flex-end",
+								display: 'flex',
+								justifyContent: 'flex-end',
 							}}
 						>
-							<Button onClick={() => setModalOpen(false)}>
-								{t("common.close")}
-							</Button>
+							<Button onClick={() => setModalOpen(false)}>{t('common.close')}</Button>
 						</div>
 					</div>
 				)}

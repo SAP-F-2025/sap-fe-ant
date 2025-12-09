@@ -1,4 +1,4 @@
-import apiService from "./api";
+import apiService from './api';
 import type {
 	Assessment,
 	AssessmentStats,
@@ -9,7 +9,7 @@ import type {
 	PaginatedQuestionBankResponse,
 	DashboardStats,
 	Attempt,
-} from "../types";
+} from '../types';
 
 interface TeacherStats {
 	overview: {
@@ -64,7 +64,7 @@ const teacherService = {
 	 * Uses general dashboard API (filtered by role on backend)
 	 */
 	async getDashboardStats(): Promise<DashboardStats> {
-		return await apiService.get<DashboardStats>("/api/v1/dashboard/stats");
+		return await apiService.get<DashboardStats>('/api/v1/dashboard/stats');
 	},
 
 	/**
@@ -77,8 +77,8 @@ const teacherService = {
 		search?: string;
 	}): Promise<PaginatedAssessmentResponse<Assessment>> {
 		return await apiService.get<PaginatedAssessmentResponse<Assessment>>(
-			"/api/v1/assessments",
-			params,
+			'/api/v1/assessments',
+			params
 		);
 	},
 
@@ -87,22 +87,20 @@ const teacherService = {
 	 */
 	async getAssessmentsByCreator(
 		creatorId: string | number,
-		params?: { page?: number; size?: number },
+		params?: { page?: number; size?: number }
 	): Promise<PaginatedAssessmentResponse<Assessment>> {
 		return await apiService.get<PaginatedAssessmentResponse<Assessment>>(
 			`/api/v1/assessments/creator/${creatorId}`,
-			params,
+			params
 		);
 	},
 
 	/**
 	 * Get stats for teacher's assessments
 	 */
-	async getCreatorStats(
-		creatorId: string | number,
-	): Promise<CreatorStatsResponse> {
+	async getCreatorStats(creatorId: string | number): Promise<CreatorStatsResponse> {
 		return await apiService.get<CreatorStatsResponse>(
-			`/api/v1/assessments/creator/${creatorId}/stats`,
+			`/api/v1/assessments/creator/${creatorId}/stats`
 		);
 	},
 
@@ -117,8 +115,8 @@ const teacherService = {
 		search?: string;
 	}): Promise<PaginatedQuestionResponse<Question>> {
 		return await apiService.get<PaginatedQuestionResponse<Question>>(
-			"/api/v1/questions",
-			params,
+			'/api/v1/questions',
+			params
 		);
 	},
 
@@ -127,22 +125,20 @@ const teacherService = {
 	 */
 	async getQuestionsByCreator(
 		creatorId: string | number,
-		params?: { page?: number; size?: number },
+		params?: { page?: number; size?: number }
 	): Promise<PaginatedQuestionResponse<Question>> {
 		return await apiService.get<PaginatedQuestionResponse<Question>>(
 			`/api/v1/questions/creator/${creatorId}`,
-			params,
+			params
 		);
 	},
 
 	/**
 	 * Get usage stats for teacher's questions
 	 */
-	async getQuestionUsageStats(
-		creatorId: string | number,
-	): Promise<QuestionUsageStats> {
+	async getQuestionUsageStats(creatorId: string | number): Promise<QuestionUsageStats> {
 		return await apiService.get<QuestionUsageStats>(
-			`/api/v1/questions/creator/${creatorId}/usage-stats`,
+			`/api/v1/questions/creator/${creatorId}/usage-stats`
 		);
 	},
 
@@ -154,9 +150,10 @@ const teacherService = {
 		size?: number;
 		search?: string;
 	}): Promise<PaginatedQuestionBankResponse<QuestionBank>> {
-		return await apiService.get<
-			PaginatedQuestionBankResponse<QuestionBank>
-		>("/api/v1/question-banks", params);
+		return await apiService.get<PaginatedQuestionBankResponse<QuestionBank>>(
+			'/api/v1/question-banks',
+			params
+		);
 	},
 
 	/**
@@ -164,11 +161,12 @@ const teacherService = {
 	 */
 	async getQuestionBanksByCreator(
 		creatorId: string | number,
-		params?: { page?: number; size?: number },
+		params?: { page?: number; size?: number }
 	): Promise<PaginatedQuestionBankResponse<QuestionBank>> {
-		return await apiService.get<
-			PaginatedQuestionBankResponse<QuestionBank>
-		>(`/api/v1/question-banks/creator/${creatorId}`, params);
+		return await apiService.get<PaginatedQuestionBankResponse<QuestionBank>>(
+			`/api/v1/question-banks/creator/${creatorId}`,
+			params
+		);
 	},
 
 	/**
@@ -176,7 +174,7 @@ const teacherService = {
 	 */
 	async getAssessmentAttempts(
 		assessmentId: number,
-		params?: { page?: number; size?: number },
+		params?: { page?: number; size?: number }
 	): Promise<{
 		attempts: Attempt[];
 		total: number;
@@ -195,9 +193,7 @@ const teacherService = {
 	 * Get stats for a specific assessment
 	 */
 	async getAssessmentStats(assessmentId: number): Promise<AssessmentStats> {
-		return await apiService.get<AssessmentStats>(
-			`/api/v1/assessments/${assessmentId}/stats`,
-		);
+		return await apiService.get<AssessmentStats>(`/api/v1/assessments/${assessmentId}/stats`);
 	},
 
 	/**

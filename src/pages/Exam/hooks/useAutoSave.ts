@@ -1,7 +1,7 @@
-import { useRef } from "react";
-import { useMutation } from "@tanstack/react-query";
-import studentService from "../../../services/studentService";
-import type { SubmitAnswerRequest } from "../../../types";
+import { useRef } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import studentService from '../../../services/studentService';
+import type { SubmitAnswerRequest } from '../../../types';
 
 export const useAutoSave = (attemptId: number, timeRemaining: number) => {
 	const saveQueueRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
@@ -19,7 +19,7 @@ export const useAutoSave = (attemptId: number, timeRemaining: number) => {
 		questionId: number,
 		answer: any,
 		onSuccess?: () => void,
-		onError?: () => void,
+		onError?: () => void
 	) => {
 		// Store answer for potential flush
 		answersRef.current[questionId] = answer;
@@ -40,7 +40,7 @@ export const useAutoSave = (attemptId: number, timeRemaining: number) => {
 					onError: () => {
 						onError?.();
 					},
-				},
+				}
 			);
 			saveQueueRef.current.delete(questionId);
 		}, 2000);
@@ -69,7 +69,7 @@ export const useAutoSave = (attemptId: number, timeRemaining: number) => {
 				})
 				.catch(() => {
 					// Ignore errors on flush
-				}),
+				})
 		);
 
 		await Promise.all(savePromises);

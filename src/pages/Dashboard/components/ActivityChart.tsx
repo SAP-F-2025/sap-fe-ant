@@ -1,7 +1,7 @@
-import { TrophyOutlined } from "@ant-design/icons";
-import { Card, Empty, Skeleton, Space } from "antd";
-import React from "react";
-import { useTranslation } from "react-i18next";
+import { TrophyOutlined } from '@ant-design/icons';
+import { Card, Empty, Skeleton, Space } from 'antd';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
 	Area,
 	AreaChart,
@@ -11,10 +11,10 @@ import {
 	Tooltip,
 	XAxis,
 	YAxis,
-} from "recharts";
-import { elevation } from "../../../styles/elevation";
-import { useThemeToken } from "../../../theme/ThemeProvider";
-import { CHART_HEIGHT, STAT_CARD_COLORS } from "../constants";
+} from 'recharts';
+import { elevation } from '../../../styles/elevation';
+import { useThemeToken } from '../../../theme/ThemeProvider';
+import { CHART_HEIGHT, STAT_CARD_COLORS } from '../constants';
 
 interface ActivityChartData {
 	month: string;
@@ -32,10 +32,7 @@ interface ActivityChartProps {
  * Activity Chart Component
  * Displays activity trends with area chart
  */
-export const ActivityChart: React.FC<ActivityChartProps> = ({
-	data,
-	isLoading,
-}) => {
+export const ActivityChart: React.FC<ActivityChartProps> = ({ data, isLoading }) => {
 	const { token } = useThemeToken();
 	const { t } = useTranslation();
 
@@ -43,12 +40,8 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
 		<Card
 			title={
 				<Space>
-					<TrophyOutlined
-						style={{ fontSize: 18, color: token.colorPrimary }}
-					/>
-					<span style={{ fontWeight: 600 }}>
-						{t("dashboard.activityScore")}
-					</span>
+					<TrophyOutlined style={{ fontSize: 18, color: token.colorPrimary }} />
+					<span style={{ fontWeight: 600 }}>{t('dashboard.activityScore')}</span>
 				</Space>
 			}
 			bordered={false}
@@ -57,24 +50,12 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
 			{isLoading ? (
 				<Skeleton active paragraph={{ rows: 8 }} />
 			) : data.length === 0 ? (
-				<Empty
-					description={t("dashboard.noActivityData")}
-					style={{ padding: "60px 0" }}
-				/>
+				<Empty description={t('dashboard.noActivityData')} style={{ padding: '60px 0' }} />
 			) : (
 				<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-					<AreaChart
-						data={data}
-						aria-label={t("dashboard.activityChartLabel")}
-					>
+					<AreaChart data={data} aria-label={t('dashboard.activityChartLabel')}>
 						<defs>
-							<linearGradient
-								id="colorAttempts"
-								x1="0"
-								y1="0"
-								x2="0"
-								y2="1"
-							>
+							<linearGradient id="colorAttempts" x1="0" y1="0" x2="0" y2="1">
 								<stop
 									offset="5%"
 									stopColor={STAT_CARD_COLORS.primary}
@@ -86,13 +67,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
 									stopOpacity={0.1}
 								/>
 							</linearGradient>
-							<linearGradient
-								id="colorScore"
-								x1="0"
-								y1="0"
-								x2="0"
-								y2="1"
-							>
+							<linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
 								<stop
 									offset="5%"
 									stopColor={STAT_CARD_COLORS.success}
@@ -135,7 +110,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
 							strokeWidth={3}
 							fillOpacity={1}
 							fill="url(#colorAttempts)"
-							name={t("dashboard.attemptsCount")}
+							name={t('dashboard.attemptsCount')}
 						/>
 						<Area
 							type="monotone"
@@ -144,7 +119,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
 							strokeWidth={3}
 							fillOpacity={1}
 							fill="url(#colorScore)"
-							name={t("dashboard.avgScore")}
+							name={t('dashboard.avgScore')}
 						/>
 					</AreaChart>
 				</ResponsiveContainer>

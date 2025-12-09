@@ -1,10 +1,10 @@
-import { DownOutlined, UpOutlined } from "@ant-design/icons";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { Button, Card, Space, Tag, Typography } from "antd";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { useThemeToken } from "../../../theme/ThemeProvider";
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Button, Card, Space, Tag, Typography } from 'antd';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useThemeToken } from '../../../theme/ThemeProvider';
 
 const { Text } = Typography;
 
@@ -30,26 +30,21 @@ export const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
 	isFocused,
 }) => {
 	const { t } = useTranslation();
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-		isDragging,
-	} = useSortable({ id });
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+		id,
+	});
 
 	const { token } = useThemeToken();
-	const isDark = document.body.classList.contains("dark-mode");
+	const isDark = document.body.classList.contains('dark-mode');
 
 	const style: React.CSSProperties = {
 		transform: CSS.Transform.toString(transform),
 		transition,
 		opacity: isDragging ? 0.5 : 1,
-		marginBottom: "8px",
-		cursor: isDragging ? "grabbing" : "grab",
+		marginBottom: '8px',
+		cursor: isDragging ? 'grabbing' : 'grab',
 		boxShadow: isDragging
-			? `0 4px 12px ${isDark ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.15)"}`
+			? `0 4px 12px ${isDark ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.15)'}`
 			: isGrabbed
 				? `0 0 0 2px ${token.colorPrimary}`
 				: isFocused
@@ -62,7 +57,7 @@ export const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
 					? `2px solid ${token.colorWarning}`
 					: `1px solid ${token.colorBorder}`,
 		zIndex: isGrabbed ? 1 : undefined,
-		outline: "none",
+		outline: 'none',
 	};
 
 	return (
@@ -80,29 +75,27 @@ export const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
 		>
 			<div
 				style={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-					gap: "12px",
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between',
+					gap: '12px',
 				}}
 			>
 				{/* Content - Left side */}
 				<Space style={{ flex: 1, minWidth: 0 }}>
-					<Tag color={isGrabbed ? "processing" : "default"}>
-						{index + 1}
-					</Tag>
+					<Tag color={isGrabbed ? 'processing' : 'default'}>{index + 1}</Tag>
 					{item.image_url && (
 						<img
 							src={item.image_url}
 							alt={item.text}
 							style={{
-								maxWidth: "100px",
-								maxHeight: "60px",
-								borderRadius: "4px",
+								maxWidth: '100px',
+								maxHeight: '60px',
+								borderRadius: '4px',
 							}}
 						/>
 					)}
-					<Text style={{ wordBreak: "break-word" }}>{item.text}</Text>
+					<Text style={{ wordBreak: 'break-word' }}>{item.text}</Text>
 				</Space>
 
 				{/* Right side - Fallback Buttons */}
@@ -116,14 +109,14 @@ export const SortableOrderItem: React.FC<SortableOrderItemProps> = ({
 							icon={<UpOutlined />}
 							disabled={index === 0}
 							onClick={onMoveUp}
-							title={t("exam.questionTypes.ordering.moveUp")}
+							title={t('exam.questionTypes.ordering.moveUp')}
 						/>
 						<Button
 							size="small"
 							icon={<DownOutlined />}
 							disabled={index === totalItems - 1}
 							onClick={onMoveDown}
-							title={t("exam.questionTypes.ordering.moveDown")}
+							title={t('exam.questionTypes.ordering.moveDown')}
 						/>
 					</Space>
 				</div>

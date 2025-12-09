@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Card, Space, Typography } from "antd";
-import { useThemeToken } from "../../../../theme/ThemeProvider";
-import { useIsDarkMode } from "../../hooks/useIsDarkMode";
-import { getOptionStyle } from "../../utils/questionStyles";
+import React, { useState } from 'react';
+import { Card, Space, Typography } from 'antd';
+import { useThemeToken } from '../../../../theme/ThemeProvider';
+import { useIsDarkMode } from '../../hooks/useIsDarkMode';
+import { getOptionStyle } from '../../utils/questionStyles';
 
 const { Text } = Typography;
 
@@ -12,11 +12,7 @@ interface OptionCardProps {
 	children: React.ReactNode;
 }
 
-export const OptionCard: React.FC<OptionCardProps> = ({
-	isSelected,
-	onClick,
-	children,
-}) => {
+export const OptionCard: React.FC<OptionCardProps> = ({ isSelected, onClick, children }) => {
 	const { token } = useThemeToken();
 	const isDark = useIsDarkMode();
 	const [isHovered, setIsHovered] = useState(false);
@@ -31,11 +27,11 @@ export const OptionCard: React.FC<OptionCardProps> = ({
 			onMouseLeave={() => setIsHovered(false)}
 			style={{
 				...optionStyle,
-				cursor: "pointer",
-				transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-				width: "100%",
+				cursor: 'pointer',
+				transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+				width: '100%',
 			}}
-			bodyStyle={{ padding: "16px" }}
+			bodyStyle={{ padding: '16px' }}
 			onClick={onClick}
 		>
 			{children}

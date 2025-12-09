@@ -3,13 +3,13 @@ import {
 	RocketOutlined,
 	SafetyOutlined,
 	ThunderboltOutlined,
-} from "@ant-design/icons";
-import { Button, Typography } from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import * as THREE from "three";
-import { useAuth } from "../../hooks/useAuth";
+} from '@ant-design/icons';
+import { Button, Typography } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import * as THREE from 'three';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Title, Text } = Typography;
 
@@ -21,7 +21,7 @@ const Login: React.FC = () => {
 	const [showWelcome, setShowWelcome] = useState(true);
 
 	useEffect(() => {
-		if (isAuthenticated) navigate("/dashboard");
+		if (isAuthenticated) navigate('/dashboard');
 	}, [isAuthenticated, navigate]);
 
 	useEffect(() => {
@@ -37,7 +37,7 @@ const Login: React.FC = () => {
 			75,
 			window.innerWidth / window.innerHeight,
 			0.1,
-			1000,
+			1000
 		);
 		const renderer = new THREE.WebGLRenderer({
 			canvas: canvasRef.current,
@@ -89,11 +89,7 @@ const Login: React.FC = () => {
 		const sphereGeometry = new THREE.SphereGeometry(0.12, 32, 32);
 		for (let i = 0; i < 15; i++) {
 			const material = new THREE.MeshBasicMaterial({
-				color: new THREE.Color().setHSL(
-					0.5 + Math.random() * 0.1,
-					0.6,
-					0.7,
-				),
+				color: new THREE.Color().setHSL(0.5 + Math.random() * 0.1, 0.6, 0.7),
 				transparent: true,
 				opacity: 0.25,
 			});
@@ -101,7 +97,7 @@ const Login: React.FC = () => {
 			sphere.position.set(
 				(Math.random() - 0.5) * 10,
 				(Math.random() - 0.5) * 10,
-				(Math.random() - 0.5) * 5,
+				(Math.random() - 0.5) * 5
 			);
 			sphere.userData.velocity = {
 				x: (Math.random() - 0.5) * 0.008,
@@ -114,12 +110,8 @@ const Login: React.FC = () => {
 		// Particles
 		const particlesGeometry = new THREE.BufferGeometry();
 		const positions = new Float32Array(600 * 3);
-		for (let i = 0; i < 600 * 3; i++)
-			positions[i] = (Math.random() - 0.5) * 15;
-		particlesGeometry.setAttribute(
-			"position",
-			new THREE.BufferAttribute(positions, 3),
-		);
+		for (let i = 0; i < 600 * 3; i++) positions[i] = (Math.random() - 0.5) * 15;
+		particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 		const particlesMaterial = new THREE.PointsMaterial({
 			size: 0.015,
 			color: 0xffffff,
@@ -127,10 +119,7 @@ const Login: React.FC = () => {
 			opacity: 0.4,
 			blending: THREE.AdditiveBlending,
 		});
-		const particles = new THREE.Points(
-			particlesGeometry,
-			particlesMaterial,
-		);
+		const particles = new THREE.Points(particlesGeometry, particlesMaterial);
 		scene.add(particles);
 
 		const animate = () => {
@@ -140,10 +129,8 @@ const Login: React.FC = () => {
 			spheres.forEach((sphere) => {
 				sphere.position.x += sphere.userData.velocity.x;
 				sphere.position.y += sphere.userData.velocity.y;
-				if (Math.abs(sphere.position.x) > 5)
-					sphere.userData.velocity.x *= -1;
-				if (Math.abs(sphere.position.y) > 5)
-					sphere.userData.velocity.y *= -1;
+				if (Math.abs(sphere.position.x) > 5) sphere.userData.velocity.x *= -1;
+				if (Math.abs(sphere.position.y) > 5) sphere.userData.velocity.y *= -1;
 				sphere.rotation.x += 0.008;
 				sphere.rotation.y += 0.008;
 			});
@@ -156,10 +143,10 @@ const Login: React.FC = () => {
 			camera.updateProjectionMatrix();
 			renderer.setSize(window.innerWidth, window.innerHeight);
 		};
-		window.addEventListener("resize", handleResize);
+		window.addEventListener('resize', handleResize);
 
 		return () => {
-			window.removeEventListener("resize", handleResize);
+			window.removeEventListener('resize', handleResize);
 			bgGeometry.dispose();
 			bgMaterial.dispose();
 			sphereGeometry.dispose();
@@ -173,51 +160,48 @@ const Login: React.FC = () => {
 	return (
 		<div
 			style={{
-				position: "relative",
-				minHeight: "100vh",
-				overflow: "hidden",
+				position: 'relative',
+				minHeight: '100vh',
+				overflow: 'hidden',
 			}}
 		>
-			<canvas
-				ref={canvasRef}
-				style={{ position: "fixed", top: 0, left: 0, zIndex: 0 }}
-			/>
+			<canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, zIndex: 0 }} />
 
 			{showWelcome && (
 				<div
 					style={{
-						position: "fixed",
+						position: 'fixed',
 						inset: 0,
 						zIndex: 10,
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
 						background:
-							"linear-gradient(135deg, rgba(0, 204, 204, 0.95) 0%, rgba(0, 153, 230, 0.95) 100%)",
-						animation: "fadeOut 0.4s ease-out 1.6s forwards",
+							'linear-gradient(135deg, rgba(0, 204, 204, 0.95) 0%, rgba(0, 153, 230, 0.95) 100%)',
+						animation: 'fadeOut 0.4s ease-out 1.6s forwards',
 					}}
 				>
 					<div
 						style={{
-							textAlign: "center",
-							animation: "scaleIn 0.6s ease-out",
+							textAlign: 'center',
+							animation: 'scaleIn 0.6s ease-out',
 						}}
 					>
 						<div style={{ fontSize: 72, marginBottom: 16 }}>🎓</div>
 						<Title
 							level={1}
 							style={{
-								color: "white",
+								color: 'white',
 								fontSize: 48,
 								margin: 0,
 								fontWeight: 700,
 							}}
 						>
-							{t("login.welcome")}
+							{t('login.welcome')}
 						</Title>
 						<Text
 							style={{
-								color: "rgba(255, 255, 255, 0.9)",
+								color: 'rgba(255, 255, 255, 0.9)',
 								fontSize: 20,
 							}}
 						>
@@ -229,29 +213,29 @@ const Login: React.FC = () => {
 
 			<div
 				style={{
-					position: "relative",
+					position: 'relative',
 					zIndex: 1,
-					display: "flex",
-					minHeight: "100vh",
+					display: 'flex',
+					minHeight: '100vh',
 				}}
 			>
 				{/* Left side */}
 				<div
 					style={{
 						flex: 1,
-						display: "flex",
-						flexDirection: "column",
-						justifyContent: "center",
-						padding: "0 80px",
-						color: "white",
-						animation: "slideLeft 0.8s ease-out 2s both",
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+						padding: '0 80px',
+						color: 'white',
+						animation: 'slideLeft 0.8s ease-out 2s both',
 					}}
 				>
 					<div style={{ fontSize: 48, marginBottom: 24 }}>🎓</div>
 					<Title
 						level={1}
 						style={{
-							color: "white",
+							color: 'white',
 							fontSize: 48,
 							marginBottom: 16,
 							fontWeight: 700,
@@ -261,40 +245,40 @@ const Login: React.FC = () => {
 					</Title>
 					<Text
 						style={{
-							color: "rgba(255, 255, 255, 0.9)",
+							color: 'rgba(255, 255, 255, 0.9)',
 							fontSize: 18,
 							marginBottom: 48,
 						}}
 					>
-						{t("login.subtitle")}
+						{t('login.subtitle')}
 					</Text>
 
 					<div
 						style={{
-							display: "flex",
-							flexDirection: "column",
+							display: 'flex',
+							flexDirection: 'column',
 							gap: 24,
 						}}
 					>
 						{[
 							{
 								icon: <SafetyOutlined />,
-								text: t("login.features.security"),
+								text: t('login.features.security'),
 							},
 							{
 								icon: <ThunderboltOutlined />,
-								text: t("login.features.performance"),
+								text: t('login.features.performance'),
 							},
 							{
 								icon: <RocketOutlined />,
-								text: t("login.features.modern"),
+								text: t('login.features.modern'),
 							},
 						].map((item, idx) => (
 							<div
 								key={idx}
 								style={{
-									display: "flex",
-									alignItems: "center",
+									display: 'flex',
+									alignItems: 'center',
 									gap: 16,
 								}}
 							>
@@ -303,19 +287,17 @@ const Login: React.FC = () => {
 										width: 48,
 										height: 48,
 										borderRadius: 12,
-										background: "rgba(255, 255, 255, 0.2)",
-										backdropFilter: "blur(10px)",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
+										background: 'rgba(255, 255, 255, 0.2)',
+										backdropFilter: 'blur(10px)',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
 										fontSize: 20,
 									}}
 								>
 									{item.icon}
 								</div>
-								<Text style={{ color: "white", fontSize: 16 }}>
-									{item.text}
-								</Text>
+								<Text style={{ color: 'white', fontSize: 16 }}>{item.text}</Text>
 							</div>
 						))}
 					</div>
@@ -325,43 +307,43 @@ const Login: React.FC = () => {
 				<div
 					style={{
 						width: 500,
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
 						padding: 40,
-						animation: "slideRight 0.8s ease-out 2s both",
+						animation: 'slideRight 0.8s ease-out 2s both',
 					}}
 				>
 					<div
 						style={{
-							width: "100%",
+							width: '100%',
 							maxWidth: 400,
 							padding: 48,
 							borderRadius: 24,
-							background: "rgba(255, 255, 255, 0.15)",
-							backdropFilter: "blur(30px)",
-							border: "1px solid rgba(255, 255, 255, 0.25)",
-							boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+							background: 'rgba(255, 255, 255, 0.15)',
+							backdropFilter: 'blur(30px)',
+							border: '1px solid rgba(255, 255, 255, 0.25)',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 						}}
 					>
-						<div style={{ textAlign: "center", marginBottom: 40 }}>
+						<div style={{ textAlign: 'center', marginBottom: 40 }}>
 							<Title
 								level={2}
 								style={{
-									color: "white",
+									color: 'white',
 									marginBottom: 8,
 									fontSize: 32,
 								}}
 							>
-								{t("login.welcomeBack")}
+								{t('login.welcomeBack')}
 							</Title>
 							<Text
 								style={{
-									color: "rgba(255, 255, 255, 0.85)",
+									color: 'rgba(255, 255, 255, 0.85)',
 									fontSize: 15,
 								}}
 							>
-								{t("login.loginPrompt")}
+								{t('login.loginPrompt')}
 							</Text>
 						</div>
 
@@ -376,26 +358,22 @@ const Login: React.FC = () => {
 								fontSize: 16,
 								fontWeight: 600,
 								borderRadius: 12,
-								background: "white",
-								color: "#00cccc",
-								border: "none",
-								boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
-								transition: "all 0.3s",
+								background: 'white',
+								color: '#00cccc',
+								border: 'none',
+								boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+								transition: 'all 0.3s',
 							}}
 							onMouseEnter={(e) => {
-								e.currentTarget.style.transform =
-									"translateY(-2px)";
-								e.currentTarget.style.boxShadow =
-									"0 12px 32px rgba(0, 0, 0, 0.25)";
+								e.currentTarget.style.transform = 'translateY(-2px)';
+								e.currentTarget.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.25)';
 							}}
 							onMouseLeave={(e) => {
-								e.currentTarget.style.transform =
-									"translateY(0)";
-								e.currentTarget.style.boxShadow =
-									"0 8px 24px rgba(0, 0, 0, 0.2)";
+								e.currentTarget.style.transform = 'translateY(0)';
+								e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
 							}}
 						>
-							{t("login.loginWithCasdoor")}
+							{t('login.loginWithCasdoor')}
 						</Button>
 
 						<div
@@ -403,18 +381,18 @@ const Login: React.FC = () => {
 								marginTop: 32,
 								padding: 20,
 								borderRadius: 12,
-								background: "rgba(255, 255, 255, 0.1)",
-								border: "1px solid rgba(255, 255, 255, 0.15)",
-								textAlign: "center",
+								background: 'rgba(255, 255, 255, 0.1)',
+								border: '1px solid rgba(255, 255, 255, 0.15)',
+								textAlign: 'center',
 							}}
 						>
 							<Text
 								style={{
-									color: "rgba(255, 255, 255, 0.85)",
+									color: 'rgba(255, 255, 255, 0.85)',
 									fontSize: 13,
 								}}
 							>
-								{t("login.useCasdoorAccount")}
+								{t('login.useCasdoorAccount')}
 							</Text>
 						</div>
 					</div>

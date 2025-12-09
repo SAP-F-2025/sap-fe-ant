@@ -1,13 +1,7 @@
-import React, {
-	createContext,
-	useContext,
-	useState,
-	useEffect,
-	ReactNode,
-} from "react";
-import { ConfigProvider, theme as antdTheme, App as AntApp } from "antd";
-import viVN from "antd/locale/vi_VN";
-import { getTheme, ThemeMode } from "./tokens";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { ConfigProvider, theme as antdTheme, App as AntApp } from 'antd';
+import viVN from 'antd/locale/vi_VN';
+import { getTheme, ThemeMode } from './tokens';
 
 /**
  * Theme Context for managing app-wide theme state
@@ -23,7 +17,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 // Theme preference key in localStorage
-const THEME_STORAGE_KEY = "sap-theme-preference";
+const THEME_STORAGE_KEY = 'sap-theme-preference';
 
 interface ThemeProviderProps {
 	children: ReactNode;
@@ -32,7 +26,7 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 	children,
-	defaultMode = "light",
+	defaultMode = 'light',
 }) => {
 	// Load theme from localStorage or use default
 	const [mode, setModeState] = useState<ThemeMode>(() => {
@@ -49,7 +43,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 		try {
 			localStorage.setItem(THEME_STORAGE_KEY, mode);
 		} catch (error) {
-			console.warn("Failed to save theme preference:", error);
+			console.warn('Failed to save theme preference:', error);
 		}
 	}, [mode]);
 
@@ -58,21 +52,21 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 	};
 
 	const toggleDark = () => {
-		setModeState((prev) => (prev === "dark" ? "light" : "dark"));
+		setModeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
 	};
 
 	// Get theme config based on mode
 	const themeConfig = getTheme(mode);
 
 	// Apply dark algorithm if dark mode
-	const algorithm = mode === "dark" ? [antdTheme.darkAlgorithm] : undefined;
+	const algorithm = mode === 'dark' ? [antdTheme.darkAlgorithm] : undefined;
 
 	// Add dark-mode class to body
 	useEffect(() => {
-		if (mode === "dark") {
-			document.body.classList.add("dark-mode");
+		if (mode === 'dark') {
+			document.body.classList.add('dark-mode');
 		} else {
-			document.body.classList.remove("dark-mode");
+			document.body.classList.remove('dark-mode');
 		}
 	}, [mode]);
 
@@ -100,7 +94,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 export const useTheme = (): ThemeContextValue => {
 	const context = useContext(ThemeContext);
 	if (!context) {
-		throw new Error("useTheme must be used within ThemeProvider");
+		throw new Error('useTheme must be used within ThemeProvider');
 	}
 	return context;
 };

@@ -228,7 +228,7 @@
 }
 
 .grading-progress-card::before {
-	content: "";
+	content: '';
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -302,12 +302,7 @@
 
 /* Custom Progress Bar - Simple gradient, no loop */
 .animated-progress .ant-progress-bg {
-	background: linear-gradient(
-		90deg,
-		#1890ff 0%,
-		#36cfc9 50%,
-		#52c41a 100%
-	) !important;
+	background: linear-gradient(90deg, #1890ff 0%, #36cfc9 50%, #52c41a 100%) !important;
 	box-shadow: 0 2px 6px rgba(24, 144, 255, 0.2);
 	transition: all 0.3s ease;
 }
@@ -331,7 +326,7 @@
 }
 
 .premium-score-card::before {
-	content: "";
+	content: '';
 	position: absolute;
 	top: 0;
 	left: 0;

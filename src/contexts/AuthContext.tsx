@@ -1,15 +1,11 @@
-import i18n from "i18next";
-import React, { createContext, ReactNode, useEffect, useState } from "react";
-import { CasdoorSdk } from "../config/casdoor";
-import { AuthService } from "../services/authService";
-import { TokenService } from "../services/tokenService";
-import { handleError, handleErrorSilently } from "../utils/errorHandler";
-import { decodeJWT, extractUserInfo } from "../utils/jwt";
-import {
-	generateCodeChallenge,
-	generateCodeVerifier,
-	storePKCEVerifier,
-} from "../utils/pkce";
+import i18n from 'i18next';
+import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import { CasdoorSdk } from '../config/casdoor';
+import { AuthService } from '../services/authService';
+import { TokenService } from '../services/tokenService';
+import { handleError, handleErrorSilently } from '../utils/errorHandler';
+import { decodeJWT, extractUserInfo } from '../utils/jwt';
+import { generateCodeChallenge, generateCodeVerifier, storePKCEVerifier } from '../utils/pkce';
 
 export interface User {
 	// Basic info
@@ -54,9 +50,7 @@ export interface AuthContextType {
 	refreshToken: () => Promise<string | null>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-	undefined,
-);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
 	children: ReactNode;
@@ -90,7 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 					}
 				}
 			} catch (error) {
-				console.error("Failed to get user info:", error);
+				console.error('Failed to get user info:', error);
 				handleErrorSilently(error);
 				TokenService.clearTokens();
 			} finally {
@@ -157,8 +151,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 			return newToken;
 		} catch (error) {
-			console.error("Failed to refresh token:", error);
-			handleError(error, i18n.t("auth.refreshTokenFailed"));
+			console.error('Failed to refresh token:', error);
+			handleError(error, i18n.t('auth.refreshTokenFailed'));
 			setUser(null);
 			return null;
 		}
@@ -175,7 +169,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		refreshToken,
 	};
 
-	return (
-		<AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-	);
+	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import userService from "../services/userService";
-import { User } from "../types";
+import { useQuery } from '@tanstack/react-query';
+import userService from '../services/userService';
+import { User } from '../types';
 
 interface UseUsersParams {
 	q?: string;
@@ -12,7 +12,7 @@ interface UseUsersParams {
 
 export const useUsers = (params?: UseUsersParams) => {
 	return useQuery({
-		queryKey: ["users", params],
+		queryKey: ['users', params],
 		queryFn: () => userService.getUsers(params),
 		enabled: params?.enabled !== false,
 	});
@@ -20,7 +20,7 @@ export const useUsers = (params?: UseUsersParams) => {
 
 export const useSearchUsers = (searchQuery: string, enabled = true) => {
 	return useQuery({
-		queryKey: ["users", "search", searchQuery],
+		queryKey: ['users', 'search', searchQuery],
 		queryFn: () => userService.searchUsers({ q: searchQuery, size: 50 }),
 		enabled: enabled && searchQuery.length > 0,
 	});
@@ -28,7 +28,7 @@ export const useSearchUsers = (searchQuery: string, enabled = true) => {
 
 export const useUser = (id: string, enabled = true) => {
 	return useQuery({
-		queryKey: ["users", id],
+		queryKey: ['users', id],
 		queryFn: () => userService.getUser(id),
 		enabled: enabled && !!id,
 	});

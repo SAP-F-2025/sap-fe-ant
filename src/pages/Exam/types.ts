@@ -16,10 +16,7 @@ export interface QuestionContent {
 	placeholder_text?: string;
 	case_sensitive?: boolean;
 	template?: string;
-	blanks?: Record<
-		string,
-		{ placeholder_text?: string; accepted_answers?: string[] }
-	>;
+	blanks?: Record<string, { placeholder_text?: string; accepted_answers?: string[] }>;
 	left_items?: QuestionOption[];
 	right_items?: QuestionOption[];
 	items?: QuestionOption[];
@@ -28,14 +25,14 @@ export interface QuestionContent {
 export interface Question {
 	id: number;
 	type:
-		| "multiple_choice"
-		| "true_false"
-		| "essay"
-		| "short_answer"
-		| "fill_blank"
-		| "fill_in_blank"
-		| "matching"
-		| "ordering";
+		| 'multiple_choice'
+		| 'true_false'
+		| 'essay'
+		| 'short_answer'
+		| 'fill_blank'
+		| 'fill_in_blank'
+		| 'matching'
+		| 'ordering';
 	text: string;
 	points: number;
 	content?: QuestionContent;

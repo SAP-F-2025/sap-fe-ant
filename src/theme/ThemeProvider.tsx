@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ConfigProvider, theme as antdTheme, App as AntApp } from 'antd';
+import { App as AntApp, theme as antdTheme, ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
 import viVN from 'antd/locale/vi_VN';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTheme, ThemeMode } from './tokens';
 
 /**
@@ -61,6 +63,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 	// Apply dark algorithm if dark mode
 	const algorithm = mode === 'dark' ? [antdTheme.darkAlgorithm] : undefined;
 
+	// Get current language for Ant Design locale
+	const { i18n } = useTranslation();
+	const antdLocale = i18n.language === 'en' ? enUS : viVN;
+
 	// Add dark-mode class to body
 	useEffect(() => {
 		if (mode === 'dark') {
@@ -73,7 +79,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 	return (
 		<ThemeContext.Provider value={{ mode, setMode, toggleDark }}>
 			<ConfigProvider
-				locale={viVN}
+				locale={antdLocale}
 				theme={{
 					...themeConfig,
 					algorithm,

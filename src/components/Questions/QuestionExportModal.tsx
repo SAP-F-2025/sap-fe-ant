@@ -47,7 +47,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 
     const handleExport = async () => {
         if (selectedQuestions.length === 0) {
-            message.warning(t('export.noSelection', 'Please select questions to export'));
+            message.warning(t('export.noSelection'));
             return;
         }
 
@@ -61,13 +61,10 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
 
             setExportComplete(true);
             message.success(
-                t('export.success', {
-                    count: selectedQuestions.length,
-                    defaultValue: `Exported ${selectedQuestions.length} questions successfully`,
-                })
+                t('export.success', { count: selectedQuestions.length })
             );
         } catch (error: any) {
-            message.error(error.response?.data?.message || t('export.error', 'Export failed'));
+            message.error(error.response?.data?.message || t('export.error'));
         } finally {
             setExporting(false);
         }
@@ -93,7 +90,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
             title={
                 <Space>
                     <DownloadOutlined style={{ color: '#1890ff' }} />
-                    <span>{t('export.title', 'Export Questions')}</span>
+                    <span>{t('export.title')}</span>
                 </Space>
             }
             open={open}
@@ -101,7 +98,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
             width={600}
             footer={[
                 <Button key="cancel" onClick={handleClose}>
-                    {exportComplete ? t('common.close', 'Close') : t('common.cancel', 'Cancel')}
+                    {exportComplete ? t('common.close') : t('common.cancel')}
                 </Button>,
                 !exportComplete && (
                     <Button
@@ -112,7 +109,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
                         disabled={selectedQuestions.length === 0}
                         icon={<DownloadOutlined />}
                     >
-                        {exporting ? t('export.exporting', 'Exporting...') : t('export.start', 'Export')}
+                        {exporting ? t('export.exporting') : t('export.start')}
                     </Button>
                 ),
             ]}
@@ -121,10 +118,10 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
                 <div style={{ textAlign: 'center', padding: 40 }}>
                     <CheckCircleOutlined style={{ fontSize: 64, color: '#52c41a' }} />
                     <Title level={4} style={{ marginTop: 16 }}>
-                        {t('export.complete', 'Export Complete!')}
+                        {t('export.complete')}
                     </Title>
                     <Text type="secondary">
-                        {t('export.downloadStarted', 'Your file download has started.')}
+                        {t('export.downloadStarted')}
                     </Text>
                 </div>
             ) : (
@@ -143,7 +140,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
                     {/* Format selection */}
                     <div>
                         <Text strong style={{ display: 'block', marginBottom: 12 }}>
-                            {t('export.selectFormat', 'Select Export Format')}
+                            {t('export.selectFormat')}
                         </Text>
                         <Radio.Group
                             value={format}
@@ -158,7 +155,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
                                             <Text strong>Excel (.xlsx)</Text>
                                             <br />
                                             <Text type="secondary" style={{ fontSize: 12 }}>
-                                                {t('export.excelDesc', 'Microsoft Excel format, supports all features')}
+                                                {t('export.excelDesc')}
                                             </Text>
                                         </div>
                                     </Space>
@@ -170,7 +167,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
                                             <Text strong>CSV (.csv)</Text>
                                             <br />
                                             <Text type="secondary" style={{ fontSize: 12 }}>
-                                                {t('export.csvDesc', 'Comma-separated values, compatible with all spreadsheet apps')}
+                                                {t('export.csvDesc')}
                                             </Text>
                                         </div>
                                     </Space>
@@ -184,7 +181,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
                     {/* Preview of selected questions */}
                     <div>
                         <Text strong style={{ display: 'block', marginBottom: 12 }}>
-                            {t('export.preview', 'Questions to Export')} ({selectedQuestions.length})
+                            {t('export.preview')} ({selectedQuestions.length})
                         </Text>
                         <List
                             size="small"
@@ -214,7 +211,7 @@ const QuestionExportModal: React.FC<QuestionExportModalProps> = ({
                     {exporting && (
                         <div style={{ textAlign: 'center' }}>
                             <Progress percent={50} status="active" showInfo={false} />
-                            <Text type="secondary">{t('export.generating', 'Generating file...')}</Text>
+                            <Text type="secondary">{t('export.generating')}</Text>
                         </div>
                     )}
                 </Space>

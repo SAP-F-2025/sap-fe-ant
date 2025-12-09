@@ -53,9 +53,9 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
         try {
             const blob = await importExportService.downloadTemplate();
             importExportService.downloadFile(blob, 'questions_import_template.xlsx');
-            message.success(t('import.templateDownloaded', 'Template downloaded successfully'));
+            message.success(t('import.templateDownloaded'));
         } catch (error) {
-            message.error(t('import.templateError', 'Failed to download template'));
+            message.error(t('import.templateError'));
         } finally {
             setDownloadingTemplate(false);
         }
@@ -63,7 +63,7 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
 
     const handleUpload = async () => {
         if (fileList.length === 0) {
-            message.warning(t('import.selectFile', 'Please select a file first'));
+            message.warning(t('import.selectFile'));
             return;
         }
 
@@ -78,15 +78,12 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
 
             if (response.data.success_count > 0) {
                 message.success(
-                    t('import.success', {
-                        count: response.data.success_count,
-                        defaultValue: `Successfully imported ${response.data.success_count} questions`,
-                    })
+                    t('import.success', { count: response.data.success_count })
                 );
                 onSuccess?.();
             }
         } catch (error: any) {
-            message.error(error.response?.data?.message || t('import.error', 'Import failed'));
+            message.error(error.response?.data?.message || t('import.error'));
             setCurrentStep(0);
         } finally {
             setUploading(false);
@@ -109,13 +106,13 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                 file.name.endsWith('.csv');
 
             if (!isValidType) {
-                message.error(t('import.invalidFileType', 'Only Excel (.xlsx, .xls) and CSV files are supported'));
+                message.error(t('import.invalidFileType'));
                 return Upload.LIST_IGNORE;
             }
 
             const isLt10M = file.size / 1024 / 1024 < 10;
             if (!isLt10M) {
-                message.error(t('import.fileTooLarge', 'File must be smaller than 10MB'));
+                message.error(t('import.fileTooLarge'));
                 return Upload.LIST_IGNORE;
             }
 
@@ -139,19 +136,19 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
 
     const errorColumns: ColumnsType<ImportValidationError> = [
         {
-            title: t('import.row', 'Row'),
+            title: t('import.row'),
             dataIndex: 'row',
             key: 'row',
             width: 80,
         },
         {
-            title: t('import.column', 'Column'),
+            title: t('import.column'),
             dataIndex: 'column',
             key: 'column',
             width: 120,
         },
         {
-            title: t('import.errorCode', 'Code'),
+            title: t('import.errorCode'),
             dataIndex: 'code',
             key: 'code',
             width: 120,
@@ -160,12 +157,12 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
             ),
         },
         {
-            title: t('import.message', 'Message'),
+            title: t('import.message'),
             dataIndex: 'message',
             key: 'message',
         },
         {
-            title: t('import.value', 'Value'),
+            title: t('import.value'),
             dataIndex: 'value',
             key: 'value',
             width: 150,
@@ -192,7 +189,7 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
             title={
                 <Space>
                     <FileExcelOutlined style={{ color: '#52c41a' }} />
-                    <span>{t('import.title', 'Import Questions')}</span>
+                    <span>{t('import.title')}</span>
                 </Space>
             }
             open={open}
@@ -200,7 +197,7 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
             width={800}
             footer={[
                 <Button key="cancel" onClick={handleClose}>
-                    {t('common.close', 'Close')}
+                    {t('common.close')}
                 </Button>,
                 currentStep < 2 && (
                     <Button
@@ -211,7 +208,7 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                         disabled={fileList.length === 0}
                         icon={<UploadOutlined />}
                     >
-                        {uploading ? t('import.uploading', 'Importing...') : t('import.start', 'Start Import')}
+                        {uploading ? t('import.uploading') : t('import.start')}
                     </Button>
                 ),
             ]}
@@ -221,9 +218,9 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                 size="small"
                 style={{ marginBottom: 24 }}
                 items={[
-                    { title: t('import.step1', 'Select File') },
-                    { title: t('import.step2', 'Processing') },
-                    { title: t('import.step3', 'Complete') },
+                    { title: t('import.step1') },
+                    { title: t('import.step2') },
+                    { title: t('import.step3') },
                 ]}
             />
 
@@ -231,11 +228,11 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
                     {/* Template download section */}
                     <Alert
-                        message={t('import.templateInfo', 'Download Template First')}
+                        message={t('import.templateInfo')}
                         description={
                             <Space direction="vertical" size="small">
                                 <Text>
-                                    {t('import.templateDesc', 'Download the Excel template to see the correct format for importing questions.')}
+                                    {t('import.templateDesc')}
                                 </Text>
                                 <Button
                                     icon={<DownloadOutlined />}
@@ -244,7 +241,7 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                                     type="link"
                                     style={{ padding: 0 }}
                                 >
-                                    {t('import.downloadTemplate', 'Download Template (.xlsx)')}
+                                    {t('import.downloadTemplate')}
                                 </Button>
                             </Space>
                         }
@@ -260,17 +257,17 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                                 <FileExcelOutlined style={{ fontSize: 48, color: '#52c41a' }} />
                             </p>
                             <p className="ant-upload-text">
-                                {t('import.dragText', 'Click or drag file to this area to upload')}
+                                {t('import.dragText')}
                             </p>
                             <p className="ant-upload-hint">
-                                {t('import.supportedFormats', 'Supports: .xlsx, .xls, .csv (Max 10MB, 1000 rows)')}
+                                {t('import.supportedFormats')}
                             </p>
                         </Upload.Dragger>
                     </div>
 
                     {/* Supported question types */}
                     <Alert
-                        message={t('import.supportedTypes', 'Supported Question Types')}
+                        message={t('import.supportedTypes')}
                         description={
                             <Space wrap>
                                 <Tag color="blue">Multiple Choice</Tag>
@@ -293,7 +290,7 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                 <div style={{ textAlign: 'center', padding: 40 }}>
                     <Progress type="circle" percent={uploading ? 50 : 0} status="active" />
                     <Paragraph style={{ marginTop: 16 }}>
-                        {t('import.processing', 'Processing your file...')}
+                        {t('import.processing')}
                     </Paragraph>
                 </div>
             )}
@@ -306,25 +303,25 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                             <Title level={3} style={{ margin: 0, color: '#52c41a' }}>
                                 {importResult.success_count}
                             </Title>
-                            <Text type="secondary">{t('import.successCount', 'Imported')}</Text>
+                            <Text type="secondary">{t('import.successCount')}</Text>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                             <Title level={3} style={{ margin: 0, color: '#ff4d4f' }}>
                                 {importResult.error_count}
                             </Title>
-                            <Text type="secondary">{t('import.errorCount', 'Errors')}</Text>
+                            <Text type="secondary">{t('import.errorCount')}</Text>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                             <Title level={3} style={{ margin: 0, color: '#1890ff' }}>
                                 {importResult.total_rows}
                             </Title>
-                            <Text type="secondary">{t('import.totalRows', 'Total Rows')}</Text>
+                            <Text type="secondary">{t('import.totalRows')}</Text>
                         </div>
                     </Space>
 
                     {importResult.success_count > 0 && (
                         <Alert
-                            message={t('import.successMessage', 'Import completed successfully!')}
+                            message={t('import.successMessage')}
                             type="success"
                             showIcon
                             icon={<CheckCircleOutlined />}
@@ -334,13 +331,13 @@ const QuestionImportModal: React.FC<QuestionImportModalProps> = ({
                     {importResult.error_count > 0 && (
                         <>
                             <Alert
-                                message={t('import.errorsFound', 'Some rows had validation errors')}
-                                description={t('import.errorsDesc', 'The rows listed below were not imported due to validation errors.')}
+                                message={t('import.errorsFound')}
+                                description={t('import.errorsDesc')}
                                 type="warning"
                                 showIcon
                                 icon={<CloseCircleOutlined />}
                             />
-                            <Divider>{t('import.errorDetails', 'Error Details')}</Divider>
+                            <Divider>{t('import.errorDetails')}</Divider>
                             <Table
                                 columns={errorColumns}
                                 dataSource={importResult.errors}

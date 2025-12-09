@@ -273,16 +273,6 @@ const QuestionList: React.FC = () => {
 					</Text>
 				</Space>
 
-				<Button
-					type="primary"
-					icon={<PlusOutlined />}
-					size="large"
-					onClick={() => navigate(`${basePath}/new`)}
-					style={{ fontWeight: 500, height: 44, borderRadius: 10, paddingLeft: 24, paddingRight: 24 }}
-				>
-					{t('questionList.createNew')}
-				</Button>
-
 				<Space>
 					<Button
 						icon={<UploadOutlined />}
@@ -290,7 +280,7 @@ const QuestionList: React.FC = () => {
 						onClick={() => setImportModalOpen(true)}
 						style={{ fontWeight: 500, height: 44, borderRadius: 10 }}
 					>
-						{t('questionList.import', 'Import')}
+						{t('questionList.import')}
 					</Button>
 					<Button
 						icon={<DownloadOutlined />}
@@ -299,7 +289,7 @@ const QuestionList: React.FC = () => {
 						disabled={selectedQuestions.length === 0}
 						style={{ fontWeight: 500, height: 44, borderRadius: 10 }}
 					>
-						{t('questionList.export', 'Export')} {selectedQuestions.length > 0 && `(${selectedQuestions.length})`}
+						{t('questionList.export')} {selectedQuestions.length > 0 && `(${selectedQuestions.length})`}
 					</Button>
 					<Button
 						type="primary"

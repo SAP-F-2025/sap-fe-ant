@@ -461,6 +461,8 @@
 			"minWordsPlaceholder": "VD: 100",
 			"maxWords": "Số từ tối đa (tùy chọn)",
 			"maxWordsPlaceholder": "VD: 500",
+			"maxWordsTooltip": "Để trống nếu không giới hạn",
+			"unlimited": "Không giới hạn",
 			"suggestedLength": "Độ dài gợi ý",
 			"suggestedLengthTooltip": "VD: 2-3 đoạn văn, 200-300 từ, 1 trang A4",
 			"suggestedLengthPlaceholder": "VD: 2-3 đoạn văn",

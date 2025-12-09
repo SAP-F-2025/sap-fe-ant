@@ -124,6 +124,7 @@ const QuestionForm: React.FC = () => {
 												<Form.Item
 													{...restField}
 													name={[name, 'id']}
+													initialValue={String.fromCharCode(65 + name)}
 													rules={[
 														{
 															required: true,
@@ -179,6 +180,7 @@ const QuestionForm: React.FC = () => {
 												<Form.Item
 													{...restField}
 													name={[name, 'order']}
+													initialValue={name + 1}
 													rules={[
 														{
 															required: true,
@@ -204,7 +206,12 @@ const QuestionForm: React.FC = () => {
 										<Form.Item>
 											<Button
 												type="dashed"
-												onClick={() => add()}
+												onClick={() =>
+													add({
+														id: String.fromCharCode(65 + fields.length),
+														order: fields.length + 1,
+													})
+												}
 												block
 												icon={<PlusOutlined />}
 											>
@@ -367,13 +374,12 @@ const QuestionForm: React.FC = () => {
 									<Form.Item
 										label={t('questionForm.essay.minWords')}
 										name={['content', 'min_words']}
+										initialValue={1}
 									>
 										<InputNumber
-											min={0}
+											min={1}
 											style={{ width: '100%' }}
-											placeholder={t(
-												'questionForm.essay.minWordsPlaceholder'
-											)}
+											placeholder="1"
 										/>
 									</Form.Item>
 								</Col>
@@ -381,13 +387,12 @@ const QuestionForm: React.FC = () => {
 									<Form.Item
 										label={t('questionForm.essay.maxWords')}
 										name={['content', 'max_words']}
+										tooltip={t('questionForm.essay.maxWordsTooltip')}
 									>
 										<InputNumber
-											min={0}
+											min={1}
 											style={{ width: '100%' }}
-											placeholder={t(
-												'questionForm.essay.maxWordsPlaceholder'
-											)}
+											placeholder={t('questionForm.essay.unlimited')}
 										/>
 									</Form.Item>
 								</Col>
@@ -705,6 +710,7 @@ const QuestionForm: React.FC = () => {
 													<Form.Item
 														{...restField}
 														name={[name, 'id']}
+														initialValue={`L${name + 1}`}
 														rules={[
 															{
 																required: true,
@@ -763,7 +769,9 @@ const QuestionForm: React.FC = () => {
 											<Form.Item>
 												<Button
 													type="dashed"
-													onClick={() => add()}
+													onClick={() =>
+														add({ id: `L${fields.length + 1}` })
+													}
 													block
 													icon={<PlusOutlined />}
 												>
@@ -796,6 +804,7 @@ const QuestionForm: React.FC = () => {
 													<Form.Item
 														{...restField}
 														name={[name, 'id']}
+														initialValue={`R${name + 1}`}
 														rules={[
 															{
 																required: true,
@@ -854,7 +863,9 @@ const QuestionForm: React.FC = () => {
 											<Form.Item>
 												<Button
 													type="dashed"
-													onClick={() => add()}
+													onClick={() =>
+														add({ id: `R${fields.length + 1}` })
+													}
 													block
 													icon={<PlusOutlined />}
 												>
@@ -1081,6 +1092,7 @@ const QuestionForm: React.FC = () => {
 													<Form.Item
 														{...restField}
 														name={[name, 'id']}
+														initialValue={`O${name + 1}`}
 														rules={[
 															{
 																required: true,
@@ -1139,7 +1151,9 @@ const QuestionForm: React.FC = () => {
 											<Form.Item>
 												<Button
 													type="dashed"
-													onClick={() => add()}
+													onClick={() =>
+														add({ id: `O${fields.length + 1}` })
+													}
 													block
 													icon={<PlusOutlined />}
 												>
@@ -1264,7 +1278,6 @@ const QuestionForm: React.FC = () => {
 									style={{ width: '100%' }}
 								/>
 							</Form.Item>
-
 							{/* Placeholder Text */}
 							<Form.Item
 								label={t('questionForm.shortAnswer.placeholderText')}
@@ -1276,11 +1289,11 @@ const QuestionForm: React.FC = () => {
 									)}
 								/>
 							</Form.Item>
-
 							{/* Max Length */}
 							<Form.Item
 								label={t('questionForm.shortAnswer.maxLength')}
 								name={['content', 'max_length']}
+								initialValue={100}
 								rules={[
 									{
 										required: true,
@@ -1298,10 +1311,9 @@ const QuestionForm: React.FC = () => {
 									min={1}
 									max={500}
 									style={{ width: '100%' }}
-									placeholder={t('questionForm.shortAnswer.maxLengthPlaceholder')}
+									placeholder="100"
 								/>
-							</Form.Item>
-
+							</Form.Item>{' '}
 							{/* Matching Settings */}
 							<Card
 								title={t('questionForm.shortAnswer.matchingSettings')}
@@ -1344,7 +1356,6 @@ const QuestionForm: React.FC = () => {
 									</Col>
 								</Row>
 							</Card>
-
 							<Alert
 								message={t('questionForm.shortAnswer.matchingNote')}
 								description={
@@ -1405,8 +1416,8 @@ const QuestionForm: React.FC = () => {
 					content: {
 						// Multiple Choice fields
 						options: [
-							{ id: 'a', text: '', order: 1, image_url: '' },
-							{ id: 'b', text: '', order: 2, image_url: '' },
+							{ id: 'A', text: '', order: 1, image_url: '' },
+							{ id: 'B', text: '', order: 2, image_url: '' },
 						],
 						correct_answers: [],
 						multiple_correct: false,

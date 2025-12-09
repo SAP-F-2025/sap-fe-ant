@@ -136,7 +136,7 @@ class GroupService {
 	 */
 	async unassignAssessmentFromGroups(assessmentId: number, groupIds: number[]): Promise<void> {
 		const data: UnassignFromGroupsRequest = { group_ids: groupIds };
-		return apiService.delete(API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId), { data });
+		return apiService.delete(API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId), data);
 	}
 }
 

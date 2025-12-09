@@ -42,7 +42,9 @@ import AssessmentResults from './pages/Student/AssessmentResults';
 import AvailableAssessments from './pages/Student/AvailableAssessments';
 import FaceVerification from './pages/Student/FaceVerification';
 import StudentDashboard from './pages/Student/StudentDashboard';
+import StudentGroups from './pages/Student/StudentGroups';
 import StudentHistory from './pages/Student/StudentHistory';
+import StudentAssessmentList from './pages/Student/StudentAssessmentList';
 import TakeAssessment from './pages/Exam';
 
 // Teacher Pages
@@ -316,6 +318,21 @@ const AppRoutes: React.FC = () => {
 						{/* Note: take/:attemptId moved to ExamLayout below */}
 						<Route path="results/:attemptId" element={<AssessmentResults />} />
 						<Route path="history" element={<StudentHistory />} />
+						{/* Student Groups */}
+						<Route path="groups" element={<StudentGroups />} />
+						<Route path="groups/:id" element={<GroupDetail />} />
+						<Route path="groups/:id/edit" element={<GroupForm />} />
+
+						{/* Student Manage Assessments */}
+						<Route path="manage-assessments" element={<StudentAssessmentList />} />
+						<Route path="manage-assessments/new" element={<AssessmentForm />} />
+						<Route path="manage-assessments/:id" element={<AssessmentDetail />} />
+						<Route path="manage-assessments/:id/edit" element={<AssessmentForm />} />
+
+						{/* Student Question Bank */}
+						<Route path="questions" element={<QuestionList />} />
+						<Route path="questions/new" element={<QuestionForm />} />
+						<Route path="questions/edit/:id" element={<QuestionForm />} />
 					</Route>
 
 					{/* Teacher routes */}

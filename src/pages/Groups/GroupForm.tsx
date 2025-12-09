@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import groupService from '../../services/groupService';
 import { elevation } from '../../styles/elevation';
 import { GroupCreateRequest, GroupUpdateRequest } from '../../types';
@@ -24,11 +24,16 @@ const GroupForm: React.FC = () => {
 	const { t } = useTranslation();
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [form] = Form.useForm();
 	const [loading, setLoading] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const isEdit = !!id;
 	const groupId = parseInt(id || '0');
+
+	// Detect if we're in student context
+	const isStudentContext = location.pathname.startsWith('/student');
+	const basePath = isStudentContext ? '/student/groups' : '/groups';
 
 	useEffect(() => {
 		if (isEdit && groupId) {
@@ -48,7 +53,7 @@ const GroupForm: React.FC = () => {
 			});
 		} catch (error) {
 			showError(t('groups.loadDetailError'));
-			navigate('/groups');
+			navigate(basePath);
 		} finally {
 			setLoading(false);
 		}
@@ -64,7 +69,7 @@ const GroupForm: React.FC = () => {
 				await groupService.createGroup(values as GroupCreateRequest);
 				showSuccess(t('groups.createSuccess'));
 			}
-			navigate('/groups');
+			navigate(basePath);
 		} catch (error) {
 			// handled by interceptor
 		} finally {
@@ -87,7 +92,7 @@ const GroupForm: React.FC = () => {
 				<Space>
 					<Button
 						icon={<ArrowLeftOutlined />}
-						onClick={() => navigate('/groups')}
+						onClick={() => navigate(basePath)}
 					>
 						{t('common.back')}
 					</Button>
@@ -156,7 +161,7 @@ const GroupForm: React.FC = () => {
 
 					<Form.Item style={{ marginBottom: 0 }}>
 						<Space>
-							<Button onClick={() => navigate('/groups')}>
+							<Button onClick={() => navigate(basePath)}>
 								{t('common.cancel')}
 							</Button>
 							<Button

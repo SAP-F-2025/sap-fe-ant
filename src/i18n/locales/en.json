@@ -555,7 +555,7 @@
 			"maxLength": "Maximum length (characters)",
 			"maxLengthRequired": "Enter maximum length",
 			"maxLengthRange": "From 1 to 500 characters",
-			"maxLengthPlaceholder": "Max 500 characters",
+			"maxLengthPlaceholder": "Default: 100 (max 500)",
 			"matchingSettings": "Matching settings",
 			"caseSensitive": "Case sensitive",
 			"exactMatch": "Exact match",

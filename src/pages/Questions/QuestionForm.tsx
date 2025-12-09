@@ -86,6 +86,14 @@ const QuestionForm: React.FC = () => {
 					.filter(Boolean);
 			}
 
+			// Set default max_length for ShortAnswer questions if not provided
+			if (data.type === QuestionType.ShortAnswer && !data.content?.max_length) {
+				data.content = {
+					...data.content,
+					max_length: 100,
+				};
+			}
+
 			if (isEdit && id) {
 				await questionService.updateQuestion(parseInt(id), data);
 				showSuccess(t('questionForm.updateSuccess'));
@@ -1427,12 +1435,7 @@ const QuestionForm: React.FC = () => {
 							<Form.Item
 								label={t('questionForm.shortAnswer.maxLength')}
 								name={['content', 'max_length']}
-								initialValue={100}
 								rules={[
-									{
-										required: true,
-										message: t('questionForm.shortAnswer.maxLengthRequired'),
-									},
 									{
 										type: 'number',
 										min: 1,
@@ -1445,7 +1448,7 @@ const QuestionForm: React.FC = () => {
 									min={1}
 									max={500}
 									style={{ width: '100%' }}
-									placeholder="100"
+									placeholder={t('questionForm.shortAnswer.maxLengthPlaceholder')}
 								/>
 							</Form.Item>{' '}
 							{/* Matching Settings */}
@@ -1579,7 +1582,7 @@ const QuestionForm: React.FC = () => {
 						// Short Answer fields
 						accepted_answers: [],
 						exact_match: false,
-						max_length: 200,
+						max_length: undefined,
 						placeholder_text: '',
 						fuzzy_matching: false,
 						// Essay fields

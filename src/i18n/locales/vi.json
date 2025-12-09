@@ -554,7 +554,7 @@
 			"maxLength": "Độ dài tối đa (ký tự)",
 			"maxLengthRequired": "Nhập độ dài tối đa",
 			"maxLengthRange": "Từ 1 đến 500 ký tự",
-			"maxLengthPlaceholder": "Tối đa 500 ký tự",
+			"maxLengthPlaceholder": "Mặc định: 100 (tối đa 500)",
 			"matchingSettings": "Cài đặt so khớp",
 			"caseSensitive": "Phân biệt hoa thường",
 			"exactMatch": "Khớp chính xác",

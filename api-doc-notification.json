@@ -1,0 +1,1693 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Notification Service API",
+    "description": "# Notification Service API Documentation\n\nA comprehensive notification service that supports multiple delivery channels (Email, SSE, Push) \nwith template management and user preferences.\n\n## Features\n- 📧 **Email Notifications** - Send templated emails via SMTP\n- 🔔 **Real-time SSE** - Server-Sent Events for instant notifications\n- 📱 **Push Notifications** - (Coming soon)\n- 🎨 **Template Management** - Dynamic templates with variable substitution\n- ⚙️ **User Preferences** - Customizable notification settings\n- 🔄 **Event-Driven** - Redis Streams for reliable event processing\n- 🔁 **Retry Mechanism** - Automatic retry for failed notifications\n\n## Authentication\nAll endpoints (except health check) require JWT Bearer token authentication from Casdoor OAuth2.\n\n## Base URL\n- **Development**: `http://localhost:8082/notification-service`\n- **Production**: `https://api.yourcompany.com/notification-service`\n",
+    "contact": {
+      "name": "Notification Service Team",
+      "email": "support@examplatform.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8082/notification-service",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.yourcompany.com/notification-service",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Service health and status endpoints"
+    },
+    {
+      "name": "Authentication",
+      "description": "Authentication testing endpoints"
+    },
+    {
+      "name": "Templates",
+      "description": "Notification template management (Admin only)"
+    },
+    {
+      "name": "Preferences",
+      "description": "User notification preferences"
+    },
+    {
+      "name": "SSE",
+      "description": "Server-Sent Events for real-time notifications"
+    },
+    {
+      "name": "Events",
+      "description": "Event publishing for testing (Admin only)"
+    },
+    {
+      "name": "Admin",
+      "description": "Administrative operations (Admin only)"
+    }
+  ],
+  "paths": {
+    "/actuator/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health check",
+        "description": "Check if the service is running and healthy",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200"
+                },
+                "example": {
+                  "status": "UP",
+                  "components": {
+                    "db": {
+                      "status": "UP"
+                    },
+                    "redis": {
+                      "status": "UP"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/test/me": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get current user info",
+        "description": "Returns information extracted from the JWT token",
+        "operationId": "getCurrentUser",
+        "responses": {
+          "200": {
+            "description": "User information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/test/protected": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Test protected endpoint",
+        "description": "Simple endpoint to verify JWT authentication works",
+        "operationId": "testProtected",
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_1"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/test/admin-only": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Test admin-only endpoint",
+        "description": "Endpoint that requires ADMIN role",
+        "operationId": "testAdminOnly",
+        "responses": {
+          "200": {
+            "description": "Admin access granted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_2"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/templates": {
+      "get": {
+        "tags": [
+          "Templates"
+        ],
+        "summary": "Get all templates",
+        "description": "Retrieve paginated list of notification templates (Admin only)",
+        "operationId": "getAllTemplates",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "name,asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_3"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Templates"
+        ],
+        "summary": "Create template",
+        "description": "Create a new notification template (Admin only)",
+        "operationId": "createTemplate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateCreate"
+              },
+              "examples": {
+                "emailTemplate": {
+                  "summary": "Email template",
+                  "value": {
+                    "name": "password_reset",
+                    "type": "EMAIL",
+                    "subject": "Password Reset Request - {{username}}",
+                    "body": "<html><body><h2>Hi {{username}}</h2><p>Click here to reset: {{resetLink}}</p></body></html>",
+                    "variables": {
+                      "username": "string",
+                      "resetLink": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Template created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Template"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/templates/{name}": {
+      "get": {
+        "tags": [
+          "Templates"
+        ],
+        "summary": "Get template by name",
+        "description": "Retrieve a specific template by its name",
+        "operationId": "getTemplateByName",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "welcome_user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Template found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Template"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Templates"
+        ],
+        "summary": "Update template",
+        "description": "Update an existing template (Admin only)",
+        "operationId": "updateTemplate",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Template updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Template"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Templates"
+        ],
+        "summary": "Delete template",
+        "description": "Delete a template (Admin only)",
+        "operationId": "deleteTemplate",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Template deleted successfully"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/preferences": {
+      "get": {
+        "tags": [
+          "Preferences"
+        ],
+        "summary": "Get my preferences",
+        "description": "Get notification preferences for the current authenticated user",
+        "operationId": "getMyPreferences",
+        "responses": {
+          "200": {
+            "description": "User preferences",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Preferences not found (user should create them)"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Preferences"
+        ],
+        "summary": "Update my preferences",
+        "description": "Update notification preferences for the current user",
+        "operationId": "updateMyPreferences",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreferencesCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Preferences updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Preferences"
+        ],
+        "summary": "Create my preferences",
+        "description": "Create notification preferences for the current user",
+        "operationId": "createMyPreferences",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreferencesCreate"
+              },
+              "example": {
+                "emailEnabled": true,
+                "pushEnabled": false,
+                "sseEnabled": true,
+                "emailFrequency": "IMMEDIATE",
+                "categories": {
+                  "user.registered": true,
+                  "session.completed": true,
+                  "proctoring.violation": true,
+                  "assessment.published": true
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Preferences created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users/{userId}/preferences": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get user preferences (Admin)",
+        "description": "Get notification preferences for any user (Admin only)",
+        "operationId": "getUserPreferencesAdmin",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User preferences",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create user preferences (Admin)",
+        "description": "Create notification preferences for any user (Admin only)",
+        "operationId": "createUserPreferencesAdmin",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreferencesCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Preferences created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete user preferences (Admin)",
+        "description": "Delete notification preferences for any user (Admin only)",
+        "operationId": "deleteUserPreferencesAdmin",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Preferences deleted successfully"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/sse/connect": {
+      "get": {
+        "tags": [
+          "SSE"
+        ],
+        "summary": "Connect to SSE stream",
+        "description": "Establish a Server-Sent Events connection to receive real-time notifications.\n\n**Note**: You can pass JWT token either as:\n- Authorization header: `Bearer YOUR_TOKEN`\n- Query parameter: `?token=YOUR_TOKEN` (for browser EventSource compatibility)\n\nKeep this connection open to receive events.\n",
+        "operationId": "connectSSE",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "JWT token (alternative to Authorization header)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSE connection established",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                },
+                "examples": {
+                  "connectionEvent": {
+                    "value": "event: connect\ndata: {\"message\":\"Connected to notification service\",\"userId\":123,\"timestamp\":\"2025-11-23T10:00:00Z\"}\n"
+                  },
+                  "notificationEvent": {
+                    "value": "event: notification\ndata: {\"type\":\"assessment.published\",\"content\":\"<html>...</html>\",\"timestamp\":\"2025-11-23T10:01:00Z\"}\n"
+                  },
+                  "heartbeatEvent": {
+                    "value": "event: heartbeat\ndata: {\"timestamp\":\"2025-11-23T10:02:00Z\",\"type\":\"heartbeat\"}\n"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sse/subscribe/{topic}": {
+      "get": {
+        "tags": [
+          "SSE"
+        ],
+        "summary": "Subscribe to topic",
+        "description": "Subscribe to a specific topic for broadcast messages",
+        "operationId": "subscribeToTopic",
+        "parameters": [
+          {
+            "name": "topic",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "assessment-updates"
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscribed to topic",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sse/status/{userId}": {
+      "get": {
+        "tags": [
+          "SSE"
+        ],
+        "summary": "Check connection status",
+        "description": "Check if a user is connected to SSE",
+        "operationId": "checkUserSSEStatus",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connection status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_4"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sse/stats": {
+      "get": {
+        "tags": [
+          "SSE"
+        ],
+        "summary": "Get SSE statistics (Admin)",
+        "description": "Get statistics about active SSE connections (Admin only)",
+        "operationId": "getSSEStats",
+        "responses": {
+          "200": {
+            "description": "SSE statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sse/test/send-to-user": {
+      "post": {
+        "tags": [
+          "SSE"
+        ],
+        "summary": "Send test notification to user (Admin)",
+        "description": "Send a test notification to a specific user via SSE (Admin only)",
+        "operationId": "sendTestNotificationToUser",
+        "parameters": [
+          {
+            "name": "targetUserId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "message",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test notification sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_6"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sse/test/broadcast": {
+      "post": {
+        "tags": [
+          "SSE"
+        ],
+        "summary": "Broadcast to topic (Admin)",
+        "description": "Broadcast a message to all users subscribed to a topic (Admin only)",
+        "operationId": "broadcastToTopic",
+        "parameters": [
+          {
+            "name": "topic",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "message",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message broadcasted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_7"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redis/test/quick/user-registered": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Quick user registration test",
+        "description": "Quickly publish a user registration event (Admin only)",
+        "operationId": "quickUserRegistered",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 123
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "johndoe"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "john.doe@example.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event published successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPublishResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redis/test/events/user-registered": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Publish user registered event",
+        "description": "Publish a detailed user registration event (Admin only)",
+        "operationId": "publishUserRegistered",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegisteredEvent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Event published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPublishResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redis/test/events/session-completed": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Publish session completed event",
+        "description": "Publish a session completion event (Admin only)",
+        "operationId": "publishSessionCompleted",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionCompletedEvent"
+              },
+              "example": {
+                "userId": 123,
+                "username": "johndoe",
+                "email": "john.doe@example.com",
+                "sessionId": "SESSION-2025-001",
+                "assessmentName": "Spring Boot Advanced",
+                "completionTime": "45 minutes",
+                "score": 95.5,
+                "status": "PASSED"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Event published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPublishResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redis/test/events/proctoring-violation": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Publish proctoring violation event",
+        "description": "Publish a proctoring violation event (Admin only)",
+        "operationId": "publishProctoringViolation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProctoringViolationEvent"
+              },
+              "example": {
+                "userId": 123,
+                "username": "johndoe",
+                "sessionId": "SESSION-2025-001",
+                "violationType": "MULTIPLE_FACES_DETECTED",
+                "severity": "HIGH",
+                "proctorIds": [
+                  1,
+                  2,
+                  3
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Event published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPublishResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redis/test/events/assessment-published": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Publish assessment published event",
+        "description": "Publish an assessment publication event (Admin only)",
+        "operationId": "publishAssessmentPublished",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssessmentPublishedEvent"
+              },
+              "example": {
+                "assessmentId": "ASSESS-2025-001",
+                "assessmentName": "Spring Boot Advanced Certification",
+                "duration": 120,
+                "dueDate": "2025-02-01T00:00:00Z",
+                "assignedUsers": [
+                  {
+                    "userId": 123,
+                    "username": "johndoe",
+                    "email": "john.doe@example.com"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Event published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPublishResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redis/test/bulk/user-registered": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Bulk user registration test",
+        "description": "Publish multiple user registration events for testing (Admin only)",
+        "operationId": "bulkUserRegistered",
+        "parameters": [
+          {
+            "name": "count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bulk events published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_8"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redis/test/workflow/complete": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Test complete workflow",
+        "description": "Test all event types in sequence (Admin only)",
+        "operationId": "testCompleteWorkflow",
+        "responses": {
+          "200": {
+            "description": "Workflow test completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_9"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserInfo": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "example": 123
+          },
+          "username": {
+            "type": "string",
+            "example": "johndoe"
+          },
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "organization": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "example": [
+              "ROLE_ADMIN",
+              "ROLE_USER"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAdmin": {
+            "type": "boolean"
+          },
+          "isUser": {
+            "type": "boolean"
+          },
+          "authenticated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Template": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "welcome_user"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "EMAIL",
+              "SSE",
+              "PUSH"
+            ]
+          },
+          "subject": {
+            "type": "string",
+            "example": "Welcome to Our Platform, {{firstName}}!"
+          },
+          "body": {
+            "type": "string",
+            "example": "<html><body><h2>Welcome {{firstName}} {{lastName}}!</h2></body></html>"
+          },
+          "variables": {
+            "type": "object",
+            "additionalProperties": true,
+            "example": {
+              "firstName": "string",
+              "lastName": "string",
+              "username": "string"
+            }
+          }
+        }
+      },
+      "TemplateCreate": {
+        "required": [
+          "body",
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "EMAIL",
+              "SSE",
+              "PUSH"
+            ]
+          },
+          "subject": {
+            "maxLength": 255,
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "variables": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "Preferences": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "integer"
+          },
+          "emailEnabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "pushEnabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "sseEnabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "emailFrequency": {
+            "type": "string",
+            "default": "IMMEDIATE",
+            "enum": [
+              "IMMEDIATE",
+              "DAILY",
+              "WEEKLY"
+            ]
+          },
+          "categories": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "example": {
+              "user.registered": true,
+              "session.completed": true,
+              "proctoring.violation": true,
+              "assessment.published": true
+            }
+          }
+        }
+      },
+      "PreferencesCreate": {
+        "type": "object",
+        "properties": {
+          "emailEnabled": {
+            "type": "boolean"
+          },
+          "pushEnabled": {
+            "type": "boolean"
+          },
+          "sseEnabled": {
+            "type": "boolean"
+          },
+          "emailFrequency": {
+            "type": "string",
+            "enum": [
+              "IMMEDIATE",
+              "DAILY",
+              "WEEKLY"
+            ]
+          },
+          "categories": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "UserRegisteredEvent": {
+        "required": [
+          "email",
+          "userId",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        }
+      },
+      "SessionCompletedEvent": {
+        "required": [
+          "assessmentName",
+          "sessionId",
+          "userId",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "assessmentName": {
+            "type": "string"
+          },
+          "completionTime": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASSED",
+              "FAILED"
+            ]
+          }
+        }
+      },
+      "ProctoringViolationEvent": {
+        "required": [
+          "sessionId",
+          "userId",
+          "username",
+          "violationType"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "violationType": {
+            "type": "string",
+            "example": "MULTIPLE_FACES_DETECTED"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ]
+          },
+          "proctorIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "AssessmentPublishedEvent": {
+        "required": [
+          "assessmentId",
+          "assessmentName",
+          "assignedUsers"
+        ],
+        "type": "object",
+        "properties": {
+          "assessmentId": {
+            "type": "string"
+          },
+          "assessmentName": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration in minutes"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "assignedUsers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssessmentPublishedEvent_assignedUsers"
+            }
+          }
+        }
+      },
+      "EventPublishResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "messageId": {
+            "type": "string"
+          },
+          "stream": {
+            "type": "string"
+          },
+          "event": {
+            "type": "object"
+          },
+          "checkMailHog": {
+            "type": "string"
+          }
+        }
+      },
+      "Pageable": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          },
+          "totalPages": {
+            "type": "integer"
+          },
+          "totalElements": {
+            "type": "integer"
+          },
+          "sort": {
+            "type": "object"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "UP"
+          },
+          "components": {
+            "type": "object"
+          }
+        }
+      },
+      "inline_response_200_1": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200_2": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "admin": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200_3": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Template"
+            }
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/Pageable"
+          }
+        }
+      },
+      "inline_response_200_4": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          },
+          "connected": {
+            "type": "boolean"
+          },
+          "timestamp": {
+            "type": "integer"
+          }
+        }
+      },
+      "inline_response_200_5": {
+        "type": "object",
+        "properties": {
+          "activeUserConnections": {
+            "type": "integer"
+          },
+          "timestamp": {
+            "type": "integer"
+          }
+        }
+      },
+      "inline_response_200_6": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "targetUserId": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer"
+          }
+        }
+      },
+      "inline_response_200_7": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200_8": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "messageIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "inline_response_200_9": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "events": {
+            "type": "object"
+          }
+        }
+      },
+      "AssessmentPublishedEvent_assignedUsers": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request - Invalid input",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "timestamp": "2025-11-23T10:00:00Z",
+              "status": 400,
+              "error": "Bad Request",
+              "message": "Invalid request parameters",
+              "path": "/api/v1/templates"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized - Invalid or missing JWT token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "timestamp": "2025-11-23T10:00:00Z",
+              "status": 401,
+              "error": "Unauthorized",
+              "message": "Full authentication is required to access this resource",
+              "path": "/api/v1/templates"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden - Insufficient permissions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "timestamp": "2025-11-23T10:00:00Z",
+              "status": 403,
+              "error": "Forbidden",
+              "message": "Access Denied - Admin role required",
+              "path": "/api/v1/templates"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "timestamp": "2025-11-23T10:00:00Z",
+              "status": 404,
+              "error": "Not Found",
+              "message": "Template not found",
+              "path": "/api/v1/templates/unknown_template"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "description": "JWT token from Casdoor OAuth2.\n\nTo get a token, authenticate with Casdoor:\n```\nPOST https://casdoor.sapx.me/api/login/oauth/access_token\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=password&\nusername=YOUR_USERNAME&\npassword=YOUR_PASSWORD&\nclient_id=YOUR_CLIENT_ID&\nclient_secret=YOUR_CLIENT_SECRET\n```\n",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

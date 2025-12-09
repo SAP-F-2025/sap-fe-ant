@@ -1,7 +1,11 @@
-import { CustomerServiceOutlined, FileTextOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { Col, FloatButton, Row, Space } from 'antd';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import {
+	CustomerServiceOutlined,
+	FileTextOutlined,
+	QuestionCircleOutlined,
+} from "@ant-design/icons";
+import { Col, FloatButton, Row, Space } from "antd";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // Components
 import {
@@ -12,15 +16,15 @@ import {
 	QuickStats,
 	RecentActivities,
 	StatsRow,
-} from './components';
+} from "./components";
 
 // Hooks
-import { useDashboardData } from './hooks';
+import { useDashboardData } from "./hooks";
 
 /**
  * Dashboard Page
  * Admin overview with statistics, charts, and recent activities
- * 
+ *
  * Refactored to follow best practices:
  * - Extracted components for better maintainability
  * - Custom hook for data fetching (useDashboardData)
@@ -30,28 +34,29 @@ import { useDashboardData } from './hooks';
  */
 const Dashboard: React.FC = () => {
 	const { t } = useTranslation();
-	const [timePeriod, setTimePeriod] = useState<'week' | 'month' | 'year'>('month');
+	const [timePeriod, setTimePeriod] = useState<"week" | "month" | "year">(
+		"month",
+	);
 
 	// All data fetching centralized in custom hook
-	const {
-		stats,
-		recentActivities,
-		isLoading,
-		chartData,
-	} = useDashboardData(timePeriod);
+	const { stats, recentActivities, isLoading, chartData } =
+		useDashboardData(timePeriod);
 
 	const handleTimePeriodChange = (value: string | number) => {
-		setTimePeriod(value as 'week' | 'month' | 'year');
+		setTimePeriod(value as "week" | "month" | "year");
 	};
 
 	return (
 		<Space
 			direction="vertical"
 			size="large"
-			style={{ width: '100%', animation: 'fadeIn 400ms ease-in-out' }}
+			style={{ width: "100%", animation: "fadeIn 400ms ease-in-out" }}
 		>
 			{/* Header with time period filter */}
-			<DashboardHeader timePeriod={timePeriod} onTimePeriodChange={handleTimePeriodChange} />
+			<DashboardHeader
+				timePeriod={timePeriod}
+				onTimePeriodChange={handleTimePeriodChange}
+			/>
 
 			{/* Compact Statistics Cards */}
 			<StatsRow stats={stats} />
@@ -59,20 +64,32 @@ const Dashboard: React.FC = () => {
 			{/* Charts Row - Activity & Question Distribution */}
 			<Row gutter={[16, 16]}>
 				<Col xs={24} lg={16}>
-					<ActivityChart data={chartData.activity} isLoading={isLoading.activity} />
+					<ActivityChart
+						data={chartData.activity}
+						isLoading={isLoading.activity}
+					/>
 				</Col>
 				<Col xs={24} lg={8}>
-					<QuestionPieChart data={chartData.question} isLoading={isLoading.question} />
+					<QuestionPieChart
+						data={chartData.question}
+						isLoading={isLoading.question}
+					/>
 				</Col>
 			</Row>
 
 			{/* Performance & Recent Activities Row */}
 			<Row gutter={[16, 16]}>
 				<Col xs={24} lg={12}>
-					<PerformanceChart data={chartData.performance} isLoading={isLoading.performance} />
+					<PerformanceChart
+						data={chartData.performance}
+						isLoading={isLoading.performance}
+					/>
 				</Col>
 				<Col xs={24} lg={12}>
-					<RecentActivities activities={recentActivities} isLoading={isLoading.activities} />
+					<RecentActivities
+						activities={recentActivities}
+						isLoading={isLoading.activities}
+					/>
 				</Col>
 			</Row>
 
@@ -86,8 +103,14 @@ const Dashboard: React.FC = () => {
 				style={{ right: 24, bottom: 24 }}
 				icon={<CustomerServiceOutlined />}
 			>
-				<FloatButton tooltip={t('dashboard.guide')} icon={<QuestionCircleOutlined />} />
-				<FloatButton tooltip={t('dashboard.report')} icon={<FileTextOutlined />} />
+				<FloatButton
+					tooltip={t("dashboard.guide")}
+					icon={<QuestionCircleOutlined />}
+				/>
+				<FloatButton
+					tooltip={t("dashboard.report")}
+					icon={<FileTextOutlined />}
+				/>
 			</FloatButton.Group>
 		</Space>
 	);

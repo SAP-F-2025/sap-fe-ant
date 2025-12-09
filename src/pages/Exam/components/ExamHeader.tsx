@@ -1,7 +1,20 @@
-import { CheckCircleOutlined, ClockCircleOutlined, SaveOutlined } from '@ant-design/icons';
-import { Card, Col, Progress, Row, Space, Statistic, Tag, Typography } from 'antd';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import {
+	CheckCircleOutlined,
+	ClockCircleOutlined,
+	SaveOutlined,
+} from "@ant-design/icons";
+import {
+	Card,
+	Col,
+	Progress,
+	Row,
+	Space,
+	Statistic,
+	Tag,
+	Typography,
+} from "antd";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 const { Title, Text } = Typography;
 
@@ -31,25 +44,35 @@ export const ExamHeader: React.FC<ExamHeaderProps> = ({
 	const { t } = useTranslation();
 
 	return (
-		<Card style={{ marginBottom: '16px' }}>
+		<Card style={{ marginBottom: "16px" }}>
 			<Row gutter={16} align="middle">
 				<Col flex="auto">
 					<Title level={3} style={{ margin: 0 }}>
 						{title}
 					</Title>
-					<div style={{ marginTop: '4px' }}>
+					<div style={{ marginTop: "4px" }}>
 						<Space size="small">
 							<Text type="secondary">
-								{t('exam.questionN', { n: currentQuestionIndex + 1 })} / {totalQuestions}
+								{t("exam.questionN", {
+									n: currentQuestionIndex + 1,
+								})}{" "}
+								/ {totalQuestions}
 							</Text>
 							{autoSaving && (
-								<Tag color="processing" icon={<SaveOutlined />} style={{ fontSize: '11px' }}>
-									{t('exam.autoSaving')}
+								<Tag
+									color="processing"
+									icon={<SaveOutlined />}
+									style={{ fontSize: "11px" }}
+								>
+									{t("exam.autoSaving")}
 								</Tag>
 							)}
 							{!autoSaving && lastSavedTime && (
-								<Text type="success" style={{ fontSize: '12px' }}>
-									<CheckCircleOutlined /> {t('exam.saved')}
+								<Text
+									type="success"
+									style={{ fontSize: "12px" }}
+								>
+									<CheckCircleOutlined /> {t("exam.saved")}
 								</Text>
 							)}
 						</Space>
@@ -57,18 +80,18 @@ export const ExamHeader: React.FC<ExamHeaderProps> = ({
 				</Col>
 				<Col>
 					<Statistic
-						title={t('exam.timeRemaining')}
+						title={t("exam.timeRemaining")}
 						value={timeRemaining}
 						prefix={<ClockCircleOutlined />}
-						valueStyle={{ color: timeColor, fontSize: '24px' }}
+						valueStyle={{ color: timeColor, fontSize: "24px" }}
 					/>
 				</Col>
 				<Col>
 					<Statistic
-						title={t('exam.answered')}
+						title={t("exam.answered")}
 						value={answeredCount}
 						suffix={`/ ${totalQuestions}`}
-						valueStyle={{ fontSize: '24px' }}
+						valueStyle={{ fontSize: "24px" }}
 					/>
 				</Col>
 			</Row>
@@ -76,7 +99,7 @@ export const ExamHeader: React.FC<ExamHeaderProps> = ({
 				percent={progress}
 				showInfo={false}
 				strokeColor="#1890ff"
-				style={{ marginTop: '16px' }}
+				style={{ marginTop: "16px" }}
 			/>
 		</Card>
 	);

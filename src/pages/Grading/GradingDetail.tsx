@@ -11,7 +11,7 @@ import {
 	ThunderboltOutlined,
 	TrophyOutlined,
 	UserOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 import {
 	Alert,
 	App,
@@ -36,16 +36,20 @@ import {
 	Tag,
 	theme,
 	Tooltip,
-	Typography
-} from 'antd';
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { gradingService, type AttemptDetailResponse, type StudentAnswerDetail } from '../../services/gradingService';
-import { elevation } from '../../styles/elevation';
-import { QuestionType } from '../../types';
+	Typography,
+} from "antd";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+	gradingService,
+	type AttemptDetailResponse,
+	type StudentAnswerDetail,
+} from "../../services/gradingService";
+import { elevation } from "../../styles/elevation";
+import { QuestionType } from "../../types";
 
 dayjs.extend(duration);
 
@@ -71,7 +75,7 @@ const GradingDetail: React.FC = () => {
 	const [attempt, setAttempt] = useState<AttemptDetailResponse | null>(null);
 	const [grades, setGrades] = useState<Map<number, AnswerGrade>>(new Map());
 	const [expandedAnswers, setExpandedAnswers] = useState<string[]>([]);
-	const [overallFeedback, setOverallFeedback] = useState('');
+	const [overallFeedback, setOverallFeedback] = useState("");
 	const [finalScore, setFinalScore] = useState<number | undefined>(undefined);
 
 	useEffect(() => {
@@ -88,56 +92,66 @@ const GradingDetail: React.FC = () => {
 
 			// Initialize grades from existing scores
 			const initialGrades = new Map<number, AnswerGrade>();
-			data.answers.forEach(answer => {
+			data.answers.forEach((answer) => {
 				if (answer.is_graded) {
 					initialGrades.set(answer.id, {
 						score: answer.score || 0,
-						feedback: answer.feedback || '',
+						feedback: answer.feedback || "",
 					});
 				}
 			});
 			setGrades(initialGrades);
 		} catch (error) {
-			message.error(t('gradingDetail.loadError'));
-			navigate('/grading');
+			message.error(t("gradingDetail.loadError"));
+			navigate("/grading");
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const handleGradeChange = (answerId: number, field: 'score' | 'feedback', value: number | string) => {
-		const currentGrade = grades.get(answerId) || { score: 0, feedback: '' };
-		setGrades(new Map(grades.set(answerId, {
-			...currentGrade,
-			[field]: value,
-		})));
+	const handleGradeChange = (
+		answerId: number,
+		field: "score" | "feedback",
+		value: number | string,
+	) => {
+		const currentGrade = grades.get(answerId) || { score: 0, feedback: "" };
+		setGrades(
+			new Map(
+				grades.set(answerId, {
+					...currentGrade,
+					[field]: value,
+				}),
+			),
+		);
 	};
 
 	const handleSaveGrades = async () => {
 		if (!attempt) return;
 
-		const gradesToSubmit = Array.from(grades.entries()).map(([answerId, grade]) => ({
-			answer_id: answerId,
-			score: grade.score,
-			feedback: grade.feedback,
-		}));
+		const gradesToSubmit = Array.from(grades.entries()).map(
+			([answerId, grade]) => ({
+				answer_id: answerId,
+				score: grade.score,
+				feedback: grade.feedback,
+			}),
+		);
 
 		if (gradesToSubmit.length === 0) {
-			message.warning(t('gradingDetail.gradeAtLeastOne'));
+			message.warning(t("gradingDetail.gradeAtLeastOne"));
 			return;
 		}
 
 		try {
 			setSaving(true);
 			await gradingService.batchGradeAnswers({ grades: gradesToSubmit });
-			message.success(t('gradingDetail.saveGradesSuccess'));
+			message.success(t("gradingDetail.saveGradesSuccess"));
 
 			// Reload attempt to get updated data
 			if (id) {
 				await fetchAttemptDetail(parseInt(id));
 			}
 		} catch (error) {
-			message.error(t('gradingDetail.saveGradesError'));
+			message.error(t("gradingDetail.saveGradesError"));
 		} finally {
 			setSaving(false);
 		}
@@ -145,22 +159,27 @@ const GradingDetail: React.FC = () => {
 
 	const handleAutoGrade = () => {
 		if (!attempt) {
-			message.error(t('gradingDetail.attemptNotFound'));
+			message.error(t("gradingDetail.attemptNotFound"));
 			return;
 		}
 
 		modal.confirm({
-			title: t('gradingDetail.autoGradeTitle'),
+			title: t("gradingDetail.autoGradeTitle"),
 			icon: <ThunderboltOutlined />,
-			content: t('gradingDetail.autoGradeConfirm'),
-			okText: t('gradingDetail.autoGradeBtn'),
-			cancelText: t('common.cancel'),
+			content: t("gradingDetail.autoGradeConfirm"),
+			okText: t("gradingDetail.autoGradeBtn"),
+			cancelText: t("common.cancel"),
 			onOk: async () => {
 				try {
 					setAutoGrading(true);
-					const result = await gradingService.autoGradeAttempt(attempt.id);
+					const result = await gradingService.autoGradeAttempt(
+						attempt.id,
+					);
 					message.success(
-						t('gradingDetail.autoGradeSuccess', { graded: result.graded_answers, manual: result.pending_manual_grading })
+						t("gradingDetail.autoGradeSuccess", {
+							graded: result.graded_answers,
+							manual: result.pending_manual_grading,
+						}),
 					);
 
 					// Reload attempt
@@ -168,8 +187,8 @@ const GradingDetail: React.FC = () => {
 						await fetchAttemptDetail(parseInt(id));
 					}
 				} catch (error) {
-					message.error(t('gradingDetail.autoGradeError'));
-					console.error('Auto grade error:', error);
+					message.error(t("gradingDetail.autoGradeError"));
+					console.error("Auto grade error:", error);
 				} finally {
 					setAutoGrading(false);
 				}
@@ -182,14 +201,22 @@ const GradingDetail: React.FC = () => {
 			const result = await gradingService.autoGradeAnswer(answerId);
 
 			// Update grades map
-			setGrades(new Map(grades.set(answerId, {
-				score: result.score,
-				feedback: result.feedback || '',
-			})));
+			setGrades(
+				new Map(
+					grades.set(answerId, {
+						score: result.score,
+						feedback: result.feedback || "",
+					}),
+				),
+			);
 
-			message.success(t('gradingDetail.autoGradeAnswerSuccess', { score: result.score }));
+			message.success(
+				t("gradingDetail.autoGradeAnswerSuccess", {
+					score: result.score,
+				}),
+			);
 		} catch (error) {
-			message.error(t('gradingDetail.autoGradeAnswerError'));
+			message.error(t("gradingDetail.autoGradeAnswerError"));
 		}
 	};
 
@@ -200,53 +227,70 @@ const GradingDetail: React.FC = () => {
 			setGeneratingFeedback(true);
 			const result = await gradingService.generateFeedback({
 				attempt_id: attempt.id,
-				feedback_type: 'detailed',
+				feedback_type: "detailed",
 				include_suggestions: true,
 			});
 
 			setOverallFeedback(result.feedback);
 
 			modal.info({
-				title: t('gradingDetail.aiFeedbackTitle'),
+				title: t("gradingDetail.aiFeedbackTitle"),
 				width: 600,
 				content: (
-					<Space direction="vertical" style={{ width: '100%' }}>
+					<Space direction="vertical" style={{ width: "100%" }}>
 						<div>
-							<Text strong>{t('gradingDetail.aiFeedbackGeneral')}</Text>
+							<Text strong>
+								{t("gradingDetail.aiFeedbackGeneral")}
+							</Text>
 							<Paragraph>{result.feedback}</Paragraph>
 						</div>
 
 						{result.strengths && result.strengths.length > 0 && (
 							<div>
-								<Text strong style={{ color: '#52c41a' }}>{t('gradingDetail.aiFeedbackStrengths')}</Text>
+								<Text strong style={{ color: "#52c41a" }}>
+									{t("gradingDetail.aiFeedbackStrengths")}
+								</Text>
 								<ul>
-									{result.strengths.map((s, i) => <li key={i}>{s}</li>)}
+									{result.strengths.map((s, i) => (
+										<li key={i}>{s}</li>
+									))}
 								</ul>
 							</div>
 						)}
 
 						{result.weaknesses && result.weaknesses.length > 0 && (
 							<div>
-								<Text strong style={{ color: '#ff4d4f' }}>{t('gradingDetail.aiFeedbackWeaknesses')}</Text>
+								<Text strong style={{ color: "#ff4d4f" }}>
+									{t("gradingDetail.aiFeedbackWeaknesses")}
+								</Text>
 								<ul>
-									{result.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
+									{result.weaknesses.map((w, i) => (
+										<li key={i}>{w}</li>
+									))}
 								</ul>
 							</div>
 						)}
 
-						{result.suggestions && result.suggestions.length > 0 && (
-							<div>
-								<Text strong style={{ color: '#1890ff' }}>{t('gradingDetail.aiFeedbackSuggestions')}</Text>
-								<ul>
-									{result.suggestions.map((s, i) => <li key={i}>{s}</li>)}
-								</ul>
-							</div>
-						)}
+						{result.suggestions &&
+							result.suggestions.length > 0 && (
+								<div>
+									<Text strong style={{ color: "#1890ff" }}>
+										{t(
+											"gradingDetail.aiFeedbackSuggestions",
+										)}
+									</Text>
+									<ul>
+										{result.suggestions.map((s, i) => (
+											<li key={i}>{s}</li>
+										))}
+									</ul>
+								</div>
+							)}
 					</Space>
 				),
 			});
 		} catch (error) {
-			message.error(t('gradingDetail.generateFeedbackError'));
+			message.error(t("gradingDetail.generateFeedbackError"));
 		} finally {
 			setGeneratingFeedback(false);
 		}
@@ -262,14 +306,14 @@ const GradingDetail: React.FC = () => {
 				feedback: overallFeedback,
 			});
 
-			message.success(t('gradingDetail.saveOverallSuccess'));
+			message.success(t("gradingDetail.saveOverallSuccess"));
 
 			// Reload attempt
 			if (id) {
 				await fetchAttemptDetail(parseInt(id));
 			}
 		} catch (error) {
-			message.error(t('gradingDetail.saveOverallError'));
+			message.error(t("gradingDetail.saveOverallError"));
 		} finally {
 			setSaving(false);
 		}
@@ -277,27 +321,34 @@ const GradingDetail: React.FC = () => {
 
 	const handleRegradeQuestion = async (questionId: number) => {
 		modal.confirm({
-			title: t('gradingDetail.regradeTitle'),
+			title: t("gradingDetail.regradeTitle"),
 			icon: <ExclamationCircleOutlined />,
-			content: t('gradingDetail.regradeConfirm'),
-			okText: t('gradingDetail.regradeBtn'),
-			cancelText: t('common.cancel'),
+			content: t("gradingDetail.regradeConfirm"),
+			okText: t("gradingDetail.regradeBtn"),
+			cancelText: t("common.cancel"),
 			onOk: async () => {
 				try {
 					setLoading(true);
-					const result = await gradingService.regradeQuestion(questionId, {
-						reason: t('gradingDetail.regradeReason'),
-					});
+					const result = await gradingService.regradeQuestion(
+						questionId,
+						{
+							reason: t("gradingDetail.regradeReason"),
+						},
+					);
 
-					message.success(t('gradingDetail.regradeSuccess', { count: result.affected_answers }));
+					message.success(
+						t("gradingDetail.regradeSuccess", {
+							count: result.affected_answers,
+						}),
+					);
 
 					// Reload attempt
 					if (id) {
 						await fetchAttemptDetail(parseInt(id));
 					}
 				} catch (error) {
-					message.error(t('gradingDetail.regradeError'));
-					console.error('Regrade error:', error);
+					message.error(t("gradingDetail.regradeError"));
+					console.error("Regrade error:", error);
 				} finally {
 					setLoading(false);
 				}
@@ -307,23 +358,23 @@ const GradingDetail: React.FC = () => {
 
 	const getStatusColor = (status: string) => {
 		const statusMap: Record<string, string> = {
-			completed: 'success',
-			in_progress: 'processing',
-			abandoned: 'default',
-			timeout: 'error',
+			completed: "success",
+			in_progress: "processing",
+			abandoned: "default",
+			timeout: "error",
 		};
-		return statusMap[status] || 'default';
+		return statusMap[status] || "default";
 	};
 
 	const getQuestionTypeLabel = (type: string) => {
 		const typeMap: Record<string, string> = {
-			multiple_choice: t('gradingDetail.questionType.multipleChoice'),
-			true_false: t('gradingDetail.questionType.trueFalse'),
-			essay: t('gradingDetail.questionType.essay'),
-			fill_blank: t('gradingDetail.questionType.fillBlank'),
-			matching: t('gradingDetail.questionType.matching'),
-			ordering: t('gradingDetail.questionType.ordering'),
-			short_answer: t('gradingDetail.questionType.shortAnswer'),
+			multiple_choice: t("gradingDetail.questionType.multipleChoice"),
+			true_false: t("gradingDetail.questionType.trueFalse"),
+			essay: t("gradingDetail.questionType.essay"),
+			fill_blank: t("gradingDetail.questionType.fillBlank"),
+			matching: t("gradingDetail.questionType.matching"),
+			ordering: t("gradingDetail.questionType.ordering"),
+			short_answer: t("gradingDetail.questionType.shortAnswer"),
 		};
 		return typeMap[type] || type;
 	};
@@ -338,45 +389,83 @@ const GradingDetail: React.FC = () => {
 
 	const calculateMaxScore = () => {
 		if (!attempt) return 0;
-		return attempt.answers.reduce((total, answer) => total + answer.max_score, 0);
+		return attempt.answers.reduce(
+			(total, answer) => total + answer.max_score,
+			0,
+		);
 	};
 
 	const calculateProgress = () => {
 		if (!attempt || attempt.answers.length === 0) return 0;
-		const gradedCount = attempt.answers.filter(a => a.is_graded || grades.has(a.id)).length;
+		const gradedCount = attempt.answers.filter(
+			(a) => a.is_graded || grades.has(a.id),
+		).length;
 		return (gradedCount / attempt.answers.length) * 100;
 	};
 
 	const renderAnswerContent = (answer: StudentAnswerDetail) => {
 		const question = answer.question;
-		if (!question) return <Text type="secondary">{t('gradingDetail.noQuestionData')}</Text>;
+		if (!question)
+			return (
+				<Text type="secondary">
+					{t("gradingDetail.noQuestionData")}
+				</Text>
+			);
 
 		// Render based on question type
 		switch (question.type) {
 			case QuestionType.MultipleChoice:
-				const selectedOptions = Array.isArray(answer.answer) ? answer.answer : [answer.answer];
+				const selectedOptions = Array.isArray(answer.answer)
+					? answer.answer
+					: [answer.answer];
 				return (
-					<Space direction="vertical" style={{ width: '100%' }}>
+					<Space direction="vertical" style={{ width: "100%" }}>
 						{question.content.options?.map((option: any) => {
-							const isSelected = selectedOptions.includes(option.id);
-							const isCorrect = question.content.correct_answers?.includes(option.id);
+							const isSelected = selectedOptions.includes(
+								option.id,
+							);
+							const isCorrect =
+								question.content.correct_answers?.includes(
+									option.id,
+								);
 							return (
-								<div key={option.id} style={{
-									padding: '8px 12px',
-									borderRadius: 8,
-									border: `1px solid ${isSelected ? (isCorrect ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
-									backgroundColor: isSelected ? (isCorrect ? token.colorSuccessBg : token.colorErrorBg) : 'transparent',
-								}}>
+								<div
+									key={option.id}
+									style={{
+										padding: "8px 12px",
+										borderRadius: 8,
+										border: `1px solid ${isSelected ? (isCorrect ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
+										backgroundColor: isSelected
+											? isCorrect
+												? token.colorSuccessBg
+												: token.colorErrorBg
+											: "transparent",
+									}}
+								>
 									<Space>
-										{isSelected && (isCorrect ?
-											<CheckCircleOutlined style={{ color: token.colorSuccess }} /> :
-											<CloseCircleOutlined style={{ color: token.colorError }} />
-										)}
+										{isSelected &&
+											(isCorrect ? (
+												<CheckCircleOutlined
+													style={{
+														color: token.colorSuccess,
+													}}
+												/>
+											) : (
+												<CloseCircleOutlined
+													style={{
+														color: token.colorError,
+													}}
+												/>
+											))}
 										{option.image_url && (
 											<img
 												src={option.image_url}
 												alt={option.text}
-												style={{ maxWidth: '150px', maxHeight: '100px', marginRight: '8px' }}
+												style={{
+													maxWidth: "150px",
+													maxHeight: "100px",
+													marginRight: "8px",
+												}}
 											/>
 										)}
 										<Text>{option.text}</Text>
@@ -390,62 +479,115 @@ const GradingDetail: React.FC = () => {
 			case QuestionType.TrueFalse:
 				const studentAnswer = answer.answer; // boolean
 				const correctAnswer = question.content?.correct_answer; // boolean
-				const trueLabel = question.content?.true_label || t('gradingDetail.trueFalse.defaultTrue');
-				const falseLabel = question.content?.false_label || t('gradingDetail.trueFalse.defaultFalse');
+				const trueLabel =
+					question.content?.true_label ||
+					t("gradingDetail.trueFalse.defaultTrue");
+				const falseLabel =
+					question.content?.false_label ||
+					t("gradingDetail.trueFalse.defaultFalse");
 				const isAnswerCorrect = studentAnswer === correctAnswer;
 
 				return (
-					<Space direction="vertical" style={{ width: '100%' }}>
+					<Space direction="vertical" style={{ width: "100%" }}>
 						{/* True option */}
-						<div style={{
-							padding: '8px 12px',
-							borderRadius: 8,
-							border: `1px solid ${studentAnswer === true ? (correctAnswer === true ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
-							backgroundColor: studentAnswer === true ? (correctAnswer === true ? token.colorSuccessBg : token.colorErrorBg) : 'transparent',
-						}}>
+						<div
+							style={{
+								padding: "8px 12px",
+								borderRadius: 8,
+								border: `1px solid ${studentAnswer === true ? (correctAnswer === true ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
+								backgroundColor:
+									studentAnswer === true
+										? correctAnswer === true
+											? token.colorSuccessBg
+											: token.colorErrorBg
+										: "transparent",
+							}}
+						>
 							<Space>
-								{studentAnswer === true && (correctAnswer === true ?
-									<CheckCircleOutlined style={{ color: token.colorSuccess }} /> :
-									<CloseCircleOutlined style={{ color: token.colorError }} />
-								)}
-								{correctAnswer === true && studentAnswer !== true && (
-									<Tag color="success">{t('gradingDetail.trueFalse.correctAnswer')}</Tag>
-								)}
+								{studentAnswer === true &&
+									(correctAnswer === true ? (
+										<CheckCircleOutlined
+											style={{
+												color: token.colorSuccess,
+											}}
+										/>
+									) : (
+										<CloseCircleOutlined
+											style={{ color: token.colorError }}
+										/>
+									))}
+								{correctAnswer === true &&
+									studentAnswer !== true && (
+										<Tag color="success">
+											{t(
+												"gradingDetail.trueFalse.correctAnswer",
+											)}
+										</Tag>
+									)}
 								<Text>{trueLabel}</Text>
 							</Space>
 						</div>
 
 						{/* False option */}
-						<div style={{
-							padding: '8px 12px',
-							borderRadius: 8,
-							border: `1px solid ${studentAnswer === false ? (correctAnswer === false ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
-							backgroundColor: studentAnswer === false ? (correctAnswer === false ? token.colorSuccessBg : token.colorErrorBg) : 'transparent',
-						}}>
+						<div
+							style={{
+								padding: "8px 12px",
+								borderRadius: 8,
+								border: `1px solid ${studentAnswer === false ? (correctAnswer === false ? token.colorSuccessBorder : token.colorErrorBorder) : token.colorBorder}`,
+								backgroundColor:
+									studentAnswer === false
+										? correctAnswer === false
+											? token.colorSuccessBg
+											: token.colorErrorBg
+										: "transparent",
+							}}
+						>
 							<Space>
-								{studentAnswer === false && (correctAnswer === false ?
-									<CheckCircleOutlined style={{ color: token.colorSuccess }} /> :
-									<CloseCircleOutlined style={{ color: token.colorError }} />
-								)}
-								{correctAnswer === false && studentAnswer !== false && (
-									<Tag color="success">{t('gradingDetail.trueFalse.correctAnswer')}</Tag>
-								)}
+								{studentAnswer === false &&
+									(correctAnswer === false ? (
+										<CheckCircleOutlined
+											style={{
+												color: token.colorSuccess,
+											}}
+										/>
+									) : (
+										<CloseCircleOutlined
+											style={{ color: token.colorError }}
+										/>
+									))}
+								{correctAnswer === false &&
+									studentAnswer !== false && (
+										<Tag color="success">
+											{t(
+												"gradingDetail.trueFalse.correctAnswer",
+											)}
+										</Tag>
+									)}
 								<Text>{falseLabel}</Text>
 							</Space>
 						</div>
 
 						{/* Summary */}
 						<Alert
-							message={isAnswerCorrect ? t('gradingDetail.trueFalse.answerCorrect') : t('gradingDetail.trueFalse.answerIncorrect')}
-							type={isAnswerCorrect ? 'success' : 'error'}
+							message={
+								isAnswerCorrect
+									? t("gradingDetail.trueFalse.answerCorrect")
+									: t(
+											"gradingDetail.trueFalse.answerIncorrect",
+										)
+							}
+							type={isAnswerCorrect ? "success" : "error"}
 							showIcon
 						/>
 					</Space>
 				);
 
 			case QuestionType.Essay:
-				const essayAnswer = answer.answer || '';
-				const essayWordCount = essayAnswer.trim().split(/\s+/).filter(Boolean).length;
+				const essayAnswer = answer.answer || "";
+				const essayWordCount = essayAnswer
+					.trim()
+					.split(/\s+/)
+					.filter(Boolean).length;
 				const essayMinWords = question.content?.min_words;
 				const essayMaxWords = question.content?.max_words;
 				const rubricCriteria = question.content?.rubric_criteria || [];
@@ -455,40 +597,81 @@ const GradingDetail: React.FC = () => {
 
 				// Check key words presence
 				const foundKeyWords = keyWords.filter((keyword: string) =>
-					essayAnswer.toLowerCase().includes(keyword.toLowerCase())
+					essayAnswer.toLowerCase().includes(keyword.toLowerCase()),
 				);
 
 				return (
-					<Space direction="vertical" style={{ width: '100%' }} size="middle">
+					<Space
+						direction="vertical"
+						style={{ width: "100%" }}
+						size="middle"
+					>
 						{/* Student Answer */}
-						<Card title={t('gradingDetail.essay.studentAnswer')} size="small">
-							<Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
-								{essayAnswer || <Text type="secondary">{t('gradingDetail.essay.noAnswer')}</Text>}
+						<Card
+							title={t("gradingDetail.essay.studentAnswer")}
+							size="small"
+						>
+							<Paragraph
+								style={{
+									whiteSpace: "pre-wrap",
+									marginBottom: 0,
+								}}
+							>
+								{essayAnswer || (
+									<Text type="secondary">
+										{t("gradingDetail.essay.noAnswer")}
+									</Text>
+								)}
 							</Paragraph>
 						</Card>
 
 						{/* Word Count Analysis */}
-						<Card title={t('gradingDetail.essay.wordCountAnalysis')} size="small" style={{ backgroundColor: token.colorBgLayout }}>
+						<Card
+							title={t("gradingDetail.essay.wordCountAnalysis")}
+							size="small"
+							style={{ backgroundColor: token.colorBgLayout }}
+						>
 							<Space split={<span>|</span>}>
 								<Text>
-									<strong>{t('gradingDetail.essay.wordCount')}:</strong>{' '}
-									<Tag color={
-										(essayMinWords && essayWordCount < essayMinWords) ||
-											(essayMaxWords && essayWordCount > essayMaxWords)
-											? 'warning'
-											: 'success'
-									}>
+									<strong>
+										{t("gradingDetail.essay.wordCount")}:
+									</strong>{" "}
+									<Tag
+										color={
+											(essayMinWords &&
+												essayWordCount <
+													essayMinWords) ||
+											(essayMaxWords &&
+												essayWordCount > essayMaxWords)
+												? "warning"
+												: "success"
+										}
+									>
 										{essayWordCount}
 									</Tag>
 								</Text>
 								{essayMinWords && (
-									<Text type={essayWordCount < essayMinWords ? 'danger' : 'secondary'}>
-										{t('gradingDetail.essay.minRequired')}: {essayMinWords}
+									<Text
+										type={
+											essayWordCount < essayMinWords
+												? "danger"
+												: "secondary"
+										}
+									>
+										{t("gradingDetail.essay.minRequired")}:{" "}
+										{essayMinWords}
 									</Text>
 								)}
 								{essayMaxWords && (
-									<Text type={essayWordCount > essayMaxWords ? 'danger' : 'secondary'}>
-										{t('gradingDetail.essay.maxRequired')}: {essayMaxWords}
+									<Text
+										type={
+											essayWordCount > essayMaxWords
+												? "danger"
+												: "secondary"
+										}
+									>
+										{t("gradingDetail.essay.maxRequired")}:{" "}
+										{essayMaxWords}
 									</Text>
 								)}
 							</Space>
@@ -496,13 +679,29 @@ const GradingDetail: React.FC = () => {
 
 						{/* Rubric Criteria */}
 						{rubricCriteria.length > 0 && (
-							<Card title={t('gradingDetail.essay.rubricCriteria')} size="small" style={{ backgroundColor: token.colorBgLayout }}>
-								<Space direction="vertical" style={{ width: '100%' }}>
-									{rubricCriteria.map((criterion: string, idx: number) => (
-										<div key={idx} style={{ padding: '8px', borderLeft: `3px solid ${token.colorPrimary}`, paddingLeft: '12px' }}>
-											<Text>• {criterion}</Text>
-										</div>
-									))}
+							<Card
+								title={t("gradingDetail.essay.rubricCriteria")}
+								size="small"
+								style={{ backgroundColor: token.colorBgLayout }}
+							>
+								<Space
+									direction="vertical"
+									style={{ width: "100%" }}
+								>
+									{rubricCriteria.map(
+										(criterion: string, idx: number) => (
+											<div
+												key={idx}
+												style={{
+													padding: "8px",
+													borderLeft: `3px solid ${token.colorPrimary}`,
+													paddingLeft: "12px",
+												}}
+											>
+												<Text>• {criterion}</Text>
+											</div>
+										),
+									)}
 								</Space>
 							</Card>
 						)}
@@ -510,31 +709,71 @@ const GradingDetail: React.FC = () => {
 						{/* Auto Grade Analysis */}
 						{autoGrade && keyWords.length > 0 && (
 							<Card
-								title={t('gradingDetail.essay.autoGradeAnalysis')}
+								title={t(
+									"gradingDetail.essay.autoGradeAnalysis",
+								)}
 								size="small"
-								style={{ backgroundColor: token.colorWarningBg, border: `1px solid ${token.colorWarningBorder}` }}
+								style={{
+									backgroundColor: token.colorWarningBg,
+									border: `1px solid ${token.colorWarningBorder}`,
+								}}
 							>
-								<Space direction="vertical" style={{ width: '100%' }}>
+								<Space
+									direction="vertical"
+									style={{ width: "100%" }}
+								>
 									<div>
-										<Text strong>{t('gradingDetail.essay.keywordsFound')}: </Text>
-										<Tag color="success">{foundKeyWords.length}/{keyWords.length}</Tag>
+										<Text strong>
+											{t(
+												"gradingDetail.essay.keywordsFound",
+											)}
+											:{" "}
+										</Text>
+										<Tag color="success">
+											{foundKeyWords.length}/
+											{keyWords.length}
+										</Tag>
 									</div>
 									<div>
 										<Space wrap>
-											{keyWords.map((keyword: string, idx: number) => {
-												const found = foundKeyWords.includes(keyword);
-												return (
-													<Tag key={idx} color={found ? 'success' : 'default'}>
-														{found && <CheckCircleOutlined style={{ marginRight: '4px' }} />}
-														{keyword}
-													</Tag>
-												);
-											})}
+											{keyWords.map(
+												(
+													keyword: string,
+													idx: number,
+												) => {
+													const found =
+														foundKeyWords.includes(
+															keyword,
+														);
+													return (
+														<Tag
+															key={idx}
+															color={
+																found
+																	? "success"
+																	: "default"
+															}
+														>
+															{found && (
+																<CheckCircleOutlined
+																	style={{
+																		marginRight:
+																			"4px",
+																	}}
+																/>
+															)}
+															{keyword}
+														</Tag>
+													);
+												},
+											)}
 										</Space>
 									</div>
 									<Alert
-										message={t('gradingDetail.essay.note')}
-										description={t('gradingDetail.essay.autoGradeNote')}
+										message={t("gradingDetail.essay.note")}
+										description={t(
+											"gradingDetail.essay.autoGradeNote",
+										)}
 										type="warning"
 										showIcon
 									/>
@@ -545,11 +784,19 @@ const GradingDetail: React.FC = () => {
 						{/* Sample Answer */}
 						{sampleAnswer && (
 							<Card
-								title={t('gradingDetail.essay.sampleAnswer')}
+								title={t("gradingDetail.essay.sampleAnswer")}
 								size="small"
-								style={{ backgroundColor: token.colorSuccessBg, border: `1px solid ${token.colorSuccessBorder}` }}
+								style={{
+									backgroundColor: token.colorSuccessBg,
+									border: `1px solid ${token.colorSuccessBorder}`,
+								}}
 							>
-								<Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
+								<Paragraph
+									style={{
+										whiteSpace: "pre-wrap",
+										marginBottom: 0,
+									}}
+								>
 									{sampleAnswer}
 								</Paragraph>
 							</Card>
@@ -559,64 +806,145 @@ const GradingDetail: React.FC = () => {
 
 			case QuestionType.ShortAnswer:
 				if (question.content?.accepted_answers) {
-					const { accepted_answers, case_sensitive, exact_match, fuzzy_matching } = question.content;
-					const studentAnswer = answer.answer || '';
+					const {
+						accepted_answers,
+						case_sensitive,
+						exact_match,
+						fuzzy_matching,
+					} = question.content;
+					const studentAnswer = answer.answer || "";
 
 					// Check if answer is correct
-					const isCorrect = accepted_answers.some((acceptedAns: string) => {
-						if (case_sensitive) {
-							return acceptedAns === studentAnswer;
-						}
-						return acceptedAns.toLowerCase() === studentAnswer.toLowerCase();
-					});
+					const isCorrect = accepted_answers.some(
+						(acceptedAns: string) => {
+							if (case_sensitive) {
+								return acceptedAns === studentAnswer;
+							}
+							return (
+								acceptedAns.toLowerCase() ===
+								studentAnswer.toLowerCase()
+							);
+						},
+					);
 
 					return (
-						<Space direction="vertical" style={{ width: '100%' }} size="middle">
+						<Space
+							direction="vertical"
+							style={{ width: "100%" }}
+							size="middle"
+						>
 							{/* Student Answer */}
 							<Card
 								size="small"
 								style={{
-									backgroundColor: isCorrect ? token.colorSuccessBg : token.colorErrorBg,
-									border: `2px solid ${isCorrect ? token.colorSuccessBorder : token.colorErrorBorder}`
+									backgroundColor: isCorrect
+										? token.colorSuccessBg
+										: token.colorErrorBg,
+									border: `2px solid ${isCorrect ? token.colorSuccessBorder : token.colorErrorBorder}`,
 								}}
 							>
-								<Space direction="vertical" style={{ width: '100%' }}>
+								<Space
+									direction="vertical"
+									style={{ width: "100%" }}
+								>
 									<div>
-										<Text strong>{t('gradingDetail.shortAnswer.studentAnswer')}: </Text>
+										<Text strong>
+											{t(
+												"gradingDetail.shortAnswer.studentAnswer",
+											)}
+											:{" "}
+										</Text>
 										{isCorrect ? (
-											<CheckCircleOutlined style={{ color: token.colorSuccess, marginLeft: '8px' }} />
+											<CheckCircleOutlined
+												style={{
+													color: token.colorSuccess,
+													marginLeft: "8px",
+												}}
+											/>
 										) : (
-											<CloseCircleOutlined style={{ color: token.colorError, marginLeft: '8px' }} />
+											<CloseCircleOutlined
+												style={{
+													color: token.colorError,
+													marginLeft: "8px",
+												}}
+											/>
 										)}
 									</div>
-									<Tag color={isCorrect ? 'success' : 'error'} style={{ fontSize: '14px', padding: '4px 12px' }}>
-										{studentAnswer || t('gradingDetail.shortAnswer.noAnswer')}
+									<Tag
+										color={isCorrect ? "success" : "error"}
+										style={{
+											fontSize: "14px",
+											padding: "4px 12px",
+										}}
+									>
+										{studentAnswer ||
+											t(
+												"gradingDetail.shortAnswer.noAnswer",
+											)}
 									</Tag>
 								</Space>
 							</Card>
 
 							{/* Accepted Answers */}
-							<Card size="small" title={t('gradingDetail.shortAnswer.acceptedAnswers')} style={{ backgroundColor: token.colorBgLayout }}>
+							<Card
+								size="small"
+								title={t(
+									"gradingDetail.shortAnswer.acceptedAnswers",
+								)}
+								style={{ backgroundColor: token.colorBgLayout }}
+							>
 								<Space wrap>
-									{accepted_answers.map((ans: string, idx: number) => (
-										<Tag key={idx} color="green">
-											{ans}
-										</Tag>
-									))}
+									{accepted_answers.map(
+										(ans: string, idx: number) => (
+											<Tag key={idx} color="green">
+												{ans}
+											</Tag>
+										),
+									)}
 								</Space>
 							</Card>
 
 							{/* Matching Settings Info */}
-							<Card size="small" title={t('gradingDetail.shortAnswer.matchingSettings')} style={{ backgroundColor: token.colorBgLayout }}>
+							<Card
+								size="small"
+								title={t(
+									"gradingDetail.shortAnswer.matchingSettings",
+								)}
+								style={{ backgroundColor: token.colorBgLayout }}
+							>
 								<Space direction="vertical">
 									<Text>
-										<strong>{t('gradingDetail.shortAnswer.caseSensitive')}:</strong> {case_sensitive ? t('common.yes') : t('common.no')}
+										<strong>
+											{t(
+												"gradingDetail.shortAnswer.caseSensitive",
+											)}
+											:
+										</strong>{" "}
+										{case_sensitive
+											? t("common.yes")
+											: t("common.no")}
 									</Text>
 									<Text>
-										<strong>{t('gradingDetail.shortAnswer.exactMatch')}:</strong> {exact_match ? t('common.yes') : t('common.no')}
+										<strong>
+											{t(
+												"gradingDetail.shortAnswer.exactMatch",
+											)}
+											:
+										</strong>{" "}
+										{exact_match
+											? t("common.yes")
+											: t("common.no")}
 									</Text>
 									<Text>
-										<strong>{t('gradingDetail.shortAnswer.fuzzyMatching')}:</strong> {fuzzy_matching ? t('common.yes') : t('common.no')}
+										<strong>
+											{t(
+												"gradingDetail.shortAnswer.fuzzyMatching",
+											)}
+											:
+										</strong>{" "}
+										{fuzzy_matching
+											? t("common.yes")
+											: t("common.no")}
 									</Text>
 								</Space>
 							</Card>
@@ -626,9 +954,20 @@ const GradingDetail: React.FC = () => {
 
 				// Fallback
 				return (
-					<Card size="small" style={{ backgroundColor: token.colorBgLayout }}>
-						<Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
-							{answer.answer || <Text type="secondary">{t('gradingDetail.shortAnswer.noAnswerFallback')}</Text>}
+					<Card
+						size="small"
+						style={{ backgroundColor: token.colorBgLayout }}
+					>
+						<Paragraph
+							style={{ whiteSpace: "pre-wrap", marginBottom: 0 }}
+						>
+							{answer.answer || (
+								<Text type="secondary">
+									{t(
+										"gradingDetail.shortAnswer.noAnswerFallback",
+									)}
+								</Text>
+							)}
 						</Paragraph>
 					</Card>
 				);
@@ -641,26 +980,54 @@ const GradingDetail: React.FC = () => {
 					const studentAnswers = answer.answer || {};
 
 					return (
-						<Space direction="vertical" style={{ width: '100%' }} size="middle">
-							<div style={{ fontSize: '16px', lineHeight: '2', padding: '12px', backgroundColor: token.colorBgLayout, borderRadius: '8px' }}>
+						<Space
+							direction="vertical"
+							style={{ width: "100%" }}
+							size="middle"
+						>
+							<div
+								style={{
+									fontSize: "16px",
+									lineHeight: "2",
+									padding: "12px",
+									backgroundColor: token.colorBgLayout,
+									borderRadius: "8px",
+								}}
+							>
 								{parts.map((part, index) => {
-									const blankMatch = part.match(/\{(blank\d+)\}/);
+									const blankMatch =
+										part.match(/\{(blank\d+)\}/);
 									if (blankMatch) {
 										const blankId = blankMatch[1];
 										const blankDef = blanks[blankId];
-										const studentAnswer = studentAnswers[blankId] || '';
-										const acceptedAnswers = blankDef?.accepted_answers || [];
-										const isCorrect = acceptedAnswers.some(ans =>
-											ans.toLowerCase() === studentAnswer.toLowerCase()
+										const studentAnswer =
+											studentAnswers[blankId] || "";
+										const acceptedAnswers =
+											blankDef?.accepted_answers || [];
+										const isCorrect = acceptedAnswers.some(
+											(ans) =>
+												ans.toLowerCase() ===
+												studentAnswer.toLowerCase(),
 										);
 
 										return (
 											<Tag
 												key={index}
-												color={isCorrect ? 'success' : 'error'}
-												style={{ fontSize: '14px', padding: '4px 12px', margin: '0 4px' }}
+												color={
+													isCorrect
+														? "success"
+														: "error"
+												}
+												style={{
+													fontSize: "14px",
+													padding: "4px 12px",
+													margin: "0 4px",
+												}}
 											>
-												{studentAnswer || t('gradingDetail.fillBlank.empty')}
+												{studentAnswer ||
+													t(
+														"gradingDetail.fillBlank.empty",
+													)}
 											</Tag>
 										);
 									}
@@ -670,35 +1037,88 @@ const GradingDetail: React.FC = () => {
 
 							{/* Show detailed comparison */}
 							<div>
-								{Object.entries(blanks).map(([blankId, blankDef]: [string, any]) => {
-									const studentAnswer = studentAnswers[blankId] || '';
-									const acceptedAnswers = blankDef.accepted_answers || [];
-									const isCorrect = acceptedAnswers.some((ans: string) =>
-										ans.toLowerCase() === studentAnswer.toLowerCase()
-									);
+								{Object.entries(blanks).map(
+									([blankId, blankDef]: [string, any]) => {
+										const studentAnswer =
+											studentAnswers[blankId] || "";
+										const acceptedAnswers =
+											blankDef.accepted_answers || [];
+										const isCorrect = acceptedAnswers.some(
+											(ans: string) =>
+												ans.toLowerCase() ===
+												studentAnswer.toLowerCase(),
+										);
 
-									return (
-										<div key={blankId} style={{ marginBottom: '8px' }}>
-											<Text strong>{blankId}: </Text>
-											<Tag color={isCorrect ? 'success' : 'error'}>
-												{studentAnswer || t('gradingDetail.fillBlank.noAnswer')}
-											</Tag>
-											{!isCorrect && acceptedAnswers.length > 0 && (
-												<span style={{ marginLeft: '8px' }}>
-													<Text type="secondary">{t('gradingDetail.fillBlank.correctAnswer')}: </Text>
-													{acceptedAnswers.map((ans: string, idx: number) => (
-														<Tag key={idx} color="green" style={{ marginLeft: '4px' }}>
-															{ans}
-														</Tag>
-													))}
-												</span>
-											)}
-											<Text type="secondary" style={{ marginLeft: '8px' }}>
-												({blankDef.points} {t('gradingDetail.fillBlank.points')})
-											</Text>
-										</div>
-									);
-								})}
+										return (
+											<div
+												key={blankId}
+												style={{ marginBottom: "8px" }}
+											>
+												<Text strong>{blankId}: </Text>
+												<Tag
+													color={
+														isCorrect
+															? "success"
+															: "error"
+													}
+												>
+													{studentAnswer ||
+														t(
+															"gradingDetail.fillBlank.noAnswer",
+														)}
+												</Tag>
+												{!isCorrect &&
+													acceptedAnswers.length >
+														0 && (
+														<span
+															style={{
+																marginLeft:
+																	"8px",
+															}}
+														>
+															<Text type="secondary">
+																{t(
+																	"gradingDetail.fillBlank.correctAnswer",
+																)}
+																:{" "}
+															</Text>
+															{acceptedAnswers.map(
+																(
+																	ans: string,
+																	idx: number,
+																) => (
+																	<Tag
+																		key={
+																			idx
+																		}
+																		color="green"
+																		style={{
+																			marginLeft:
+																				"4px",
+																		}}
+																	>
+																		{ans}
+																	</Tag>
+																),
+															)}
+														</span>
+													)}
+												<Text
+													type="secondary"
+													style={{
+														marginLeft: "8px",
+													}}
+												>
+													({blankDef.points}{" "}
+													{t(
+														"gradingDetail.fillBlank.points",
+													)}
+													)
+												</Text>
+											</div>
+										);
+									},
+								)}
 							</div>
 						</Space>
 					);
@@ -706,19 +1126,31 @@ const GradingDetail: React.FC = () => {
 
 				// Fallback for old structure
 				return (
-					<Space direction="vertical" style={{ width: '100%' }}>
-						{Object.entries(answer.answer || {}).map(([key, value]) => (
-							<div key={key}>
-								<Text strong>{t('gradingDetail.fillBlank.blankNumber')} {key}: </Text>
-								<Tag color="blue">{String(value)}</Tag>
-							</div>
-						))}
+					<Space direction="vertical" style={{ width: "100%" }}>
+						{Object.entries(answer.answer || {}).map(
+							([key, value]) => (
+								<div key={key}>
+									<Text strong>
+										{t(
+											"gradingDetail.fillBlank.blankNumber",
+										)}{" "}
+										{key}:{" "}
+									</Text>
+									<Tag color="blue">{String(value)}</Tag>
+								</div>
+							),
+						)}
 					</Space>
 				);
 
 			case QuestionType.Matching:
-				if (question.content?.left_items && question.content?.right_items && question.content?.correct_pairs) {
-					const { left_items, right_items, correct_pairs } = question.content;
+				if (
+					question.content?.left_items &&
+					question.content?.right_items &&
+					question.content?.correct_pairs
+				) {
+					const { left_items, right_items, correct_pairs } =
+						question.content;
 					const studentMatches = answer.answer || {};
 
 					// Create a map of correct pairs for easy lookup
@@ -728,76 +1160,167 @@ const GradingDetail: React.FC = () => {
 					});
 
 					return (
-						<Space direction="vertical" style={{ width: '100%' }} size="middle">
+						<Space
+							direction="vertical"
+							style={{ width: "100%" }}
+							size="middle"
+						>
 							{left_items.map((leftItem: any) => {
-								const studentRightId = studentMatches[leftItem.id];
-								const correctRightId = correctPairsMap[leftItem.id];
-								const isCorrect = studentRightId === correctRightId;
+								const studentRightId =
+									studentMatches[leftItem.id];
+								const correctRightId =
+									correctPairsMap[leftItem.id];
+								const isCorrect =
+									studentRightId === correctRightId;
 
-								const studentRightItem = right_items.find((item: any) => item.id === studentRightId);
-								const correctRightItem = right_items.find((item: any) => item.id === correctRightId);
+								const studentRightItem = right_items.find(
+									(item: any) => item.id === studentRightId,
+								);
+								const correctRightItem = right_items.find(
+									(item: any) => item.id === correctRightId,
+								);
 
 								return (
-									<div key={leftItem.id} style={{
-										padding: '12px',
-										borderRadius: '8px',
-										border: `2px solid ${isCorrect ? token.colorSuccessBorder : token.colorErrorBorder}`,
-										backgroundColor: isCorrect ? token.colorSuccessBg : token.colorErrorBg
-									}}>
+									<div
+										key={leftItem.id}
+										style={{
+											padding: "12px",
+											borderRadius: "8px",
+											border: `2px solid ${isCorrect ? token.colorSuccessBorder : token.colorErrorBorder}`,
+											backgroundColor: isCorrect
+												? token.colorSuccessBg
+												: token.colorErrorBg,
+										}}
+									>
 										<Row gutter={16} align="middle">
 											<Col span={10}>
 												<Space direction="vertical">
-													<Text strong>{t('gradingDetail.matching.leftSide')}:</Text>
+													<Text strong>
+														{t(
+															"gradingDetail.matching.leftSide",
+														)}
+														:
+													</Text>
 													{leftItem.image_url && (
 														<img
-															src={leftItem.image_url}
+															src={
+																leftItem.image_url
+															}
 															alt={leftItem.text}
-															style={{ maxWidth: '100px', maxHeight: '60px' }}
+															style={{
+																maxWidth:
+																	"100px",
+																maxHeight:
+																	"60px",
+															}}
 														/>
 													)}
 													<Text>{leftItem.text}</Text>
 												</Space>
 											</Col>
-											<Col span={2} style={{ textAlign: 'center' }}>
-												{isCorrect ?
-													<CheckCircleOutlined style={{ color: token.colorSuccess, fontSize: '24px' }} /> :
-													<CloseCircleOutlined style={{ color: token.colorError, fontSize: '24px' }} />
-												}
+											<Col
+												span={2}
+												style={{ textAlign: "center" }}
+											>
+												{isCorrect ? (
+													<CheckCircleOutlined
+														style={{
+															color: token.colorSuccess,
+															fontSize: "24px",
+														}}
+													/>
+												) : (
+													<CloseCircleOutlined
+														style={{
+															color: token.colorError,
+															fontSize: "24px",
+														}}
+													/>
+												)}
 											</Col>
 											<Col span={12}>
 												<Space direction="vertical">
 													<div>
-														<Text strong>{t('gradingDetail.matching.studentChoice')}: </Text>
+														<Text strong>
+															{t(
+																"gradingDetail.matching.studentChoice",
+															)}
+															:{" "}
+														</Text>
 														{studentRightItem ? (
 															<>
 																{studentRightItem.image_url && (
 																	<img
-																		src={studentRightItem.image_url}
-																		alt={studentRightItem.text}
-																		style={{ maxWidth: '100px', maxHeight: '60px', marginLeft: '8px' }}
+																		src={
+																			studentRightItem.image_url
+																		}
+																		alt={
+																			studentRightItem.text
+																		}
+																		style={{
+																			maxWidth:
+																				"100px",
+																			maxHeight:
+																				"60px",
+																			marginLeft:
+																				"8px",
+																		}}
 																	/>
 																)}
-																<Tag color={isCorrect ? 'success' : 'error'}>
-																	{studentRightItem.text}
+																<Tag
+																	color={
+																		isCorrect
+																			? "success"
+																			: "error"
+																	}
+																>
+																	{
+																		studentRightItem.text
+																	}
 																</Tag>
 															</>
 														) : (
-															<Tag color="default">{t('gradingDetail.matching.noAnswer')}</Tag>
+															<Tag color="default">
+																{t(
+																	"gradingDetail.matching.noAnswer",
+																)}
+															</Tag>
 														)}
 													</div>
-													{!isCorrect && correctRightItem && (
-														<div>
-															<Text type="secondary">{t('gradingDetail.matching.correctAnswer')}: </Text>
-															{correctRightItem.image_url && (
-																<img
-																	src={correctRightItem.image_url}
-																	alt={correctRightItem.text}
-																	style={{ maxWidth: '100px', maxHeight: '60px', marginLeft: '8px' }}
-																/>
-															)}
-															<Tag color="green">{correctRightItem.text}</Tag>
-														</div>
-													)}
+													{!isCorrect &&
+														correctRightItem && (
+															<div>
+																<Text type="secondary">
+																	{t(
+																		"gradingDetail.matching.correctAnswer",
+																	)}
+																	:{" "}
+																</Text>
+																{correctRightItem.image_url && (
+																	<img
+																		src={
+																			correctRightItem.image_url
+																		}
+																		alt={
+																			correctRightItem.text
+																		}
+																		style={{
+																			maxWidth:
+																				"100px",
+																			maxHeight:
+																				"60px",
+																			marginLeft:
+																				"8px",
+																		}}
+																	/>
+																)}
+																<Tag color="green">
+																	{
+																		correctRightItem.text
+																	}
+																</Tag>
+															</div>
+														)}
 												</Space>
 											</Col>
 										</Row>
@@ -808,108 +1331,197 @@ const GradingDetail: React.FC = () => {
 					);
 				}
 				return (
-					<Card size="small" style={{ backgroundColor: token.colorBgLayout }}>
-						<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+					<Card
+						size="small"
+						style={{ backgroundColor: token.colorBgLayout }}
+					>
+						<pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
 							{JSON.stringify(answer.answer, null, 2)}
 						</pre>
 					</Card>
 				);
 
 			case QuestionType.Ordering:
-				if (question.content?.items && question.content?.correct_order) {
+				if (
+					question.content?.items &&
+					question.content?.correct_order
+				) {
 					const { items, correct_order } = question.content;
 					const studentOrder = answer.answer || [];
 
 					return (
-						<Space direction="vertical" style={{ width: '100%' }} size="large">
+						<Space
+							direction="vertical"
+							style={{ width: "100%" }}
+							size="large"
+						>
 							{/* Student's Order */}
-							<Card title={t('gradingDetail.ordering.studentOrder')} type="inner" size="small">
+							<Card
+								title={t("gradingDetail.ordering.studentOrder")}
+								type="inner"
+								size="small"
+							>
 								{studentOrder.length > 0 ? (
-									<Space direction="vertical" style={{ width: '100%' }}>
-										{studentOrder.map((itemId: string, index: number) => {
-											const item = items.find((i: any) => i.id === itemId);
-											const isCorrectPosition = correct_order[index] === itemId;
+									<Space
+										direction="vertical"
+										style={{ width: "100%" }}
+									>
+										{studentOrder.map(
+											(itemId: string, index: number) => {
+												const item = items.find(
+													(i: any) => i.id === itemId,
+												);
+												const isCorrectPosition =
+													correct_order[index] ===
+													itemId;
+
+												return (
+													<div
+														key={itemId}
+														style={{
+															padding: "8px",
+															borderRadius: "4px",
+															border: `2px solid ${isCorrectPosition ? token.colorSuccessBorder : token.colorErrorBorder}`,
+															backgroundColor:
+																isCorrectPosition
+																	? token.colorSuccessBg
+																	: token.colorErrorBg,
+														}}
+													>
+														<Space>
+															<Tag
+																color={
+																	isCorrectPosition
+																		? "success"
+																		: "error"
+																}
+															>
+																{index + 1}
+															</Tag>
+															{isCorrectPosition ? (
+																<CheckCircleOutlined
+																	style={{
+																		color: token.colorSuccess,
+																	}}
+																/>
+															) : (
+																<CloseCircleOutlined
+																	style={{
+																		color: token.colorError,
+																	}}
+																/>
+															)}
+															{item?.image_url && (
+																<img
+																	src={
+																		item.image_url
+																	}
+																	alt={
+																		item.text
+																	}
+																	style={{
+																		maxWidth:
+																			"80px",
+																		maxHeight:
+																			"50px",
+																	}}
+																/>
+															)}
+															<Text strong>
+																{item?.text ||
+																	itemId}
+															</Text>
+															{!isCorrectPosition && (
+																<Text type="secondary">
+																	(
+																	{t(
+																		"gradingDetail.ordering.correctPosition",
+																	)}
+																	:{" "}
+																	{correct_order.indexOf(
+																		itemId,
+																	) + 1}
+																	)
+																</Text>
+															)}
+														</Space>
+													</div>
+												);
+											},
+										)}
+									</Space>
+								) : (
+									<Text type="secondary">
+										{t("gradingDetail.ordering.noAnswer")}
+									</Text>
+								)}
+							</Card>
+
+							{/* Correct Order */}
+							<Card
+								title={t("gradingDetail.ordering.correctOrder")}
+								type="inner"
+								size="small"
+							>
+								<Space
+									direction="vertical"
+									style={{ width: "100%" }}
+								>
+									{correct_order.map(
+										(itemId: string, index: number) => {
+											const item = items.find(
+												(i: any) => i.id === itemId,
+											);
 
 											return (
 												<div
 													key={itemId}
 													style={{
-														padding: '8px',
-														borderRadius: '4px',
-														border: `2px solid ${isCorrectPosition ? token.colorSuccessBorder : token.colorErrorBorder}`,
-														backgroundColor: isCorrectPosition ? token.colorSuccessBg : token.colorErrorBg,
+														padding: "8px",
+														borderRadius: "4px",
+														border: `1px solid ${token.colorSuccessBorder}`,
+														backgroundColor:
+															token.colorSuccessBg,
 													}}
 												>
 													<Space>
-														<Tag color={isCorrectPosition ? 'success' : 'error'}>
+														<Tag color="success">
 															{index + 1}
 														</Tag>
-														{isCorrectPosition ? (
-															<CheckCircleOutlined style={{ color: token.colorSuccess }} />
-														) : (
-															<CloseCircleOutlined style={{ color: token.colorError }} />
-														)}
 														{item?.image_url && (
 															<img
-																src={item.image_url}
+																src={
+																	item.image_url
+																}
 																alt={item.text}
-																style={{ maxWidth: '80px', maxHeight: '50px' }}
+																style={{
+																	maxWidth:
+																		"80px",
+																	maxHeight:
+																		"50px",
+																}}
 															/>
 														)}
-														<Text strong>{item?.text || itemId}</Text>
-														{!isCorrectPosition && (
-															<Text type="secondary">
-																({t('gradingDetail.ordering.correctPosition')}: {correct_order.indexOf(itemId) + 1})
-															</Text>
-														)}
+														<Text>
+															{item?.text ||
+																itemId}
+														</Text>
 													</Space>
 												</div>
 											);
-										})}
-									</Space>
-								) : (
-									<Text type="secondary">{t('gradingDetail.ordering.noAnswer')}</Text>
-								)}
-							</Card>
-
-							{/* Correct Order */}
-							<Card title={t('gradingDetail.ordering.correctOrder')} type="inner" size="small">
-								<Space direction="vertical" style={{ width: '100%' }}>
-									{correct_order.map((itemId: string, index: number) => {
-										const item = items.find((i: any) => i.id === itemId);
-
-										return (
-											<div
-												key={itemId}
-												style={{
-													padding: '8px',
-													borderRadius: '4px',
-													border: `1px solid ${token.colorSuccessBorder}`,
-													backgroundColor: token.colorSuccessBg,
-												}}
-											>
-												<Space>
-													<Tag color="success">{index + 1}</Tag>
-													{item?.image_url && (
-														<img
-															src={item.image_url}
-															alt={item.text}
-															style={{ maxWidth: '80px', maxHeight: '50px' }}
-														/>
-													)}
-													<Text>{item?.text || itemId}</Text>
-												</Space>
-											</div>
-										);
-									})}
+										},
+									)}
 								</Space>
 							</Card>
 						</Space>
 					);
 				}
 				return (
-					<Card size="small" style={{ backgroundColor: token.colorBgLayout }}>
-						<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+					<Card
+						size="small"
+						style={{ backgroundColor: token.colorBgLayout }}
+					>
+						<pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
 							{JSON.stringify(answer.answer, null, 2)}
 						</pre>
 					</Card>
@@ -917,8 +1529,11 @@ const GradingDetail: React.FC = () => {
 
 			default:
 				return (
-					<Card size="small" style={{ backgroundColor: token.colorBgLayout }}>
-						<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+					<Card
+						size="small"
+						style={{ backgroundColor: token.colorBgLayout }}
+					>
+						<pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
 							{JSON.stringify(answer.answer, null, 2)}
 						</pre>
 					</Card>
@@ -928,16 +1543,14 @@ const GradingDetail: React.FC = () => {
 
 	if (loading) {
 		return (
-			<div style={{ textAlign: 'center', padding: '100px 0' }}>
-				<Spin size="large" tip={t('common.loading')} />
+			<div style={{ textAlign: "center", padding: "100px 0" }}>
+				<Spin size="large" tip={t("common.loading")} />
 			</div>
 		);
 	}
 
 	if (!attempt) {
-		return (
-			<Empty description={t('gradingDetail.notFound')} />
-		);
+		return <Empty description={t("gradingDetail.notFound")} />;
 	}
 
 	const totalScore = calculateTotalScore();
@@ -947,15 +1560,18 @@ const GradingDetail: React.FC = () => {
 	const progress = calculateProgress();
 
 	return (
-		<Space direction="vertical" size="large" style={{ width: '100%' }}>
+		<Space direction="vertical" size="large" style={{ width: "100%" }}>
 			{/* Header */}
 			<Flex justify="space-between" align="center">
 				<Space>
-					<Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/grading')}>
-						{t('common.back')}
+					<Button
+						icon={<ArrowLeftOutlined />}
+						onClick={() => navigate("/grading")}
+					>
+						{t("common.back")}
 					</Button>
 					<Title level={2} style={{ margin: 0 }}>
-						{t('gradingDetail.title')}
+						{t("gradingDetail.title")}
 					</Title>
 				</Space>
 				<Space>
@@ -964,14 +1580,14 @@ const GradingDetail: React.FC = () => {
 						onClick={handleAutoGrade}
 						loading={autoGrading}
 					>
-						{t('gradingDetail.autoGradeAll')}
+						{t("gradingDetail.autoGradeAll")}
 					</Button>
 					<Button
 						icon={<FileTextOutlined />}
 						onClick={handleGenerateFeedback}
 						loading={generatingFeedback}
 					>
-						{t('gradingDetail.generateAIFeedback')}
+						{t("gradingDetail.generateAIFeedback")}
 					</Button>
 					<Button
 						type="primary"
@@ -980,7 +1596,7 @@ const GradingDetail: React.FC = () => {
 						loading={saving}
 						disabled={grades.size === 0}
 					>
-						{t('gradingDetail.saveGrades')}
+						{t("gradingDetail.saveGrades")}
 					</Button>
 				</Space>
 			</Flex>
@@ -995,40 +1611,64 @@ const GradingDetail: React.FC = () => {
 					border: `1px solid ${token.colorBorder}`,
 				}}
 			>
-				<Space direction="vertical" style={{ width: '100%' }} size="middle">
+				<Space
+					direction="vertical"
+					style={{ width: "100%" }}
+					size="middle"
+				>
 					<Flex justify="space-between" align="center">
 						<Space>
-							<div style={{
-								width: 36,
-								height: 36,
-								borderRadius: 10,
-								background: token.colorPrimary,
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								boxShadow: `0 4px 12px ${token.colorPrimaryBg}`,
-							}}>
-								<CheckCircleOutlined style={{ fontSize: 18, color: '#fff' }} />
+							<div
+								style={{
+									width: 36,
+									height: 36,
+									borderRadius: 10,
+									background: token.colorPrimary,
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									boxShadow: `0 4px 12px ${token.colorPrimaryBg}`,
+								}}
+							>
+								<CheckCircleOutlined
+									style={{ fontSize: 18, color: "#fff" }}
+								/>
 							</div>
 							<div>
-								<Text strong style={{ fontSize: 15 }}>{t('gradingDetail.progress')}</Text>
+								<Text strong style={{ fontSize: 15 }}>
+									{t("gradingDetail.progress")}
+								</Text>
 								<br />
 								<Text type="secondary" style={{ fontSize: 12 }}>
-									{t('gradingDetail.gradedCount', { graded: attempt.answers.filter(a => a.is_graded || grades.has(a.id)).length, total: attempt.answers.length })}
+									{t("gradingDetail.gradedCount", {
+										graded: attempt.answers.filter(
+											(a) =>
+												a.is_graded || grades.has(a.id),
+										).length,
+										total: attempt.answers.length,
+									})}
 								</Text>
 							</div>
 						</Space>
-						<div style={{
-							padding: '6px 16px',
-							borderRadius: 20,
-							background: progress === 100 ? token.colorSuccessBg : token.colorPrimaryBg,
-							border: `1px solid ${progress === 100 ? token.colorSuccessBorder : token.colorPrimaryBorder}`,
-						}}>
+						<div
+							style={{
+								padding: "6px 16px",
+								borderRadius: 20,
+								background:
+									progress === 100
+										? token.colorSuccessBg
+										: token.colorPrimaryBg,
+								border: `1px solid ${progress === 100 ? token.colorSuccessBorder : token.colorPrimaryBorder}`,
+							}}
+						>
 							<Text
 								strong
 								style={{
 									fontSize: 18,
-									color: progress === 100 ? token.colorSuccess : token.colorPrimary,
+									color:
+										progress === 100
+											? token.colorSuccess
+											: token.colorPrimary,
 								}}
 							>
 								{Math.round(progress)}%
@@ -1038,7 +1678,11 @@ const GradingDetail: React.FC = () => {
 					<Progress
 						percent={progress}
 						strokeWidth={12}
-						strokeColor={progress === 100 ? token.colorSuccess : token.colorPrimary}
+						strokeColor={
+							progress === 100
+								? token.colorSuccess
+								: token.colorPrimary
+						}
 						trailColor={token.colorBgLayout}
 						showInfo={false}
 						strokeLinecap="round"
@@ -1052,7 +1696,9 @@ const GradingDetail: React.FC = () => {
 				title={
 					<Space>
 						<FileTextOutlined />
-						<Text strong>{t('gradingDetail.overallGradeAndFeedback')}</Text>
+						<Text strong>
+							{t("gradingDetail.overallGradeAndFeedback")}
+						</Text>
 					</Space>
 				}
 				style={{ ...elevation[1], borderRadius: 16 }}
@@ -1063,48 +1709,60 @@ const GradingDetail: React.FC = () => {
 						onClick={handleSaveOverallGrade}
 						loading={saving}
 					>
-						{t('gradingDetail.saveOverallGrade')}
+						{t("gradingDetail.saveOverallGrade")}
 					</Button>
 				}
 			>
 				<Row gutter={16}>
 					<Col xs={24} md={8}>
-						<Space direction="vertical" style={{ width: '100%' }}>
-							<Text strong>{t('gradingDetail.finalScoreLabel')}:</Text>
+						<Space direction="vertical" style={{ width: "100%" }}>
+							<Text strong>
+								{t("gradingDetail.finalScoreLabel")}:
+							</Text>
 							<InputNumber
 								min={0}
 								max={100}
 								step={0.5}
 								value={finalScore}
-								onChange={(value) => setFinalScore(value || undefined)}
-								style={{ width: '100%' }}
+								onChange={(value) =>
+									setFinalScore(value || undefined)
+								}
+								style={{ width: "100%" }}
 								size="large"
-								placeholder={t('gradingDetail.finalScorePlaceholder')}
+								placeholder={t(
+									"gradingDetail.finalScorePlaceholder",
+								)}
 							/>
 							<Text type="secondary" style={{ fontSize: 12 }}>
-								{t('gradingDetail.finalScoreHint')}
+								{t("gradingDetail.finalScoreHint")}
 							</Text>
 						</Space>
 					</Col>
 					<Col xs={24} md={16}>
-						<Space direction="vertical" style={{ width: '100%' }}>
+						<Space direction="vertical" style={{ width: "100%" }}>
 							<Flex justify="space-between">
-								<Text strong>{t('gradingDetail.overallFeedbackLabel')}:</Text>
+								<Text strong>
+									{t("gradingDetail.overallFeedbackLabel")}:
+								</Text>
 								{overallFeedback && (
 									<Button
 										size="small"
 										type="link"
-										onClick={() => setOverallFeedback('')}
+										onClick={() => setOverallFeedback("")}
 									>
-										{t('common.delete')}
+										{t("common.delete")}
 									</Button>
 								)}
 							</Flex>
 							<TextArea
 								rows={4}
 								value={overallFeedback}
-								onChange={(e) => setOverallFeedback(e.target.value)}
-								placeholder={t('gradingDetail.overallFeedbackPlaceholder')}
+								onChange={(e) =>
+									setOverallFeedback(e.target.value)
+								}
+								placeholder={t(
+									"gradingDetail.overallFeedbackPlaceholder",
+								)}
 							/>
 						</Space>
 					</Col>
@@ -1118,45 +1776,78 @@ const GradingDetail: React.FC = () => {
 						title={
 							<Space>
 								<FileTextOutlined />
-								<Text strong>{t('gradingDetail.attemptInfo')}</Text>
+								<Text strong>
+									{t("gradingDetail.attemptInfo")}
+								</Text>
 							</Space>
 						}
 						style={{ ...elevation[1], borderRadius: 16 }}
 					>
 						<Descriptions column={{ xs: 1, sm: 2 }} bordered>
-							<Descriptions.Item label={t('gradingDetail.assessment')}>
+							<Descriptions.Item
+								label={t("gradingDetail.assessment")}
+							>
 								{attempt.assessment?.title}
 							</Descriptions.Item>
-							<Descriptions.Item label={t('gradingDetail.status')}>
+							<Descriptions.Item
+								label={t("gradingDetail.status")}
+							>
 								<Tag color={getStatusColor(attempt.status)}>
 									{attempt.status}
 								</Tag>
 							</Descriptions.Item>
-							<Descriptions.Item label={t('gradingDetail.student')}>
+							<Descriptions.Item
+								label={t("gradingDetail.student")}
+							>
 								<Space>
-									<Avatar size="small" icon={<UserOutlined />} src={attempt.student?.avatar_url} />
-									<Text>{attempt.student?.full_name || `Student #${attempt.student_id}`}</Text>
+									<Avatar
+										size="small"
+										icon={<UserOutlined />}
+										src={attempt.student?.avatar_url}
+									/>
+									<Text>
+										{attempt.student?.full_name ||
+											`Student #${attempt.student_id}`}
+									</Text>
 								</Space>
 							</Descriptions.Item>
-							<Descriptions.Item label={t('gradingDetail.email')}>
-								{attempt.student?.email || '-'}
+							<Descriptions.Item label={t("gradingDetail.email")}>
+								{attempt.student?.email || "-"}
 							</Descriptions.Item>
-							<Descriptions.Item label={t('gradingDetail.startedAt')}>
-								{dayjs(attempt.started_at).format('DD/MM/YYYY HH:mm')}
+							<Descriptions.Item
+								label={t("gradingDetail.startedAt")}
+							>
+								{dayjs(attempt.started_at).format(
+									"DD/MM/YYYY HH:mm",
+								)}
 							</Descriptions.Item>
-							<Descriptions.Item label={t('gradingDetail.completedAt')}>
-								{attempt.completed_at ? dayjs(attempt.completed_at).format('DD/MM/YYYY HH:mm') : '-'}
+							<Descriptions.Item
+								label={t("gradingDetail.completedAt")}
+							>
+								{attempt.completed_at
+									? dayjs(attempt.completed_at).format(
+											"DD/MM/YYYY HH:mm",
+										)
+									: "-"}
 							</Descriptions.Item>
-							<Descriptions.Item label={t('gradingDetail.timeSpent')}>
+							<Descriptions.Item
+								label={t("gradingDetail.timeSpent")}
+							>
 								<Space>
 									<ClockCircleOutlined />
 									{attempt.time_spent
-										? dayjs.duration(attempt.time_spent, 'seconds').format('HH:mm:ss')
-										: '-'
-									}
+										? dayjs
+												.duration(
+													attempt.time_spent,
+													"seconds",
+												)
+												.format("HH:mm:ss")
+										: "-"}
 								</Space>
 							</Descriptions.Item>
-							<Descriptions.Item label={t('gradingDetail.questionCount')}>
+							<Descriptions.Item
+								label={t("gradingDetail.questionCount")}
+							>
 								{attempt.answers.length}
 							</Descriptions.Item>
 						</Descriptions>
@@ -1173,48 +1864,74 @@ const GradingDetail: React.FC = () => {
 							border: `2px solid ${passed ? token.colorSuccessBorder : token.colorErrorBorder}`,
 						}}
 					>
-						<Space direction="vertical" size="large" style={{ width: '100%' }}>
+						<Space
+							direction="vertical"
+							size="large"
+							style={{ width: "100%" }}
+						>
 							{/* Header with icon and title */}
 							<Flex justify="space-between" align="center">
 								<Space>
-									<div style={{
-										width: 40,
-										height: 40,
-										borderRadius: 12,
-										background: passed ? token.colorSuccess : token.colorError,
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										boxShadow: `0 4px 12px ${passed ? token.colorSuccessBg : token.colorErrorBg}`,
-									}}>
-										<TrophyOutlined style={{ fontSize: 20, color: '#fff' }} />
+									<div
+										style={{
+											width: 40,
+											height: 40,
+											borderRadius: 12,
+											background: passed
+												? token.colorSuccess
+												: token.colorError,
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+											boxShadow: `0 4px 12px ${passed ? token.colorSuccessBg : token.colorErrorBg}`,
+										}}
+									>
+										<TrophyOutlined
+											style={{
+												fontSize: 20,
+												color: "#fff",
+											}}
+										/>
 									</div>
 									<div>
-										<Text strong style={{ fontSize: 16 }}>{t('gradingDetail.score')}</Text>
+										<Text strong style={{ fontSize: 16 }}>
+											{t("gradingDetail.score")}
+										</Text>
 										<br />
-										<Text type="secondary" style={{ fontSize: 12 }}>
-											{t('gradingDetail.overallResult')}
+										<Text
+											type="secondary"
+											style={{ fontSize: 12 }}
+										>
+											{t("gradingDetail.overallResult")}
 										</Text>
 									</div>
 								</Space>
 								<Badge
-									status={passed ? 'success' : 'error'}
-									text={passed ? t('gradingDetail.passed') : t('gradingDetail.failed')}
+									status={passed ? "success" : "error"}
+									text={
+										passed
+											? t("gradingDetail.passed")
+											: t("gradingDetail.failed")
+									}
 									style={{ fontWeight: 500 }}
 									className="status-badge"
 								/>
 							</Flex>
 
-							<Divider style={{ margin: '12px 0' }} />
+							<Divider style={{ margin: "12px 0" }} />
 
 							{/* Main score display */}
-							<div style={{ textAlign: 'center' }}>
+							<div style={{ textAlign: "center" }}>
 								<Progress
 									type="circle"
 									percent={Math.round(percentage)}
 									strokeWidth={10}
 									size={200}
-									strokeColor={passed ? token.colorSuccess : token.colorError}
+									strokeColor={
+										passed
+											? token.colorSuccess
+											: token.colorError
+									}
 									trailColor={token.colorBgLayout}
 									format={() => (
 										<div>
@@ -1224,40 +1941,87 @@ const GradingDetail: React.FC = () => {
 												valueStyle={{
 													fontSize: 48,
 													fontWeight: 700,
-													color: passed ? token.colorSuccess : token.colorError,
+													color: passed
+														? token.colorSuccess
+														: token.colorError,
 													lineHeight: 1,
 												}}
 											/>
-											<Text type="secondary" style={{ fontSize: 14, fontWeight: 500, display: 'block', marginTop: 8 }}>
-												{t('gradingDetail.scoreDisplay', { score: totalScore.toFixed(1), max: maxScore })}
+											<Text
+												type="secondary"
+												style={{
+													fontSize: 14,
+													fontWeight: 500,
+													display: "block",
+													marginTop: 8,
+												}}
+											>
+												{t(
+													"gradingDetail.scoreDisplay",
+													{
+														score: totalScore.toFixed(
+															1,
+														),
+														max: maxScore,
+													},
+												)}
 											</Text>
 										</div>
 									)}
 								/>
 
-								<Divider style={{ margin: '24px 0' }} />
+								<Divider style={{ margin: "24px 0" }} />
 
 								{/* Score breakdown */}
-								<Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+								<Row
+									gutter={[12, 12]}
+									style={{ marginBottom: 16 }}
+								>
 									<Col span={12}>
 										<Card
 											size="small"
 											style={{
 												borderRadius: 12,
-												background: token.colorSuccessBg,
+												background:
+													token.colorSuccessBg,
 												border: `1px solid ${token.colorSuccessBorder}`,
-												textAlign: 'center',
+												textAlign: "center",
 											}}
 										>
 											<Statistic
-												title={<Text type="secondary" style={{ fontSize: 12 }}>{t('gradingDetail.correctAnswers')}</Text>}
-												value={attempt.answers.filter(a => {
-													const grade = grades.get(a.id);
-													const score = grade?.score ?? a.score ?? 0;
-													return score >= a.max_score;
-												}).length}
+												title={
+													<Text
+														type="secondary"
+														style={{ fontSize: 12 }}
+													>
+														{t(
+															"gradingDetail.correctAnswers",
+														)}
+													</Text>
+												}
+												value={
+													attempt.answers.filter(
+														(a) => {
+															const grade =
+																grades.get(
+																	a.id,
+																);
+															const score =
+																grade?.score ??
+																a.score ??
+																0;
+															return (
+																score >=
+																a.max_score
+															);
+														},
+													).length
+												}
 												suffix={`/ ${attempt.answers.length}`}
-												valueStyle={{ fontSize: 20, color: token.colorSuccess }}
+												valueStyle={{
+													fontSize: 20,
+													color: token.colorSuccess,
+												}}
 											/>
 										</Card>
 									</Col>
@@ -1268,18 +2032,43 @@ const GradingDetail: React.FC = () => {
 												borderRadius: 12,
 												background: token.colorErrorBg,
 												border: `1px solid ${token.colorErrorBorder}`,
-												textAlign: 'center',
+												textAlign: "center",
 											}}
 										>
 											<Statistic
-												title={<Text type="secondary" style={{ fontSize: 12 }}>{t('gradingDetail.incorrectAnswers')}</Text>}
-												value={attempt.answers.filter(a => {
-													const grade = grades.get(a.id);
-													const score = grade?.score ?? a.score ?? 0;
-													return score < a.max_score;
-												}).length}
+												title={
+													<Text
+														type="secondary"
+														style={{ fontSize: 12 }}
+													>
+														{t(
+															"gradingDetail.incorrectAnswers",
+														)}
+													</Text>
+												}
+												value={
+													attempt.answers.filter(
+														(a) => {
+															const grade =
+																grades.get(
+																	a.id,
+																);
+															const score =
+																grade?.score ??
+																a.score ??
+																0;
+															return (
+																score <
+																a.max_score
+															);
+														},
+													).length
+												}
 												suffix={`/ ${attempt.answers.length}`}
-												valueStyle={{ fontSize: 20, color: token.colorError }}
+												valueStyle={{
+													fontSize: 20,
+													color: token.colorError,
+												}}
 											/>
 										</Card>
 									</Col>
@@ -1288,17 +2077,39 @@ const GradingDetail: React.FC = () => {
 								{/* Passing score indicator */}
 								<Alert
 									message={
-										<Flex justify="space-between" align="center" style={{ width: '100%' }}>
+										<Flex
+											justify="space-between"
+											align="center"
+											style={{ width: "100%" }}
+										>
 											<Space>
-												{passed ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-												<Text strong>{passed ? t('gradingDetail.passedRequirement') : t('gradingDetail.failedRequirement')}</Text>
+												{passed ? (
+													<CheckCircleOutlined />
+												) : (
+													<CloseCircleOutlined />
+												)}
+												<Text strong>
+													{passed
+														? t(
+																"gradingDetail.passedRequirement",
+															)
+														: t(
+																"gradingDetail.failedRequirement",
+															)}
+												</Text>
 											</Space>
 											<Text type="secondary">
-												{t('gradingDetail.passingScore')}: {attempt.assessment?.passing_score || 0}%
+												{t(
+													"gradingDetail.passingScore",
+												)}
+												:{" "}
+												{attempt.assessment
+													?.passing_score || 0}
+												%
 											</Text>
 										</Flex>
 									}
-									type={passed ? 'success' : 'error'}
+									type={passed ? "success" : "error"}
 									showIcon={false}
 									style={{ borderRadius: 12 }}
 								/>
@@ -1309,104 +2120,177 @@ const GradingDetail: React.FC = () => {
 			</Row>
 
 			{/* Proctoring Events */}
-			{attempt.proctoring_events && attempt.proctoring_events.length > 0 && (
-				<Card
-					title={
-						<Space>
-							<ExclamationCircleOutlined style={{ color: '#faad14' }} />
-							<Text strong>{t('gradingDetail.proctoringWarnings')}</Text>
-							<Badge count={attempt.proctoring_events.length} />
-						</Space>
-					}
-					style={{ ...elevation[1], borderRadius: 16 }}
-				>
-					<Collapse ghost>
-						{attempt.proctoring_events.map((event, index) => (
-							<Collapse.Panel
-								key={event.id}
-								header={
-									<Space>
-										<Tag color={
-											event.severity === 'critical' ? 'red' :
-												event.severity === 'high' ? 'orange' :
-													event.severity === 'medium' ? 'gold' : 'default'
-										}>
-											{event.severity}
-										</Tag>
-										<Text>{event.event_type}</Text>
-										<Text type="secondary">
-											{dayjs(event.timestamp).format('HH:mm:ss')}
-										</Text>
-									</Space>
-								}
-							>
-								<pre>{JSON.stringify(event.details, null, 2)}</pre>
-							</Collapse.Panel>
-						))}
-					</Collapse>
-				</Card>
-			)}
+			{attempt.proctoring_events &&
+				attempt.proctoring_events.length > 0 && (
+					<Card
+						title={
+							<Space>
+								<ExclamationCircleOutlined
+									style={{ color: "#faad14" }}
+								/>
+								<Text strong>
+									{t("gradingDetail.proctoringWarnings")}
+								</Text>
+								<Badge
+									count={attempt.proctoring_events.length}
+								/>
+							</Space>
+						}
+						style={{ ...elevation[1], borderRadius: 16 }}
+					>
+						<Collapse ghost>
+							{attempt.proctoring_events.map((event, index) => (
+								<Collapse.Panel
+									key={event.id}
+									header={
+										<Space>
+											<Tag
+												color={
+													event.severity ===
+													"critical"
+														? "red"
+														: event.severity ===
+															  "high"
+															? "orange"
+															: event.severity ===
+																  "medium"
+																? "gold"
+																: "default"
+												}
+											>
+												{event.severity}
+											</Tag>
+											<Text>{event.event_type}</Text>
+											<Text type="secondary">
+												{dayjs(event.timestamp).format(
+													"HH:mm:ss",
+												)}
+											</Text>
+										</Space>
+									}
+								>
+									<pre>
+										{JSON.stringify(event.details, null, 2)}
+									</pre>
+								</Collapse.Panel>
+							))}
+						</Collapse>
+					</Card>
+				)}
 
 			{/* Answers */}
 			<Card
 				title={
 					<Space>
 						<FileTextOutlined />
-						<Text strong>{t('gradingDetail.answers')} ({attempt.answers.length})</Text>
+						<Text strong>
+							{t("gradingDetail.answers")} (
+							{attempt.answers.length})
+						</Text>
 					</Space>
 				}
 				style={{ ...elevation[1], borderRadius: 16 }}
 			>
-				<Space direction="vertical" size="middle" style={{ width: '100%' }}>
+				<Space
+					direction="vertical"
+					size="middle"
+					style={{ width: "100%" }}
+				>
 					{attempt.answers.map((answer, index) => {
 						const currentGrade = grades.get(answer.id);
-						const displayScore = currentGrade?.score ?? answer.score ?? 0;
-						const displayFeedback = currentGrade?.feedback ?? answer.feedback ?? '';
+						const displayScore =
+							currentGrade?.score ?? answer.score ?? 0;
+						const displayFeedback =
+							currentGrade?.feedback ?? answer.feedback ?? "";
 
 						return (
 							<Card
 								key={answer.id}
 								type="inner"
 								title={
-									<Flex justify="space-between" align="center">
+									<Flex
+										justify="space-between"
+										align="center"
+									>
 										<Space>
-											<Badge count={index + 1} style={{ backgroundColor: '#1890ff' }} />
-											<Text strong>{t('gradingDetail.questionNumber', { number: index + 1 })}</Text>
-											<Tag>{getQuestionTypeLabel(answer.question?.type || '')}</Tag>
+											<Badge
+												count={index + 1}
+												style={{
+													backgroundColor: "#1890ff",
+												}}
+											/>
+											<Text strong>
+												{t(
+													"gradingDetail.questionNumber",
+													{ number: index + 1 },
+												)}
+											</Text>
+											<Tag>
+												{getQuestionTypeLabel(
+													answer.question?.type || "",
+												)}
+											</Tag>
 											{answer.flagged && (
-												<Tooltip title={t('gradingDetail.flaggedQuestion')}>
-													<FlagOutlined style={{ color: '#ff4d4f' }} />
+												<Tooltip
+													title={t(
+														"gradingDetail.flaggedQuestion",
+													)}
+												>
+													<FlagOutlined
+														style={{
+															color: "#ff4d4f",
+														}}
+													/>
 												</Tooltip>
 											)}
 										</Space>
 										<Space>
 											{answer.is_graded && (
-												<Tag color="success" icon={<CheckCircleOutlined />}>
-													{t('gradingDetail.graded')}
+												<Tag
+													color="success"
+													icon={
+														<CheckCircleOutlined />
+													}
+												>
+													{t("gradingDetail.graded")}
 												</Tag>
 											)}
 											<Text strong>
-												{t('gradingDetail.scoreOutOf', { score: displayScore, max: answer.max_score })}
+												{t("gradingDetail.scoreOutOf", {
+													score: displayScore,
+													max: answer.max_score,
+												})}
 											</Text>
 										</Space>
 									</Flex>
 								}
 								style={{ borderRadius: 12 }}
 							>
-								<Space direction="vertical" size="middle" style={{ width: '100%' }}>
+								<Space
+									direction="vertical"
+									size="middle"
+									style={{ width: "100%" }}
+								>
 									{/* Question Text */}
 									<div>
-										<Text strong>{t('gradingDetail.question')}:</Text>
+										<Text strong>
+											{t("gradingDetail.question")}:
+										</Text>
 										<Paragraph style={{ marginTop: 8 }}>
 											{answer.question?.text}
 										</Paragraph>
 									</div>
 
-									<Divider style={{ margin: '8px 0' }} />
+									<Divider style={{ margin: "8px 0" }} />
 
 									{/* Student Answer */}
 									<div>
-										<Text strong>{t('gradingDetail.studentAnswerLabel')}:</Text>
+										<Text strong>
+											{t(
+												"gradingDetail.studentAnswerLabel",
+											)}
+											:
+										</Text>
 										<div style={{ marginTop: 8 }}>
 											{renderAnswerContent(answer)}
 										</div>
@@ -1415,10 +2299,16 @@ const GradingDetail: React.FC = () => {
 									{/* Explanation */}
 									{answer.question?.explanation && (
 										<>
-											<Divider style={{ margin: '8px 0' }} />
+											<Divider
+												style={{ margin: "8px 0" }}
+											/>
 											<Alert
-												message={t('gradingDetail.explanation')}
-												description={answer.question.explanation}
+												message={t(
+													"gradingDetail.explanation",
+												)}
+												description={
+													answer.question.explanation
+												}
 												type="info"
 												showIcon
 												icon={<EyeOutlined />}
@@ -1426,32 +2316,62 @@ const GradingDetail: React.FC = () => {
 										</>
 									)}
 
-									<Divider style={{ margin: '8px 0' }} />
+									<Divider style={{ margin: "8px 0" }} />
 
 									{/* Grading Section */}
 									<Row gutter={16}>
 										<Col xs={24} sm={8}>
-											<Space direction="vertical" style={{ width: '100%' }}>
-												<Text strong>{t('gradingDetail.scoreLabel')}:</Text>
+											<Space
+												direction="vertical"
+												style={{ width: "100%" }}
+											>
+												<Text strong>
+													{t(
+														"gradingDetail.scoreLabel",
+													)}
+													:
+												</Text>
 												<InputNumber
 													min={0}
 													max={answer.max_score}
 													step={0.5}
 													value={displayScore}
-													onChange={(value) => handleGradeChange(answer.id, 'score', value || 0)}
-													style={{ width: '100%' }}
+													onChange={(value) =>
+														handleGradeChange(
+															answer.id,
+															"score",
+															value || 0,
+														)
+													}
+													style={{ width: "100%" }}
 													size="large"
 												/>
 											</Space>
 										</Col>
 										<Col xs={24} sm={16}>
-											<Space direction="vertical" style={{ width: '100%' }}>
-												<Text strong>{t('gradingDetail.feedbackLabel')}:</Text>
+											<Space
+												direction="vertical"
+												style={{ width: "100%" }}
+											>
+												<Text strong>
+													{t(
+														"gradingDetail.feedbackLabel",
+													)}
+													:
+												</Text>
 												<TextArea
 													rows={3}
 													value={displayFeedback}
-													onChange={(e) => handleGradeChange(answer.id, 'feedback', e.target.value)}
-													placeholder={t('gradingDetail.feedbackPlaceholder')}
+													onChange={(e) =>
+														handleGradeChange(
+															answer.id,
+															"feedback",
+															e.target.value,
+														)
+													}
+													placeholder={t(
+														"gradingDetail.feedbackPlaceholder",
+													)}
 												/>
 											</Space>
 										</Col>
@@ -1461,16 +2381,29 @@ const GradingDetail: React.FC = () => {
 									{answer.is_graded && answer.graded_at && (
 										<Alert
 											message={
-												<Text type="secondary" style={{ fontSize: 12 }}>
-													{t('gradingDetail.gradedAtBy', {
-														time: dayjs(answer.graded_at).format('DD/MM/YYYY HH:mm'),
-														teacher: answer.graded_by ? `#${answer.graded_by}` : ''
-													})}
+												<Text
+													type="secondary"
+													style={{ fontSize: 12 }}
+												>
+													{t(
+														"gradingDetail.gradedAtBy",
+														{
+															time: dayjs(
+																answer.graded_at,
+															).format(
+																"DD/MM/YYYY HH:mm",
+															),
+															teacher:
+																answer.graded_by
+																	? `#${answer.graded_by}`
+																	: "",
+														},
+													)}
 												</Text>
 											}
 											type="info"
 											showIcon={false}
-											style={{ padding: '4px 12px' }}
+											style={{ padding: "4px 12px" }}
 										/>
 									)}
 								</Space>

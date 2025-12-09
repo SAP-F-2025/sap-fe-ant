@@ -1,11 +1,11 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import { Card, Empty, Skeleton, Space } from 'antd';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { elevation } from '../../../styles/elevation';
-import { useThemeToken } from '../../../theme/ThemeProvider';
-import { CHART_HEIGHT } from '../constants';
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Card, Empty, Skeleton, Space } from "antd";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { elevation } from "../../../styles/elevation";
+import { useThemeToken } from "../../../theme/ThemeProvider";
+import { CHART_HEIGHT } from "../constants";
 
 interface QuestionChartData {
 	name: string;
@@ -22,7 +22,10 @@ interface QuestionPieChartProps {
 /**
  * Question Distribution Pie Chart Component
  */
-export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({ data, isLoading }) => {
+export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({
+	data,
+	isLoading,
+}) => {
 	const { token } = useThemeToken();
 	const { t } = useTranslation();
 
@@ -30,8 +33,12 @@ export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({ data, isLoad
 		<Card
 			title={
 				<Space>
-					<QuestionCircleOutlined style={{ fontSize: 18, color: token.colorSuccess }} />
-					<span style={{ fontWeight: 600 }}>{t('dashboard.questionDistribution')}</span>
+					<QuestionCircleOutlined
+						style={{ fontSize: 18, color: token.colorSuccess }}
+					/>
+					<span style={{ fontWeight: 600 }}>
+						{t("dashboard.questionDistribution")}
+					</span>
 				</Space>
 			}
 			bordered={false}
@@ -40,10 +47,13 @@ export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({ data, isLoad
 			{isLoading ? (
 				<Skeleton active paragraph={{ rows: 8 }} />
 			) : data.length === 0 ? (
-				<Empty description={t('dashboard.noQuestionData')} style={{ padding: '60px 0' }} />
+				<Empty
+					description={t("dashboard.noQuestionData")}
+					style={{ padding: "60px 0" }}
+				/>
 			) : (
 				<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-					<PieChart aria-label={t('dashboard.questionChartLabel')}>
+					<PieChart aria-label={t("dashboard.questionChartLabel")}>
 						<Pie
 							data={data}
 							cx="50%"
@@ -53,10 +63,16 @@ export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({ data, isLoad
 							paddingAngle={5}
 							dataKey="value"
 							label={(entry) => `${entry.name} (${entry.value})`}
-							labelLine={{ stroke: token.colorTextSecondary, strokeWidth: 1 }}
+							labelLine={{
+								stroke: token.colorTextSecondary,
+								strokeWidth: 1,
+							}}
 						>
 							{data.map((entry, index) => (
-								<Cell key={`cell-${index}`} fill={entry.color} />
+								<Cell
+									key={`cell-${index}`}
+									fill={entry.color}
+								/>
 							))}
 						</Pie>
 						<Tooltip

@@ -9,13 +9,14 @@
  * @returns A cryptographically random string
  */
 export function generateCodeVerifier(length: number = 128): string {
-  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  const randomValues = new Uint8Array(length);
-  crypto.getRandomValues(randomValues);
+	const charset =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+	const randomValues = new Uint8Array(length);
+	crypto.getRandomValues(randomValues);
 
-  return Array.from(randomValues)
-    .map(value => charset[value % charset.length])
-    .join('');
+	return Array.from(randomValues)
+		.map((value) => charset[value % charset.length])
+		.join("");
 }
 
 /**
@@ -23,16 +24,18 @@ export function generateCodeVerifier(length: number = 128): string {
  * @param codeVerifier The code verifier string
  * @returns A base64url-encoded SHA-256 hash of the code verifier
  */
-export async function generateCodeChallenge(codeVerifier: string): Promise<string> {
-  // Encode the code verifier as UTF-8
-  const encoder = new TextEncoder();
-  const data = encoder.encode(codeVerifier);
+export async function generateCodeChallenge(
+	codeVerifier: string,
+): Promise<string> {
+	// Encode the code verifier as UTF-8
+	const encoder = new TextEncoder();
+	const data = encoder.encode(codeVerifier);
 
-  // Hash with SHA-256
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+	// Hash with SHA-256
+	const hashBuffer = await crypto.subtle.digest("SHA-256", data);
 
-  // Convert to base64url
-  return base64UrlEncode(hashBuffer);
+	// Convert to base64url
+	return base64UrlEncode(hashBuffer);
 }
 
 /**
@@ -41,17 +44,17 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
  * @returns Base64URL-encoded string
  */
 function base64UrlEncode(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
+	const bytes = new Uint8Array(buffer);
+	let binary = "";
 
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
+	for (let i = 0; i < bytes.length; i++) {
+		binary += String.fromCharCode(bytes[i]);
+	}
 
-  return btoa(binary)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+	return btoa(binary)
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=/g, "");
 }
 
 /**
@@ -59,7 +62,7 @@ function base64UrlEncode(buffer: ArrayBuffer): string {
  * @param codeVerifier The code verifier to store
  */
 export function storePKCEVerifier(codeVerifier: string): void {
-  sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+	sessionStorage.setItem("pkce_code_verifier", codeVerifier);
 }
 
 /**
@@ -67,12 +70,12 @@ export function storePKCEVerifier(codeVerifier: string): void {
  * @returns The stored code verifier or null if not found
  */
 export function retrievePKCEVerifier(): string | null {
-  return sessionStorage.getItem('pkce_code_verifier');
+	return sessionStorage.getItem("pkce_code_verifier");
 }
 
 /**
  * Clear PKCE code verifier from session storage
  */
 export function clearPKCEVerifier(): void {
-  sessionStorage.removeItem('pkce_code_verifier');
+	sessionStorage.removeItem("pkce_code_verifier");
 }

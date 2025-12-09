@@ -1,57 +1,65 @@
-import { App as AntdApp } from 'antd';
-import React, { useRef } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
-import ExamLayout from './components/Layout/ExamLayout';
-import MainLayout from './components/Layout/MainLayout';
-import { NotificationProvider } from './components/NotificationProvider/NotificationProvider';
-import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
-import RoleBasedRedirect from './components/RoleBasedRedirect/RoleBasedRedirect';
-import { SettingsModalProvider, useSettingsModal } from './components/SettingsModal';
-import ShortcutsModal from './components/ShortcutsModal';
-import { AuthProvider } from './contexts/AuthContext';
-import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
-import { QueryProvider } from './providers/QueryProvider';
-import { ThemeProvider, useTheme } from './theme/ThemeProvider';
+import { App as AntdApp } from "antd";
+import React, { useRef } from "react";
+import {
+	BrowserRouter,
+	Navigate,
+	Route,
+	Routes,
+	useLocation,
+} from "react-router-dom";
+import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
+import ExamLayout from "./components/Layout/ExamLayout";
+import MainLayout from "./components/Layout/MainLayout";
+import { NotificationProvider } from "./components/NotificationProvider/NotificationProvider";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import RoleBasedRedirect from "./components/RoleBasedRedirect/RoleBasedRedirect";
+import {
+	SettingsModalProvider,
+	useSettingsModal,
+} from "./components/SettingsModal";
+import ShortcutsModal from "./components/ShortcutsModal";
+import { AuthProvider } from "./contexts/AuthContext";
+import { useGlobalShortcuts } from "./hooks/useGlobalShortcuts";
+import { QueryProvider } from "./providers/QueryProvider";
+import { ThemeProvider, useTheme } from "./theme/ThemeProvider";
 
 // Pages
-import AssessmentDetail from './pages/Assessments/AssessmentDetail';
-import AssessmentForm from './pages/Assessments/AssessmentForm';
-import AssessmentList from './pages/Assessments/AssessmentList';
-import Callback from './pages/Auth/Callback';
-import Login from './pages/Auth/Login';
-import Dashboard from './pages/Dashboard';
-import GradingDetail from './pages/Grading/GradingDetail';
-import GradingList from './pages/Grading/GradingList';
-import PublicQuestionBanks from './pages/QuestionBanks/PublicQuestionBanks';
-import QuestionBankDetail from './pages/QuestionBanks/QuestionBankDetail';
-import QuestionBankForm from './pages/QuestionBanks/QuestionBankForm';
-import QuestionBankList from './pages/QuestionBanks/QuestionBankList';
-import SharedQuestionBanks from './pages/QuestionBanks/SharedQuestionBanks';
-import QuestionForm from './pages/Questions/QuestionForm';
-import QuestionList from './pages/Questions/QuestionList';
-import UserManagement from './pages/Users/UserManagement';
+import AssessmentDetail from "./pages/Assessments/AssessmentDetail";
+import AssessmentForm from "./pages/Assessments/AssessmentForm";
+import AssessmentList from "./pages/Assessments/AssessmentList";
+import Callback from "./pages/Auth/Callback";
+import Login from "./pages/Auth/Login";
+import Dashboard from "./pages/Dashboard";
+import GradingDetail from "./pages/Grading/GradingDetail";
+import GradingList from "./pages/Grading/GradingList";
+import PublicQuestionBanks from "./pages/QuestionBanks/PublicQuestionBanks";
+import QuestionBankDetail from "./pages/QuestionBanks/QuestionBankDetail";
+import QuestionBankForm from "./pages/QuestionBanks/QuestionBankForm";
+import QuestionBankList from "./pages/QuestionBanks/QuestionBankList";
+import SharedQuestionBanks from "./pages/QuestionBanks/SharedQuestionBanks";
+import QuestionForm from "./pages/Questions/QuestionForm";
+import QuestionList from "./pages/Questions/QuestionList";
+import UserManagement from "./pages/Users/UserManagement";
 
 // Group Pages
-import GroupList from './pages/Groups/GroupList';
-import GroupDetail from './pages/Groups/GroupDetail';
-import GroupForm from './pages/Groups/GroupForm';
+import GroupList from "./pages/Groups/GroupList";
+import GroupDetail from "./pages/Groups/GroupDetail";
+import GroupForm from "./pages/Groups/GroupForm";
 
 // Student Pages
-import AssessmentResults from './pages/Student/AssessmentResults';
-import AvailableAssessments from './pages/Student/AvailableAssessments';
-import FaceVerification from './pages/Student/FaceVerification';
-import StudentDashboard from './pages/Student/StudentDashboard';
-import StudentGroups from './pages/Student/StudentGroups';
-import StudentHistory from './pages/Student/StudentHistory';
-import StudentAssessmentList from './pages/Student/StudentAssessmentList';
-import TakeAssessment from './pages/Exam';
+import AssessmentResults from "./pages/Student/AssessmentResults";
+import AvailableAssessments from "./pages/Student/AvailableAssessments";
+import FaceVerification from "./pages/Student/FaceVerification";
+import StudentDashboard from "./pages/Student/StudentDashboard";
+import StudentGroups from "./pages/Student/StudentGroups";
+import StudentHistory from "./pages/Student/StudentHistory";
+import StudentAssessmentList from "./pages/Student/StudentAssessmentList";
+import TakeAssessment from "./pages/Exam";
 
 // Teacher Pages
-import MyAssessments from './pages/Teacher/MyAssessments';
-import StudentProgress from './pages/Teacher/StudentProgress';
-import TeacherDashboard from './pages/Teacher/TeacherDashboard';
-
+import MyAssessments from "./pages/Teacher/MyAssessments";
+import StudentProgress from "./pages/Teacher/StudentProgress";
+import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 
 /**
  * Main App Component
@@ -70,16 +78,16 @@ const AppRoutes: React.FC = () => {
 
 	useGlobalShortcuts({
 		onOpenShortcuts: () => shortcutsRef.current?.toggle(),
-		onOpenSettings: () => openSettings('my-account'),
+		onOpenSettings: () => openSettings("my-account"),
 		onToggleTheme: toggleDark,
 	});
 
 	// Determine active context based on current route
 	const getActiveContext = () => {
 		const path = location.pathname;
-		if (path.includes('/student/take/')) return 'exam';
-		if (path.includes('/settings')) return 'settings';
-		return 'global';
+		if (path.includes("/student/take/")) return "exam";
+		if (path.includes("/settings")) return "settings";
+		return "global";
 	};
 
 	return (
@@ -113,7 +121,9 @@ const AppRoutes: React.FC = () => {
 					<Route
 						index
 						element={
-							<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+							<RoleBasedRedirect
+								allowedRoles={["admin", "teacher"]}
+							>
 								<Navigate to="/dashboard" replace />
 							</RoleBasedRedirect>
 						}
@@ -121,7 +131,9 @@ const AppRoutes: React.FC = () => {
 					<Route
 						path="dashboard"
 						element={
-							<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+							<RoleBasedRedirect
+								allowedRoles={["admin", "teacher"]}
+							>
 								<Dashboard />
 							</RoleBasedRedirect>
 						}
@@ -131,7 +143,7 @@ const AppRoutes: React.FC = () => {
 					<Route
 						path="users"
 						element={
-							<RoleBasedRedirect allowedRoles={['admin']}>
+							<RoleBasedRedirect allowedRoles={["admin"]}>
 								<UserManagement />
 							</RoleBasedRedirect>
 						}
@@ -142,7 +154,7 @@ const AppRoutes: React.FC = () => {
 						<Route
 							index
 							element={
-								<RoleBasedRedirect allowedRoles={['admin']}>
+								<RoleBasedRedirect allowedRoles={["admin"]}>
 									<GroupList />
 								</RoleBasedRedirect>
 							}
@@ -150,7 +162,7 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="new"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin']}>
+								<RoleBasedRedirect allowedRoles={["admin"]}>
 									<GroupForm />
 								</RoleBasedRedirect>
 							}
@@ -158,7 +170,7 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path=":id"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin']}>
+								<RoleBasedRedirect allowedRoles={["admin"]}>
 									<GroupDetail />
 								</RoleBasedRedirect>
 							}
@@ -166,7 +178,7 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path=":id/edit"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin']}>
+								<RoleBasedRedirect allowedRoles={["admin"]}>
 									<GroupForm />
 								</RoleBasedRedirect>
 							}
@@ -178,7 +190,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							index
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<AssessmentList />
 								</RoleBasedRedirect>
 							}
@@ -186,7 +200,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="new"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<AssessmentForm />
 								</RoleBasedRedirect>
 							}
@@ -194,7 +210,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="edit/:id"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<AssessmentForm />
 								</RoleBasedRedirect>
 							}
@@ -202,7 +220,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path=":id"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<AssessmentDetail />
 								</RoleBasedRedirect>
 							}
@@ -214,7 +234,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							index
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<QuestionList />
 								</RoleBasedRedirect>
 							}
@@ -222,7 +244,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="new"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<QuestionForm />
 								</RoleBasedRedirect>
 							}
@@ -230,7 +254,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="edit/:id"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<QuestionForm />
 								</RoleBasedRedirect>
 							}
@@ -242,7 +268,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							index
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<QuestionBankList />
 								</RoleBasedRedirect>
 							}
@@ -250,7 +278,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="public"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<PublicQuestionBanks />
 								</RoleBasedRedirect>
 							}
@@ -258,7 +288,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="shared"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<SharedQuestionBanks />
 								</RoleBasedRedirect>
 							}
@@ -266,7 +298,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="new"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<QuestionBankForm />
 								</RoleBasedRedirect>
 							}
@@ -274,7 +308,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="edit/:id"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<QuestionBankForm />
 								</RoleBasedRedirect>
 							}
@@ -282,7 +318,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path=":id"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<QuestionBankDetail />
 								</RoleBasedRedirect>
 							}
@@ -294,7 +332,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							index
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<GradingList />
 								</RoleBasedRedirect>
 							}
@@ -302,7 +342,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path=":id"
 							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<RoleBasedRedirect
+									allowedRoles={["admin", "teacher"]}
+								>
 									<GradingDetail />
 								</RoleBasedRedirect>
 							}
@@ -311,12 +353,29 @@ const AppRoutes: React.FC = () => {
 
 					{/* Student routes */}
 					<Route path="student">
-						<Route index element={<Navigate to="/student/dashboard" replace />} />
-						<Route path="dashboard" element={<StudentDashboard />} />
-						<Route path="assessments" element={<AvailableAssessments />} />
-						<Route path="face-verification" element={<FaceVerification />} />
+						<Route
+							index
+							element={
+								<Navigate to="/student/dashboard" replace />
+							}
+						/>
+						<Route
+							path="dashboard"
+							element={<StudentDashboard />}
+						/>
+						<Route
+							path="assessments"
+							element={<AvailableAssessments />}
+						/>
+						<Route
+							path="face-verification"
+							element={<FaceVerification />}
+						/>
 						{/* Note: take/:attemptId moved to ExamLayout below */}
-						<Route path="results/:attemptId" element={<AssessmentResults />} />
+						<Route
+							path="results/:attemptId"
+							element={<AssessmentResults />}
+						/>
 						<Route path="history" element={<StudentHistory />} />
 						{/* Student Groups */}
 						<Route path="groups" element={<StudentGroups />} />
@@ -324,15 +383,33 @@ const AppRoutes: React.FC = () => {
 						<Route path="groups/:id/edit" element={<GroupForm />} />
 
 						{/* Student Manage Assessments */}
-						<Route path="manage-assessments" element={<StudentAssessmentList />} />
-						<Route path="manage-assessments/new" element={<AssessmentForm />} />
-						<Route path="manage-assessments/:id" element={<AssessmentDetail />} />
-						<Route path="manage-assessments/:id/edit" element={<AssessmentForm />} />
+						<Route
+							path="manage-assessments"
+							element={<StudentAssessmentList />}
+						/>
+						<Route
+							path="manage-assessments/new"
+							element={<AssessmentForm />}
+						/>
+						<Route
+							path="manage-assessments/:id"
+							element={<AssessmentDetail />}
+						/>
+						<Route
+							path="manage-assessments/:id/edit"
+							element={<AssessmentForm />}
+						/>
 
 						{/* Student Question Bank */}
 						<Route path="questions" element={<QuestionList />} />
-						<Route path="questions/new" element={<QuestionForm />} />
-						<Route path="questions/edit/:id" element={<QuestionForm />} />
+						<Route
+							path="questions/new"
+							element={<QuestionForm />}
+						/>
+						<Route
+							path="questions/edit/:id"
+							element={<QuestionForm />}
+						/>
 					</Route>
 
 					{/* Teacher routes */}
@@ -340,7 +417,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							index
 							element={
-								<RoleBasedRedirect allowedRoles={['teacher', 'admin']}>
+								<RoleBasedRedirect
+									allowedRoles={["teacher", "admin"]}
+								>
 									<Navigate to="/teacher/dashboard" replace />
 								</RoleBasedRedirect>
 							}
@@ -348,7 +427,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="dashboard"
 							element={
-								<RoleBasedRedirect allowedRoles={['teacher', 'admin']}>
+								<RoleBasedRedirect
+									allowedRoles={["teacher", "admin"]}
+								>
 									<TeacherDashboard />
 								</RoleBasedRedirect>
 							}
@@ -356,7 +437,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="my-assessments"
 							element={
-								<RoleBasedRedirect allowedRoles={['teacher', 'admin']}>
+								<RoleBasedRedirect
+									allowedRoles={["teacher", "admin"]}
+								>
 									<MyAssessments />
 								</RoleBasedRedirect>
 							}
@@ -364,7 +447,9 @@ const AppRoutes: React.FC = () => {
 						<Route
 							path="student-progress"
 							element={
-								<RoleBasedRedirect allowedRoles={['teacher', 'admin']}>
+								<RoleBasedRedirect
+									allowedRoles={["teacher", "admin"]}
+								>
 									<StudentProgress />
 								</RoleBasedRedirect>
 							}
@@ -372,7 +457,10 @@ const AppRoutes: React.FC = () => {
 					</Route>
 				</Route>
 			</Routes>
-			<ShortcutsModal ref={shortcutsRef} activeContext={getActiveContext()} />
+			<ShortcutsModal
+				ref={shortcutsRef}
+				activeContext={getActiveContext()}
+			/>
 		</>
 	);
 };

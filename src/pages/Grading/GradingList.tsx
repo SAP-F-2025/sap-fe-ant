@@ -6,8 +6,8 @@ import {
 	SyncOutlined,
 	ThunderboltOutlined,
 	TrophyOutlined,
-	UserOutlined
-} from '@ant-design/icons';
+	UserOutlined,
+} from "@ant-design/icons";
 import {
 	Avatar,
 	Button,
@@ -22,19 +22,22 @@ import {
 	Tag,
 	Typography,
 	message,
-} from 'antd';
-import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import dayjs from 'dayjs';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { StatusBadge } from '../../components/StatusBadge/StatusBadge';
-import { assessmentService } from '../../services/assessmentService';
-import { gradingService, type AttemptListItem } from '../../services/gradingService';
-import { cardColors } from '../../styles/cardColors';
-import { elevation } from '../../styles/elevation';
-import { useThemeToken } from '../../theme/ThemeProvider';
-import { Assessment } from '../../types';
+} from "antd";
+import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
+import dayjs from "dayjs";
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { StatusBadge } from "../../components/StatusBadge/StatusBadge";
+import { assessmentService } from "../../services/assessmentService";
+import {
+	gradingService,
+	type AttemptListItem,
+} from "../../services/gradingService";
+import { cardColors } from "../../styles/cardColors";
+import { elevation } from "../../styles/elevation";
+import { useThemeToken } from "../../theme/ThemeProvider";
+import { Assessment } from "../../types";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -46,35 +49,46 @@ const GradingList: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [attempts, setAttempts] = useState<AttemptListItem[]>([]);
 	const [total, setTotal] = useState(0);
-	const [allAttemptsStats, setAllAttemptsStats] = useState<AttemptListItem[]>([]);
+	const [allAttemptsStats, setAllAttemptsStats] = useState<AttemptListItem[]>(
+		[],
+	);
 	const [pagination, setPagination] = useState({
 		current: 1,
 		pageSize: 10,
 	});
 
 	// Filters
-	const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-	const [searchText, setSearchText] = useState('');
-	const [assessmentFilter, setAssessmentFilter] = useState<number | undefined>(undefined);
+	const [statusFilter, setStatusFilter] = useState<string | undefined>(
+		undefined,
+	);
+	const [searchText, setSearchText] = useState("");
+	const [assessmentFilter, setAssessmentFilter] = useState<
+		number | undefined
+	>(undefined);
 	const [assessments, setAssessments] = useState<Assessment[]>([]);
 
 	// Selection state for attempts
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-	const [selectedAttempts, setSelectedAttempts] = useState<AttemptListItem[]>([]);
+	const [selectedAttempts, setSelectedAttempts] = useState<AttemptListItem[]>(
+		[],
+	);
 
 	// Calculate statistics from ALL attempts, not just current page
 	const stats = useMemo(() => {
-		const graded = allAttemptsStats.filter((a) => a.score !== undefined).length;
+		const graded = allAttemptsStats.filter(
+			(a) => a.score !== undefined,
+		).length;
 		const pending = allAttemptsStats.filter(
-			(a) => a.status === 'completed' && a.score === undefined
+			(a) => a.status === "completed" && a.score === undefined,
 		).length;
 		const avgScore =
 			graded > 0
 				? Math.round(
-					allAttemptsStats
-						.filter((a) => a.score !== undefined)
-						.reduce((sum, a) => sum + (a.score || 0), 0) / graded
-				)
+						allAttemptsStats
+							.filter((a) => a.score !== undefined)
+							.reduce((sum, a) => sum + (a.score || 0), 0) /
+							graded,
+					)
 				: 0;
 		return {
 			total: total,
@@ -86,7 +100,12 @@ const GradingList: React.FC = () => {
 
 	useEffect(() => {
 		fetchAttempts();
-	}, [pagination.current, pagination.pageSize, statusFilter, assessmentFilter]);
+	}, [
+		pagination.current,
+		pagination.pageSize,
+		statusFilter,
+		assessmentFilter,
+	]);
 
 	useEffect(() => {
 		fetchAssessments();
@@ -99,10 +118,13 @@ const GradingList: React.FC = () => {
 
 	const fetchAssessments = async () => {
 		try {
-			const response = await assessmentService.getAssessments({ page: 1, size: 100 });
+			const response = await assessmentService.getAssessments({
+				page: 1,
+				size: 100,
+			});
 			setAssessments(response.assessments || []);
 		} catch (error) {
-			console.error(t('gradingList.loadError'), error);
+			console.error(t("gradingList.loadError"), error);
 		}
 	};
 
@@ -119,7 +141,7 @@ const GradingList: React.FC = () => {
 			setAttempts(response.data); // Changed from 'attempts' to 'data'
 			setTotal(response.total); // Changed from 'total_elements' to 'total'
 		} catch (error) {
-			message.error(t('gradingList.loadError'));
+			message.error(t("gradingList.loadError"));
 		} finally {
 			setLoading(false);
 		}
@@ -128,10 +150,13 @@ const GradingList: React.FC = () => {
 	// Fetch all attempts for statistics calculation
 	const fetchAllAttemptsForStats = async () => {
 		try {
-			const response = await gradingService.getAttempts({ page: 1, size: 10000 });
+			const response = await gradingService.getAttempts({
+				page: 1,
+				size: 10000,
+			});
 			setAllAttemptsStats(response.data || []);
 		} catch (error) {
-			console.error('Failed to fetch grading statistics:', error);
+			console.error("Failed to fetch grading statistics:", error);
 		}
 	};
 
@@ -143,13 +168,16 @@ const GradingList: React.FC = () => {
 	};
 
 	const getStatusBadge = (status: string) => {
-		const statusMap: Record<string, 'in-progress' | 'completed' | 'failed' | 'pending'> = {
-			in_progress: 'in-progress',
-			completed: 'completed',
-			abandoned: 'failed',
-			timeout: 'failed',
+		const statusMap: Record<
+			string,
+			"in-progress" | "completed" | "failed" | "pending"
+		> = {
+			in_progress: "in-progress",
+			completed: "completed",
+			abandoned: "failed",
+			timeout: "failed",
 		};
-		return <StatusBadge status={statusMap[status] || 'pending'} />;
+		return <StatusBadge status={statusMap[status] || "pending"} />;
 	};
 
 	const handleViewDetail = (attemptId: number) => {
@@ -158,23 +186,24 @@ const GradingList: React.FC = () => {
 
 	const handleAutoGradeAll = async () => {
 		if (!assessmentFilter) {
-			message.warning(t('gradingList.selectAssessment'));
+			message.warning(t("gradingList.selectAssessment"));
 			return;
 		}
 
 		try {
 			setLoading(true);
-			const result = await gradingService.autoGradeAssessment(assessmentFilter);
+			const result =
+				await gradingService.autoGradeAssessment(assessmentFilter);
 			message.success(
-				t('gradingList.autoGradeSuccess', {
+				t("gradingList.autoGradeSuccess", {
 					processed: result.processed_attempts,
 					graded: result.auto_graded,
-					manual: result.manual_required
-				})
+					manual: result.manual_required,
+				}),
 			);
 			await fetchAttempts();
 		} catch (error) {
-			message.error(t('gradingList.autoGradeError'));
+			message.error(t("gradingList.autoGradeError"));
 		} finally {
 			setLoading(false);
 		}
@@ -182,29 +211,35 @@ const GradingList: React.FC = () => {
 
 	const columns: ColumnsType<AttemptListItem> = [
 		{
-			title: t('gradingList.columnId'),
-			dataIndex: 'id',
-			key: 'id',
+			title: t("gradingList.columnId"),
+			dataIndex: "id",
+			key: "id",
 			width: 80,
 		},
 		{
-			title: t('gradingList.columnAssessment'),
-			dataIndex: ['assessment', 'title'],
-			key: 'assessment',
+			title: t("gradingList.columnAssessment"),
+			dataIndex: ["assessment", "title"],
+			key: "assessment",
 			width: 200,
 			render: (_, record) => (
 				<Space direction="vertical" size={0}>
-					<Text strong>{record.assessment?.title || t('gradingList.assessmentFallback', { id: record.assessment_id })}</Text>
+					<Text strong>
+						{record.assessment?.title ||
+							t("gradingList.assessmentFallback", {
+								id: record.assessment_id,
+							})}
+					</Text>
 					<Text type="secondary" style={{ fontSize: 12 }}>
-						{t('gradingList.passingScore')}: {record.assessment?.passing_score}%
+						{t("gradingList.passingScore")}:{" "}
+						{record.assessment?.passing_score}%
 					</Text>
 				</Space>
 			),
 		},
 		{
-			title: t('gradingList.columnStudent'),
-			dataIndex: ['student', 'full_name'],
-			key: 'student',
+			title: t("gradingList.columnStudent"),
+			dataIndex: ["student", "full_name"],
+			key: "student",
 			width: 200,
 			render: (_, record) => (
 				<Space>
@@ -214,7 +249,10 @@ const GradingList: React.FC = () => {
 						src={record.student?.avatar_url}
 					/>
 					<Space direction="vertical" size={0}>
-						<Text>{record.student?.full_name || `HV-${record.student_id}`}</Text>
+						<Text>
+							{record.student?.full_name ||
+								`HV-${record.student_id}`}
+						</Text>
 						<Text type="secondary" style={{ fontSize: 12 }}>
 							{record.student?.email}
 						</Text>
@@ -223,25 +261,28 @@ const GradingList: React.FC = () => {
 			),
 		},
 		{
-			title: t('gradingList.columnStatus'),
-			dataIndex: 'status',
-			key: 'status',
+			title: t("gradingList.columnStatus"),
+			dataIndex: "status",
+			key: "status",
 			width: 130,
 			render: (status) => getStatusBadge(status),
 			filters: [
-				{ text: t('gradingList.statusInProgress'), value: 'in_progress' },
-				{ text: t('gradingList.statusCompleted'), value: 'completed' },
-				{ text: t('gradingList.statusAbandoned'), value: 'abandoned' },
-				{ text: t('gradingList.statusTimeout'), value: 'timeout' },
+				{
+					text: t("gradingList.statusInProgress"),
+					value: "in_progress",
+				},
+				{ text: t("gradingList.statusCompleted"), value: "completed" },
+				{ text: t("gradingList.statusAbandoned"), value: "abandoned" },
+				{ text: t("gradingList.statusTimeout"), value: "timeout" },
 			],
 			filteredValue: statusFilter ? [statusFilter] : null,
 		},
 		{
-			title: t('gradingList.columnScore'),
-			dataIndex: 'score',
-			key: 'score',
+			title: t("gradingList.columnScore"),
+			dataIndex: "score",
+			key: "score",
 			width: 120,
-			align: 'center',
+			align: "center",
 			sorter: (a, b) => (a.score || 0) - (b.score || 0),
 			render: (score, record) => (
 				<Space direction="vertical" size={0}>
@@ -250,60 +291,67 @@ const GradingList: React.FC = () => {
 							<Text strong style={{ fontSize: 18 }}>
 								{score.toFixed(1)}
 							</Text>
-							{record.passed !== undefined && (
-								record.passed ? (
-									<Tag color="success">{t('gradingList.passed')}</Tag>
+							{record.passed !== undefined &&
+								(record.passed ? (
+									<Tag color="success">
+										{t("gradingList.passed")}
+									</Tag>
 								) : (
-									<Tag color="error">{t('gradingList.failed')}</Tag>
-								)
-							)}
+									<Tag color="error">
+										{t("gradingList.failed")}
+									</Tag>
+								))}
 						</>
 					) : (
-						<Tag color="warning">{t('gradingList.notGraded')}</Tag>
+						<Tag color="warning">{t("gradingList.notGraded")}</Tag>
 					)}
 				</Space>
 			),
 		},
 		{
-			title: t('gradingList.columnStarted'),
-			dataIndex: 'started_at',
-			key: 'started_at',
+			title: t("gradingList.columnStarted"),
+			dataIndex: "started_at",
+			key: "started_at",
 			width: 160,
-			sorter: (a, b) => dayjs(a.started_at).unix() - dayjs(b.started_at).unix(),
+			sorter: (a, b) =>
+				dayjs(a.started_at).unix() - dayjs(b.started_at).unix(),
 			render: (date) => (
 				<Space direction="vertical" size={0}>
-					<Text>{dayjs(date).format('DD/MM/YYYY')}</Text>
+					<Text>{dayjs(date).format("DD/MM/YYYY")}</Text>
 					<Text type="secondary" style={{ fontSize: 12 }}>
-						{dayjs(date).format('HH:mm:ss')}
+						{dayjs(date).format("HH:mm:ss")}
 					</Text>
 				</Space>
 			),
 		},
 		{
-			title: t('gradingList.columnCompleted'),
-			dataIndex: 'completed_at',
-			key: 'completed_at',
+			title: t("gradingList.columnCompleted"),
+			dataIndex: "completed_at",
+			key: "completed_at",
 			width: 160,
 			sorter: (a, b) => {
 				if (!a.completed_at) return 1;
 				if (!b.completed_at) return -1;
-				return dayjs(a.completed_at).unix() - dayjs(b.completed_at).unix();
+				return (
+					dayjs(a.completed_at).unix() - dayjs(b.completed_at).unix()
+				);
 			},
-			render: (date) => date ? (
-				<Space direction="vertical" size={0}>
-					<Text>{dayjs(date).format('DD/MM/YYYY')}</Text>
-					<Text type="secondary" style={{ fontSize: 12 }}>
-						{dayjs(date).format('HH:mm:ss')}
-					</Text>
-				</Space>
-			) : (
-				<Text type="secondary">-</Text>
-			),
+			render: (date) =>
+				date ? (
+					<Space direction="vertical" size={0}>
+						<Text>{dayjs(date).format("DD/MM/YYYY")}</Text>
+						<Text type="secondary" style={{ fontSize: 12 }}>
+							{dayjs(date).format("HH:mm:ss")}
+						</Text>
+					</Space>
+				) : (
+					<Text type="secondary">-</Text>
+				),
 		},
 		{
-			title: t('gradingList.columnActions'),
-			key: 'action',
-			fixed: 'right',
+			title: t("gradingList.columnActions"),
+			key: "action",
+			fixed: "right",
 			width: 120,
 			render: (_, record) => (
 				<Button
@@ -312,21 +360,22 @@ const GradingList: React.FC = () => {
 					icon={<EyeOutlined />}
 					onClick={() => handleViewDetail(record.id)}
 				>
-					{t('gradingList.viewDetail')}
+					{t("gradingList.viewDetail")}
 				</Button>
 			),
 		},
 	];
 
 	return (
-		<Space direction="vertical" size="large" style={{ width: '100%' }}>
+		<Space direction="vertical" size="large" style={{ width: "100%" }}>
 			<Flex justify="space-between" align="center">
 				<Space direction="vertical" size={4}>
 					<Title level={2} style={{ margin: 0, fontWeight: 600 }}>
-						<CheckCircleOutlined style={{ marginRight: 8 }} /> {t('gradingList.title')}
+						<CheckCircleOutlined style={{ marginRight: 8 }} />{" "}
+						{t("gradingList.title")}
 					</Title>
 					<Text type="secondary" style={{ fontSize: 14 }}>
-						{t('gradingList.subtitle')}
+						{t("gradingList.subtitle")}
 					</Text>
 				</Space>
 				<Space>
@@ -335,7 +384,7 @@ const GradingList: React.FC = () => {
 						onClick={fetchAttempts}
 						loading={loading}
 					>
-						{t('gradingList.refresh')}
+						{t("gradingList.refresh")}
 					</Button>
 					<Button
 						type="primary"
@@ -343,7 +392,7 @@ const GradingList: React.FC = () => {
 						onClick={handleAutoGradeAll}
 						disabled={!assessmentFilter}
 					>
-						{t('gradingList.autoGradeAll')}
+						{t("gradingList.autoGradeAll")}
 					</Button>
 				</Space>
 			</Flex>
@@ -352,37 +401,63 @@ const GradingList: React.FC = () => {
 			<Card style={{ ...elevation[1], borderRadius: 16 }}>
 				<Row gutter={[16, 16]}>
 					<Col xs={24} sm={12} md={8}>
-						<Space direction="vertical" style={{ width: '100%' }} size={4}>
-							<Text strong>{t('gradingList.statusFilter')}</Text>
+						<Space
+							direction="vertical"
+							style={{ width: "100%" }}
+							size={4}
+						>
+							<Text strong>{t("gradingList.statusFilter")}</Text>
 							<Select
-								style={{ width: '100%' }}
-								placeholder={t('gradingList.allStatuses')}
+								style={{ width: "100%" }}
+								placeholder={t("gradingList.allStatuses")}
 								allowClear
 								value={statusFilter}
 								onChange={setStatusFilter}
 								options={[
-									{ label: t('gradingList.statusInProgress'), value: 'in_progress' },
-									{ label: t('gradingList.statusCompleted'), value: 'completed' },
-									{ label: t('gradingList.statusAbandoned'), value: 'abandoned' },
-									{ label: t('gradingList.statusTimeout'), value: 'timeout' },
+									{
+										label: t(
+											"gradingList.statusInProgress",
+										),
+										value: "in_progress",
+									},
+									{
+										label: t("gradingList.statusCompleted"),
+										value: "completed",
+									},
+									{
+										label: t("gradingList.statusAbandoned"),
+										value: "abandoned",
+									},
+									{
+										label: t("gradingList.statusTimeout"),
+										value: "timeout",
+									},
 								]}
 							/>
 						</Space>
 					</Col>
 					<Col xs={24} sm={12} md={8}>
-						<Space direction="vertical" style={{ width: '100%' }} size={4}>
-							<Text strong>{t('gradingList.assessmentFilter')}</Text>
+						<Space
+							direction="vertical"
+							style={{ width: "100%" }}
+							size={4}
+						>
+							<Text strong>
+								{t("gradingList.assessmentFilter")}
+							</Text>
 							<Select
-								style={{ width: '100%' }}
-								placeholder={t('gradingList.allAssessments')}
+								style={{ width: "100%" }}
+								placeholder={t("gradingList.allAssessments")}
 								allowClear
 								showSearch
 								value={assessmentFilter}
 								onChange={setAssessmentFilter}
 								filterOption={(input, option) =>
-									(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+									(option?.label ?? "")
+										.toLowerCase()
+										.includes(input.toLowerCase())
 								}
-								options={assessments.map(assessment => ({
+								options={assessments.map((assessment) => ({
 									label: assessment.title,
 									value: assessment.id,
 								}))}
@@ -390,10 +465,14 @@ const GradingList: React.FC = () => {
 						</Space>
 					</Col>
 					<Col xs={24} sm={12} md={8}>
-						<Space direction="vertical" style={{ width: '100%' }} size={4}>
-							<Text strong>{t('gradingList.searchLabel')}</Text>
+						<Space
+							direction="vertical"
+							style={{ width: "100%" }}
+							size={4}
+						>
+							<Text strong>{t("gradingList.searchLabel")}</Text>
 							<Search
-								placeholder={t('gradingList.searchPlaceholder')}
+								placeholder={t("gradingList.searchPlaceholder")}
 								allowClear
 								value={searchText}
 								onChange={(e) => setSearchText(e.target.value)}
@@ -404,17 +483,31 @@ const GradingList: React.FC = () => {
 				</Row>
 			</Card>
 
-
-
 			<Card style={{ ...elevation[1], borderRadius: 16 }}>
 				{selectedAttempts.length > 0 && (
-					<div style={{ marginBottom: 16, padding: 12, background: '#e6f7ff', borderRadius: 8 }}>
+					<div
+						style={{
+							marginBottom: 16,
+							padding: 12,
+							background: "#e6f7ff",
+							borderRadius: 8,
+						}}
+					>
 						<Space>
 							<Text strong>
-								{t('gradingList.selectedCount', { count: selectedAttempts.length, defaultValue: `${selectedAttempts.length} attempt(s) selected` })}
+								{t("gradingList.selectedCount", {
+									count: selectedAttempts.length,
+									defaultValue: `${selectedAttempts.length} attempt(s) selected`,
+								})}
 							</Text>
-							<Button size="small" onClick={() => { setSelectedRowKeys([]); setSelectedAttempts([]); }}>
-								{t('common.clearSelection', 'Clear Selection')}
+							<Button
+								size="small"
+								onClick={() => {
+									setSelectedRowKeys([]);
+									setSelectedAttempts([]);
+								}}
+							>
+								{t("common.clearSelection", "Clear Selection")}
 							</Button>
 						</Space>
 					</div>
@@ -437,55 +530,160 @@ const GradingList: React.FC = () => {
 						pageSize: pagination.pageSize,
 						total: total,
 						showSizeChanger: true,
-						showTotal: (total) => t('gradingList.totalItems', { count: total }),
-						pageSizeOptions: ['10', '20', '50', '100'],
+						showTotal: (total) =>
+							t("gradingList.totalItems", { count: total }),
+						pageSizeOptions: ["10", "20", "50", "100"],
 					}}
 					onChange={handleTableChange}
 				/>
 			</Card>
 
 			{/* Statistics Summary - Moved to bottom */}
-			<Card bordered={false} style={{ ...elevation[1], borderRadius: 16, background: '#f5f5f5' }}>
-				<Space direction="vertical" size={8} style={{ width: '100%' }}>
-					<Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>{t('gradingList.statsTitle')}</Text>
+			<Card
+				bordered={false}
+				style={{
+					...elevation[1],
+					borderRadius: 16,
+					background: "#f5f5f5",
+				}}
+			>
+				<Space direction="vertical" size={8} style={{ width: "100%" }}>
+					<Text
+						type="secondary"
+						style={{ fontSize: 13, fontWeight: 500 }}
+					>
+						{t("gradingList.statsTitle")}
+					</Text>
 					<Row gutter={[12, 12]}>
 						<Col xs={12} sm={6}>
 							<Flex align="center" gap={8}>
-								<Avatar size={36} icon={<FileSearchOutlined style={{ fontSize: 16 }} />}
-									style={{ backgroundColor: cardColors.geekblue, flexShrink: 0 }} />
+								<Avatar
+									size={36}
+									icon={
+										<FileSearchOutlined
+											style={{ fontSize: 16 }}
+										/>
+									}
+									style={{
+										backgroundColor: cardColors.geekblue,
+										flexShrink: 0,
+									}}
+								/>
 								<Space direction="vertical" size={0}>
-									<Text style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{stats.total}</Text>
-									<Text type="secondary" style={{ fontSize: 12 }}>{t('gradingList.totalSubmissions')}</Text>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: 700,
+											lineHeight: 1.2,
+										}}
+									>
+										{stats.total}
+									</Text>
+									<Text
+										type="secondary"
+										style={{ fontSize: 12 }}
+									>
+										{t("gradingList.totalSubmissions")}
+									</Text>
 								</Space>
 							</Flex>
 						</Col>
 						<Col xs={12} sm={6}>
 							<Flex align="center" gap={8}>
-								<Avatar size={36} icon={<CheckCircleOutlined style={{ fontSize: 16 }} />}
-									style={{ backgroundColor: cardColors.green, flexShrink: 0 }} />
+								<Avatar
+									size={36}
+									icon={
+										<CheckCircleOutlined
+											style={{ fontSize: 16 }}
+										/>
+									}
+									style={{
+										backgroundColor: cardColors.green,
+										flexShrink: 0,
+									}}
+								/>
 								<Space direction="vertical" size={0}>
-									<Text style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{stats.graded}</Text>
-									<Text type="secondary" style={{ fontSize: 12 }}>{t('gradingList.graded')}</Text>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: 700,
+											lineHeight: 1.2,
+										}}
+									>
+										{stats.graded}
+									</Text>
+									<Text
+										type="secondary"
+										style={{ fontSize: 12 }}
+									>
+										{t("gradingList.graded")}
+									</Text>
 								</Space>
 							</Flex>
 						</Col>
 						<Col xs={12} sm={6}>
 							<Flex align="center" gap={8}>
-								<Avatar size={36} icon={<ClockCircleOutlined style={{ fontSize: 16 }} />}
-									style={{ backgroundColor: cardColors.orange, flexShrink: 0 }} />
+								<Avatar
+									size={36}
+									icon={
+										<ClockCircleOutlined
+											style={{ fontSize: 16 }}
+										/>
+									}
+									style={{
+										backgroundColor: cardColors.orange,
+										flexShrink: 0,
+									}}
+								/>
 								<Space direction="vertical" size={0}>
-									<Text style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{stats.pending}</Text>
-									<Text type="secondary" style={{ fontSize: 12 }}>{t('gradingList.pending')}</Text>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: 700,
+											lineHeight: 1.2,
+										}}
+									>
+										{stats.pending}
+									</Text>
+									<Text
+										type="secondary"
+										style={{ fontSize: 12 }}
+									>
+										{t("gradingList.pending")}
+									</Text>
 								</Space>
 							</Flex>
 						</Col>
 						<Col xs={12} sm={6}>
 							<Flex align="center" gap={8}>
-								<Avatar size={36} icon={<TrophyOutlined style={{ fontSize: 16 }} />}
-									style={{ backgroundColor: cardColors.volcano, flexShrink: 0 }} />
+								<Avatar
+									size={36}
+									icon={
+										<TrophyOutlined
+											style={{ fontSize: 16 }}
+										/>
+									}
+									style={{
+										backgroundColor: cardColors.volcano,
+										flexShrink: 0,
+									}}
+								/>
 								<Space direction="vertical" size={0}>
-									<Text style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{stats.avgScore}</Text>
-									<Text type="secondary" style={{ fontSize: 12 }}>{t('gradingList.avgScore')}</Text>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: 700,
+											lineHeight: 1.2,
+										}}
+									>
+										{stats.avgScore}
+									</Text>
+									<Text
+										type="secondary"
+										style={{ fontSize: 12 }}
+									>
+										{t("gradingList.avgScore")}
+									</Text>
 								</Space>
 							</Flex>
 						</Col>

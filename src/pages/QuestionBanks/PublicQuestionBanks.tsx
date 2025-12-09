@@ -3,8 +3,8 @@ import {
 	GlobalOutlined,
 	RollbackOutlined,
 	SearchOutlined,
-	UserOutlined
-} from '@ant-design/icons';
+	UserOutlined,
+} from "@ant-design/icons";
 import {
 	Badge,
 	Button,
@@ -16,16 +16,16 @@ import {
 	Space,
 	Table,
 	Tooltip,
-	Typography
-} from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import questionBankService from '../../services/questionBankService';
-import { elevation } from '../../styles/elevation';
-import { QuestionBank } from '../../types';
+	Typography,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import questionBankService from "../../services/questionBankService";
+import { elevation } from "../../styles/elevation";
+import { QuestionBank } from "../../types";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -39,7 +39,7 @@ const PublicQuestionBanks: React.FC = () => {
 	const [filters, setFilters] = useState({
 		page: 1,
 		size: 10,
-		search: '',
+		search: "",
 	});
 
 	useEffect(() => {
@@ -49,11 +49,12 @@ const PublicQuestionBanks: React.FC = () => {
 	const fetchPublicQuestionBanks = async () => {
 		setLoading(true);
 		try {
-			const response = await questionBankService.getPublicQuestionBanks(filters);
+			const response =
+				await questionBankService.getPublicQuestionBanks(filters);
 			setQuestionBanks(response.banks);
 			setTotal(response.total);
 		} catch (error) {
-			message.error(t('publicQuestionBanks.loadError'));
+			message.error(t("publicQuestionBanks.loadError"));
 		} finally {
 			setLoading(false);
 		}
@@ -61,20 +62,23 @@ const PublicQuestionBanks: React.FC = () => {
 
 	const columns: ColumnsType<QuestionBank> = [
 		{
-			title: t('publicQuestionBanks.columns.bankName'),
-			dataIndex: 'name',
-			key: 'name',
+			title: t("publicQuestionBanks.columns.bankName"),
+			dataIndex: "name",
+			key: "name",
 			width: 300,
 			render: (text, record) => (
 				<Space direction="vertical" size={0}>
 					<Space>
 						<Typography.Text strong>{text}</Typography.Text>
-						<Tooltip title={t('publicQuestionBanks.public')}>
-							<GlobalOutlined style={{ color: '#52c41a' }} />
+						<Tooltip title={t("publicQuestionBanks.public")}>
+							<GlobalOutlined style={{ color: "#52c41a" }} />
 						</Tooltip>
 					</Space>
 					{record.description && (
-						<Typography.Text type="secondary" style={{ fontSize: 12 }}>
+						<Typography.Text
+							type="secondary"
+							style={{ fontSize: 12 }}
+						>
 							{record.description.length > 80
 								? `${record.description.substring(0, 80)}...`
 								: record.description}
@@ -84,11 +88,11 @@ const PublicQuestionBanks: React.FC = () => {
 			),
 		},
 		{
-			title: t('publicQuestionBanks.columns.questionCount'),
-			dataIndex: 'question_count',
-			key: 'question_count',
+			title: t("publicQuestionBanks.columns.questionCount"),
+			dataIndex: "question_count",
+			key: "question_count",
 			width: 120,
-			align: 'center',
+			align: "center",
 			render: (count) => (
 				<Badge
 					count={count || 0}
@@ -99,35 +103,37 @@ const PublicQuestionBanks: React.FC = () => {
 			),
 		},
 		{
-			title: t('publicQuestionBanks.columns.creator'),
-			key: 'creator',
+			title: t("publicQuestionBanks.columns.creator"),
+			key: "creator",
 			width: 150,
 			render: (_, record: any) => (
 				<Space>
 					<UserOutlined />
-					<Text>{record.creator?.full_name || 'N/A'}</Text>
+					<Text>{record.creator?.full_name || "N/A"}</Text>
 				</Space>
 			),
 		},
 		{
-			title: t('publicQuestionBanks.columns.createdAt'),
-			dataIndex: 'created_at',
-			key: 'created_at',
+			title: t("publicQuestionBanks.columns.createdAt"),
+			dataIndex: "created_at",
+			key: "created_at",
 			width: 150,
-			render: (date) => dayjs(date).format('DD/MM/YYYY'),
+			render: (date) => dayjs(date).format("DD/MM/YYYY"),
 		},
 		{
-			title: t('publicQuestionBanks.columns.actions'),
-			key: 'action',
-			fixed: 'right',
+			title: t("publicQuestionBanks.columns.actions"),
+			key: "action",
+			fixed: "right",
 			width: 100,
 			render: (_, record) => (
 				<Space size="small">
-					<Tooltip title={t('publicQuestionBanks.viewDetail')}>
+					<Tooltip title={t("publicQuestionBanks.viewDetail")}>
 						<Button
 							type="text"
 							icon={<EyeOutlined />}
-							onClick={() => navigate(`/question-banks/${record.id}`)}
+							onClick={() =>
+								navigate(`/question-banks/${record.id}`)
+							}
 						/>
 					</Tooltip>
 				</Space>
@@ -136,32 +142,37 @@ const PublicQuestionBanks: React.FC = () => {
 	];
 
 	return (
-		<Space direction="vertical" size="large" style={{ width: '100%' }}>
+		<Space direction="vertical" size="large" style={{ width: "100%" }}>
 			<Row justify="space-between" align="middle">
 				<Col>
 					<Space direction="vertical" size={4}>
 						<Title level={2} style={{ margin: 0, fontWeight: 600 }}>
-							<GlobalOutlined style={{ marginRight: 8 }} /> {t('publicQuestionBanks.title')}
+							<GlobalOutlined style={{ marginRight: 8 }} />{" "}
+							{t("publicQuestionBanks.title")}
 						</Title>
 						<Text type="secondary" style={{ fontSize: 14 }}>
-							{t('publicQuestionBanks.subtitle')}
+							{t("publicQuestionBanks.subtitle")}
 						</Text>
 					</Space>
 				</Col>
 				<Col>
 					<Button
 						icon={<RollbackOutlined />}
-						onClick={() => navigate('/question-banks')}
+						onClick={() => navigate("/question-banks")}
 					>
-						{t('publicQuestionBanks.back')}
+						{t("publicQuestionBanks.back")}
 					</Button>
 				</Col>
 			</Row>
 
 			<Card style={{ ...elevation[1], borderRadius: 16 }}>
-				<Space direction="vertical" size="middle" style={{ width: '100%' }}>
+				<Space
+					direction="vertical"
+					size="middle"
+					style={{ width: "100%" }}
+				>
 					<Search
-						placeholder={t('publicQuestionBanks.searchPlaceholder')}
+						placeholder={t("publicQuestionBanks.searchPlaceholder")}
 						allowClear
 						enterButton={<SearchOutlined />}
 						size="large"
@@ -181,7 +192,8 @@ const PublicQuestionBanks: React.FC = () => {
 							pageSize: filters.size,
 							total: total,
 							showSizeChanger: true,
-							showTotal: (total) => t('publicQuestionBanks.showTotal', { total }),
+							showTotal: (total) =>
+								t("publicQuestionBanks.showTotal", { total }),
 							onChange: (page, size) =>
 								setFilters({ ...filters, page, size }),
 						}}

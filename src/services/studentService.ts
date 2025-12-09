@@ -1,258 +1,291 @@
-import { API_CONFIG, API_ENDPOINTS } from '../config/api';
-import apiService from './api';
-import faceVerificationService from './faceVerificationService';
+import { API_CONFIG, API_ENDPOINTS } from "../config/api";
+import apiService from "./api";
+import faceVerificationService from "./faceVerificationService";
 import {
-  Assessment,
-  AssessmentStatus,
-  StudentAssessment,
-  StudentAssessmentsResponse,
-  StudentDashboardStats,
-  StudentAttemptsResponse,
-  StudentAssessmentDetailResponse,
-  Attempt,
-  AttemptWithAssessment,
-  AttemptDetail,
-  AttemptStartRequest,
-  SubmitAnswerRequest,
-  CompleteAttemptRequest,
-  TimeRemainingResponse,
-  CanStartAttemptResponse,
-  PaginationParams,
-  PaginatedResponse,
-  AssessmentQuestion,
-} from '../types';
-import { delay } from './mockData';
+	Assessment,
+	AssessmentStatus,
+	StudentAssessment,
+	StudentAssessmentsResponse,
+	StudentDashboardStats,
+	StudentAttemptsResponse,
+	StudentAssessmentDetailResponse,
+	Attempt,
+	AttemptWithAssessment,
+	AttemptDetail,
+	AttemptStartRequest,
+	SubmitAnswerRequest,
+	CompleteAttemptRequest,
+	TimeRemainingResponse,
+	CanStartAttemptResponse,
+	PaginationParams,
+	PaginatedResponse,
+	AssessmentQuestion,
+} from "../types";
+import { delay } from "./mockData";
 
 class StudentService {
-  /**
-   * Get available assessments for student
-   * Uses new GET /api/v1/students/me/assessments endpoint
-   */
-  async getAvailableAssessments(
-    params?: PaginationParams & { search?: string; status?: string; sort_by?: string }
-  ): Promise<PaginatedResponse<StudentAssessment>> {
-    const response = await apiService.get<StudentAssessmentsResponse>(
-      API_ENDPOINTS.STUDENT_ASSESSMENTS,
-      params
-    );
+	/**
+	 * Get available assessments for student
+	 * Uses new GET /api/v1/students/me/assessments endpoint
+	 */
+	async getAvailableAssessments(
+		params?: PaginationParams & {
+			search?: string;
+			status?: string;
+			sort_by?: string;
+		},
+	): Promise<PaginatedResponse<StudentAssessment>> {
+		const response = await apiService.get<StudentAssessmentsResponse>(
+			API_ENDPOINTS.STUDENT_ASSESSMENTS,
+			params,
+		);
 
-    return {
-      data: response.assessments,
-      total: response.total,
-      page: response.page,
-      size: response.size,
-      total_pages: response.total_pages,
-    };
-  }
+		return {
+			data: response.assessments,
+			total: response.total,
+			page: response.page,
+			size: response.size,
+			total_pages: response.total_pages,
+		};
+	}
 
-  /**
-   * Get assessment detail with settings
-   * Uses GET /api/v1/students/me/assessments/:id
-   */
-  async getAssessmentDetail(assessmentId: number): Promise<StudentAssessment> {
-    return apiService.get<StudentAssessment>(API_ENDPOINTS.STUDENT_ASSESSMENT_DETAIL(assessmentId));
-  }
+	/**
+	 * Get assessment detail with settings
+	 * Uses GET /api/v1/students/me/assessments/:id
+	 */
+	async getAssessmentDetail(
+		assessmentId: number,
+	): Promise<StudentAssessment> {
+		return apiService.get<StudentAssessment>(
+			API_ENDPOINTS.STUDENT_ASSESSMENT_DETAIL(assessmentId),
+		);
+	}
 
-  /**
-   * Get student dashboard stats
-   * Uses new GET /api/v1/students/me/stats endpoint
-   */
-  async getDashboardStats(): Promise<StudentDashboardStats> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return {
-        overview: {
-          total_assessments_available: 5,
-          total_assessments_completed: 15,
-          total_assessments_in_progress: 2,
-          total_attempts: 28,
-        },
-        performance: {
-          average_score: 78.5,
-          pass_rate: 85.0,
-          highest_score: 98,
-          lowest_score: 45,
-        },
-        recent_attempts: [],
-        upcoming_assessments: [],
-      };
-    }
+	/**
+	 * Get student dashboard stats
+	 * Uses new GET /api/v1/students/me/stats endpoint
+	 */
+	async getDashboardStats(): Promise<StudentDashboardStats> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			return {
+				overview: {
+					total_assessments_available: 5,
+					total_assessments_completed: 15,
+					total_assessments_in_progress: 2,
+					total_attempts: 28,
+				},
+				performance: {
+					average_score: 78.5,
+					pass_rate: 85.0,
+					highest_score: 98,
+					lowest_score: 45,
+				},
+				recent_attempts: [],
+				upcoming_assessments: [],
+			};
+		}
 
-    return apiService.get<StudentDashboardStats>(API_ENDPOINTS.STUDENT_STATS);
-  }
+		return apiService.get<StudentDashboardStats>(
+			API_ENDPOINTS.STUDENT_STATS,
+		);
+	}
 
-  /**
-   * Get student's attempt history
-   * Uses new GET /api/v1/students/me/attempts endpoint
-   */
-  async getAttemptHistory(
-    params?: PaginationParams & { assessment_id?: number; status?: string; from_date?: string; to_date?: string }
-  ): Promise<PaginatedResponse<AttemptWithAssessment>> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return {
-        data: [],
-        total: 0,
-        page: params?.page || 1,
-        size: params?.size || 10,
-        total_pages: 0,
-      };
-    }
+	/**
+	 * Get student's attempt history
+	 * Uses new GET /api/v1/students/me/attempts endpoint
+	 */
+	async getAttemptHistory(
+		params?: PaginationParams & {
+			assessment_id?: number;
+			status?: string;
+			from_date?: string;
+			to_date?: string;
+		},
+	): Promise<PaginatedResponse<AttemptWithAssessment>> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			return {
+				data: [],
+				total: 0,
+				page: params?.page || 1,
+				size: params?.size || 10,
+				total_pages: 0,
+			};
+		}
 
-    const response = await apiService.get<StudentAttemptsResponse>(
-      API_ENDPOINTS.STUDENT_ATTEMPTS,
-      params
-    );
+		const response = await apiService.get<StudentAttemptsResponse>(
+			API_ENDPOINTS.STUDENT_ATTEMPTS,
+			params,
+		);
 
-    return {
-      data: response.attempts,
-      total: response.total,
-      page: response.page,
-      size: response.size,
-      total_pages: response.total_pages,
-    };
-  }
+		return {
+			data: response.attempts,
+			total: response.total,
+			page: response.page,
+			size: response.size,
+			total_pages: response.total_pages,
+		};
+	}
 
-  /**
-   * Start a new attempt
-   * Returns full attempt details including questions
-   */
-  async startAttempt(data: AttemptStartRequest): Promise<AttemptDetail> {
-    return apiService.post<AttemptDetail>(API_ENDPOINTS.ATTEMPT_START, data);
-  }
+	/**
+	 * Start a new attempt
+	 * Returns full attempt details including questions
+	 */
+	async startAttempt(data: AttemptStartRequest): Promise<AttemptDetail> {
+		return apiService.post<AttemptDetail>(
+			API_ENDPOINTS.ATTEMPT_START,
+			data,
+		);
+	}
 
-  /**
-   * Get current attempt for assessment
-   */
-  async getCurrentAttempt(assessmentId: number): Promise<Attempt | null> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return null;
-    }
+	/**
+	 * Get current attempt for assessment
+	 */
+	async getCurrentAttempt(assessmentId: number): Promise<Attempt | null> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			return null;
+		}
 
-    try {
-      return await apiService.get<Attempt>(API_ENDPOINTS.ATTEMPT_CURRENT(assessmentId));
-    } catch {
-      return null;
-    }
-  }
+		try {
+			return await apiService.get<Attempt>(
+				API_ENDPOINTS.ATTEMPT_CURRENT(assessmentId),
+			);
+		} catch {
+			return null;
+		}
+	}
 
-  /**
-   * Get attempt details with answers
-   */
-  async getAttemptDetails(attemptId: number): Promise<AttemptDetail> {
-    return apiService.get<AttemptDetail>(API_ENDPOINTS.ATTEMPT_DETAIL_FULL(attemptId));
-  }
+	/**
+	 * Get attempt details with answers
+	 */
+	async getAttemptDetails(attemptId: number): Promise<AttemptDetail> {
+		return apiService.get<AttemptDetail>(
+			API_ENDPOINTS.ATTEMPT_DETAIL_FULL(attemptId),
+		);
+	}
 
-  /**
-   * Submit answer for a question
-   */
-  async submitAnswer(attemptId: number, data: SubmitAnswerRequest): Promise<void> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return;
-    }
+	/**
+	 * Submit answer for a question
+	 */
+	async submitAnswer(
+		attemptId: number,
+		data: SubmitAnswerRequest,
+	): Promise<void> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			return;
+		}
 
-    return apiService.post(API_ENDPOINTS.ATTEMPT_ANSWER(attemptId), data);
-  }
+		return apiService.post(API_ENDPOINTS.ATTEMPT_ANSWER(attemptId), data);
+	}
 
-  /**
-   * Submit (complete) the attempt
-   * Uses POST /api/v1/attempts/submit with CompleteAttemptRequest
-   */
-  async submitAttempt(data: CompleteAttemptRequest): Promise<Attempt> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return {
-        id: data.attempt_id,
-        assessment_id: 1,
-        student_id: 1,
-        status: 'completed' as any,
-        started_at: new Date().toISOString(),
-        completed_at: new Date().toISOString(),
-        score: 85,
-        passed: true,
-      };
-    }
+	/**
+	 * Submit (complete) the attempt
+	 * Uses POST /api/v1/attempts/submit with CompleteAttemptRequest
+	 */
+	async submitAttempt(data: CompleteAttemptRequest): Promise<Attempt> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			return {
+				id: data.attempt_id,
+				assessment_id: 1,
+				student_id: 1,
+				status: "completed" as any,
+				started_at: new Date().toISOString(),
+				completed_at: new Date().toISOString(),
+				score: 85,
+				passed: true,
+			};
+		}
 
-    return apiService.post<Attempt>(API_ENDPOINTS.ATTEMPT_SUBMIT, data);
-  }
+		return apiService.post<Attempt>(API_ENDPOINTS.ATTEMPT_SUBMIT, data);
+	}
 
-  /**
-   * Get time remaining for attempt
-   * Returns {message, data: seconds}
-   */
-  async getTimeRemaining(attemptId: number): Promise<TimeRemainingResponse> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return {
-        message: 'Time remaining retrieved successfully',
-        data: 1800,
-      };
-    }
+	/**
+	 * Get time remaining for attempt
+	 * Returns {message, data: seconds}
+	 */
+	async getTimeRemaining(attemptId: number): Promise<TimeRemainingResponse> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			return {
+				message: "Time remaining retrieved successfully",
+				data: 1800,
+			};
+		}
 
-    return apiService.get<TimeRemainingResponse>(API_ENDPOINTS.ATTEMPT_TIME_REMAINING(attemptId));
-  }
+		return apiService.get<TimeRemainingResponse>(
+			API_ENDPOINTS.ATTEMPT_TIME_REMAINING(attemptId),
+		);
+	}
 
-  /**
-   * Resume an in-progress attempt
-   */
-  async resumeAttempt(attemptId: number): Promise<Attempt> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return {
-        id: attemptId,
-        assessment_id: 1,
-        student_id: 1,
-        status: 'in_progress' as any,
-        started_at: new Date().toISOString(),
-        time_remaining: 1800,
-      };
-    }
+	/**
+	 * Resume an in-progress attempt
+	 */
+	async resumeAttempt(attemptId: number): Promise<Attempt> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			return {
+				id: attemptId,
+				assessment_id: 1,
+				student_id: 1,
+				status: "in_progress" as any,
+				started_at: new Date().toISOString(),
+				time_remaining: 1800,
+			};
+		}
 
-    return apiService.post<Attempt>(API_ENDPOINTS.ATTEMPT_RESUME(attemptId));
-  }
+		return apiService.post<Attempt>(
+			API_ENDPOINTS.ATTEMPT_RESUME(attemptId),
+		);
+	}
 
-  /**
-   * Get assessment questions for attempt
-   */
-  async getAssessmentQuestions(
-    assessmentId: number,
-    params?: PaginationParams
-  ): Promise<PaginatedResponse<AssessmentQuestion>> {
-    const response = await apiService.get<any>(
-      API_ENDPOINTS.ASSESSMENT_QUESTIONS(assessmentId),
-      params
-    );
+	/**
+	 * Get assessment questions for attempt
+	 */
+	async getAssessmentQuestions(
+		assessmentId: number,
+		params?: PaginationParams,
+	): Promise<PaginatedResponse<AssessmentQuestion>> {
+		const response = await apiService.get<any>(
+			API_ENDPOINTS.ASSESSMENT_QUESTIONS(assessmentId),
+			params,
+		);
 
-    return {
-      data: response.questions || [],
-      total: response.total || 0,
-      page: response.page || 1,
-      size: response.size || 10,
-      total_pages: response.total_pages || 0,
-    };
-  }
+		return {
+			data: response.questions || [],
+			total: response.total || 0,
+			page: response.page || 1,
+			size: response.size || 10,
+			total_pages: response.total_pages || 0,
+		};
+	}
 
-  /**
-   * Check if student can start assessment
-   * Returns {message, can_start}
-   */
-  async canStartAssessment(assessmentId: number): Promise<CanStartAttemptResponse> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      return {
-        message: 'Can start attempt check completed',
-        can_start: true,
-      };
-    }
+	/**
+	 * Check if student can start assessment
+	 * Returns {message, can_start}
+	 */
+	async canStartAssessment(
+		assessmentId: number,
+	): Promise<CanStartAttemptResponse> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			return {
+				message: "Can start attempt check completed",
+				can_start: true,
+			};
+		}
 
-    return apiService.get<CanStartAttemptResponse>(API_ENDPOINTS.ATTEMPT_CAN_START(assessmentId));
-  }
+		return apiService.get<CanStartAttemptResponse>(
+			API_ENDPOINTS.ATTEMPT_CAN_START(assessmentId),
+		);
+	}
 
-  async checkFaceRegistrationStatus() {
-    return faceVerificationService.checkRegistrationStatus();
-  }
+	async checkFaceRegistrationStatus() {
+		return faceVerificationService.checkRegistrationStatus();
+	}
 }
 
 export const studentService = new StudentService();

@@ -1,10 +1,14 @@
-import { closestCenter, DndContext, DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Alert, Space, Typography } from 'antd';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import type { DndQuestionProps } from '../../types';
-import { SortableOrderItem } from '../SortableOrderItem';
+import { closestCenter, DndContext, DragEndEvent } from "@dnd-kit/core";
+import {
+	arrayMove,
+	SortableContext,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { Alert, Space, Typography } from "antd";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import type { DndQuestionProps } from "../../types";
+import { SortableOrderItem } from "../SortableOrderItem";
 
 const { Text } = Typography;
 
@@ -19,7 +23,11 @@ export const OrderingQuestion: React.FC<DndQuestionProps> = ({
 	const { t } = useTranslation();
 
 	if (!question.content?.items) {
-		return <Text type="secondary">{t('exam.questionTypes.ordering.invalidQuestion')}</Text>;
+		return (
+			<Text type="secondary">
+				{t("exam.questionTypes.ordering.invalidQuestion")}
+			</Text>
+		);
 	}
 
 	const { items } = question.content;
@@ -44,13 +52,16 @@ export const OrderingQuestion: React.FC<DndQuestionProps> = ({
 	};
 
 	return (
-		<Space direction="vertical" style={{ width: '100%' }} size="middle">
+		<Space direction="vertical" style={{ width: "100%" }} size="middle">
 			<DndContext
 				sensors={dndSensors}
 				collisionDetection={closestCenter}
 				onDragEnd={handleDragEnd}
 			>
-				<SortableContext items={currentOrder} strategy={verticalListSortingStrategy}>
+				<SortableContext
+					items={currentOrder}
+					strategy={verticalListSortingStrategy}
+				>
 					{currentOrder.map((itemId: string, index: number) => {
 						const item = items.find((i: any) => i.id === itemId);
 						if (!item) return null;
@@ -73,10 +84,10 @@ export const OrderingQuestion: React.FC<DndQuestionProps> = ({
 			</DndContext>
 
 			<Alert
-				message={t('exam.questionTypes.ordering.instruction')}
+				message={t("exam.questionTypes.ordering.instruction")}
 				type="warning"
 				showIcon={false}
-				style={{ fontSize: '13px', padding: '4px 12px' }}
+				style={{ fontSize: "13px", padding: "4px 12px" }}
 			/>
 		</Space>
 	);

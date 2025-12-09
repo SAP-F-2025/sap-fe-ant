@@ -1,7 +1,7 @@
-import { RiseOutlined } from '@ant-design/icons';
-import { Card, Empty, Skeleton, Space } from 'antd';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { RiseOutlined } from "@ant-design/icons";
+import { Card, Empty, Skeleton, Space } from "antd";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import {
 	Bar,
 	BarChart,
@@ -10,10 +10,10 @@ import {
 	Tooltip,
 	XAxis,
 	YAxis,
-} from 'recharts';
-import { elevation } from '../../../styles/elevation';
-import { useThemeToken } from '../../../theme/ThemeProvider';
-import { CHART_HEIGHT, STAT_CARD_COLORS } from '../constants';
+} from "recharts";
+import { elevation } from "../../../styles/elevation";
+import { useThemeToken } from "../../../theme/ThemeProvider";
+import { CHART_HEIGHT, STAT_CARD_COLORS } from "../constants";
 
 interface PerformanceChartData {
 	subject: string;
@@ -28,7 +28,10 @@ interface PerformanceChartProps {
 /**
  * Performance by Subject Bar Chart Component
  */
-export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoading }) => {
+export const PerformanceChart: React.FC<PerformanceChartProps> = ({
+	data,
+	isLoading,
+}) => {
 	const { token } = useThemeToken();
 	const { t } = useTranslation();
 
@@ -36,8 +39,12 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoad
 		<Card
 			title={
 				<Space>
-					<RiseOutlined style={{ fontSize: 18, color: token.colorWarning }} />
-					<span style={{ fontWeight: 600 }}>{t('dashboard.scoreBySubject')}</span>
+					<RiseOutlined
+						style={{ fontSize: 18, color: token.colorWarning }}
+					/>
+					<span style={{ fontWeight: 600 }}>
+						{t("dashboard.scoreBySubject")}
+					</span>
 				</Space>
 			}
 			bordered={false}
@@ -46,10 +53,16 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoad
 			{isLoading ? (
 				<Skeleton active paragraph={{ rows: 8 }} />
 			) : data.length === 0 ? (
-				<Empty description={t('dashboard.noScoreData')} style={{ padding: '60px 0' }} />
+				<Empty
+					description={t("dashboard.noScoreData")}
+					style={{ padding: "60px 0" }}
+				/>
 			) : (
 				<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-					<BarChart data={data} aria-label={t('dashboard.performanceChartLabel')}>
+					<BarChart
+						data={data}
+						aria-label={t("dashboard.performanceChartLabel")}
+					>
 						<CartesianGrid
 							strokeDasharray="3 3"
 							stroke={token.colorBorderSecondary}
@@ -60,7 +73,10 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoad
 							stroke={token.colorTextSecondary}
 							style={{ fontSize: 12, fontWeight: 500 }}
 						/>
-						<YAxis stroke={token.colorTextSecondary} style={{ fontSize: 12, fontWeight: 500 }} />
+						<YAxis
+							stroke={token.colorTextSecondary}
+							style={{ fontSize: 12, fontWeight: 500 }}
+						/>
 						<Tooltip
 							contentStyle={{
 								backgroundColor: token.colorBgContainer,
@@ -74,7 +90,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoad
 							fill={STAT_CARD_COLORS.primary}
 							radius={[8, 8, 0, 0]}
 							maxBarSize={60}
-							name={t('dashboard.avgScoreFull')}
+							name={t("dashboard.avgScoreFull")}
 						/>
 					</BarChart>
 				</ResponsiveContainer>

@@ -1,9 +1,9 @@
-import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
-import type { DrawerProps, FormInstance, FormProps } from 'antd';
-import { App, Button, Drawer, Form, Space } from 'antd';
-import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
+import { CloseOutlined, SaveOutlined } from "@ant-design/icons";
+import type { DrawerProps, FormInstance, FormProps } from "antd";
+import { App, Button, Drawer, Form, Space } from "antd";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
 
 /**
  * FormDrawer Component
@@ -15,7 +15,10 @@ import { z } from 'zod';
  * - Responsive width
  */
 
-interface FormDrawerProps<T extends Record<string, any>> extends Omit<DrawerProps, 'onClose'> {
+interface FormDrawerProps<T extends Record<string, any>> extends Omit<
+	DrawerProps,
+	"onClose"
+> {
 	// Form props
 	form?: FormInstance<T>;
 	initialValues?: Partial<T>;
@@ -26,7 +29,7 @@ interface FormDrawerProps<T extends Record<string, any>> extends Omit<DrawerProp
 	// Loading state
 	loading?: boolean;
 	// Form layout
-	layout?: FormProps['layout'];
+	layout?: FormProps["layout"];
 	// Children (form fields)
 	children: React.ReactNode;
 	// Submit button text
@@ -42,7 +45,7 @@ export function FormDrawer<T extends Record<string, any>>({
 	onClose,
 	schema,
 	loading = false,
-	layout = 'vertical',
+	layout = "vertical",
 	children,
 	submitText,
 	confirmOnClose = true,
@@ -56,7 +59,7 @@ export function FormDrawer<T extends Record<string, any>>({
 	const { modal } = App.useApp();
 	const { t } = useTranslation();
 
-	const effectiveSubmitText = submitText || t('common.save');
+	const effectiveSubmitText = submitText || t("common.save");
 
 	// Track if form is dirty
 	const [isDirty, setIsDirty] = React.useState(false);
@@ -103,10 +106,10 @@ export function FormDrawer<T extends Record<string, any>>({
 	const handleClose = () => {
 		if (confirmOnClose && isDirty) {
 			modal.confirm({
-				title: t('formDrawer.confirmCloseTitle'),
-				content: t('formDrawer.confirmCloseContent'),
-				okText: t('common.close'),
-				cancelText: t('common.cancel'),
+				title: t("formDrawer.confirmCloseTitle"),
+				content: t("formDrawer.confirmCloseContent"),
+				okText: t("common.close"),
+				cancelText: t("common.cancel"),
 				okButtonProps: { danger: true },
 				onOk: () => {
 					form.resetFields();
@@ -131,7 +134,7 @@ export function FormDrawer<T extends Record<string, any>>({
 		} catch (error) {
 			if (error instanceof z.ZodError) {
 				const fieldError = error.errors.find((err) =>
-					err.path.includes(_.field)
+					err.path.includes(_.field),
 				);
 				if (fieldError) {
 					return Promise.reject(new Error(fieldError.message));
@@ -150,13 +153,13 @@ export function FormDrawer<T extends Record<string, any>>({
 			width={width}
 			styles={{
 				body: {
-					animation: open ? 'slideInRight 300ms ease-out' : undefined,
+					animation: open ? "slideInRight 300ms ease-out" : undefined,
 				},
 			}}
 			extra={
 				<Space>
 					<Button onClick={handleClose} icon={<CloseOutlined />}>
-						{t('common.cancel')}
+						{t("common.cancel")}
 					</Button>
 					<Button
 						type="primary"

@@ -1,32 +1,32 @@
 // Base enums
 export enum AssessmentStatus {
-	Draft = 'Draft',
-	Active = 'Active',
-	Expired = 'Expired',
-	Archived = 'Archived',
+	Draft = "Draft",
+	Active = "Active",
+	Expired = "Expired",
+	Archived = "Archived",
 }
 
 export enum QuestionType {
-	MultipleChoice = 'multiple_choice',
-	TrueFalse = 'true_false',
-	Essay = 'essay',
-	FillBlank = 'fill_blank',
-	Matching = 'matching',
-	Ordering = 'ordering',
-	ShortAnswer = 'short_answer',
+	MultipleChoice = "multiple_choice",
+	TrueFalse = "true_false",
+	Essay = "essay",
+	FillBlank = "fill_blank",
+	Matching = "matching",
+	Ordering = "ordering",
+	ShortAnswer = "short_answer",
 }
 
 export enum DifficultyLevel {
-	Easy = 'easy',
-	Medium = 'medium',
-	Hard = 'hard',
+	Easy = "easy",
+	Medium = "medium",
+	Hard = "hard",
 }
 
 export enum AttemptStatus {
-	InProgress = 'in_progress',
-	Completed = 'completed',
-	Abandoned = 'abandoned',
-	Timeout = 'timeout',
+	InProgress = "in_progress",
+	Completed = "completed",
+	Abandoned = "abandoned",
+	Timeout = "timeout",
 }
 
 // Assessment types
@@ -204,9 +204,9 @@ export interface Question {
 
 // Question Bank types
 export enum QuestionBankSharePermission {
-	ViewOnly = 'view',
-	CanEdit = 'edit',
-	CanDelete = 'delete',
+	ViewOnly = "view",
+	CanEdit = "edit",
+	CanDelete = "delete",
 }
 
 export interface QuestionBankCreateRequest {
@@ -270,9 +270,9 @@ export interface AttemptStartRequest {
 
 export interface QuestionScore {
 	question_id: number;
-	score: number;           // Points earned
-	max_score: number;       // Max possible points
-	is_correct: boolean | null;  // Null if ungraded
+	score: number; // Points earned
+	max_score: number; // Max possible points
+	is_correct: boolean | null; // Null if ungraded
 	partial_credit: boolean; // True if 0 < score < max_score
 }
 
@@ -404,11 +404,11 @@ export interface AssessmentQuestion {
 	assessment_id: number;
 	question_id: number;
 	order: number;
-	points: number;  // Override points for this question in the assessment
-	time_limit?: number;  // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
+	points: number; // Override points for this question in the assessment
+	time_limit?: number; // DEPRECATED: Not used in timing logic. Assessment.Duration is used instead.
 	required: boolean;
 	created_at: string;
-	question: Question;  // Nested question object with original values
+	question: Question; // Nested question object with original values
 }
 
 export interface AddQuestionToAssessmentRequest {
@@ -503,11 +503,11 @@ export interface ActivityTrend {
 }
 
 export enum RecentActivityAction {
-	CompletedAssessment = 'completed_assessment',
-	StartedAssessment = 'started_assessment',
-	CreatedQuestion = 'created_question',
-	CreatedAssessment = 'created_assessment',
-	PublishedAssessment = 'published_assessment',
+	CompletedAssessment = "completed_assessment",
+	StartedAssessment = "started_assessment",
+	CreatedQuestion = "created_question",
+	CreatedAssessment = "created_assessment",
+	PublishedAssessment = "published_assessment",
 }
 
 export interface RecentActivity {
@@ -570,8 +570,8 @@ export interface StudentAssessment {
 		require_full_screen: boolean;
 		allow_screen_reader: boolean;
 		font_size_adjustment: number;
-		high_contrast_mode: boolean
-	}
+		high_contrast_mode: boolean;
+	};
 }
 
 export interface StudentDashboardStats {
@@ -764,9 +764,9 @@ export interface StudentProgressItem {
 
 // Group types
 export enum GroupMemberRole {
-	Owner = 'owner',
-	CoOwner = 'co-owner',
-	Member = 'member',
+	Owner = "owner",
+	CoOwner = "co-owner",
+	Member = "member",
 }
 
 export interface Group {
@@ -890,4 +890,3 @@ export interface AssignToGroupsRequest {
 export interface UnassignFromGroupsRequest {
 	group_ids: number[];
 }
-

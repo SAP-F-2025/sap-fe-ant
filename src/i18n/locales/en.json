@@ -1962,7 +1962,48 @@
 		"tooltip": {
 			"edit": "Edit group",
 			"delete": "Delete group",
-			"view": "View details"
+			"view": "View details",
+			"generateLink": "Generate invite link"
+		},
+		"inviteLink": {
+			"title": "Group Invite Link",
+			"generateBtn": "Generate Link",
+			"forGroup": "Generate invite link for group: {{name}}",
+			"generateNew": "Create New Invite Link",
+			"setUseLimit": "Set usage limit",
+			"setExpiry": "Set expiration time",
+			"useLimit": "Maximum uses",
+			"useLimitPlaceholder": "Enter max uses",
+			"useLimitRequired": "Please enter usage limit",
+			"times": "times",
+			"expiresAt": "Expires at",
+			"expiryPlaceholder": "Select expiration date",
+			"expiryRequired": "Please select expiration date",
+			"generate": "Generate Invite Link",
+			"generateSuccess": "Invite link generated successfully",
+			"generateError": "Failed to generate invite link",
+			"linkGenerated": "Link Generated!",
+			"showQR": "Show QR Code",
+			"regenerate": "Create new link",
+			"copyLink": "Copy link",
+			"copied": "Link copied to clipboard",
+			"copyError": "Failed to copy link",
+			"limitInfo": "Used: {{used}}/{{limit}}",
+			"expiryInfo": "Expires: {{date}}",
+			"existingLinks": "Existing Invite Links",
+			"refresh": "Refresh",
+			"noLinks": "No active invite links",
+			"delete": "Delete link",
+			"deleteSuccess": "Invite link deleted",
+			"deleteError": "Failed to delete invite link",
+			"used": "used",
+			"expiresOn": "Expires:",
+			"createdOn": "Created:",
+			"status": {
+				"active": "Active",
+				"expired": "Expired",
+				"limitReached": "Limit Reached"
+			}
 		}
 	},
 	"studentGroups": {
@@ -2062,5 +2103,34 @@
 		"preview": "Questions to export",
 		"andMore": "...and {{count}} more",
 		"generating": "Generating file..."
+	},
+	"inviteLink": {
+		"pageTitle": "Group Invitation",
+		"validating": "Validating invite link...",
+		"pleaseWait": "Please wait while we verify the invitation",
+		"joinGroupTitle": "You're Invited!",
+		"joinGroupSubtitle": "You have been invited to join a group",
+		"groupName": "Group Name",
+		"description": "Description",
+		"members": "Members",
+		"joinNow": "Join Group",
+		"backToHome": "Back to Home",
+		"joining": "Joining group...",
+		"joinSuccess": "Successfully Joined!",
+		"joinSuccessSubtitle": "You are now a member of \"{{name}}\"",
+		"viewGroup": "View Group",
+		"alreadyMember": "Already a Member",
+		"alreadyMemberSubtitle": "You are already a member of \"{{name}}\"",
+		"invalidTitle": "Invalid Invite Link",
+		"errors": {
+			"invalidLink": "The invite link is invalid",
+			"expired": "This invite link has expired",
+			"limitReached": "This invite link has reached its usage limit",
+			"notFound": "Invite link not found",
+			"inactive": "This invite link is no longer active",
+			"unknown": "An error occurred. Please try again",
+			"validationFailed": "Failed to validate invite link",
+			"joinFailed": "Failed to join group. Please try again"
+		}
 	}
 }

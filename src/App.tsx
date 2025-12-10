@@ -33,19 +33,22 @@ import QuestionList from './pages/Questions/QuestionList';
 import UserManagement from './pages/Users/UserManagement';
 
 // Group Pages
-import GroupList from './pages/Groups/GroupList';
 import GroupDetail from './pages/Groups/GroupDetail';
 import GroupForm from './pages/Groups/GroupForm';
+import GroupList from './pages/Groups/GroupList';
+
+// Invite Link Page
+import { InviteLinkPage } from './pages/InviteLink';
 
 // Student Pages
+import TakeAssessment from './pages/Exam';
 import AssessmentResults from './pages/Student/AssessmentResults';
 import AvailableAssessments from './pages/Student/AvailableAssessments';
 import FaceVerification from './pages/Student/FaceVerification';
+import StudentAssessmentList from './pages/Student/StudentAssessmentList';
 import StudentDashboard from './pages/Student/StudentDashboard';
 import StudentGroups from './pages/Student/StudentGroups';
 import StudentHistory from './pages/Student/StudentHistory';
-import StudentAssessmentList from './pages/Student/StudentAssessmentList';
-import TakeAssessment from './pages/Exam';
 
 // Teacher Pages
 import MyAssessments from './pages/Teacher/MyAssessments';
@@ -87,6 +90,16 @@ const AppRoutes: React.FC = () => {
 				{/* Public routes */}
 				<Route path="/login" element={<Login />} />
 				<Route path="/callback" element={<Callback />} />
+
+				{/* Invite Link route - requires login but no main layout */}
+				<Route
+					path="/invite/:token"
+					element={
+						<ProtectedRoute>
+							<InviteLinkPage />
+						</ProtectedRoute>
+					}
+				/>
 
 				{/* Exam mode route - separate layout without navigation */}
 				<Route

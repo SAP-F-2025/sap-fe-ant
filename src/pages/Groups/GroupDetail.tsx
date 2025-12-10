@@ -4,6 +4,7 @@ import {
 	DeleteOutlined,
 	EditOutlined,
 	FileTextOutlined,
+	LinkOutlined,
 	StarOutlined,
 	TeamOutlined,
 	UserAddOutlined,
@@ -41,6 +42,7 @@ import { elevation } from '../../styles/elevation';
 import { GroupMemberResponse, GroupMemberRole, GroupResponse, User } from '../../types';
 import { showError, showSuccess } from '../../utils/errorHandler';
 import GroupAssessmentsTab from './GroupAssessmentsTab';
+import GenerateInviteLinkModal from './GenerateInviteLinkModal';
 
 const { Title, Text } = Typography;
 
@@ -66,6 +68,9 @@ const GroupDetail: React.FC = () => {
 	const [selectedMember, setSelectedMember] = useState<GroupMemberResponse | null>(null);
 	const [roleChangeLoading, setRoleChangeLoading] = useState(false);
 	const [roleForm] = Form.useForm();
+
+	// Invite link modal
+	const [inviteLinkModalOpen, setInviteLinkModalOpen] = useState(false);
 
 	const groupId = parseInt(id || '0');
 
@@ -319,6 +324,16 @@ const GroupDetail: React.FC = () => {
 					</Title>
 				</Space>
 				<Space size={8} wrap>
+					{group.can_manage && (
+						<Tooltip title={t('groups.tooltip.generateLink')}>
+							<Button
+								icon={<LinkOutlined />}
+								onClick={() => setInviteLinkModalOpen(true)}
+							>
+								{t('groups.inviteLink.generateBtn')}
+							</Button>
+						</Tooltip>
+					)}
 					{group.can_edit && (
 						<Tooltip title={t('groups.tooltip.edit')}>
 							<Button
@@ -575,6 +590,14 @@ const GroupDetail: React.FC = () => {
 					</Form.Item>
 				</Form>
 			</Modal>
+
+			{/* Invite Link Modal */}
+			<GenerateInviteLinkModal
+				open={inviteLinkModalOpen}
+				onClose={() => setInviteLinkModalOpen(false)}
+				groupId={groupId}
+				groupName={group?.display_name || group?.name || ''}
+			/>
 		</Space>
 	);
 };

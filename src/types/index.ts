@@ -928,3 +928,6 @@ export interface UseInviteLinkResponse {
 	already_member: boolean;
 	message?: string;
 }
+
+// Re-export proctoring types
+export * from './proctoring';

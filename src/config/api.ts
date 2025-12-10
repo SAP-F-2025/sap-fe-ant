@@ -110,6 +110,21 @@ export const API_ENDPOINTS = {
 	// Proctoring (uses PROCTORING_BASE_URL)
 	PROCTORING_VIOLATIONS: '/api/v1/violations',
 	PROCTORING_VIOLATIONS_BATCH: '/api/v1/violations/batch',
+	PROCTORING_VIOLATIONS_BY_ATTEMPT: (attemptId: number) =>
+		`/api/v1/violations/attempt/${attemptId}`,
+	PROCTORING_VIOLATIONS_LATEST: (attemptId: number) =>
+		`/api/v1/violations/attempt/${attemptId}/latest`,
+	PROCTORING_ANALYTICS: (attemptId: number) => `/api/v1/violations/analytics/${attemptId}`,
+
+	// Proctoring Dashboard (uses PROCTORING_BASE_URL)
+	PROCTORING_ATTEMPT_SUMMARY: (attemptId: number) =>
+		`/api/v1/dashboard/attempts/${attemptId}/summary`,
+	PROCTORING_ATTEMPT_SUMMARIES: '/api/v1/dashboard/attempts/summaries',
+	PROCTORING_STATS_HOURLY: '/api/v1/dashboard/stats/hourly',
+	PROCTORING_STATS_DAILY: '/api/v1/dashboard/stats/daily',
+	PROCTORING_USER_PATTERNS: (userId: string) => `/api/v1/dashboard/users/${userId}/patterns`,
+	PROCTORING_OVERVIEW: '/api/v1/dashboard/overview',
+	PROCTORING_REALTIME: '/api/v1/dashboard/realtime',
 
 	// Groups
 	GROUPS: '/api/v1/groups',

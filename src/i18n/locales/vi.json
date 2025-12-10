@@ -1959,7 +1959,48 @@
 		"tooltip": {
 			"edit": "Chỉnh sửa nhóm",
 			"delete": "Xóa nhóm",
-			"view": "Xem chi tiết"
+			"view": "Xem chi tiết",
+			"generateLink": "Tạo link mời"
+		},
+		"inviteLink": {
+			"title": "Link mời vào nhóm",
+			"generateBtn": "Tạo Link",
+			"forGroup": "Tạo link mời cho nhóm: {{name}}",
+			"generateNew": "Tạo Link Mời Mới",
+			"setUseLimit": "Giới hạn số lần sử dụng",
+			"setExpiry": "Đặt thời hạn",
+			"useLimit": "Số lần sử dụng tối đa",
+			"useLimitPlaceholder": "Nhập số lần sử dụng",
+			"useLimitRequired": "Vui lòng nhập giới hạn sử dụng",
+			"times": "lần",
+			"expiresAt": "Hết hạn vào",
+			"expiryPlaceholder": "Chọn ngày hết hạn",
+			"expiryRequired": "Vui lòng chọn ngày hết hạn",
+			"generate": "Tạo Link Mời",
+			"generateSuccess": "Đã tạo link mời thành công",
+			"generateError": "Không thể tạo link mời",
+			"linkGenerated": "Link đã được tạo!",
+			"showQR": "Hiện mã QR",
+			"regenerate": "Tạo link mới",
+			"copyLink": "Sao chép link",
+			"copied": "Đã sao chép link",
+			"copyError": "Không thể sao chép link",
+			"limitInfo": "Đã dùng: {{used}}/{{limit}}",
+			"expiryInfo": "Hết hạn: {{date}}",
+			"existingLinks": "Các Link Mời Hiện Có",
+			"refresh": "Làm mới",
+			"noLinks": "Chưa có link mời nào",
+			"delete": "Xóa link",
+			"deleteSuccess": "Đã xóa link mời",
+			"deleteError": "Không thể xóa link mời",
+			"used": "đã dùng",
+			"expiresOn": "Hết hạn:",
+			"createdOn": "Tạo ngày:",
+			"status": {
+				"active": "Hoạt động",
+				"expired": "Hết hạn",
+				"limitReached": "Đã hết lượt"
+			}
 		}
 	},
 	"studentGroups": {
@@ -2059,5 +2100,34 @@
 		"preview": "Câu hỏi sẽ xuất",
 		"andMore": "...và {{count}} câu hỏi khác",
 		"generating": "Đang tạo tệp..."
+	},
+	"inviteLink": {
+		"pageTitle": "Lời mời vào nhóm",
+		"validating": "Đang xác thực link mời...",
+		"pleaseWait": "Vui lòng chờ trong khi chúng tôi xác minh lời mời",
+		"joinGroupTitle": "Bạn được mời!",
+		"joinGroupSubtitle": "Bạn đã được mời tham gia một nhóm",
+		"groupName": "Tên nhóm",
+		"description": "Mô tả",
+		"members": "Thành viên",
+		"joinNow": "Tham gia nhóm",
+		"backToHome": "Về trang chủ",
+		"joining": "Đang tham gia nhóm...",
+		"joinSuccess": "Tham gia thành công!",
+		"joinSuccessSubtitle": "Bạn đã là thành viên của \"{{name}}\"",
+		"viewGroup": "Xem nhóm",
+		"alreadyMember": "Đã là thành viên",
+		"alreadyMemberSubtitle": "Bạn đã là thành viên của \"{{name}}\" rồi",
+		"invalidTitle": "Link mời không hợp lệ",
+		"errors": {
+			"invalidLink": "Link mời không hợp lệ",
+			"expired": "Link mời này đã hết hạn",
+			"limitReached": "Link mời này đã hết lượt sử dụng",
+			"notFound": "Không tìm thấy link mời",
+			"inactive": "Link mời này không còn hoạt động",
+			"unknown": "Đã xảy ra lỗi. Vui lòng thử lại",
+			"validationFailed": "Không thể xác thực link mời",
+			"joinFailed": "Không thể tham gia nhóm. Vui lòng thử lại"
+		}
 	}
 }

@@ -126,4 +126,11 @@ export const API_ENDPOINTS = {
 	GROUP_ASSESSMENT: (groupId: number, assessmentId: number) =>
 		`/api/v1/groups/${groupId}/assessments/${assessmentId}`,
 	ASSESSMENT_GROUPS: (assessmentId: number) => `/api/v1/assessments/${assessmentId}/groups`,
+
+	// Group Invite Links
+	GROUP_INVITE_LINKS: (groupId: number) => `/api/v1/groups/${groupId}/invite-links`,
+	GROUP_INVITE_LINK: (groupId: number, linkId: number) =>
+		`/api/v1/groups/${groupId}/invite-links/${linkId}`,
+	INVITE_LINK_VALIDATE: (token: string) => `/api/v1/invite/${token}/validate`,
+	INVITE_LINK_USE: (token: string) => `/api/v1/invite/${token}/use`,
 };

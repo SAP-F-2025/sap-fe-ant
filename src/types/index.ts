@@ -890,3 +890,41 @@ export interface AssignToGroupsRequest {
 export interface UnassignFromGroupsRequest {
 	group_ids: number[];
 }
+
+// ============ Group Invite Link Types ============
+
+export interface GroupInviteLink {
+	id: number;
+	group_id: number;
+	token: string;
+	use_limit: number | null; // null = unlimited
+	used_count: number;
+	expires_at: string | null; // null = never expires
+	created_by: string;
+	created_at: string;
+	is_active: boolean;
+}
+
+export interface GroupInviteLinkResponse extends GroupInviteLink {
+	group?: Group;
+	invite_url: string;
+}
+
+export interface CreateInviteLinkRequest {
+	use_limit?: number | null; // null or 0 = unlimited
+	expires_in_hours?: number | null; // null = never expires
+}
+
+export interface ValidateInviteLinkResponse {
+	valid: boolean;
+	group?: GroupResponse;
+	is_member: boolean;
+	error?: string; // 'expired' | 'limit_reached' | 'not_found' | 'inactive'
+}
+
+export interface UseInviteLinkResponse {
+	success: boolean;
+	group_id: number;
+	already_member: boolean;
+	message?: string;
+}

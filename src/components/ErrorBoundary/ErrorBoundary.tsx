@@ -5,7 +5,15 @@ import { withTranslation, WithTranslation } from 'react-i18next';
 
 const { Paragraph, Text } = Typography;
 
-interface Props extends WithTranslation {
+// Fallback texts when translation is not available
+const fallbackTexts = {
+	title: 'Something went wrong',
+	subtitle: 'An unexpected error occurred. Please try again.',
+	retry: 'Try Again',
+	backToHome: 'Back to Home',
+};
+
+interface Props extends Partial<WithTranslation> {
 	children: ReactNode;
 	fallback?: ReactNode;
 	onReset?: () => void;
@@ -22,7 +30,7 @@ interface State {
  * Catches errors in child components and displays a fallback UI
  * Includes error details in development mode
  */
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryClass extends Component<Props, State> {
 	constructor(props: Props) {
 		super(props);
 		this.state = {
@@ -52,6 +60,17 @@ export class ErrorBoundary extends Component<Props, State> {
 			errorInfo,
 		});
 	}
+
+	// Safe translation function that falls back to default texts
+	translate = (key: string): string => {
+		const { t } = this.props;
+		if (typeof t === 'function') {
+			return t(key);
+		}
+		// Fallback when t is not available
+		const shortKey = key.split('.').pop() as keyof typeof fallbackTexts;
+		return fallbackTexts[shortKey] || key;
+	};
 
 	handleReset = (): void => {
 		const { onReset } = this.props;
@@ -93,8 +112,8 @@ export class ErrorBoundary extends Component<Props, State> {
 					<Result
 						status="error"
 						icon={<FrownOutlined />}
-						title={this.props.t('errorBoundary.title')}
-						subTitle={this.props.t('errorBoundary.subtitle')}
+						title={this.translate('errorBoundary.title')}
+						subTitle={this.translate('errorBoundary.subtitle')}
 						extra={
 							<Space size="middle">
 								<Button
@@ -102,10 +121,10 @@ export class ErrorBoundary extends Component<Props, State> {
 									icon={<ReloadOutlined />}
 									onClick={this.handleReset}
 								>
-									{this.props.t('errorBoundary.retry')}
+									{this.translate('errorBoundary.retry')}
 								</Button>
 								<Button icon={<HomeOutlined />} onClick={this.handleGoHome}>
-									{this.props.t('errorBoundary.backToHome')}
+									{this.translate('errorBoundary.backToHome')}
 								</Button>
 							</Space>
 						}
@@ -147,4 +166,8 @@ export class ErrorBoundary extends Component<Props, State> {
 	}
 }
 
-export default withTranslation()(ErrorBoundary);
+// Export the class directly for use without HOC (handles missing t function)
+export const ErrorBoundary = ErrorBoundaryClass;
+
+// Export with translation HOC for components that need translated error messages
+export default withTranslation()(ErrorBoundaryClass);

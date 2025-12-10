@@ -1,0 +1,1 @@
+export { useMultiLinePaste } from './useMultiLinePaste';

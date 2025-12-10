@@ -1,4 +1,5 @@
 import {
+	AlertOutlined,
 	ArrowLeftOutlined,
 	CheckCircleOutlined,
 	ClockCircleOutlined,
@@ -20,7 +21,6 @@ import {
 	Button,
 	Card,
 	Col,
-	Collapse,
 	Descriptions,
 	Divider,
 	Empty,
@@ -33,6 +33,7 @@ import {
 	Space,
 	Spin,
 	Statistic,
+	Tabs,
 	Tag,
 	theme,
 	Tooltip,
@@ -50,6 +51,7 @@ import {
 } from '../../services/gradingService';
 import { elevation } from '../../styles/elevation';
 import { QuestionType } from '../../types';
+import ProctoringTab from './ProctoringTab';
 
 dayjs.extend(duration);
 
@@ -77,6 +79,8 @@ const GradingDetail: React.FC = () => {
 	const [expandedAnswers, setExpandedAnswers] = useState<string[]>([]);
 	const [overallFeedback, setOverallFeedback] = useState('');
 	const [finalScore, setFinalScore] = useState<number | undefined>(undefined);
+	const [activeTab, setActiveTab] = useState<string>('answers');
+	const [violationCount, setViolationCount] = useState<number>(0);
 
 	useEffect(() => {
 		if (id) {
@@ -1726,223 +1730,244 @@ const GradingDetail: React.FC = () => {
 				</Col>
 			</Row>
 
-			{/* Proctoring Events */}
-			{attempt.proctoring_events && attempt.proctoring_events.length > 0 && (
-				<Card
-					title={
-						<Space>
-							<ExclamationCircleOutlined style={{ color: '#faad14' }} />
-							<Text strong>{t('gradingDetail.proctoringWarnings')}</Text>
-							<Badge count={attempt.proctoring_events.length} />
-						</Space>
-					}
-					style={{ ...elevation[1], borderRadius: 16 }}
-				>
-					<Collapse ghost>
-						{attempt.proctoring_events.map((event, index) => (
-							<Collapse.Panel
-								key={event.id}
-								header={
-									<Space>
-										<Tag
-											color={
-												event.severity === 'critical'
-													? 'red'
-													: event.severity === 'high'
-														? 'orange'
-														: event.severity === 'medium'
-															? 'gold'
-															: 'default'
-											}
-										>
-											{event.severity}
-										</Tag>
-										<Text>{event.event_type}</Text>
-										<Text type="secondary">
-											{dayjs(event.timestamp).format('HH:mm:ss')}
-										</Text>
-									</Space>
-								}
-							>
-								<pre>{JSON.stringify(event.details, null, 2)}</pre>
-							</Collapse.Panel>
-						))}
-					</Collapse>
-				</Card>
-			)}
-
-			{/* Answers */}
-			<Card
-				title={
-					<Space>
-						<FileTextOutlined />
-						<Text strong>
-							{t('gradingDetail.answers')} ({attempt.answers.length})
-						</Text>
-					</Space>
-				}
-				style={{ ...elevation[1], borderRadius: 16 }}
-			>
-				<Space direction="vertical" size="middle" style={{ width: '100%' }}>
-					{attempt.answers.map((answer, index) => {
-						const currentGrade = grades.get(answer.id);
-						const displayScore = currentGrade?.score ?? answer.score ?? 0;
-						const displayFeedback = currentGrade?.feedback ?? answer.feedback ?? '';
-
-						return (
-							<Card
-								key={answer.id}
-								type="inner"
-								title={
-									<Flex justify="space-between" align="center">
-										<Space>
-											<Badge
-												count={index + 1}
-												style={{
-													backgroundColor: '#1890ff',
-												}}
-											/>
-											<Text strong>
-												{t('gradingDetail.questionNumber', {
-													number: index + 1,
-												})}
-											</Text>
-											<Tag>
-												{getQuestionTypeLabel(answer.question?.type || '')}
-											</Tag>
-											{answer.flagged && (
-												<Tooltip title={t('gradingDetail.flaggedQuestion')}>
-													<FlagOutlined
-														style={{
-															color: '#ff4d4f',
-														}}
-													/>
-												</Tooltip>
-											)}
-										</Space>
-										<Space>
-											{answer.is_graded && (
-												<Tag color="success" icon={<CheckCircleOutlined />}>
-													{t('gradingDetail.graded')}
-												</Tag>
-											)}
-											<Text strong>
-												{t('gradingDetail.scoreOutOf', {
-													score: displayScore,
-													max: answer.max_score,
-												})}
-											</Text>
-										</Space>
-									</Flex>
-								}
-								style={{ borderRadius: 12 }}
-							>
+			{/* Answers & Proctoring Tabs */}
+			<Tabs
+				activeKey={activeTab}
+				onChange={setActiveTab}
+				type="card"
+				style={{ marginTop: 16 }}
+				items={[
+					{
+						key: 'answers',
+						label: (
+							<Space>
+								<FileTextOutlined />
+								{t('gradingDetail.answers')} ({attempt.answers.length})
+							</Space>
+						),
+						children: (
+							/* Answers */
+							<Card style={{ ...elevation[1], borderRadius: 16 }}>
 								<Space direction="vertical" size="middle" style={{ width: '100%' }}>
-									{/* Question Text */}
-									<div>
-										<Text strong>{t('gradingDetail.question')}:</Text>
-										<Paragraph style={{ marginTop: 8 }}>
-											{answer.question?.text}
-										</Paragraph>
-									</div>
+									{attempt.answers.map((answer, index) => {
+										const currentGrade = grades.get(answer.id);
+										const displayScore =
+											currentGrade?.score ?? answer.score ?? 0;
+										const displayFeedback =
+											currentGrade?.feedback ?? answer.feedback ?? '';
 
-									<Divider style={{ margin: '8px 0' }} />
-
-									{/* Student Answer */}
-									<div>
-										<Text strong>{t('gradingDetail.studentAnswerLabel')}:</Text>
-										<div style={{ marginTop: 8 }}>
-											{renderAnswerContent(answer)}
-										</div>
-									</div>
-
-									{/* Explanation */}
-									{answer.question?.explanation && (
-										<>
-											<Divider style={{ margin: '8px 0' }} />
-											<Alert
-												message={t('gradingDetail.explanation')}
-												description={answer.question.explanation}
-												type="info"
-												showIcon
-												icon={<EyeOutlined />}
-											/>
-										</>
-									)}
-
-									<Divider style={{ margin: '8px 0' }} />
-
-									{/* Grading Section */}
-									<Row gutter={16}>
-										<Col xs={24} sm={8}>
-											<Space direction="vertical" style={{ width: '100%' }}>
-												<Text strong>{t('gradingDetail.scoreLabel')}:</Text>
-												<InputNumber
-													min={0}
-													max={answer.max_score}
-													step={0.5}
-													value={displayScore}
-													onChange={(value) =>
-														handleGradeChange(
-															answer.id,
-															'score',
-															value || 0
-														)
-													}
+										return (
+											<Card
+												key={answer.id}
+												type="inner"
+												title={
+													<Flex justify="space-between" align="center">
+														<Space>
+															<Badge
+																count={index + 1}
+																style={{
+																	backgroundColor: '#1890ff',
+																}}
+															/>
+															<Text strong>
+																{t('gradingDetail.questionNumber', {
+																	number: index + 1,
+																})}
+															</Text>
+															<Tag>
+																{getQuestionTypeLabel(
+																	answer.question?.type || ''
+																)}
+															</Tag>
+															{answer.flagged && (
+																<Tooltip
+																	title={t(
+																		'gradingDetail.flaggedQuestion'
+																	)}
+																>
+																	<FlagOutlined
+																		style={{
+																			color: '#ff4d4f',
+																		}}
+																	/>
+																</Tooltip>
+															)}
+														</Space>
+														<Space>
+															{answer.is_graded && (
+																<Tag
+																	color="success"
+																	icon={<CheckCircleOutlined />}
+																>
+																	{t('gradingDetail.graded')}
+																</Tag>
+															)}
+															<Text strong>
+																{t('gradingDetail.scoreOutOf', {
+																	score: displayScore,
+																	max: answer.max_score,
+																})}
+															</Text>
+														</Space>
+													</Flex>
+												}
+												style={{ borderRadius: 12 }}
+											>
+												<Space
+													direction="vertical"
+													size="middle"
 													style={{ width: '100%' }}
-													size="large"
-												/>
-											</Space>
-										</Col>
-										<Col xs={24} sm={16}>
-											<Space direction="vertical" style={{ width: '100%' }}>
-												<Text strong>
-													{t('gradingDetail.feedbackLabel')}:
-												</Text>
-												<TextArea
-													rows={3}
-													value={displayFeedback}
-													onChange={(e) =>
-														handleGradeChange(
-															answer.id,
-															'feedback',
-															e.target.value
-														)
-													}
-													placeholder={t(
-														'gradingDetail.feedbackPlaceholder'
-													)}
-												/>
-											</Space>
-										</Col>
-									</Row>
+												>
+													{/* Question Text */}
+													<div>
+														<Text strong>
+															{t('gradingDetail.question')}:
+														</Text>
+														<Paragraph style={{ marginTop: 8 }}>
+															{answer.question?.text}
+														</Paragraph>
+													</div>
 
-									{/* Grading Info */}
-									{answer.is_graded && answer.graded_at && (
-										<Alert
-											message={
-												<Text type="secondary" style={{ fontSize: 12 }}>
-													{t('gradingDetail.gradedAtBy', {
-														time: dayjs(answer.graded_at).format(
-															'DD/MM/YYYY HH:mm'
-														),
-														teacher: answer.graded_by
-															? `#${answer.graded_by}`
-															: '',
-													})}
-												</Text>
-											}
-											type="info"
-											showIcon={false}
-											style={{ padding: '4px 12px' }}
-										/>
-									)}
+													<Divider style={{ margin: '8px 0' }} />
+
+													{/* Student Answer */}
+													<div>
+														<Text strong>
+															{t('gradingDetail.studentAnswerLabel')}:
+														</Text>
+														<div style={{ marginTop: 8 }}>
+															{renderAnswerContent(answer)}
+														</div>
+													</div>
+
+													{/* Explanation */}
+													{answer.question?.explanation && (
+														<>
+															<Divider style={{ margin: '8px 0' }} />
+															<Alert
+																message={t(
+																	'gradingDetail.explanation'
+																)}
+																description={
+																	answer.question.explanation
+																}
+																type="info"
+																showIcon
+																icon={<EyeOutlined />}
+															/>
+														</>
+													)}
+
+													<Divider style={{ margin: '8px 0' }} />
+
+													{/* Grading Section */}
+													<Row gutter={16}>
+														<Col xs={24} sm={8}>
+															<Space
+																direction="vertical"
+																style={{ width: '100%' }}
+															>
+																<Text strong>
+																	{t('gradingDetail.scoreLabel')}:
+																</Text>
+																<InputNumber
+																	min={0}
+																	max={answer.max_score}
+																	step={0.5}
+																	value={displayScore}
+																	onChange={(value) =>
+																		handleGradeChange(
+																			answer.id,
+																			'score',
+																			value || 0
+																		)
+																	}
+																	style={{ width: '100%' }}
+																	size="large"
+																/>
+															</Space>
+														</Col>
+														<Col xs={24} sm={16}>
+															<Space
+																direction="vertical"
+																style={{ width: '100%' }}
+															>
+																<Text strong>
+																	{t(
+																		'gradingDetail.feedbackLabel'
+																	)}
+																	:
+																</Text>
+																<TextArea
+																	rows={3}
+																	value={displayFeedback}
+																	onChange={(e) =>
+																		handleGradeChange(
+																			answer.id,
+																			'feedback',
+																			e.target.value
+																		)
+																	}
+																	placeholder={t(
+																		'gradingDetail.feedbackPlaceholder'
+																	)}
+																/>
+															</Space>
+														</Col>
+													</Row>
+
+													{/* Grading Info */}
+													{answer.is_graded && answer.graded_at && (
+														<Alert
+															message={
+																<Text
+																	type="secondary"
+																	style={{ fontSize: 12 }}
+																>
+																	{t('gradingDetail.gradedAtBy', {
+																		time: dayjs(
+																			answer.graded_at
+																		).format(
+																			'DD/MM/YYYY HH:mm'
+																		),
+																		teacher: answer.graded_by
+																			? `#${answer.graded_by}`
+																			: '',
+																	})}
+																</Text>
+															}
+															type="info"
+															showIcon={false}
+															style={{ padding: '4px 12px' }}
+														/>
+													)}
+												</Space>
+											</Card>
+										);
+									})}
 								</Space>
 							</Card>
-						);
-					})}
-				</Space>
-			</Card>
+						),
+					},
+					{
+						key: 'proctoring',
+						label: (
+							<Space>
+								<AlertOutlined />
+								{violationCount > 0
+									? t('proctoring.tabWithCount', { count: violationCount })
+									: t('proctoring.tab')}
+							</Space>
+						),
+						children: (
+							<ProctoringTab
+								attemptId={parseInt(id!)}
+								onViolationCountChange={setViolationCount}
+							/>
+						),
+					},
+				]}
+			/>
 		</Space>
 	);
 };

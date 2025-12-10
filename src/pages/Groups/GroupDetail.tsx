@@ -1,5 +1,6 @@
 import {
 	ArrowLeftOutlined,
+	CheckCircleOutlined,
 	CrownOutlined,
 	DeleteOutlined,
 	EditOutlined,
@@ -41,8 +42,9 @@ import userService from '../../services/userService';
 import { elevation } from '../../styles/elevation';
 import { GroupMemberResponse, GroupMemberRole, GroupResponse, User } from '../../types';
 import { showError, showSuccess } from '../../utils/errorHandler';
-import GroupAssessmentsTab from './GroupAssessmentsTab';
 import GenerateInviteLinkModal from './GenerateInviteLinkModal';
+import GroupAssessmentsTab from './GroupAssessmentsTab';
+import GroupGradingTab from './GroupGradingTab';
 
 const { Title, Text } = Typography;
 
@@ -467,6 +469,21 @@ const GroupDetail: React.FC = () => {
 										/>
 									),
 								},
+								// Grading tab - only for group managers (owner/co-owner)
+								...(group.can_manage
+									? [
+											{
+												key: 'grading',
+												label: (
+													<Space>
+														<CheckCircleOutlined />
+														{t('groups.detail.gradingTab')}
+													</Space>
+												),
+												children: <GroupGradingTab groupId={groupId} />,
+											},
+										]
+									: []),
 							]}
 						/>
 					</Card>

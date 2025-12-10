@@ -57,11 +57,20 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoad
 							style={{ fontSize: 12, fontWeight: 500 }}
 						/>
 						<Tooltip
+							cursor={{ fill: token.colorFillSecondary, opacity: 0.3 }}
 							contentStyle={{
 								backgroundColor: token.colorBgContainer,
 								border: `1px solid ${token.colorBorder}`,
 								borderRadius: token.borderRadius,
+								color: token.colorText,
 								...elevation[3],
+							}}
+							itemStyle={{
+								color: token.colorText,
+							}}
+							labelStyle={{
+								color: token.colorText,
+								fontWeight: 600,
 							}}
 						/>
 						<Bar

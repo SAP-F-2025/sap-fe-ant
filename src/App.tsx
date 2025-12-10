@@ -36,6 +36,7 @@ import UserManagement from './pages/Users/UserManagement';
 import GroupList from './pages/Groups/GroupList';
 import GroupDetail from './pages/Groups/GroupDetail';
 import GroupForm from './pages/Groups/GroupForm';
+import JoinGroupPage from './pages/Groups/JoinGroupPage';
 
 // Student Pages
 import AssessmentResults from './pages/Student/AssessmentResults';
@@ -99,6 +100,16 @@ const AppRoutes: React.FC = () => {
 				>
 					<Route index element={<TakeAssessment />} />
 				</Route>
+
+				{/* Join group via invite link - needs auth */}
+				<Route
+					path="/join/:token"
+					element={
+						<ProtectedRoute>
+							<JoinGroupPage />
+						</ProtectedRoute>
+					}
+				/>
 
 				{/* Protected routes */}
 				<Route

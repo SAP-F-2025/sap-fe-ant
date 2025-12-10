@@ -890,3 +890,50 @@ export interface AssignToGroupsRequest {
 export interface UnassignFromGroupsRequest {
 	group_ids: number[];
 }
+
+// ============ Group Invite Types ============
+
+export enum InviteType {
+	Link = 'link',
+	Code = 'code',
+}
+
+export interface GroupInvite {
+	id: number;
+	group_id: number;
+	token: string;
+	code?: string;
+	type: InviteType;
+	max_uses?: number;
+	uses_count: number;
+	expires_at?: string;
+	default_role: GroupMemberRole;
+	created_by: string;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface GroupInviteResponse extends GroupInvite {
+	invite_url?: string;
+	is_expired: boolean;
+	is_exhausted: boolean;
+	can_use: boolean;
+	remaining_uses: number; // -1 = unlimited
+}
+
+export interface CreateInviteLinkRequest {
+	max_uses?: number;
+	expires_at?: string;
+	default_role?: string;
+}
+
+export interface CreateInviteCodeRequest {
+	max_uses?: number;
+	expires_at?: string;
+	default_role?: string;
+}
+
+export interface JoinViaCodeRequest {
+	code: string;
+}
+

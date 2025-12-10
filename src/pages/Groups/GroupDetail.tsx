@@ -4,6 +4,8 @@ import {
 	DeleteOutlined,
 	EditOutlined,
 	FileTextOutlined,
+	LogoutOutlined,
+	ShareAltOutlined,
 	StarOutlined,
 	TeamOutlined,
 	UserAddOutlined,
@@ -40,6 +42,7 @@ import userService from '../../services/userService';
 import { elevation } from '../../styles/elevation';
 import { GroupMemberResponse, GroupMemberRole, GroupResponse, User } from '../../types';
 import { showError, showSuccess } from '../../utils/errorHandler';
+import InviteManagementTab from '../../components/Groups/InviteManagementTab';
 import GroupAssessmentsTab from './GroupAssessmentsTab';
 
 const { Title, Text } = Typography;
@@ -66,6 +69,9 @@ const GroupDetail: React.FC = () => {
 	const [selectedMember, setSelectedMember] = useState<GroupMemberResponse | null>(null);
 	const [roleChangeLoading, setRoleChangeLoading] = useState(false);
 	const [roleForm] = Form.useForm();
+
+	// Leave group
+	const [leaveLoading, setLeaveLoading] = useState(false);
 
 	const groupId = parseInt(id || '0');
 
@@ -181,6 +187,22 @@ const GroupDetail: React.FC = () => {
 			navigate(basePath);
 		} catch (error) {
 			// handled by interceptor
+		}
+	};
+
+	const handleLeaveGroup = async () => {
+		setLeaveLoading(true);
+		try {
+			await groupService.leaveGroup(groupId);
+			showSuccess(t('groups.leave.success'));
+			navigate(basePath);
+		} catch (error: any) {
+			const msg = error?.response?.data?.message || '';
+			if (msg.includes('owner')) {
+				showError(t('groups.leave.ownerError'));
+			}
+		} finally {
+			setLeaveLoading(false);
 		}
 	};
 	const getRoleIcon = (role: GroupMemberRole) => {
@@ -341,6 +363,20 @@ const GroupDetail: React.FC = () => {
 							</Tooltip>
 						</Popconfirm>
 					)}
+					{group.is_member && !group.is_owner && (
+						<Popconfirm
+							title={t('groups.leave.confirmTitle')}
+							description={t('groups.leave.confirmContent')}
+							onConfirm={handleLeaveGroup}
+							okText={t('groups.leave.button')}
+							cancelText={t('common.cancel')}
+							okButtonProps={{ danger: true, loading: leaveLoading }}
+						>
+							<Tooltip title={t('groups.leave.button')}>
+								<Button icon={<LogoutOutlined />} />
+							</Tooltip>
+						</Popconfirm>
+					)}
 				</Space>
 			</Flex>
 
@@ -452,6 +488,25 @@ const GroupDetail: React.FC = () => {
 										/>
 									),
 								},
+								...(group.can_manage
+									? [
+										{
+											key: 'invites',
+											label: (
+												<Space>
+													<ShareAltOutlined />
+													{t('groups.invite.tabTitle')}
+												</Space>
+											),
+											children: (
+												<InviteManagementTab
+													groupId={groupId}
+													canManage={group.can_manage}
+												/>
+											),
+										},
+									]
+									: []),
 							]}
 						/>
 					</Card>

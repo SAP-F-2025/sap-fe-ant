@@ -1961,6 +1961,78 @@
 			"edit": "Edit group",
 			"delete": "Delete group",
 			"view": "View details"
+		},
+		"invite": {
+			"tabTitle": "Invites",
+			"createLink": "Create Link",
+			"createCode": "Create Code",
+			"copyLink": "Copy Link",
+			"copyCode": "Copy Code",
+			"copied": "Copied!",
+			"linkCopied": "Invite link copied to clipboard",
+			"codeCopied": "Invite code copied to clipboard",
+			"regenerate": "Regenerate",
+			"deleteInvite": "Delete",
+			"expiresAt": "Expires",
+			"usesCount": "Uses",
+			"unlimited": "Unlimited",
+			"neverExpires": "Never",
+			"expired": "Expired",
+			"exhausted": "Limit reached",
+			"remaining": "{{count}} left",
+			"defaultRole": "Role",
+			"createSuccess": "Invite created successfully",
+			"deleteSuccess": "Invite deleted",
+			"regenerateSuccess": "Invite regenerated",
+			"empty": "No invites yet. Create one to share with others.",
+			"table": {
+				"type": "Type",
+				"token": "Link/Code",
+				"uses": "Uses",
+				"expires": "Expires",
+				"role": "Role",
+				"actions": "Actions"
+			},
+			"modal": {
+				"createLinkTitle": "Create Invite Link",
+				"createCodeTitle": "Create Invite Code",
+				"expirationLabel": "Expiration",
+				"maxUsesLabel": "Max Uses",
+				"roleLabel": "Default Role",
+				"unlimitedUses": "Unlimited",
+				"days7": "7 days",
+				"days30": "30 days",
+				"custom": "Custom",
+				"submit": "Create",
+				"cancel": "Cancel"
+			},
+			"deleteConfirm": {
+				"title": "Delete Invite?",
+				"content": "This invite will no longer work.",
+				"okText": "Delete",
+				"cancelText": "Cancel"
+			}
+		},
+		"leave": {
+			"button": "Leave Group",
+			"confirmTitle": "Leave Group?",
+			"confirmContent": "You will need to be invited again to rejoin this group.",
+			"success": "You have left the group",
+			"ownerError": "Group owner cannot leave"
+		},
+		"join": {
+			"title": "Join Group",
+			"codePlaceholder": "Enter 6-character code",
+			"joinViaCode": "Join via Code",
+			"joinButton": "Join",
+			"success": "You have joined the group!",
+			"error": "Failed to join group",
+			"expired": "This invite has expired",
+			"exhausted": "This invite has reached its usage limit",
+			"notFound": "Invite not found",
+			"alreadyMember": "You are already a member of this group",
+			"invalidCode": "Invalid invite code",
+			"joining": "Joining..."
 		}
 	},
 	"studentGroups": {

@@ -52,16 +52,15 @@ import questionService from '../../services/questionService';
 import {
 	Assessment,
 	AssessmentQuestion,
+	AssessmentStatus,
 	DifficultyLevel,
 	PaginationParams,
 	Question,
 	QuestionType,
 } from '../../types';
 import {
-	canEditQuestions,
-	getQuestionsLockReason,
 	getRemainingPoints,
-	POINTS_VALIDATION,
+	POINTS_VALIDATION
 } from '../../utils/assessmentHelpers';
 import { showError, showSuccess } from '../../utils/errorHandler';
 
@@ -70,6 +69,7 @@ const { Text } = Typography;
 interface Props {
 	assessment: Assessment;
 	questions?: AssessmentQuestion[];
+	hasAttempts?: boolean;
 	onQuestionsChange?: () => void;
 }
 
@@ -84,12 +84,21 @@ const MAX_TOTAL_POINTS = POINTS_VALIDATION.TOTAL_MAX;
 export const ManageAssessmentQuestions: React.FC<Props> = ({
 	assessment,
 	questions: initialQuestions,
+	hasAttempts = false,
 	onQuestionsChange,
 }) => {
 	const { t } = useTranslation();
 	const assessmentId = assessment.id;
-	const isQuestionsLocked = !canEditQuestions(assessment);
-	const lockReason = getQuestionsLockReason(assessment);
+	// Use hasAttempts prop instead of assessment.has_attempts
+	const isQuestionsLocked =
+		assessment.status === AssessmentStatus.Archived ||
+		(hasAttempts && (assessment.status === AssessmentStatus.Active || assessment.status === AssessmentStatus.Expired));
+
+	const lockReason = isQuestionsLocked
+		? assessment.status === AssessmentStatus.Archived
+			? t('assessment.lockReason.archived')
+			: t('assessment.lockReason.hasAttempts')
+		: null;
 
 	// Helper functions for translated labels
 	const getDifficultyLabel = (difficulty: DifficultyLevel) => {
@@ -256,10 +265,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
 							t('manageAssessmentQuestions.cannotAddQuestions') +
-								' - ' +
-								(details.context?.has_attempts
-									? t('manageAssessmentQuestions.studentsStarted')
-									: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 						// Refresh to update UI state
 						onQuestionsChange?.();
@@ -343,10 +352,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotAddQuestion') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+						' - ' +
+						(details.context?.has_attempts
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					// Refresh to update UI state
 					onQuestionsChange?.();
@@ -371,10 +380,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotRemoveQuestion') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+						' - ' +
+						(details.context?.has_attempts
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					return;
@@ -404,7 +413,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					question_orders,
 				});
 				showSuccess(t('manageAssessmentQuestions.reorderSuccess'));
-				onQuestionsChange?.();
+				// Don't call onQuestionsChange - local state is already updated optimistically
 			} catch (error: any) {
 				// Handle specific lock error
 				if (error.response?.status === 422) {
@@ -412,10 +421,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
 							t('manageAssessmentQuestions.cannotReorder') +
-								' - ' +
-								(details.context?.has_attempts
-									? t('manageAssessmentQuestions.studentsStarted')
-									: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 					}
 				}
@@ -452,8 +461,13 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 
 		try {
 			await assessmentService.updateQuestionSettings(assessmentId, questionId, { points });
+			// Update local state optimistically instead of triggering full refetch
+			setQuestions((prev) =>
+				prev.map((q) =>
+					q.question_id === questionId ? { ...q, points } : q
+				)
+			);
 			showSuccess(t('manageAssessmentQuestions.updatePointsSuccess'));
-			onQuestionsChange?.();
 		} catch (error: any) {
 			// Handle specific lock error
 			if (error.response?.status === 422) {
@@ -461,10 +475,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotUpdatePoints') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+						' - ' +
+						(details.context?.has_attempts
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					return;
@@ -535,10 +549,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotBulkUpdate') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+						' - ' +
+						(details.context?.has_attempts
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					setBulkLoading(false);
@@ -727,22 +741,19 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					</Space>
 				}
 				extra={
-					<Button
-						type="primary"
-						icon={<PlusOutlined />}
-						onClick={() => {
-							setAddModalVisible(true);
-							fetchAvailableQuestions({ page: 1, size: 10 });
-						}}
-						disabled={isQuestionsLocked}
-						title={
-							isQuestionsLocked
-								? lockReason || t('manageAssessmentQuestions.cannotAddQuestion')
-								: t('manageAssessmentQuestions.addQuestion')
-						}
-					>
-						{t('manageAssessmentQuestions.addQuestion')}
-					</Button>
+					!isQuestionsLocked && (
+						<Button
+							type="primary"
+							icon={<PlusOutlined />}
+							onClick={() => {
+								setAddModalVisible(true);
+								fetchAvailableQuestions({ page: 1, size: 10 });
+							}}
+							title={t('manageAssessmentQuestions.addQuestion')}
+						>
+							{t('manageAssessmentQuestions.addQuestion')}
+						</Button>
+					)
 				}
 			>
 				{/* Lock warning */}
@@ -790,8 +801,8 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					description={
 						totalPoints > MAX_TOTAL_POINTS
 							? t('manageAssessmentQuestions.exceededBy', {
-									points: Math.abs(MAX_TOTAL_POINTS - totalPoints),
-								})
+								points: Math.abs(MAX_TOTAL_POINTS - totalPoints),
+							})
 							: undefined
 					}
 				/>
@@ -819,41 +830,48 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				)}
 
 				{questions.length > 0 ? (
-					<DndContext
-						sensors={sensors}
-						collisionDetection={closestCenter}
-						onDragEnd={handleDragEnd}
+					<div
+						style={{
+							opacity: isQuestionsLocked ? 0.6 : 1,
+							pointerEvents: isQuestionsLocked ? 'none' : 'auto',
+						}}
 					>
-						<SortableContext
-							items={questions.map((q) => q.question_id)}
-							strategy={verticalListSortingStrategy}
+						<DndContext
+							sensors={sensors}
+							collisionDetection={closestCenter}
+							onDragEnd={handleDragEnd}
 						>
-							<Table
-								columns={columns}
-								dataSource={questions}
-								rowKey="question_id"
-								loading={loading}
-								pagination={false}
-								rowSelection={
-									isQuestionsLocked
-										? undefined
-										: {
+							<SortableContext
+								items={questions.map((q) => q.question_id)}
+								strategy={verticalListSortingStrategy}
+							>
+								<Table
+									columns={columns}
+									dataSource={questions}
+									rowKey="question_id"
+									loading={loading}
+									pagination={false}
+									rowSelection={
+										isQuestionsLocked
+											? undefined
+											: {
 												selectedRowKeys: selectedRows,
 												onChange: (keys) =>
 													setSelectedRows(keys as number[]),
 											}
-								}
-								components={{
-									body: {
-										row: SortableRow,
-									},
-								}}
-								locale={{
-									emptyText: t('manageAssessmentQuestions.noQuestions'),
-								}}
-							/>
-						</SortableContext>
-					</DndContext>
+									}
+									components={{
+										body: {
+											row: SortableRow,
+										},
+									}}
+									locale={{
+										emptyText: t('manageAssessmentQuestions.noQuestions'),
+									}}
+								/>
+							</SortableContext>
+						</DndContext>
+					</div>
 				) : (
 					<Table
 						columns={columns}
@@ -962,25 +980,25 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 											<Text strong style={{ color: '#1890ff' }}>
 												{Math.floor(
 													100 /
-														(questions.length +
-															selectedQuestions.length)
+													(questions.length +
+														selectedQuestions.length)
 												)}{' '}
 												{t('gradingDetail.pointsUnit')}
 											</Text>
 											{100 % (questions.length + selectedQuestions.length) >
 												0 && (
-												<Text type="secondary" style={{ fontSize: 12 }}>
-													{' '}
-													(
-													{t('manageAssessmentQuestions.extraPointNote', {
-														count:
-															100 %
-															(questions.length +
-																selectedQuestions.length),
-													})}
-													)
-												</Text>
-											)}
+													<Text type="secondary" style={{ fontSize: 12 }}>
+														{' '}
+														(
+														{t('manageAssessmentQuestions.extraPointNote', {
+															count:
+																100 %
+																(questions.length +
+																	selectedQuestions.length),
+														})}
+														)
+													</Text>
+												)}
 										</Text>
 									</Space>
 								}

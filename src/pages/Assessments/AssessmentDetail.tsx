@@ -375,6 +375,7 @@ const AssessmentDetail: React.FC = () => {
 			<ManageAssessmentQuestions
 				assessment={assessment}
 				questions={assessment.questions}
+				hasAttempts={stats ? stats.total_attempts > 0 : false}
 				onQuestionsChange={() => {
 					fetchAssessment(parseInt(id!));
 				}}

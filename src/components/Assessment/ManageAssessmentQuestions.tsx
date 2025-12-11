@@ -233,7 +233,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 			setPagination({
 				page: data.page > 0 ? data.page : 1,
 				size: data.size,
-				total: filteredQuestions.length, // Update total to reflect filtered count
+				total: data.total, // Use backend total for correct pagination
 			});
 		} catch (error) {
 			// Error handled by interceptor

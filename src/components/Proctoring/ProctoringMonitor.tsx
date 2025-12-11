@@ -45,6 +45,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [videoReady, setVideoReady] = useState(false);
+	const [streamReady, setStreamReady] = useState(false);
 	const [activeViolations, setActiveViolations] = useState<Map<string, ProctoringEvent>>(
 		new Map()
 	);
@@ -128,6 +129,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 
 				if (mounted) {
 					streamRef.current = stream;
+					setStreamReady(true);
 					setError(null);
 				}
 			} catch (err: any) {
@@ -144,6 +146,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 			if (streamRef.current) {
 				streamRef.current.getTracks().forEach((track) => track.stop());
 				streamRef.current = null;
+				setStreamReady(false);
 			}
 			violationTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
 			violationTimeoutsRef.current.clear();
@@ -158,7 +161,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 			};
 			videoRef.current.play().catch((err) => console.error('Video play failed:', err));
 		}
-	}, [streamRef.current, isExpanded, isMobile]);
+	}, [streamReady, isExpanded, isMobile]);
 
 	const getSize = () => {
 		const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;

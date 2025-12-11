@@ -96,14 +96,21 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 			if (attempts.length === 0) return;
 
 			const attemptIds = attempts.map((a) => a.id);
+			console.log(
+				'[GroupGradingTab] Fetching violation summaries for attempt IDs:',
+				attemptIds
+			);
 			try {
 				const response = await proctoringDashboardService.getAttemptSummaries(attemptIds);
+				console.log('[GroupGradingTab] Violation summaries response:', response);
 				const summaryMap: Record<string, AttemptViolationSummary> = {};
 				response.data.forEach((s) => {
 					summaryMap[s.attempt_id.toString()] = s;
 				});
+				console.log('[GroupGradingTab] Violation summary map:', summaryMap);
 				setViolationSummaries(summaryMap);
-			} catch {
+			} catch (error) {
+				console.error('[GroupGradingTab] Failed to fetch violation summaries:', error);
 				// Silently fail - proctoring data is supplementary
 			}
 		};

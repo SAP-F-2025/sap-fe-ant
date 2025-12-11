@@ -29,6 +29,7 @@ import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { gradingService, type AttemptListItem } from '../../services/gradingService';
+import groupService from '../../services/groupService';
 import proctoringDashboardService from '../../services/proctoringDashboardService';
 import { cardColors } from '../../styles/cardColors';
 import { elevation } from '../../styles/elevation';
@@ -83,33 +84,65 @@ const GroupProctoringTab: React.FC<GroupProctoringTabProps> = ({ groupId }) => {
 	const fetchData = async () => {
 		setLoading(true);
 		try {
-			// Fetch all attempts for this group
-			const response = await gradingService.getAttempts({
-				page: 1,
-				size: 1000, // Get all attempts
-				group_id: groupId,
-			});
+			// Step 1: Get assessments for this group
+			const groupAssessments = await groupService.getGroupAssessments(groupId);
+			const assessmentIds = (groupAssessments.assessments || []).map((a) => a.id);
 
-			const attemptsData = response.data || [];
-			setAttempts(attemptsData);
+			if (assessmentIds.length === 0) {
+				setAttempts([]);
+				setViolationSummaries({});
+				setLoading(false);
+				return;
+			}
 
-			// Fetch violation summaries for all attempts
-			if (attemptsData.length > 0) {
-				const attemptIds = attemptsData.map((a) => a.id);
+			// Step 2: Get attempts for all assessments in the group
+			const allAttempts: AttemptListItem[] = [];
+			for (const assessmentId of assessmentIds) {
+				try {
+					const response = await gradingService.getAttempts({
+						page: 1,
+						size: 500,
+						assessment_id: assessmentId,
+					});
+					allAttempts.push(...(response.data || []));
+				} catch {
+					// Continue with other assessments
+				}
+			}
+
+			setAttempts(allAttempts);
+
+			// Step 3: Fetch violation summaries for all attempts
+			if (allAttempts.length > 0) {
+				const attemptIds = allAttempts.map((a) => a.id);
+				console.log(
+					'[GroupProctoringTab] Fetching violation summaries for attempt IDs:',
+					attemptIds
+				);
 				try {
 					const summariesResponse =
 						await proctoringDashboardService.getAttemptSummaries(attemptIds);
+					console.log(
+						'[GroupProctoringTab] Violation summaries response:',
+						summariesResponse
+					);
 					const summaryMap: Record<string, AttemptViolationSummary> = {};
 					summariesResponse.data.forEach((s) => {
 						summaryMap[s.attempt_id.toString()] = s;
 					});
+					console.log('[GroupProctoringTab] Violation summary map:', summaryMap);
 					setViolationSummaries(summaryMap);
-				} catch {
+				} catch (error) {
+					console.error(
+						'[GroupProctoringTab] Failed to fetch violation summaries:',
+						error
+					);
 					// Silently fail - proctoring data is supplementary
 				}
 			}
 		} catch {
 			// Handle error silently
+			setAttempts([]);
 		} finally {
 			setLoading(false);
 		}

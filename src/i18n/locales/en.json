@@ -994,7 +994,8 @@
 			"moveSelectedOrNavigate": "Move selected item or navigate",
 			"quickSelectOrMove": "Quick select or move to position",
 			"openSettings": "Toggle settings",
-			"closeModal": "Close modal"
+			"closeModal": "Close modal",
+			"verifyFace": "Verify identity (when modal is open)"
 		}
 	},
 	"assessmentResults": {

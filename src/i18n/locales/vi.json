@@ -993,7 +993,8 @@
 			"moveSelectedOrNavigate": "Di chuyển mục đã chọn hoặc điều hướng",
 			"quickSelectOrMove": "Chọn nhanh hoặc di chuyển đến vị trí",
 			"openSettings": "Mở/Đóng cài đặt",
-			"closeModal": "Đóng modal"
+			"closeModal": "Đóng modal",
+			"verifyFace": "Xác minh danh tính (khi modal mở)"
 		}
 	},
 	"assessmentResults": {

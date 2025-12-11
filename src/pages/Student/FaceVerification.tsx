@@ -1,29 +1,28 @@
-import React, { useRef, useEffect, useState } from 'react';
 import {
-	Card,
-	Button,
-	Space,
-	Typography,
-	Alert,
-	Spin,
-	App,
-	theme,
-	Steps,
-	Row,
-	Col,
-	Tag,
-} from 'antd';
-import {
-	CameraOutlined,
-	CheckCircleOutlined,
-	PlayCircleOutlined,
 	ArrowLeftOutlined,
+	CameraOutlined,
+	CheckCircleOutlined
 } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+import {
+	Alert,
+	App,
+	Button,
+	Card,
+	Col,
+	Row,
+	Space,
+	Spin,
+	Steps,
+	Tag,
+	theme,
+	Typography,
+} from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import studentService from '../../services/studentService';
 import faceVerificationService from '../../services/faceVerificationService';
+import studentService from '../../services/studentService';
 
 const { Title, Text } = Typography;
 const { useToken } = theme;
@@ -443,13 +442,13 @@ const FaceVerification: React.FC = () => {
 							</div>
 
 							{error && cameraReady && (
-								<Alert
-									type="error"
-									message={error}
-									showIcon
-									style={{ marginBottom: 16 }}
-								/>
-							)}
+							<Alert
+								type="error"
+								message={error}
+								showIcon
+								style={{ marginBottom: 16 }}
+							/>
+						)}
 
 							<div style={{ textAlign: 'center' }}>
 								{checkingStatus ? (
@@ -460,7 +459,7 @@ const FaceVerification: React.FC = () => {
 										size="large"
 										icon={<CheckCircleOutlined />}
 										onClick={handleVerify}
-										disabled={!cameraReady || !!error}
+										disabled={!cameraReady}
 										loading={verifying || isStarting}
 										block
 									>
@@ -481,7 +480,7 @@ const FaceVerification: React.FC = () => {
 											size="large"
 											icon={<CameraOutlined />}
 											onClick={handleRegister}
-											disabled={!cameraReady || !!error}
+											disabled={!cameraReady}
 											loading={registering}
 											block
 										>

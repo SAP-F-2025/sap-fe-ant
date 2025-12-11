@@ -33,6 +33,22 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
 		return () => stopCamera();
 	}, [open]);
 
+	// Keyboard shortcut: Enter or Space to verify/retry
+	useEffect(() => {
+		if (!open) return;
+
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Only trigger if camera is ready and not currently verifying
+			if ((e.key === 'Enter' || e.key === ' ') && cameraReady && !verifying) {
+				e.preventDefault();
+				handleVerify();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [open, cameraReady, verifying]);
+
 	const startCamera = async () => {
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({
@@ -114,7 +130,7 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
 		} catch (err: any) {
 			setError(
 				err.response?.data?.detail ||
-					t('proctoring.inTestFaceVerification.verificationError')
+				t('proctoring.inTestFaceVerification.verificationError')
 			);
 			console.error('Verification error:', err);
 		} finally {
@@ -135,16 +151,11 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
 					icon={<CheckCircleOutlined />}
 					onClick={handleVerify}
 					loading={verifying}
-					disabled={!cameraReady || !!error}
+					disabled={!cameraReady}
 				>
-					{t('proctoring.inTestFaceVerification.verify')}
+					{error ? t('proctoring.inTestFaceVerification.retry') : t('proctoring.inTestFaceVerification.verify')}
 				</Button>,
-				error && (
-					<Button key="retry" onClick={() => setError(null)}>
-						{t('proctoring.inTestFaceVerification.retry')}
-					</Button>
-				),
-			].filter(Boolean)}
+			]}
 			width={600}
 		>
 			<Space direction="vertical" style={{ width: '100%' }} size="large">
@@ -155,7 +166,7 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
 					showIcon
 				/>
 
-				<div style={{ textAlign: 'center' }}>
+				<div style={{ textAlign: 'center', position: 'relative' }}>
 					<video
 						ref={videoRef}
 						autoPlay
@@ -165,7 +176,7 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
 							width: '100%',
 							maxWidth: '480px',
 							borderRadius: '8px',
-							border: '2px solid #d9d9d9',
+							border: error ? '2px solid #ff4d4f' : '2px solid #d9d9d9',
 							transform: 'scaleX(-1)',
 						}}
 					/>
@@ -177,9 +188,23 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
 							</Text>
 						</div>
 					)}
+					{error && (
+						<div
+							style={{
+								position: 'absolute',
+								bottom: 8,
+								left: '50%',
+								transform: 'translateX(-50%)',
+								maxWidth: '480px',
+								width: '100%',
+								padding: '0 8px',
+								boxSizing: 'border-box',
+							}}
+						>
+							<Alert message={error} type="error" showIcon />
+						</div>
+					)}
 				</div>
-
-				{error && <Alert message={error} type="error" showIcon />}
 			</Space>
 		</Modal>
 	);

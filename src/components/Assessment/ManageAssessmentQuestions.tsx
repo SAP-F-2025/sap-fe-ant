@@ -49,6 +49,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import assessmentService from '../../services/assessmentService';
 import questionService from '../../services/questionService';
+import questionBankService from '../../services/questionBankService';
 import {
 	Assessment,
 	AssessmentQuestion,
@@ -56,6 +57,7 @@ import {
 	DifficultyLevel,
 	PaginationParams,
 	Question,
+	QuestionBank,
 	QuestionType,
 } from '../../types';
 import {
@@ -164,6 +166,8 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	const [searchText, setSearchText] = useState('');
 	const [filterType, setFilterType] = useState<string | undefined>();
 	const [filterDifficulty, setFilterDifficulty] = useState<string | undefined>();
+	const [filterBank, setFilterBank] = useState<number | undefined>();
+	const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
 	const [pagination, setPagination] = useState({
 		page: 1,
 		size: 10,
@@ -217,13 +221,24 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	const fetchAvailableQuestions = async (params?: PaginationParams) => {
 		setFetchingQuestions(true);
 		try {
-			const data = await questionService.getQuestions({
-				page: params?.page || 1,
-				size: params?.size || 10,
-				search: searchText || undefined,
-				type: filterType,
-				difficulty: filterDifficulty,
-			});
+			let data;
+			
+			// If a bank is selected, fetch questions from that bank
+			if (filterBank) {
+				data = await questionBankService.getQuestionBankQuestions(filterBank, {
+					page: params?.page || 1,
+					size: params?.size || 10,
+				});
+			} else {
+				// Otherwise fetch all questions with filters
+				data = await questionService.getQuestions({
+					page: params?.page || 1,
+					size: params?.size || 10,
+					search: searchText || undefined,
+					type: filterType,
+					difficulty: filterDifficulty,
+				});
+			}
 
 			// Filter out questions already in assessment
 			const existingQuestionIds = new Set(questions.map((q) => q.question_id));
@@ -873,6 +888,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 							onClick={() => {
 								setAddModalVisible(true);
 								fetchAvailableQuestions({ page: 1, size: 10 });
+								// Fetch question banks for the filter dropdown
+								questionBankService.getQuestionBanks({ page: 1, size: 100 }).then((res) => {
+									setQuestionBanks(res.banks || []);
+								}).catch(() => {});
 							}}
 							title={t('manageAssessmentQuestions.addQuestion')}
 						>
@@ -1019,6 +1038,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					setSelectedQuestions([]);
 					setQuestionPoints({});
 					setAddMode('manual'); // Reset mode
+					setFilterBank(undefined); // Reset bank filter
 				}}
 				onOk={handleAddQuestions}
 				okText={t('manageAssessmentQuestions.add')}
@@ -1193,14 +1213,36 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								disabled={fetchingQuestions}
 							/>
 						</Col>
-						<Col span={6}>
+						<Col span={12}>
+							<Select
+								placeholder={t('manageAssessmentQuestions.filterByBank')}
+								allowClear
+								style={{ width: '100%' }}
+								value={filterBank}
+								onChange={(value) => {
+									setFilterBank(value);
+									// Auto-fetch when bank changes
+									setTimeout(() => fetchAvailableQuestions({ page: 1, size: 10 }), 0);
+								}}
+								disabled={fetchingQuestions}
+								showSearch
+								optionFilterProp="children"
+							>
+								{questionBanks.map((bank) => (
+									<Select.Option key={bank.id} value={bank.id}>
+										{bank.name} ({bank.question_count || 0})
+									</Select.Option>
+								))}
+							</Select>
+						</Col>
+						<Col span={12}>
 							<Select
 								placeholder={t('manageAssessmentQuestions.filterByType')}
 								allowClear
 								style={{ width: '100%' }}
 								value={filterType}
 								onChange={(value) => setFilterType(value)}
-								disabled={fetchingQuestions}
+								disabled={fetchingQuestions || !!filterBank}
 							>
 								{Object.values(QuestionType).map((type) => (
 									<Select.Option key={type} value={type}>
@@ -1209,14 +1251,14 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								))}
 							</Select>
 						</Col>
-						<Col span={6}>
+						<Col span={12}>
 							<Select
 								placeholder={t('manageAssessmentQuestions.filterByDifficulty')}
 								allowClear
 								style={{ width: '100%' }}
 								value={filterDifficulty}
 								onChange={(value) => setFilterDifficulty(value)}
-								disabled={fetchingQuestions}
+								disabled={fetchingQuestions || !!filterBank}
 							>
 								{Object.values(DifficultyLevel).map((level) => (
 									<Select.Option key={level} value={level}>

@@ -1457,6 +1457,7 @@
 		"searchPlaceholder": "Search questions...",
 		"filterByType": "Filter by type",
 		"filterByDifficulty": "Filter by difficulty",
+		"filterByBank": "Filter by Question Bank",
 		"searching": "Searching...",
 		"filter": "Filter",
 		"foundQuestions": "Found {{count}} questions",

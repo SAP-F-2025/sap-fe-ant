@@ -1457,6 +1457,7 @@
 		"searchPlaceholder": "Tìm kiếm câu hỏi...",
 		"filterByType": "Lọc theo loại",
 		"filterByDifficulty": "Lọc theo độ khó",
+		"filterByBank": "Lọc theo Ngân hàng câu hỏi",
 		"searching": "Đang tìm...",
 		"filter": "Lọc",
 		"foundQuestions": "Tìm thấy {{count}} câu hỏi",

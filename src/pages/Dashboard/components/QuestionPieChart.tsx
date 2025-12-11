@@ -67,7 +67,15 @@ export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({ data, isLoad
 								backgroundColor: token.colorBgContainer,
 								border: `1px solid ${token.colorBorder}`,
 								borderRadius: token.borderRadius,
+								color: token.colorText,
 								...elevation[3],
+							}}
+							itemStyle={{
+								color: token.colorText,
+							}}
+							labelStyle={{
+								color: token.colorText,
+								fontWeight: 600,
 							}}
 						/>
 					</PieChart>

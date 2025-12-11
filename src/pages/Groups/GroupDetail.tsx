@@ -4,6 +4,7 @@ import {
 	CrownOutlined,
 	DeleteOutlined,
 	EditOutlined,
+	EyeOutlined,
 	FileTextOutlined,
 	LinkOutlined,
 	StarOutlined,
@@ -45,6 +46,7 @@ import { showError, showSuccess } from '../../utils/errorHandler';
 import GenerateInviteLinkModal from './GenerateInviteLinkModal';
 import GroupAssessmentsTab from './GroupAssessmentsTab';
 import GroupGradingTab from './GroupGradingTab';
+import GroupProctoringTab from './GroupProctoringTab';
 
 const { Title, Text } = Typography;
 
@@ -481,6 +483,16 @@ const GroupDetail: React.FC = () => {
 													</Space>
 												),
 												children: <GroupGradingTab groupId={groupId} />,
+											},
+											{
+												key: 'proctoring',
+												label: (
+													<Space>
+														<EyeOutlined />
+														{t('groups.detail.proctoringTab')}
+													</Space>
+												),
+												children: <GroupProctoringTab groupId={groupId} />,
 											},
 										]
 									: []),

@@ -1,13 +1,16 @@
 import {
 	CheckCircleOutlined,
 	ClockCircleOutlined,
+	ExclamationCircleOutlined,
 	EyeOutlined,
 	SyncOutlined,
 	TrophyOutlined,
 	UserOutlined,
+	WarningOutlined,
 } from '@ant-design/icons';
 import {
 	Avatar,
+	Badge,
 	Button,
 	Card,
 	Col,
@@ -20,6 +23,7 @@ import {
 	Statistic,
 	Table,
 	Tag,
+	Tooltip,
 	Typography,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
@@ -28,9 +32,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { gradingService, type AttemptListItem } from '../../services/gradingService';
+import proctoringDashboardService from '../../services/proctoringDashboardService';
 import { cardColors } from '../../styles/cardColors';
 import { elevation } from '../../styles/elevation';
 import { useThemeToken } from '../../theme/ThemeProvider';
+import { AttemptViolationSummary, getSeverityColor, getSeverityName } from '../../types/proctoring';
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -50,6 +56,9 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 		current: 1,
 		pageSize: 10,
 	});
+	const [violationSummaries, setViolationSummaries] = useState<
+		Record<string, AttemptViolationSummary>
+	>({});
 
 	// Filters
 	const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
@@ -80,6 +89,27 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 	useEffect(() => {
 		fetchAttempts();
 	}, [pagination.current, pagination.pageSize, statusFilter, groupId]);
+
+	// Fetch violation summaries when attempts change
+	useEffect(() => {
+		const fetchViolationSummaries = async () => {
+			if (attempts.length === 0) return;
+
+			const attemptIds = attempts.map((a) => a.id);
+			try {
+				const response = await proctoringDashboardService.getAttemptSummaries(attemptIds);
+				const summaryMap: Record<string, AttemptViolationSummary> = {};
+				response.data.forEach((s) => {
+					summaryMap[s.attempt_id.toString()] = s;
+				});
+				setViolationSummaries(summaryMap);
+			} catch {
+				// Silently fail - proctoring data is supplementary
+			}
+		};
+
+		fetchViolationSummaries();
+	}, [attempts]);
 
 	const fetchAttempts = async () => {
 		try {
@@ -197,6 +227,62 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 				) : (
 					<Text type="secondary">-</Text>
 				),
+		},
+		{
+			title: t('gradingList.violations'),
+			key: 'violations',
+			width: 120,
+			align: 'center',
+			render: (_, record) => {
+				const summary = violationSummaries[record.id.toString()];
+				if (!summary || summary.total_violations === 0) {
+					return (
+						<Tooltip title={t('gradingList.noViolations')}>
+							<Tag color="success">{t('gradingList.clean')}</Tag>
+						</Tooltip>
+					);
+				}
+
+				const severityColor = getSeverityColor(summary.max_severity_level);
+				const severityLabel = getSeverityName(summary.max_severity_level);
+
+				return (
+					<Tooltip
+						title={
+							<div>
+								<div>
+									{t('gradingList.totalViolations')}: {summary.total_violations}
+								</div>
+								<div>
+									{t('gradingList.highestSeverity')}:{' '}
+									{t(`proctoring.severity.${severityLabel.toLowerCase()}`)}
+								</div>
+							</div>
+						}
+					>
+						<Badge
+							count={summary.total_violations}
+							overflowCount={99}
+							style={{ backgroundColor: severityColor }}
+						>
+							{summary.max_severity_level >= 2 ? (
+								<Tag color={severityColor} icon={<ExclamationCircleOutlined />}>
+									{t(`proctoring.severity.${severityLabel.toLowerCase()}`)}
+								</Tag>
+							) : (
+								<Tag color={severityColor} icon={<WarningOutlined />}>
+									{t(`proctoring.severity.${severityLabel.toLowerCase()}`)}
+								</Tag>
+							)}
+						</Badge>
+					</Tooltip>
+				);
+			},
+			sorter: (a, b) => {
+				const aViolations = violationSummaries[a.id.toString()]?.total_violations || 0;
+				const bViolations = violationSummaries[b.id.toString()]?.total_violations || 0;
+				return aViolations - bViolations;
+			},
 		},
 		{
 			title: t('gradingList.submittedAt'),

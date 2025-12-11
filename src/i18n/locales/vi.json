@@ -88,6 +88,7 @@
 		"missingParams": "Xác thực thất bại: Thiếu thông tin cần thiết",
 		"invalidSession": "Xác thực thất bại: Phiên không hợp lệ",
 		"loginSuccess": "Đăng nhập thành công!",
+		"authFailed": "Xác thực thất bại. Đang chuyển về trang đăng nhập...",
 		"authFailedRedirecting": "Xác thực thất bại. Đang chuyển về trang đăng nhập...",
 		"refreshTokenFailed": "Không thể làm mới phiên đăng nhập.",
 		"sessionExpired": "Phiên đăng nhập đã hết hạn. Đang chuyển đến trang đăng nhập..."
@@ -643,6 +644,7 @@
 		"assessment": "Bài thi",
 		"status": "Trạng thái",
 		"score": "Điểm",
+		"violations": "Vi phạm",
 		"submittedAt": "Thời gian nộp",
 		"action": "Thao tác",
 		"view": "Xem",
@@ -666,7 +668,35 @@
 		"avgScore": "Điểm trung bình",
 		"loadError": "Không thể tải danh sách bài làm",
 		"noAttempts": "Không có bài làm nào",
-		"assessmentFallback": "Bài thi #{{id}}"
+		"assessmentFallback": "Bài thi #{{id}}",
+		"noViolations": "Không phát hiện vi phạm giám sát",
+		"clean": "Sạch",
+		"totalViolations": "Tổng vi phạm",
+		"highestSeverity": "Mức độ cao nhất"
+	},
+	"groupProctoring": {
+		"assessment": "Bài thi",
+		"attempts": "Lượt làm sạch",
+		"violations": "Vi phạm",
+		"riskLevel": "Mức độ rủi ro",
+		"withViolations": "có vi phạm",
+		"totalAttempts": "Tổng lượt làm",
+		"cleanRate": "Tỷ lệ sạch",
+		"totalViolations": "Tổng vi phạm",
+		"criticalAttempts": "Ca nghiêm trọng",
+		"assessmentBreakdown": "Thống kê theo bài thi",
+		"highRiskStudents": "Học viên cần lưu ý",
+		"noHighRiskStudents": "Không phát hiện học viên có rủi ro cao",
+		"viewAttempts": "Xem lượt làm",
+		"attemptsLabel": "lượt làm",
+		"violationsLabel": "vi phạm",
+		"noAttempts": "Không có lượt làm nào trong nhóm này",
+		"risk": {
+			"low": "Thấp",
+			"medium": "Trung bình",
+			"high": "Cao",
+			"critical": "Nghiêm trọng"
+		}
 	},
 	"assessment": {
 		"title": "Bài kiểm tra",
@@ -1105,6 +1135,8 @@
 		"answeredProgress": "{{answered}} / {{total}} đã trả lời",
 		"violationWarning": "Cảnh báo vi phạm",
 		"unsupportedQuestionType": "Loại câu hỏi không được hỗ trợ",
+		"defaultTrueLabel": "Đúng",
+		"defaultFalseLabel": "Sai",
 		"trueLabel": "Đúng",
 		"falseLabel": "Sai",
 		"violations": {
@@ -1897,6 +1929,7 @@
 			"membersTab": "Thành viên",
 			"assessmentsTab": "Bài thi",
 			"gradingTab": "Chấm điểm",
+			"proctoringTab": "Giám sát",
 			"editInfo": "Chỉnh sửa thông tin"
 		},
 		"members": {

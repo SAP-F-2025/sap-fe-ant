@@ -644,6 +644,7 @@
 		"assessment": "Assessment",
 		"status": "Status",
 		"score": "Score",
+		"violations": "Violations",
 		"submittedAt": "Submitted At",
 		"action": "Action",
 		"view": "View",
@@ -667,7 +668,35 @@
 		"avgScore": "Average Score",
 		"loadError": "Cannot load submission list",
 		"noAttempts": "No submissions found",
-		"assessmentFallback": "Assessment #{{id}}"
+		"assessmentFallback": "Assessment #{{id}}",
+		"noViolations": "No proctoring violations detected",
+		"clean": "Clean",
+		"totalViolations": "Total Violations",
+		"highestSeverity": "Highest Severity"
+	},
+	"groupProctoring": {
+		"assessment": "Assessment",
+		"attempts": "Clean Attempts",
+		"violations": "Violations",
+		"riskLevel": "Risk Level",
+		"withViolations": "with violations",
+		"totalAttempts": "Total Attempts",
+		"cleanRate": "Clean Rate",
+		"totalViolations": "Total Violations",
+		"criticalAttempts": "Critical Cases",
+		"assessmentBreakdown": "Assessment Breakdown",
+		"highRiskStudents": "High-Risk Students",
+		"noHighRiskStudents": "No high-risk students detected",
+		"viewAttempts": "View Attempts",
+		"attemptsLabel": "attempts",
+		"violationsLabel": "violations",
+		"noAttempts": "No attempts found for this group",
+		"risk": {
+			"low": "Low Risk",
+			"medium": "Medium Risk",
+			"high": "High Risk",
+			"critical": "Critical Risk"
+		}
 	},
 	"assessment": {
 		"title": "Assessment",
@@ -1900,6 +1929,7 @@
 			"membersTab": "Members",
 			"assessmentsTab": "Assessments",
 			"gradingTab": "Grading",
+			"proctoringTab": "Proctoring",
 			"editInfo": "Edit Information"
 		},
 		"members": {

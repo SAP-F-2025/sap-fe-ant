@@ -2,7 +2,7 @@ import { RollbackOutlined, SaveOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, Row, Space, Spin, Switch, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import questionBankService from '../../services/questionBankService';
 import { QuestionBankCreateRequest } from '../../types';
 import { showSuccess } from '../../utils/errorHandler';
@@ -12,8 +12,15 @@ const { TextArea } = Input;
 
 const QuestionBankForm: React.FC = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
+
+	// Determine base path for navigation (student vs admin/teacher)
+	const basePath = location.pathname.startsWith('/student') 
+		? '/student/question-banks' 
+		: '/question-banks';
+
 	const [form] = Form.useForm();
 	const [loading, setLoading] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
@@ -35,7 +42,7 @@ const QuestionBankForm: React.FC = () => {
 			});
 		} catch (error) {
 			// Error will be handled by axios interceptor
-			navigate('/question-banks');
+			navigate(basePath);
 		} finally {
 			setLoading(false);
 		}
@@ -57,7 +64,7 @@ const QuestionBankForm: React.FC = () => {
 				showSuccess(t('questionBankForm.createSuccess'));
 			}
 
-			navigate('/question-banks');
+			navigate(basePath);
 		} catch (error) {
 			// Error will be handled by axios interceptor with notification
 		} finally {
@@ -161,7 +168,7 @@ const QuestionBankForm: React.FC = () => {
 								? t('questionBankForm.updateBtn')
 								: t('questionBankForm.createBtn')}
 						</Button>
-						<Button onClick={() => navigate('/question-banks')} size="large">
+						<Button onClick={() => navigate(basePath)} size="large">
 							{t('questionBankForm.cancelBtn')}
 						</Button>
 					</Space>

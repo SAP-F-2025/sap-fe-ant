@@ -126,7 +126,7 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({ bankId, onQuestio
 			setAvailablePagination({
 				page: params?.page || 1,
 				size: data.size,
-				total: filteredQuestions.length, // Update total to reflect filtered count
+				total: data.total, // Use backend total for correct pagination
 			});
 		} catch (error) {
 			// Error handled by interceptor

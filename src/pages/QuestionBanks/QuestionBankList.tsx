@@ -31,7 +31,7 @@ import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ShareQuestionBankModal } from '../../components/QuestionBank/ShareQuestionBankModal';
 import questionBankService from '../../services/questionBankService';
 import { cardColors } from '../../styles/cardColors';
@@ -46,7 +46,14 @@ const { Search } = Input;
 const QuestionBankList: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const token = useThemeToken();
+
+	// Determine base path for navigation (student vs admin/teacher)
+	const basePath = location.pathname.startsWith('/student') 
+		? '/student/question-banks' 
+		: '/question-banks';
+
 	const [loading, setLoading] = useState(false);
 	const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
 	const [total, setTotal] = useState(0);
@@ -187,14 +194,14 @@ const QuestionBankList: React.FC = () => {
 						<Button
 							type="text"
 							icon={<EyeOutlined />}
-							onClick={() => navigate(`/question-banks/${record.id}`)}
+							onClick={() => navigate(`${basePath}/${record.id}`)}
 						/>
 					</Tooltip>
 					<Tooltip title={t('questionBankList.edit')}>
 						<Button
 							type="text"
 							icon={<EditOutlined />}
-							onClick={() => navigate(`/question-banks/edit/${record.id}`)}
+							onClick={() => navigate(`${basePath}/edit/${record.id}`)}
 						/>
 					</Tooltip>
 					<Tooltip title={t('questionBankList.share')}>
@@ -236,7 +243,7 @@ const QuestionBankList: React.FC = () => {
 					<Button
 						icon={<GlobalOutlined />}
 						size="large"
-						onClick={() => navigate('/question-banks/public')}
+						onClick={() => navigate(`${basePath}/public`)}
 						style={{ height: 44, borderRadius: 10 }}
 					>
 						{t('questionBankList.public')}
@@ -244,7 +251,7 @@ const QuestionBankList: React.FC = () => {
 					<Button
 						icon={<ShareAltOutlined />}
 						size="large"
-						onClick={() => navigate('/question-banks/shared')}
+						onClick={() => navigate(`${basePath}/shared`)}
 						style={{ height: 44, borderRadius: 10 }}
 					>
 						{t('questionBankList.shared')}
@@ -253,7 +260,7 @@ const QuestionBankList: React.FC = () => {
 						type="primary"
 						icon={<PlusOutlined />}
 						size="large"
-						onClick={() => navigate('/question-banks/new')}
+						onClick={() => navigate(`${basePath}/new`)}
 						style={{
 							fontWeight: 500,
 							height: 44,

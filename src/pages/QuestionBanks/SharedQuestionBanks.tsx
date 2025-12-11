@@ -25,7 +25,7 @@ import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import questionBankService from '../../services/questionBankService';
 import { elevation } from '../../styles/elevation';
 import { QuestionBank, QuestionBankSharePermission } from '../../types';
@@ -46,7 +46,13 @@ const permissionIcons = {
 
 const SharedQuestionBanks: React.FC = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { t } = useTranslation();
+
+	// Determine base path for navigation (student vs admin/teacher)
+	const basePath = location.pathname.startsWith('/student') 
+		? '/student/question-banks' 
+		: '/question-banks';
 
 	const permissionLabels = {
 		[QuestionBankSharePermission.ViewOnly]: t('sharedQuestionBanks.permission.viewOnly'),
@@ -172,7 +178,7 @@ const SharedQuestionBanks: React.FC = () => {
 						<Button
 							type="text"
 							icon={<EyeOutlined />}
-							onClick={() => navigate(`/question-banks/${record.id}`)}
+							onClick={() => navigate(`${basePath}/${record.id}`)}
 						/>
 					</Tooltip>
 				</Space>
@@ -195,7 +201,7 @@ const SharedQuestionBanks: React.FC = () => {
 					</Space>
 				</Col>
 				<Col>
-					<Button icon={<RollbackOutlined />} onClick={() => navigate('/question-banks')}>
+					<Button icon={<RollbackOutlined />} onClick={() => navigate(basePath)}>
 						{t('sharedQuestionBanks.back')}
 					</Button>
 				</Col>

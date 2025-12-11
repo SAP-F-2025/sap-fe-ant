@@ -110,23 +110,22 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({ bankId, onQuestio
 	const fetchAvailableQuestions = async (params?: PaginationParams) => {
 		setFetchingQuestions(true);
 		try {
+			const existingQuestionIds = questions.map((q) => q.id);
+			
 			const data = await questionService.getQuestions({
 				page: params?.page || 1,
 				size: params?.size || 10,
 				search: searchText || undefined,
 				type: filterType,
 				difficulty: filterDifficulty,
+				exclude_ids: existingQuestionIds.length > 0 ? existingQuestionIds : undefined,
 			});
 
-			// Filter out questions already in bank
-			const existingQuestionIds = new Set(questions.map((q) => q.id));
-			const filteredQuestions = data.questions.filter((q) => !existingQuestionIds.has(q.id));
-
-			setAvailableQuestions(filteredQuestions);
+			setAvailableQuestions(data.questions);
 			setAvailablePagination({
 				page: params?.page || 1,
 				size: data.size,
-				total: data.total, // Use backend total for correct pagination
+				total: data.total,
 			});
 		} catch (error) {
 			// Error handled by interceptor

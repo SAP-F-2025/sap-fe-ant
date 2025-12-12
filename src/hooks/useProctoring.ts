@@ -189,13 +189,13 @@ export const useMediaPipeFaceDetection = (
 								isHeadTurned = headTurnRatio > 0.15; // Threshold for head turned
 							}
 
-							// Draw on canvas
-							if (canvasElement) {
+							// Draw on canvas (only when showLandmarks is enabled)
+							if (showLandmarks && canvasElement) {
 								const ctx = canvasElement.getContext('2d');
 								if (ctx) {
 									ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-									if (showLandmarks && results.faceLandmarks.length > 0) {
+									if (results.faceLandmarks.length > 0) {
 										results.faceLandmarks.forEach((landmarks) => {
 											ctx.fillStyle =
 												detectionCount > 1 ? '#ff4d4f' : '#52c41a';

@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
 	QUESTIONS_IMPORT: '/api/v1/questions/import',
 	QUESTIONS_EXPORT: '/api/v1/questions/export',
 	QUESTIONS_TEMPLATE: '/api/v1/questions/template',
+	QUESTIONS_FILTER: '/api/v1/questions/filter',
 
 	// Question Banks
 	QUESTION_BANKS: '/api/v1/question-banks',

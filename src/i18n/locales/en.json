@@ -1431,6 +1431,8 @@
 			"medium": "Medium",
 			"hard": "Hard"
 		},
+		"clearFilters": "Clear Filters",
+		"all": "All",
 		"questionType": {
 			"multipleChoice": "Multiple Choice",
 			"trueFalse": "True/False",

@@ -21,6 +21,21 @@ class QuestionService {
 		return apiService.get<PaginatedQuestionResponse<Question>>(API_ENDPOINTS.QUESTIONS, params);
 	}
 
+	async filterQuestions(body: {
+		page?: number;
+		size?: number;
+		type?: string;
+		difficulty?: string;
+		search?: string;
+		exclude_ids?: number[];
+		bank_id?: number;
+	}): Promise<PaginatedQuestionResponse<Question>> {
+		return apiService.post<PaginatedQuestionResponse<Question>>(
+			API_ENDPOINTS.QUESTIONS_FILTER,
+			body
+		);
+	}
+
 	async getQuestion(id: number): Promise<Question> {
 		if (API_CONFIG.USE_MOCK) {
 			await delay();

@@ -1431,6 +1431,8 @@
 			"medium": "Trung bình",
 			"hard": "Khó"
 		},
+		"clearFilters": "Xóa bộ lọc",
+		"all": "Tất cả",
 		"questionType": {
 			"multipleChoice": "Trắc nghiệm",
 			"trueFalse": "Đúng/Sai",

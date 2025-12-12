@@ -218,43 +218,59 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 		}
 	};
 
-	const fetchAvailableQuestions = async (params?: PaginationParams) => {
+	const fetchAvailableQuestions = async (
+		params?: PaginationParams,
+		filters?: {
+			search?: string;
+			type?: string;
+			difficulty?: string;
+			bank?: number;
+		}
+	) => {
 		setFetchingQuestions(true);
 		try {
-			let data;
-			
-			// If a bank is selected, fetch questions from that bank
-			if (filterBank) {
-				data = await questionBankService.getQuestionBankQuestions(filterBank, {
-					page: params?.page || 1,
-					size: params?.size || 10,
-				});
-			} else {
-				// Otherwise fetch all questions with filters
-				data = await questionService.getQuestions({
-					page: params?.page || 1,
-					size: params?.size || 10,
-					search: searchText || undefined,
-					type: filterType,
-					difficulty: filterDifficulty,
-				});
-			}
+			const search = filters?.search !== undefined ? filters.search : searchText;
+			const type = filters?.type !== undefined ? filters.type : filterType;
+			const difficulty =
+				filters?.difficulty !== undefined ? filters.difficulty : filterDifficulty;
+			const bank = filters?.bank !== undefined ? filters.bank : filterBank;
 
-			// Filter out questions already in assessment
-			const existingQuestionIds = new Set(questions.map((q) => q.question_id));
-			const filteredQuestions = data.questions.filter((q) => !existingQuestionIds.has(q.id));
+			// Get IDs of questions already in the assessment for exclusion
+			const existingQuestionIds = questions.map((q) => q.question_id);
 
-			setAvailableQuestions(filteredQuestions);
+			// Use new POST /questions/filter endpoint with all filters
+			const data = await questionService.filterQuestions({
+				page: params?.page || 1,
+				size: params?.size || 10,
+				search: search || undefined,
+				type: type || undefined,
+				difficulty: difficulty || undefined,
+				bank_id: bank || undefined,
+				exclude_ids: existingQuestionIds.length > 0 ? existingQuestionIds : undefined,
+			});
+
+			setAvailableQuestions(data.questions || []);
 			setPagination({
 				page: data.page > 0 ? data.page : 1,
 				size: data.size,
-				total: data.total, // Use backend total for correct pagination
+				total: data.total,
 			});
 		} catch (error) {
 			// Error handled by interceptor
 		} finally {
 			setFetchingQuestions(false);
 		}
+	};
+
+	const handleClearFilters = () => {
+		setSearchText('');
+		setFilterType(undefined);
+		setFilterDifficulty(undefined);
+		setFilterBank(undefined);
+		fetchAvailableQuestions(
+			{ page: 1, size: 10 },
+			{ search: '', type: undefined, difficulty: undefined, bank: undefined }
+		);
 	};
 
 	const handleAddQuestions = async () => {
@@ -1242,13 +1258,16 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								style={{ width: '100%' }}
 								value={filterType}
 								onChange={(value) => setFilterType(value)}
-								disabled={fetchingQuestions || !!filterBank}
+								disabled={fetchingQuestions}
 							>
 								{Object.values(QuestionType).map((type) => (
 									<Select.Option key={type} value={type}>
 										{getTypeLabel(type)}
 									</Select.Option>
 								))}
+								<Select.Option value={undefined}>
+									{t('manageAssessmentQuestions.all')}
+								</Select.Option>
 							</Select>
 						</Col>
 						<Col span={12}>
@@ -1258,13 +1277,16 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								style={{ width: '100%' }}
 								value={filterDifficulty}
 								onChange={(value) => setFilterDifficulty(value)}
-								disabled={fetchingQuestions || !!filterBank}
+								disabled={fetchingQuestions}
 							>
 								{Object.values(DifficultyLevel).map((level) => (
 									<Select.Option key={level} value={level}>
 										{getDifficultyLabel(level)}
 									</Select.Option>
 								))}
+								<Select.Option value={undefined}>
+									{t('manageAssessmentQuestions.all')}
+								</Select.Option>
 							</Select>
 						</Col>
 					</Row>
@@ -1279,6 +1301,12 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 							{fetchingQuestions
 								? t('manageAssessmentQuestions.searching')
 								: t('manageAssessmentQuestions.filter')}
+						</Button>
+						<Button
+							onClick={handleClearFilters}
+							disabled={fetchingQuestions}
+						>
+							{t('manageAssessmentQuestions.clearFilters')}
 						</Button>
 						{!fetchingQuestions && availableQuestions.length > 0 && (
 							<Text type="secondary">

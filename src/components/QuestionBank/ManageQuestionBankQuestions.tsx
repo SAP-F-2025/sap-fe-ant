@@ -111,23 +111,25 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({ bankId, onQuestio
 		setFetchingQuestions(true);
 		try {
 			const existingQuestionIds = questions.map((q) => q.id);
-			
-			const data = await questionService.getQuestions({
+
+			// Use new POST /questions/filter endpoint with all filters
+			const data = await questionService.filterQuestions({
 				page: params?.page || 1,
 				size: params?.size || 10,
 				search: searchText || undefined,
-				type: filterType,
-				difficulty: filterDifficulty,
+				type: filterType || undefined,
+				difficulty: filterDifficulty || undefined,
 				exclude_ids: existingQuestionIds.length > 0 ? existingQuestionIds : undefined,
 			});
 
-			setAvailableQuestions(data.questions);
+			setAvailableQuestions(data.questions || []);
 			setAvailablePagination({
 				page: params?.page || 1,
 				size: data.size,
 				total: data.total,
 			});
 		} catch (error) {
+			console.error('DEBUG: fetchAvailableQuestions error', error);
 			// Error handled by interceptor
 		} finally {
 			setFetchingQuestions(false);

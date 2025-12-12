@@ -3,6 +3,8 @@ export const API_CONFIG = {
 	VERIFICATION_BASE_URL:
 		import.meta.env.VITE_VERIFICATION_API_BASE_URL || 'http://localhost:8000',
 	PROCTORING_BASE_URL: import.meta.env.VITE_PROCTORING_API_BASE_URL || 'http://localhost:8889',
+	NOTIFICATION_BASE_URL:
+		import.meta.env.VITE_NOTIFICATION_API_BASE_URL || 'http://localhost:8082/notification-service',
 	TIMEOUT: 30000,
 	USE_MOCK: import.meta.env.VITE_USE_MOCK === 'true', // Read from environment variable
 };
@@ -153,4 +155,30 @@ export const API_ENDPOINTS = {
 	GROUP_LEAVE: (id: number) => `/api/v1/groups/${id}/leave`,
 	GROUP_JOIN_LINK: (token: string) => `/api/v1/groups/join/link/${token}`,
 	GROUP_JOIN_CODE: '/api/v1/groups/join/code',
+
+	// Notification Service
+	NOTIFICATIONS: '/api/v1/notifications',
+	NOTIFICATION_HISTORY: '/api/v1/notifications',
+	NOTIFICATION_UNREAD_COUNT: '/api/v1/notifications/unread-count',
+	NOTIFICATION_MARK_READ: (id: string) => `/api/v1/notifications/${id}/read`,
+	NOTIFICATION_MARK_ALL_READ: '/api/v1/notifications/mark-all-read',
+	NOTIFICATION_DELETE: (id: string) => `/api/v1/notifications/${id}`,
+
+	// Notification Templates
+	TEMPLATES: '/api/v1/templates',
+	TEMPLATE_DETAIL: (name: string) => `/api/v1/templates/${name}`,
+
+	// Notification Preferences
+	PREFERENCES: '/api/v1/preferences',
+	ADMIN_USER_PREFERENCES: (userId: number) => `/api/v1/admin/users/${userId}/preferences`,
+
+	// SSE
+	SSE_CONNECT: '/api/v1/sse/connect',
+	SSE_SUBSCRIBE: (topic: string) => `/api/v1/sse/subscribe/${topic}`,
+	SSE_STATUS: (userId: number) => `/api/v1/sse/status/${userId}`,
+	SSE_STATS: '/api/v1/sse/stats',
+
+	// Notification Admin/Test
+	NOTIFICATION_SEND_USER: '/api/v1/sse/test/send-to-user',
+	NOTIFICATION_BROADCAST: '/api/v1/sse/test/broadcast',
 };

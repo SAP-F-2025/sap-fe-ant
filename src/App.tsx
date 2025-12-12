@@ -32,6 +32,11 @@ import QuestionForm from './pages/Questions/QuestionForm';
 import QuestionList from './pages/Questions/QuestionList';
 import UserManagement from './pages/Users/UserManagement';
 
+// Notification Pages
+import NotificationDashboard from './pages/admin/notifications/Dashboard';
+import TemplatesPage from './pages/admin/notifications/Templates';
+import NotificationSettingsPage from './pages/user/NotificationSettingsPage';
+
 // Group Pages
 import GroupList from './pages/Groups/GroupList';
 import GroupDetail from './pages/Groups/GroupDetail';
@@ -146,6 +151,28 @@ const AppRoutes: React.FC = () => {
 							</RoleBasedRedirect>
 						}
 					/>
+
+					{/* Notification Routes - Admin/Teacher */}
+					<Route
+						path="notifications"
+					>
+						<Route
+							path="dashboard"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<NotificationDashboard />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="templates"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<TemplatesPage />
+								</RoleBasedRedirect>
+							}
+						/>
+					</Route>
 
 					{/* Groups Management - Admin only */}
 					<Route path="groups">
@@ -375,6 +402,16 @@ const AppRoutes: React.FC = () => {
 							}
 						/>
 					</Route>
+
+					{/* User Settings - Generic route handling */}
+					<Route
+						path="settings/notifications"
+						element={
+							<ProtectedRoute>
+								<NotificationSettingsPage />
+							</ProtectedRoute>
+						}
+					/>
 				</Route>
 			</Routes>
 			<ShortcutsModal ref={shortcutsRef} activeContext={getActiveContext()} />

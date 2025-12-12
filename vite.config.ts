@@ -32,6 +32,9 @@ export default defineConfig({
 		},
 	},
 	optimizeDeps: {
-		exclude: ['@mediapipe/camera_utils', '@mediapipe/face_detection'],
+		exclude: ['@mediapipe/camera_utils', '@mediapipe/face_detection', '@mediapipe/tasks-vision'],
+	},
+	worker: {
+		format: 'es',
 	},
 });

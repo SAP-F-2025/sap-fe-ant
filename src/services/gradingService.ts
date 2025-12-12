@@ -1,5 +1,5 @@
+import type { ApiResponse, GradeAnswerRequest, PaginationParams } from '../types';
 import { apiService } from './api';
-import type { ApiResponse, PaginationParams, GradeAnswerRequest } from '../types';
 
 // Extended types for grading
 export interface StudentAnswerDetail {
@@ -194,6 +194,7 @@ class GradingService {
 			assessment_id?: number;
 			student_id?: number;
 			status?: string;
+			group_id?: number;
 		}
 	): Promise<PaginatedAttemptResponse> {
 		return apiService.get<PaginatedAttemptResponse>('/api/v1/attempts', params);

@@ -299,24 +299,11 @@ const AppRoutes: React.FC = () => {
 						/>
 					</Route>
 
-					{/* Grading routes - Admin/Teacher only */}
+					{/* Grading routes - Accessible by admin and group owners/co-owners */}
+					{/* Backend API controls actual access based on group membership */}
 					<Route path="grading">
-						<Route
-							index
-							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
-									<GradingList />
-								</RoleBasedRedirect>
-							}
-						/>
-						<Route
-							path=":id"
-							element={
-								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
-									<GradingDetail />
-								</RoleBasedRedirect>
-							}
-						/>
+						<Route index element={<GradingList />} />
+						<Route path=":id" element={<GradingDetail />} />
 					</Route>
 
 					{/* Student routes */}

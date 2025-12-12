@@ -938,3 +938,5 @@ export interface JoinViaCodeRequest {
 	code: string;
 }
 
+// Re-export proctoring types
+export * from './proctoring';

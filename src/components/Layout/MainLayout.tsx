@@ -5,7 +5,6 @@ import {
 	DashboardOutlined,
 	FileTextOutlined,
 	HistoryOutlined,
-	LogoutOutlined,
 	MenuFoldOutlined,
 	MenuUnfoldOutlined,
 	MoonOutlined,
@@ -58,15 +57,13 @@ const MainLayout: React.FC = () => {
 	}, [screens.xs]);
 
 	// Menu items - filter based on user role
-	// Default to student if no role specified
-	const isStudent =
-		!user?.role && !user?.roles?.length
-			? true
-			: user?.role === 'student' || user?.roles?.includes('student');
+	// Admin users see admin menu, others see student menu
+	// Note: Group owners/co-owners will access grading through the student menu's groups section
+	const isStudent = !user?.isAdmin;
 
 	const menuItems: MenuProps['items'] = isStudent
 		? [
-				// Student menu items
+				// Student menu items (also includes group owners who aren't system admins)
 				{
 					key: '/student/dashboard',
 					icon: <DashboardOutlined />,

@@ -1,8 +1,10 @@
 import {
 	ArrowLeftOutlined,
+	CheckCircleOutlined,
 	CrownOutlined,
 	DeleteOutlined,
 	EditOutlined,
+	EyeOutlined,
 	FileTextOutlined,
 	LogoutOutlined,
 	ShareAltOutlined,
@@ -44,6 +46,8 @@ import { GroupMemberResponse, GroupMemberRole, GroupResponse, User } from '../..
 import { showError, showSuccess } from '../../utils/errorHandler';
 import InviteManagementTab from '../../components/Groups/InviteManagementTab';
 import GroupAssessmentsTab from './GroupAssessmentsTab';
+import GroupGradingTab from './GroupGradingTab';
+import GroupProctoringTab from './GroupProctoringTab';
 
 const { Title, Text } = Typography;
 
@@ -488,8 +492,29 @@ const GroupDetail: React.FC = () => {
 										/>
 									),
 								},
+								// Grading tab - only for group managers (owner/co-owner)
 								...(group.can_manage
 									? [
+										{
+											key: 'grading',
+											label: (
+												<Space>
+													<CheckCircleOutlined />
+													{t('groups.detail.gradingTab')}
+												</Space>
+											),
+											children: <GroupGradingTab groupId={groupId} />,
+										},
+										{
+											key: 'proctoring',
+											label: (
+												<Space>
+													<EyeOutlined />
+													{t('groups.detail.proctoringTab')}
+												</Space>
+											),
+											children: <GroupProctoringTab groupId={groupId} />,
+										},
 										{
 											key: 'invites',
 											label: (

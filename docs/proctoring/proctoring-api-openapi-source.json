@@ -1,0 +1,1591 @@
+{
+	"openapi": "3.0.3",
+	"info": {
+		"title": "Proctoring Violation Detection API",
+		"description": "API for processing violation detection events and storing them in TimescaleDB\nfor real-time and historical analysis.\n",
+		"version": "1.0.0",
+		"contact": {
+			"name": "Development Team"
+		}
+	},
+	"servers": [
+		{
+			"url": "http://localhost:8081/api/v1",
+			"description": "Local development server"
+		},
+		{
+			"url": "https://proctoring.m3xd.dev/api/v1",
+			"description": "Production server"
+		}
+	],
+	"tags": [
+		{
+			"name": "Violations",
+			"description": "Violation detection and retrieval endpoints"
+		},
+		{
+			"name": "Dashboard",
+			"description": "Dashboard analytics, statistics, and real-time monitoring endpoints"
+		}
+	],
+	"paths": {
+		"/violations": {
+			"post": {
+				"tags": [
+					"Violations"
+				],
+				"summary": "Ingest single violation",
+				"description": "Process and store a single violation detection event",
+				"operationId": "ingestViolation",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateViolationRequest"
+							},
+							"example": {
+								"attempt_id": 12345,
+								"user_id": "user123",
+								"assessment_id": 456,
+								"violation_type": 2,
+								"severity": 2,
+								"confidence_score": 0.95,
+								"snapshot_url": "https://example.com/snapshot.jpg",
+								"browser_info": {
+									"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+									"platform": "Win32",
+									"language": "en-US",
+									"screen_resolution": "1920x1080",
+									"timezone": "Asia/Ho_Chi_Minh"
+								},
+								"device_fingerprint": "abc123def456",
+								"created_at": "2025-10-31T10:00:00Z",
+								"ended_at": "2025-10-31T10:00:05Z",
+								"is_prolonged": true
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Violation successfully processed",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ViolationResponse"
+								},
+								"example": {
+									"id": 1,
+									"attempt_id": 12345,
+									"user_id": "user123",
+									"assessment_id": 456,
+									"violation_type": 2,
+									"violation_name": "looking_away",
+									"severity": 2,
+									"severity_name": "high",
+									"confidence_score": 0.95,
+									"created_at": "2025-10-31T10:00:00Z",
+									"status": "processed"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request - invalid input",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								},
+								"example": {
+									"error": "invalid_request",
+									"message": "attempt_id is required"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								},
+								"example": {
+									"error": "ingestion_failed",
+									"message": "failed to insert violation into database"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/violations/batch": {
+			"post": {
+				"tags": [
+					"Violations"
+				],
+				"summary": "Ingest batch violations",
+				"description": "Process and store multiple violations at once (max 50 per batch)",
+				"operationId": "ingestBatchViolations",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/BatchViolationRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Batch violations successfully processed",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BatchViolationResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/violations/attempt/{attempt_id}": {
+			"get": {
+				"tags": [
+					"Violations"
+				],
+				"summary": "Get violations by attempt",
+				"description": "Retrieve all violations for a specific attempt with pagination",
+				"operationId": "getViolationsByAttempt",
+				"parameters": [
+					{
+						"name": "attempt_id",
+						"in": "path",
+						"required": true,
+						"description": "The attempt ID",
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						},
+						"example": 12345
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"description": "Page number (1-indexed)",
+						"schema": {
+							"type": "integer",
+							"default": 1,
+							"minimum": 1
+						},
+						"example": 1
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Number of results per page",
+						"schema": {
+							"type": "integer",
+							"default": 10,
+							"minimum": 1,
+							"maximum": 100
+						},
+						"example": 10
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Violations retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ViolationListResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/violations/attempt/{attempt_id}/latest": {
+			"get": {
+				"tags": [
+					"Violations"
+				],
+				"summary": "Get latest violation",
+				"description": "Get the most recent violation for a specific attempt",
+				"operationId": "getLatestViolation",
+				"parameters": [
+					{
+						"name": "attempt_id",
+						"in": "path",
+						"required": true,
+						"description": "The attempt ID",
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						},
+						"example": 12345
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Latest violation retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ViolationLog"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No violations found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								},
+								"example": {
+									"error": "not_found",
+									"message": "no violations found for this attempt"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/violations/analytics/{attempt_id}": {
+			"get": {
+				"tags": [
+					"Violations"
+				],
+				"summary": "Get violation analytics",
+				"description": "Get aggregated analytics for an attempt including counts,\nseverity distribution, and timeline\n",
+				"operationId": "getViolationAnalytics",
+				"parameters": [
+					{
+						"name": "attempt_id",
+						"in": "path",
+						"required": true,
+						"description": "The attempt ID",
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						},
+						"example": 12345
+					},
+					{
+						"name": "bucket_size",
+						"in": "query",
+						"description": "Time bucket size for timeline (e.g., \"5m\", \"1h\", \"30s\")",
+						"schema": {
+							"type": "string",
+							"default": "5m"
+						},
+						"example": "5m"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Analytics retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"description": "Violation analytics data"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/dashboard/stats/hourly": {
+			"get": {
+				"tags": [
+					"Dashboard"
+				],
+				"summary": "Get hourly violation statistics",
+				"description": "Get aggregated hourly violation stats from continuous aggregate",
+				"operationId": "getHourlyStats",
+				"parameters": [
+					{
+						"name": "start_time",
+						"in": "query",
+						"description": "Start time (RFC3339 format, default 24 hours ago)",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						},
+						"example": "2025-10-30T10:00:00Z"
+					},
+					{
+						"name": "end_time",
+						"in": "query",
+						"description": "End time (RFC3339 format, default now)",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						},
+						"example": "2025-10-31T10:00:00Z"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Hourly stats retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"start_time": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"end_time": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"data": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/HourlyViolationStats"
+											}
+										},
+										"count": {
+											"type": "integer"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/dashboard/stats/daily": {
+			"get": {
+				"tags": [
+					"Dashboard"
+				],
+				"summary": "Get daily violation statistics",
+				"description": "Get aggregated daily violation stats from continuous aggregate",
+				"operationId": "getDailyStats",
+				"parameters": [
+					{
+						"name": "start_time",
+						"in": "query",
+						"description": "Start time (RFC3339 format, default 30 days ago)",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						},
+						"example": "2025-10-01T00:00:00Z"
+					},
+					{
+						"name": "end_time",
+						"in": "query",
+						"description": "End time (RFC3339 format, default now)",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						},
+						"example": "2025-10-31T23:59:59Z"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Daily stats retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"start_time": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"end_time": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"data": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/DailyViolationStats"
+											}
+										},
+										"count": {
+											"type": "integer"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/dashboard/attempts/{attempt_id}/summary": {
+			"get": {
+				"tags": [
+					"Dashboard"
+				],
+				"summary": "Get attempt violation summary",
+				"description": "Get aggregated violation summary for a specific attempt",
+				"operationId": "getAttemptSummary",
+				"parameters": [
+					{
+						"name": "attempt_id",
+						"in": "path",
+						"required": true,
+						"description": "The attempt ID",
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						},
+						"example": 12345
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Attempt summary retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AttemptViolationSummary"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Attempt not found or no violations",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/dashboard/attempts/summaries": {
+			"get": {
+				"tags": [
+					"Dashboard"
+				],
+				"summary": "Get summaries for multiple attempts",
+				"description": "Get violation summaries for multiple attempts (comma-separated IDs)",
+				"operationId": "getAttemptSummaries",
+				"parameters": [
+					{
+						"name": "attempt_ids",
+						"in": "query",
+						"required": true,
+						"description": "Comma-separated attempt IDs (e.g., \"12345,12346,12347\")",
+						"schema": {
+							"type": "string"
+						},
+						"example": "12345,12346,12347"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Attempt summaries retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/AttemptViolationSummary"
+											}
+										},
+										"count": {
+											"type": "integer"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/dashboard/users/{user_id}/patterns": {
+			"get": {
+				"tags": [
+					"Dashboard"
+				],
+				"summary": "Get violation patterns for a user",
+				"description": "Get daily violation patterns for a specific user",
+				"operationId": "getUserPatterns",
+				"parameters": [
+					{
+						"name": "user_id",
+						"in": "path",
+						"required": true,
+						"description": "The user ID",
+						"schema": {
+							"type": "string"
+						},
+						"example": "user123"
+					},
+					{
+						"name": "start_time",
+						"in": "query",
+						"description": "Start time (RFC3339 format, default 30 days ago)",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end_time",
+						"in": "query",
+						"description": "End time (RFC3339 format, default now)",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "User patterns retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"user_id": {
+											"type": "string"
+										},
+										"start_time": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"end_time": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"data": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/UserViolationPattern"
+											}
+										},
+										"count": {
+											"type": "integer"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/dashboard/overview": {
+			"get": {
+				"tags": [
+					"Dashboard"
+				],
+				"summary": "Get dashboard overview",
+				"description": "Get high-level dashboard metrics with comparison to previous period",
+				"operationId": "getDashboardOverview",
+				"parameters": [
+					{
+						"name": "start_time",
+						"in": "query",
+						"description": "Start time (RFC3339 format, default 7 days ago)",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						},
+						"example": "2025-10-24T00:00:00Z"
+					},
+					{
+						"name": "end_time",
+						"in": "query",
+						"description": "End time (RFC3339 format, default now)",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						},
+						"example": "2025-10-31T23:59:59Z"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Dashboard overview retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"start_time": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"end_time": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"data": {
+											"$ref": "#/components/schemas/DashboardOverview"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/dashboard/realtime": {
+			"get": {
+				"tags": [
+					"Dashboard"
+				],
+				"summary": "Get real-time statistics",
+				"description": "Get real-time violation statistics for the last 5 minutes and last hour",
+				"operationId": "getRealTimeStats",
+				"responses": {
+					"200": {
+						"description": "Real-time stats retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RealTimeStats"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"CreateViolationRequest": {
+				"type": "object",
+				"required": [
+					"attempt_id",
+					"user_id",
+					"assessment_id",
+					"violation_type",
+					"severity",
+					"confidence_score",
+					"browser_info",
+					"device_fingerprint",
+					"created_at",
+					"ended_at"
+				],
+				"properties": {
+					"attempt_id": {
+						"type": "integer",
+						"format": "int64",
+						"description": "Unique identifier for the assessment attempt",
+						"example": 12345
+					},
+					"user_id": {
+						"type": "string",
+						"description": "User identifier",
+						"example": "user123"
+					},
+					"assessment_id": {
+						"type": "integer",
+						"format": "int64",
+						"description": "Assessment identifier",
+						"example": 456
+					},
+					"violation_type": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 23,
+						"description": "Violation type ID (0-23)",
+						"example": 2
+					},
+					"severity": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 3,
+						"description": "Severity level (0=Low, 1=Medium, 2=High, 3=Critical)",
+						"example": 2
+					},
+					"confidence_score": {
+						"type": "number",
+						"format": "float",
+						"minimum": 0.0,
+						"maximum": 1.0,
+						"description": "Confidence score of the detection",
+						"example": 0.95
+					},
+					"snapshot_url": {
+						"type": "string",
+						"description": "URL to snapshot image (optional)",
+						"example": "https://example.com/snapshot.jpg"
+					},
+					"browser_info": {
+						"$ref": "#/components/schemas/BrowserInfo"
+					},
+					"device_fingerprint": {
+						"type": "string",
+						"description": "Device fingerprint identifier",
+						"example": "abc123def456"
+					},
+					"created_at": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Timestamp when violation started",
+						"example": "2025-10-31T10:00:00Z"
+					},
+					"ended_at": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Timestamp when violation ended",
+						"example": "2025-10-31T10:00:05Z"
+					},
+					"is_prolonged": {
+						"type": "boolean",
+						"description": "Whether this is a prolonged violation",
+						"example": true
+					}
+				}
+			},
+			"BatchViolationRequest": {
+				"type": "object",
+				"required": [
+					"violations"
+				],
+				"properties": {
+					"violations": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/CreateViolationRequest"
+						},
+						"maxItems": 50,
+						"description": "Array of violations (max 50)"
+					}
+				}
+			},
+			"ViolationResponse": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"format": "int64",
+						"description": "Database ID of the violation",
+						"example": 1
+					},
+					"attempt_id": {
+						"type": "integer",
+						"format": "int64",
+						"example": 12345
+					},
+					"user_id": {
+						"type": "string",
+						"example": "user123"
+					},
+					"assessment_id": {
+						"type": "integer",
+						"format": "int64",
+						"example": 456
+					},
+					"violation_type": {
+						"type": "integer",
+						"description": "Violation type ID",
+						"example": 2
+					},
+					"violation_name": {
+						"type": "string",
+						"description": "Human-readable violation type name",
+						"example": "looking_away"
+					},
+					"severity": {
+						"type": "integer",
+						"description": "Severity level",
+						"example": 2
+					},
+					"severity_name": {
+						"type": "string",
+						"description": "Human-readable severity name",
+						"example": "high"
+					},
+					"confidence_score": {
+						"type": "number",
+						"format": "float",
+						"example": 0.95
+					},
+					"created_at": {
+						"type": "string",
+						"format": "date-time",
+						"example": "2025-10-31T10:00:00Z"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"processed",
+							"failed"
+						],
+						"example": "processed"
+					}
+				}
+			},
+			"BatchViolationResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"example": true
+					},
+					"count": {
+						"type": "integer",
+						"description": "Number of violations successfully processed",
+						"example": 2
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/ViolationResponse"
+						}
+					}
+				}
+			},
+			"ViolationLog": {
+				"type": "object",
+				"description": "Complete violation log entry",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"attempt_id": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"user_id": {
+						"type": "string"
+					},
+					"assessment_id": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"violation_type": {
+						"type": "integer"
+					},
+					"severity": {
+						"type": "integer"
+					},
+					"confidence_score": {
+						"type": "number",
+						"format": "float"
+					},
+					"snapshot_url": {
+						"type": "string"
+					},
+					"browser_info": {
+						"$ref": "#/components/schemas/BrowserInfo"
+					},
+					"device_fingerprint": {
+						"type": "string"
+					},
+					"created_at": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"ended_at": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"is_prolonged": {
+						"type": "boolean"
+					}
+				}
+			},
+			"ViolationListResponse": {
+				"type": "object",
+				"properties": {
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/ViolationLog"
+						}
+					},
+					"count": {
+						"type": "integer",
+						"description": "Number of violations returned"
+					},
+					"limit": {
+						"type": "integer",
+						"description": "Page size limit"
+					},
+					"offset": {
+						"type": "integer",
+						"description": "Offset for pagination"
+					}
+				}
+			},
+			"BrowserInfo": {
+				"type": "object",
+				"required": [
+					"user_agent",
+					"platform",
+					"language",
+					"screen_resolution",
+					"timezone"
+				],
+				"properties": {
+					"user_agent": {
+						"type": "string",
+						"example": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+					},
+					"platform": {
+						"type": "string",
+						"example": "Win32"
+					},
+					"language": {
+						"type": "string",
+						"example": "en-US"
+					},
+					"screen_resolution": {
+						"type": "string",
+						"example": "1920x1080"
+					},
+					"timezone": {
+						"type": "string",
+						"example": "Asia/Ho_Chi_Minh"
+					}
+				}
+			},
+			"HourlyViolationStats": {
+				"type": "object",
+				"description": "Hourly aggregated violation statistics",
+				"properties": {
+					"bucket": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Start time of the hour bucket"
+					},
+					"total_violations": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"unique_attempts": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"unique_users": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"critical_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"high_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"medium_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"low_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"face_not_detected_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"multiple_faces_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"looking_away_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"hand_detected_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"switching_tab_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"fullscreen_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"prolonged_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"avg_confidence": {
+						"type": "number",
+						"format": "float"
+					}
+				}
+			},
+			"DailyViolationStats": {
+				"type": "object",
+				"description": "Daily aggregated violation statistics",
+				"properties": {
+					"bucket": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Start time of the day bucket"
+					},
+					"total_violations": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"unique_attempts": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"unique_users": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"unique_assessments": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"critical_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"high_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"medium_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"low_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"face_not_detected_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"multiple_faces_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"looking_away_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"mouth_open_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"hand_detected_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"copy_paste_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"switching_tab_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"fullscreen_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"phone_detect_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"prolonged_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"avg_duration_seconds": {
+						"type": "number",
+						"format": "float"
+					},
+					"avg_confidence": {
+						"type": "number",
+						"format": "float"
+					}
+				}
+			},
+			"AttemptViolationSummary": {
+				"type": "object",
+				"description": "Aggregated violation summary for a specific attempt",
+				"properties": {
+					"attempt_id": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"user_id": {
+						"type": "string"
+					},
+					"assessment_id": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"first_violation_at": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"last_violation_at": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"duration_seconds": {
+						"type": "number",
+						"format": "float"
+					},
+					"total_violations": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"unique_violation_types": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"prolonged_violations_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"critical_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"high_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"medium_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"low_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"max_severity_level": {
+						"type": "integer",
+						"description": "Maximum severity level (0-3)"
+					},
+					"violation_types": {
+						"type": "array",
+						"items": {
+							"type": "integer"
+						},
+						"description": "Array of violation type IDs detected"
+					},
+					"avg_confidence": {
+						"type": "number",
+						"format": "float"
+					},
+					"max_confidence": {
+						"type": "number",
+						"format": "float"
+					},
+					"min_confidence": {
+						"type": "number",
+						"format": "float"
+					}
+				}
+			},
+			"UserViolationPattern": {
+				"type": "object",
+				"description": "Daily violation patterns for a user",
+				"properties": {
+					"bucket": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"user_id": {
+						"type": "string"
+					},
+					"total_violations": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"attempts_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"assessments_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"critical_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"high_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"prolonged_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"most_common_violation": {
+						"type": "integer",
+						"description": "Most common violation type ID"
+					},
+					"unique_violation_types": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"has_multiple_faces": {
+						"type": "boolean"
+					},
+					"has_hand_detected": {
+						"type": "boolean"
+					},
+					"has_switching_tab": {
+						"type": "boolean"
+					},
+					"has_fullscreen_exit": {
+						"type": "boolean"
+					},
+					"avg_confidence": {
+						"type": "number",
+						"format": "float"
+					}
+				}
+			},
+			"DashboardOverview": {
+				"type": "object",
+				"description": "High-level dashboard metrics",
+				"properties": {
+					"total_violations": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"total_attempts": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"total_users": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"total_assessments": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"critical_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"high_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"medium_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"low_count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"violations_change": {
+						"type": "number",
+						"format": "float",
+						"description": "Percentage change from previous period"
+					},
+					"attempts_change": {
+						"type": "number",
+						"format": "float"
+					},
+					"users_change": {
+						"type": "number",
+						"format": "float"
+					},
+					"top_violation_types": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/ViolationTypeCount"
+						}
+					}
+				}
+			},
+			"ViolationTypeCount": {
+				"type": "object",
+				"properties": {
+					"violation_type": {
+						"type": "integer"
+					},
+					"type_name": {
+						"type": "string"
+					},
+					"count": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"percentage": {
+						"type": "number",
+						"format": "float"
+					}
+				}
+			},
+			"RealTimeStats": {
+				"type": "object",
+				"description": "Real-time violation statistics",
+				"properties": {
+					"last_updated": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"active_attempts": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"violations_last_5min": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"violations_last_hour": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"critical_violations": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"recent_violations": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/ViolationLog"
+						}
+					}
+				}
+			},
+			"ErrorResponse": {
+				"type": "object",
+				"properties": {
+					"error": {
+						"type": "string",
+						"description": "Error code",
+						"example": "invalid_request"
+					},
+					"message": {
+						"type": "string",
+						"description": "Human-readable error message",
+						"example": "attempt_id is required"
+					}
+				}
+			}
+		}
+	}
+}

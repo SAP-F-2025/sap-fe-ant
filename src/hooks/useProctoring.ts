@@ -40,7 +40,17 @@ export const useMediaPipeFaceDetection = (
 	const headTurnedViolationRef = useRef<{ startTime: number } | null>(null);
 	const eyesClosedViolationRef = useRef<{ startTime: number } | null>(null);
 	const lastDetectionTimeRef = useRef<number>(0);
-	const DETECTION_INTERVAL = 100; // Run detection every 100ms (10fps)
+	const DETECTION_INTERVAL = 250; // Run detection every 250ms (4fps) - reduced for performance
+	const MAX_EVENTS = 50; // Cap events to prevent memory leak
+
+	// Helper to add event with cap
+	const addEvent = (event: ProctoringEvent) => {
+		setEvents((prev) => {
+			const newEvents = [...prev, event];
+			// Keep only last MAX_EVENTS to prevent memory leak
+			return newEvents.length > MAX_EVENTS ? newEvents.slice(-MAX_EVENTS) : newEvents;
+		});
+	};
 
 	useEffect(() => {
 		if (!enabled || !videoElement) return;
@@ -232,7 +242,7 @@ export const useMediaPipeFaceDetection = (
 										endTime: 0,
 										duration: 0,
 									};
-									setEvents((prev) => [...prev, event]);
+									addEvent(event);
 									onViolation?.(event);
 								}
 								// Clear other violations when no face
@@ -317,7 +327,7 @@ export const useMediaPipeFaceDetection = (
 										endTime: 0,
 										duration: 0,
 									};
-									setEvents((prev) => [...prev, event]);
+									addEvent(event);
 									onViolation?.(event);
 								}
 								// Clear other violations when multiple faces
@@ -435,7 +445,7 @@ export const useMediaPipeFaceDetection = (
 											endTime: 0,
 											duration: 0,
 										};
-										setEvents((prev) => [...prev, event]);
+										addEvent(event);
 										onViolation?.(event);
 									}
 								} else {
@@ -469,7 +479,7 @@ export const useMediaPipeFaceDetection = (
 											endTime: 0,
 											duration: 0,
 										};
-										setEvents((prev) => [...prev, event]);
+										addEvent(event);
 										onViolation?.(event);
 									}
 								} else {
@@ -501,7 +511,7 @@ export const useMediaPipeFaceDetection = (
 											endTime: 0,
 											duration: 0,
 										};
-										setEvents((prev) => [...prev, event]);
+										addEvent(event);
 										onViolation?.(event);
 									}
 								} else {
@@ -533,7 +543,7 @@ export const useMediaPipeFaceDetection = (
 											endTime: 0,
 											duration: 0,
 										};
-										setEvents((prev) => [...prev, event]);
+										addEvent(event);
 										onViolation?.(event);
 									}
 								} else {

@@ -15,6 +15,7 @@ class QuestionService {
 			type?: string;
 			difficulty?: string;
 			search?: string;
+			exclude_ids?: number[];
 		}
 	): Promise<PaginatedQuestionResponse<Question>> {
 		return apiService.get<PaginatedQuestionResponse<Question>>(API_ENDPOINTS.QUESTIONS, params);

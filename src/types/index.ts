@@ -324,6 +324,7 @@ export interface GradingStats {
 export interface PaginationParams {
 	page?: number;
 	size?: number;
+	exclude_ids?: number[];
 }
 
 export interface PaginatedQuestionResponse<T> {

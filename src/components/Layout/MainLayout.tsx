@@ -88,6 +88,11 @@ const MainLayout: React.FC = () => {
 					label: t('layout.manageQuestions'),
 				},
 				{
+					key: '/student/question-banks',
+					icon: <BankOutlined />,
+					label: t('layout.questionBanks'),
+				},
+				{
 					key: '/student/groups',
 					icon: <TeamOutlined />,
 					label: t('studentGroups.title'),
@@ -246,6 +251,7 @@ const MainLayout: React.FC = () => {
 		if (path.startsWith('/student/assessments')) return '/student/assessments';
 		if (path.startsWith('/student/manage-assessments')) return '/student/manage-assessments';
 		if (path.startsWith('/student/questions')) return '/student/questions';
+		if (path.startsWith('/student/question-banks')) return '/student/question-banks';
 		if (path.startsWith('/student/groups')) return '/student/groups';
 		if (path.startsWith('/student/history')) return '/student/history';
 		if (path.startsWith('/student/take')) return '/student/assessments';

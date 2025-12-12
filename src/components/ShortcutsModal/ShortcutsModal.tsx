@@ -89,6 +89,10 @@ const allShortcuts: Record<string, ShortcutSection> = {
 						descriptionKey: 'shortcuts.descriptions.confirmSubmit',
 					},
 					{
+						keys: ['Enter', 'Space'],
+						descriptionKey: 'shortcuts.descriptions.verifyFace',
+					},
+					{
 						keys: ['Ctrl', 'Shift', 'T'],
 						descriptionKey: 'shortcuts.descriptions.toggleTheme',
 					},

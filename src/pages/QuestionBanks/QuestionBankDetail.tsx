@@ -9,7 +9,7 @@ import { Button, Card, Col, Descriptions, Row, Space, Spin, Tag, Typography } fr
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ManageQuestionBankQuestions } from '../../components/QuestionBank/ManageQuestionBankQuestions';
 import questionBankService from '../../services/questionBankService';
 import { QuestionBank } from '../../types';
@@ -18,8 +18,15 @@ const { Title, Text } = Typography;
 
 const QuestionBankDetail: React.FC = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
+
+	// Determine base path for navigation (student vs admin/teacher)
+	const basePath = location.pathname.startsWith('/student') 
+		? '/student/question-banks' 
+		: '/question-banks';
+
 	const [loading, setLoading] = useState(false);
 	const [questionBank, setQuestionBank] = useState<QuestionBank | null>(null);
 
@@ -36,7 +43,7 @@ const QuestionBankDetail: React.FC = () => {
 			setQuestionBank(data);
 		} catch (error) {
 			// Error handled by interceptor
-			navigate('/question-banks');
+			navigate(basePath);
 		} finally {
 			setLoading(false);
 		}
@@ -57,7 +64,7 @@ const QuestionBankDetail: React.FC = () => {
 					<Space>
 						<Button
 							icon={<RollbackOutlined />}
-							onClick={() => navigate('/question-banks')}
+							onClick={() => navigate(basePath)}
 						>
 							{t('questionBankDetail.back')}
 						</Button>
@@ -68,7 +75,7 @@ const QuestionBankDetail: React.FC = () => {
 						<Button
 							type="primary"
 							icon={<EditOutlined />}
-							onClick={() => navigate(`/question-banks/edit/${id}`)}
+							onClick={() => navigate(`${basePath}/edit/${id}`)}
 						>
 							{t('questionBankDetail.edit')}
 						</Button>

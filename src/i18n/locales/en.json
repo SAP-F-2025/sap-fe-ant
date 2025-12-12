@@ -994,7 +994,8 @@
 			"moveSelectedOrNavigate": "Move selected item or navigate",
 			"quickSelectOrMove": "Quick select or move to position",
 			"openSettings": "Toggle settings",
-			"closeModal": "Close modal"
+			"closeModal": "Close modal",
+			"verifyFace": "Verify identity (when modal is open)"
 		}
 	},
 	"assessmentResults": {
@@ -1435,6 +1436,10 @@
 		"manualPointsDesc": "You will enter points for each question. Existing questions keep their points.",
 		"autoAssign": "Auto-distribute points evenly",
 		"autoAssignDesc": "System will auto-distribute 100 points evenly to ALL questions (existing and new).",
+		"autoScale": "Auto-scale proportionally",
+		"autoScaleDesc": "System will scale points proportionally based on question default points to total 100.",
+		"autoScaleSuccess": "Auto-scaled and added {{count}} questions",
+		"failedToScalePoints": "Failed to auto-scale points",
 		"filteredInfo": "List filtered out {{count}} questions already in assessment",
 		"previewDistribution": "Preview point distribution",
 		"totalQuestionsLabel": "Total questions",
@@ -1452,6 +1457,7 @@
 		"searchPlaceholder": "Search questions...",
 		"filterByType": "Filter by type",
 		"filterByDifficulty": "Filter by difficulty",
+		"filterByBank": "Filter by Question Bank",
 		"searching": "Searching...",
 		"filter": "Filter",
 		"foundQuestions": "Found {{count}} questions",

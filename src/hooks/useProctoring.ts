@@ -63,20 +63,58 @@ export const useMediaPipeFaceDetection = (
 					'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
 				);
 
-				const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-					baseOptions: {
-						modelAssetPath:
-							'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
-						delegate: 'GPU',
-					},
-					runningMode: 'VIDEO',
-					numFaces: 2,
-					minFaceDetectionConfidence: 0.5,
-					minFacePresenceConfidence: 0.5,
-					minTrackingConfidence: 0.5,
-					outputFaceBlendshapes: true,
-					outputFacialTransformationMatrixes: false,
-				});
+				// Detect WebGL2 support for GPU acceleration
+				const hasWebGL2 = (() => {
+					try {
+						const canvas = document.createElement('canvas');
+						return !!canvas.getContext('webgl2');
+					} catch {
+						return false;
+					}
+				})();
+
+				// Try GPU first, fallback to CPU if not available
+				let faceLandmarker: FaceLandmarker;
+				const modelPath =
+					'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+
+				try {
+					if (hasWebGL2) {
+						faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+							baseOptions: {
+								modelAssetPath: modelPath,
+								delegate: 'GPU',
+							},
+							runningMode: 'VIDEO',
+							numFaces: 2,
+							minFaceDetectionConfidence: 0.5,
+							minFacePresenceConfidence: 0.5,
+							minTrackingConfidence: 0.5,
+							outputFaceBlendshapes: true,
+							outputFacialTransformationMatrixes: false,
+						});
+						console.log('Face detection: Using GPU acceleration');
+					} else {
+						throw new Error('WebGL2 not available');
+					}
+				} catch (gpuError) {
+					// Fallback to CPU
+					console.warn('GPU acceleration not available, falling back to CPU:', gpuError);
+					faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+						baseOptions: {
+							modelAssetPath: modelPath,
+							delegate: 'CPU',
+						},
+						runningMode: 'VIDEO',
+						numFaces: 2,
+						minFaceDetectionConfidence: 0.5,
+						minFacePresenceConfidence: 0.5,
+						minTrackingConfidence: 0.5,
+						outputFaceBlendshapes: true,
+						outputFacialTransformationMatrixes: false,
+					});
+					console.log('Face detection: Using CPU (may be slower)');
+				}
 
 				faceLandmarkerRef.current = faceLandmarker;
 

@@ -127,10 +127,15 @@ export const API_ENDPOINTS = {
 		`/api/v1/groups/${groupId}/assessments/${assessmentId}`,
 	ASSESSMENT_GROUPS: (assessmentId: number) => `/api/v1/assessments/${assessmentId}/groups`,
 
-	// Group Invite Links
-	GROUP_INVITE_LINKS: (groupId: number) => `/api/v1/groups/${groupId}/invite-links`,
-	GROUP_INVITE_LINK: (groupId: number, linkId: number) =>
-		`/api/v1/groups/${groupId}/invite-links/${linkId}`,
-	INVITE_LINK_VALIDATE: (token: string) => `/api/v1/invite/${token}/validate`,
-	INVITE_LINK_USE: (token: string) => `/api/v1/invite/${token}/use`,
+	// Group Invites
+	GROUP_INVITES: (id: number) => `/api/v1/groups/${id}/invites`,
+	GROUP_INVITE_LINK: (id: number) => `/api/v1/groups/${id}/invites/link`,
+	GROUP_INVITE_CODE: (id: number) => `/api/v1/groups/${id}/invites/code`,
+	GROUP_INVITE_DELETE: (id: number, inviteId: number) =>
+		`/api/v1/groups/${id}/invites/${inviteId}`,
+	GROUP_INVITE_REGENERATE: (id: number, inviteId: number) =>
+		`/api/v1/groups/${id}/invites/${inviteId}/regenerate`,
+	GROUP_LEAVE: (id: number) => `/api/v1/groups/${id}/leave`,
+	GROUP_JOIN_LINK: (token: string) => `/api/v1/groups/join/link/${token}`,
+	GROUP_JOIN_CODE: '/api/v1/groups/join/code',
 };

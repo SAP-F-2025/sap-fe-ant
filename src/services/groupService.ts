@@ -13,6 +13,10 @@ import {
 	AssignToGroupsRequest,
 	UnassignFromGroupsRequest,
 	AssessmentGroupAssignmentResponse,
+	GroupInviteResponse,
+	CreateInviteLinkRequest,
+	CreateInviteCodeRequest,
+	JoinViaCodeRequest,
 } from '../types';
 
 class GroupService {
@@ -138,7 +142,75 @@ class GroupService {
 		const data: UnassignFromGroupsRequest = { group_ids: groupIds };
 		return apiService.delete(API_ENDPOINTS.ASSESSMENT_GROUPS(assessmentId), data);
 	}
+
+	// ============ Invite Management ============
+
+	/**
+	 * Get all invites for a group
+	 */
+	async getInvites(groupId: number): Promise<GroupInviteResponse[]> {
+		return apiService.get<GroupInviteResponse[]>(API_ENDPOINTS.GROUP_INVITES(groupId));
+	}
+
+	/**
+	 * Create an invite link
+	 */
+	async createInviteLink(
+		groupId: number,
+		data?: CreateInviteLinkRequest
+	): Promise<GroupInviteResponse> {
+		return apiService.post<GroupInviteResponse>(API_ENDPOINTS.GROUP_INVITE_LINK(groupId), data || {});
+	}
+
+	/**
+	 * Create an invite code
+	 */
+	async createInviteCode(
+		groupId: number,
+		data?: CreateInviteCodeRequest
+	): Promise<GroupInviteResponse> {
+		return apiService.post<GroupInviteResponse>(API_ENDPOINTS.GROUP_INVITE_CODE(groupId), data || {});
+	}
+
+	/**
+	 * Delete an invite
+	 */
+	async deleteInvite(groupId: number, inviteId: number): Promise<void> {
+		return apiService.delete(API_ENDPOINTS.GROUP_INVITE_DELETE(groupId, inviteId));
+	}
+
+	/**
+	 * Regenerate an invite (reset token/code, expiry, and uses count)
+	 */
+	async regenerateInvite(groupId: number, inviteId: number): Promise<GroupInviteResponse> {
+		return apiService.post<GroupInviteResponse>(
+			API_ENDPOINTS.GROUP_INVITE_REGENERATE(groupId, inviteId)
+		);
+	}
+
+	/**
+	 * Join a group via invite link token
+	 */
+	async joinViaLink(token: string): Promise<GroupResponse> {
+		return apiService.post<GroupResponse>(API_ENDPOINTS.GROUP_JOIN_LINK(token));
+	}
+
+	/**
+	 * Join a group via invite code
+	 */
+	async joinViaCode(code: string): Promise<GroupResponse> {
+		const data: JoinViaCodeRequest = { code };
+		return apiService.post<GroupResponse>(API_ENDPOINTS.GROUP_JOIN_CODE, data);
+	}
+
+	/**
+	 * Leave a group (self-removal)
+	 */
+	async leaveGroup(groupId: number): Promise<void> {
+		return apiService.delete(API_ENDPOINTS.GROUP_LEAVE(groupId));
+	}
 }
 
 export const groupService = new GroupService();
 export default groupService;
+

@@ -1,6 +1,7 @@
 import {
 	DeleteOutlined,
 	EditOutlined,
+	LoginOutlined,
 	PlusOutlined,
 	SortAscendingOutlined,
 	SortDescendingOutlined,
@@ -34,6 +35,7 @@ import groupService from '../../services/groupService';
 import { elevation } from '../../styles/elevation';
 import { GroupResponse } from '../../types';
 import { showError, showSuccess } from '../../utils/errorHandler';
+import JoinGroupModal from '../../components/Groups/JoinGroupModal';
 
 const { Title, Text } = Typography;
 
@@ -48,6 +50,9 @@ const StudentGroups: React.FC = () => {
 	const [createModalOpen, setCreateModalOpen] = useState(false);
 	const [createLoading, setCreateLoading] = useState(false);
 	const [form] = Form.useForm();
+
+	// Join modal
+	const [joinModalOpen, setJoinModalOpen] = useState(false);
 
 	// Sort state
 	const [sortBy, setSortBy] = useState<'created_at' | 'name' | 'type' | 'member_count'>(
@@ -305,6 +310,12 @@ const StudentGroups: React.FC = () => {
 						/>
 					</Tooltip>
 					<Button
+						icon={<LoginOutlined />}
+						onClick={() => setJoinModalOpen(true)}
+					>
+						{t('groups.join.joinViaCode')}
+					</Button>
+					<Button
 						type="primary"
 						icon={<PlusOutlined />}
 						onClick={() => setCreateModalOpen(true)}
@@ -434,6 +445,12 @@ const StudentGroups: React.FC = () => {
 					</Form.Item>
 				</Form>
 			</Modal>
+
+			{/* Join Group Modal */}
+			<JoinGroupModal
+				open={joinModalOpen}
+				onClose={() => setJoinModalOpen(false)}
+			/>
 		</Space>
 	);
 };

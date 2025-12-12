@@ -891,40 +891,49 @@ export interface UnassignFromGroupsRequest {
 	group_ids: number[];
 }
 
-// ============ Group Invite Link Types ============
+// ============ Group Invite Types ============
 
-export interface GroupInviteLink {
+export enum InviteType {
+	Link = 'link',
+	Code = 'code',
+}
+
+export interface GroupInvite {
 	id: number;
 	group_id: number;
 	token: string;
-	use_limit: number | null; // null = unlimited
-	used_count: number;
-	expires_at: string | null; // null = never expires
+	code?: string;
+	type: InviteType;
+	max_uses?: number;
+	uses_count: number;
+	expires_at?: string;
+	default_role: GroupMemberRole;
 	created_by: string;
 	created_at: string;
-	is_active: boolean;
+	updated_at: string;
 }
 
-export interface GroupInviteLinkResponse extends GroupInviteLink {
-	group?: Group;
-	invite_url: string;
+export interface GroupInviteResponse extends GroupInvite {
+	invite_url?: string;
+	is_expired: boolean;
+	is_exhausted: boolean;
+	can_use: boolean;
+	remaining_uses: number; // -1 = unlimited
 }
 
 export interface CreateInviteLinkRequest {
-	use_limit?: number | null; // null or 0 = unlimited
-	expires_in_hours?: number | null; // null = never expires
+	max_uses?: number;
+	expires_at?: string;
+	default_role?: string;
 }
 
-export interface ValidateInviteLinkResponse {
-	valid: boolean;
-	group?: GroupResponse;
-	is_member: boolean;
-	error?: string; // 'expired' | 'limit_reached' | 'not_found' | 'inactive'
+export interface CreateInviteCodeRequest {
+	max_uses?: number;
+	expires_at?: string;
+	default_role?: string;
 }
 
-export interface UseInviteLinkResponse {
-	success: boolean;
-	group_id: number;
-	already_member: boolean;
-	message?: string;
+export interface JoinViaCodeRequest {
+	code: string;
 }
+

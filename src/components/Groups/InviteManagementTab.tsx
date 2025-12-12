@@ -247,7 +247,7 @@ const InviteManagementTab: React.FC<InviteManagementTabProps> = ({ groupId, canM
                             </Tooltip>
                         </Flex>
                     ) : (
-                        <Flex justify="center">
+                        <Flex justify="center" align="center" gap={8}>
                             <Text
                                 code
                                 style={{
@@ -256,11 +256,19 @@ const InviteManagementTab: React.FC<InviteManagementTabProps> = ({ groupId, canM
                                     fontWeight: 600,
                                     padding: '8px 16px',
                                     cursor: 'pointer',
+                                    margin: 0,
                                 }}
                                 onClick={() => copyToClipboard(invite.code || '', 'code')}
                             >
                                 {invite.code}
                             </Text>
+                            <Tooltip title={t('groups.invite.copyCode') || 'Copy Code'}>
+                                <Button
+                                    size="middle"
+                                    icon={<CopyOutlined />}
+                                    onClick={() => copyToClipboard(invite.code || '', 'code')}
+                                />
+                            </Tooltip>
                         </Flex>
                     )}
 

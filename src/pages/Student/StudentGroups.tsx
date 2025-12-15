@@ -309,10 +309,7 @@ const StudentGroups: React.FC = () => {
 							onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
 						/>
 					</Tooltip>
-					<Button
-						icon={<LoginOutlined />}
-						onClick={() => setJoinModalOpen(true)}
-					>
+					<Button icon={<LoginOutlined />} onClick={() => setJoinModalOpen(true)}>
 						{t('groups.join.joinViaCode')}
 					</Button>
 					<Button
@@ -447,10 +444,7 @@ const StudentGroups: React.FC = () => {
 			</Modal>
 
 			{/* Join Group Modal */}
-			<JoinGroupModal
-				open={joinModalOpen}
-				onClose={() => setJoinModalOpen(false)}
-			/>
+			<JoinGroupModal open={joinModalOpen} onClose={() => setJoinModalOpen(false)} />
 		</Space>
 	);
 };

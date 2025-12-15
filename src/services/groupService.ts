@@ -159,7 +159,10 @@ class GroupService {
 		groupId: number,
 		data?: CreateInviteLinkRequest
 	): Promise<GroupInviteResponse> {
-		return apiService.post<GroupInviteResponse>(API_ENDPOINTS.GROUP_INVITE_LINK(groupId), data || {});
+		return apiService.post<GroupInviteResponse>(
+			API_ENDPOINTS.GROUP_INVITE_LINK(groupId),
+			data || {}
+		);
 	}
 
 	/**
@@ -169,7 +172,10 @@ class GroupService {
 		groupId: number,
 		data?: CreateInviteCodeRequest
 	): Promise<GroupInviteResponse> {
-		return apiService.post<GroupInviteResponse>(API_ENDPOINTS.GROUP_INVITE_CODE(groupId), data || {});
+		return apiService.post<GroupInviteResponse>(
+			API_ENDPOINTS.GROUP_INVITE_CODE(groupId),
+			data || {}
+		);
 	}
 
 	/**
@@ -213,4 +219,3 @@ class GroupService {
 
 export const groupService = new GroupService();
 export default groupService;
-

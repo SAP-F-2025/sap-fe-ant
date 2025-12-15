@@ -50,8 +50,8 @@ const QuestionBankList: React.FC = () => {
 	const token = useThemeToken();
 
 	// Determine base path for navigation (student vs admin/teacher)
-	const basePath = location.pathname.startsWith('/student') 
-		? '/student/question-banks' 
+	const basePath = location.pathname.startsWith('/student')
+		? '/student/question-banks'
 		: '/question-banks';
 
 	const [loading, setLoading] = useState(false);

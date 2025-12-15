@@ -16,12 +16,12 @@ async function initFaceDetection() {
 		console.log('Worker: Step 1 - Starting initialization...');
 		console.log('Worker: FilesetResolver:', FilesetResolver);
 		console.log('Worker: FaceLandmarker:', FaceLandmarker);
-		
+
 		console.log('Worker: Step 2 - Calling FilesetResolver.forVisionTasks...');
 		const vision = await FilesetResolver.forVisionTasks(
 			'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm'
 		);
-		
+
 		console.log('Worker: Step 3 - FilesetResolver complete:', vision);
 
 		const modelPath =
@@ -170,7 +170,7 @@ function detectFaces(frame, timestamp) {
 }
 
 // Handle messages from main thread
-self.onmessage = function(event) {
+self.onmessage = function (event) {
 	const { type, frame, timestamp } = event.data;
 
 	switch (type) {

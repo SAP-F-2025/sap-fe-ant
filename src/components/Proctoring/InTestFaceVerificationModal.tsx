@@ -130,7 +130,7 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
 		} catch (err: any) {
 			setError(
 				err.response?.data?.detail ||
-				t('proctoring.inTestFaceVerification.verificationError')
+					t('proctoring.inTestFaceVerification.verificationError')
 			);
 			console.error('Verification error:', err);
 		} finally {
@@ -153,7 +153,9 @@ export const InTestFaceVerificationModal: React.FC<InTestFaceVerificationModalPr
 					loading={verifying}
 					disabled={!cameraReady}
 				>
-					{error ? t('proctoring.inTestFaceVerification.retry') : t('proctoring.inTestFaceVerification.verify')}
+					{error
+						? t('proctoring.inTestFaceVerification.retry')
+						: t('proctoring.inTestFaceVerification.verify')}
 				</Button>,
 			]}
 			width={600}

@@ -111,7 +111,7 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({ bankId, onQuestio
 		setFetchingQuestions(true);
 		try {
 			const existingQuestionIds = questions.map((q) => q.id);
-			
+
 			const data = await questionService.getQuestions({
 				page: params?.page || 1,
 				size: params?.size || 10,

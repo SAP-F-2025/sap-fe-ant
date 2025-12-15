@@ -40,7 +40,17 @@ export const useMediaPipeFaceDetection = (
 	const headTurnedViolationRef = useRef<{ startTime: number } | null>(null);
 	const eyesClosedViolationRef = useRef<{ startTime: number } | null>(null);
 	const lastDetectionTimeRef = useRef<number>(0);
-	const DETECTION_INTERVAL = 100; // Run detection every 100ms (10fps)
+	const DETECTION_INTERVAL = 250; // Run detection every 250ms (4fps) - reduced for performance
+	const MAX_EVENTS = 50; // Cap events to prevent memory leak
+
+	// Helper to add event with cap
+	const addEvent = (event: ProctoringEvent) => {
+		setEvents((prev) => {
+			const newEvents = [...prev, event];
+			// Keep only last MAX_EVENTS to prevent memory leak
+			return newEvents.length > MAX_EVENTS ? newEvents.slice(-MAX_EVENTS) : newEvents;
+		});
+	};
 
 	useEffect(() => {
 		if (!enabled || !videoElement) return;
@@ -53,20 +63,58 @@ export const useMediaPipeFaceDetection = (
 					'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
 				);
 
-				const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-					baseOptions: {
-						modelAssetPath:
-							'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
-						delegate: 'GPU',
-					},
-					runningMode: 'VIDEO',
-					numFaces: 2,
-					minFaceDetectionConfidence: 0.5,
-					minFacePresenceConfidence: 0.5,
-					minTrackingConfidence: 0.5,
-					outputFaceBlendshapes: true,
-					outputFacialTransformationMatrixes: false,
-				});
+				// Detect WebGL2 support for GPU acceleration
+				const hasWebGL2 = (() => {
+					try {
+						const canvas = document.createElement('canvas');
+						return !!canvas.getContext('webgl2');
+					} catch {
+						return false;
+					}
+				})();
+
+				// Try GPU first, fallback to CPU if not available
+				let faceLandmarker: FaceLandmarker;
+				const modelPath =
+					'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+
+				try {
+					if (hasWebGL2) {
+						faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+							baseOptions: {
+								modelAssetPath: modelPath,
+								delegate: 'GPU',
+							},
+							runningMode: 'VIDEO',
+							numFaces: 2,
+							minFaceDetectionConfidence: 0.5,
+							minFacePresenceConfidence: 0.5,
+							minTrackingConfidence: 0.5,
+							outputFaceBlendshapes: true,
+							outputFacialTransformationMatrixes: false,
+						});
+						console.log('Face detection: Using GPU acceleration');
+					} else {
+						throw new Error('WebGL2 not available');
+					}
+				} catch (gpuError) {
+					// Fallback to CPU
+					console.warn('GPU acceleration not available, falling back to CPU:', gpuError);
+					faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+						baseOptions: {
+							modelAssetPath: modelPath,
+							delegate: 'CPU',
+						},
+						runningMode: 'VIDEO',
+						numFaces: 2,
+						minFaceDetectionConfidence: 0.5,
+						minFacePresenceConfidence: 0.5,
+						minTrackingConfidence: 0.5,
+						outputFaceBlendshapes: true,
+						outputFacialTransformationMatrixes: false,
+					});
+					console.log('Face detection: Using CPU (may be slower)');
+				}
 
 				faceLandmarkerRef.current = faceLandmarker;
 
@@ -179,13 +227,13 @@ export const useMediaPipeFaceDetection = (
 								isHeadTurned = headTurnRatio > 0.15; // Threshold for head turned
 							}
 
-							// Draw on canvas
-							if (canvasElement) {
+							// Draw on canvas (only when showLandmarks is enabled)
+							if (showLandmarks && canvasElement) {
 								const ctx = canvasElement.getContext('2d');
 								if (ctx) {
 									ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-									if (showLandmarks && results.faceLandmarks.length > 0) {
+									if (results.faceLandmarks.length > 0) {
 										results.faceLandmarks.forEach((landmarks) => {
 											ctx.fillStyle =
 												detectionCount > 1 ? '#ff4d4f' : '#52c41a';
@@ -232,7 +280,7 @@ export const useMediaPipeFaceDetection = (
 										endTime: 0,
 										duration: 0,
 									};
-									setEvents((prev) => [...prev, event]);
+									addEvent(event);
 									onViolation?.(event);
 								}
 								// Clear other violations when no face
@@ -317,7 +365,7 @@ export const useMediaPipeFaceDetection = (
 										endTime: 0,
 										duration: 0,
 									};
-									setEvents((prev) => [...prev, event]);
+									addEvent(event);
 									onViolation?.(event);
 								}
 								// Clear other violations when multiple faces
@@ -435,7 +483,7 @@ export const useMediaPipeFaceDetection = (
 											endTime: 0,
 											duration: 0,
 										};
-										setEvents((prev) => [...prev, event]);
+										addEvent(event);
 										onViolation?.(event);
 									}
 								} else {
@@ -469,7 +517,7 @@ export const useMediaPipeFaceDetection = (
 											endTime: 0,
 											duration: 0,
 										};
-										setEvents((prev) => [...prev, event]);
+										addEvent(event);
 										onViolation?.(event);
 									}
 								} else {
@@ -501,7 +549,7 @@ export const useMediaPipeFaceDetection = (
 											endTime: 0,
 											duration: 0,
 										};
-										setEvents((prev) => [...prev, event]);
+										addEvent(event);
 										onViolation?.(event);
 									}
 								} else {
@@ -533,7 +581,7 @@ export const useMediaPipeFaceDetection = (
 											endTime: 0,
 											duration: 0,
 										};
-										setEvents((prev) => [...prev, event]);
+										addEvent(event);
 										onViolation?.(event);
 									}
 								} else {

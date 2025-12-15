@@ -1,8 +1,4 @@
-import {
-	ArrowLeftOutlined,
-	CameraOutlined,
-	CheckCircleOutlined
-} from '@ant-design/icons';
+import { ArrowLeftOutlined, CameraOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import {
 	Alert,
 	App,
@@ -442,13 +438,13 @@ const FaceVerification: React.FC = () => {
 							</div>
 
 							{error && cameraReady && (
-							<Alert
-								type="error"
-								message={error}
-								showIcon
-								style={{ marginBottom: 16 }}
-							/>
-						)}
+								<Alert
+									type="error"
+									message={error}
+									showIcon
+									style={{ marginBottom: 16 }}
+								/>
+							)}
 
 							<div style={{ textAlign: 'center' }}>
 								{checkingStatus ? (

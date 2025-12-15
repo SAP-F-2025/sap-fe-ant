@@ -495,42 +495,42 @@ const GroupDetail: React.FC = () => {
 								// Grading tab - only for group managers (owner/co-owner)
 								...(group.can_manage
 									? [
-										{
-											key: 'grading',
-											label: (
-												<Space>
-													<CheckCircleOutlined />
-													{t('groups.detail.gradingTab')}
-												</Space>
-											),
-											children: <GroupGradingTab groupId={groupId} />,
-										},
-										{
-											key: 'proctoring',
-											label: (
-												<Space>
-													<EyeOutlined />
-													{t('groups.detail.proctoringTab')}
-												</Space>
-											),
-											children: <GroupProctoringTab groupId={groupId} />,
-										},
-										{
-											key: 'invites',
-											label: (
-												<Space>
-													<ShareAltOutlined />
-													{t('groups.invite.tabTitle')}
-												</Space>
-											),
-											children: (
-												<InviteManagementTab
-													groupId={groupId}
-													canManage={group.can_manage}
-												/>
-											),
-										},
-									]
+											{
+												key: 'grading',
+												label: (
+													<Space>
+														<CheckCircleOutlined />
+														{t('groups.detail.gradingTab')}
+													</Space>
+												),
+												children: <GroupGradingTab groupId={groupId} />,
+											},
+											{
+												key: 'proctoring',
+												label: (
+													<Space>
+														<EyeOutlined />
+														{t('groups.detail.proctoringTab')}
+													</Space>
+												),
+												children: <GroupProctoringTab groupId={groupId} />,
+											},
+											{
+												key: 'invites',
+												label: (
+													<Space>
+														<ShareAltOutlined />
+														{t('groups.invite.tabTitle')}
+													</Space>
+												),
+												children: (
+													<InviteManagementTab
+														groupId={groupId}
+														canManage={group.can_manage}
+													/>
+												),
+											},
+										]
 									: []),
 							]}
 						/>

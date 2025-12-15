@@ -60,10 +60,7 @@ import {
 	QuestionBank,
 	QuestionType,
 } from '../../types';
-import {
-	getRemainingPoints,
-	POINTS_VALIDATION
-} from '../../utils/assessmentHelpers';
+import { getRemainingPoints, POINTS_VALIDATION } from '../../utils/assessmentHelpers';
 import { showError, showSuccess } from '../../utils/errorHandler';
 
 const { Text } = Typography;
@@ -94,7 +91,9 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	// Use hasAttempts prop instead of assessment.has_attempts
 	const isQuestionsLocked =
 		assessment.status === AssessmentStatus.Archived ||
-		(hasAttempts && (assessment.status === AssessmentStatus.Active || assessment.status === AssessmentStatus.Expired));
+		(hasAttempts &&
+			(assessment.status === AssessmentStatus.Active ||
+				assessment.status === AssessmentStatus.Expired));
 
 	const lockReason = isQuestionsLocked
 		? assessment.status === AssessmentStatus.Archived
@@ -222,7 +221,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 		setFetchingQuestions(true);
 		try {
 			let data;
-			
+
 			// If a bank is selected, fetch questions from that bank
 			if (filterBank) {
 				data = await questionBankService.getQuestionBankQuestions(filterBank, {
@@ -280,10 +279,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
 							t('manageAssessmentQuestions.cannotAddQuestions') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+								' - ' +
+								(details.context?.has_attempts
+									? t('manageAssessmentQuestions.studentsStarted')
+									: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 						// Refresh to update UI state
 						onQuestionsChange?.();
@@ -304,130 +303,135 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 			return;
 		}
 
-	// Auto-scale mode: scale proportionally based on question default points
-	if (addMode === 'auto-scale') {
-		const questionsToAdd: Array<{
-			question_id: number;
-			order: number;
-			points: number;
-		}> = [];
-		const startOrder = questions.length + 1;
+		// Auto-scale mode: scale proportionally based on question default points
+		if (addMode === 'auto-scale') {
+			const questionsToAdd: Array<{
+				question_id: number;
+				order: number;
+				points: number;
+			}> = [];
+			const startOrder = questions.length + 1;
 
-		// Get all questions with their default points
-		const allQuestions = [
-			...questions.map(q => ({
-				id: q.question_id,
-				defaultPoints: q.points ?? q.question?.points ?? 10
-			})),
-			...selectedQuestions.map(id => {
-				const question = availableQuestions.find(q => q.id === id);
-				return {
-					id,
-					defaultPoints: question?.points ?? 10
-				};
-			})
-		];
+			// Get all questions with their default points
+			const allQuestions = [
+				...questions.map((q) => ({
+					id: q.question_id,
+					defaultPoints: q.points ?? q.question?.points ?? 10,
+				})),
+				...selectedQuestions.map((id) => {
+					const question = availableQuestions.find((q) => q.id === id);
+					return {
+						id,
+						defaultPoints: question?.points ?? 10,
+					};
+				}),
+			];
 
-		// Calculate total default points
-		const totalDefaultPoints = allQuestions.reduce((sum, q) => sum + q.defaultPoints, 0);
-		
-		// Scale each question proportionally
-		const scaleFactor = 100 / totalDefaultPoints;
-		const scaledPoints = allQuestions.map(q => ({
-			id: q.id,
-			scaledPoints: Math.round(q.defaultPoints * scaleFactor)
-		}));
+			// Calculate total default points
+			const totalDefaultPoints = allQuestions.reduce((sum, q) => sum + q.defaultPoints, 0);
 
-		// Adjust for rounding errors to ensure total is exactly 100
-		let currentTotal = scaledPoints.reduce((sum, q) => sum + q.scaledPoints, 0);
-		let diff = 100 - currentTotal;
-		
-		// Distribute the difference to largest questions first
-		if (diff !== 0) {
-			const sorted = [...scaledPoints].sort((a, b) => b.scaledPoints - a.scaledPoints);
-			let idx = 0;
-			while (diff !== 0) {
-				if (diff > 0) {
-					sorted[idx].scaledPoints++;
-					diff--;
-				} else {
-					if (sorted[idx].scaledPoints > 1) {
-						sorted[idx].scaledPoints--;
-						diff++;
+			// Scale each question proportionally
+			const scaleFactor = 100 / totalDefaultPoints;
+			const scaledPoints = allQuestions.map((q) => ({
+				id: q.id,
+				scaledPoints: Math.round(q.defaultPoints * scaleFactor),
+			}));
+
+			// Adjust for rounding errors to ensure total is exactly 100
+			let currentTotal = scaledPoints.reduce((sum, q) => sum + q.scaledPoints, 0);
+			let diff = 100 - currentTotal;
+
+			// Distribute the difference to largest questions first
+			if (diff !== 0) {
+				const sorted = [...scaledPoints].sort((a, b) => b.scaledPoints - a.scaledPoints);
+				let idx = 0;
+				while (diff !== 0) {
+					if (diff > 0) {
+						sorted[idx].scaledPoints++;
+						diff--;
+					} else {
+						if (sorted[idx].scaledPoints > 1) {
+							sorted[idx].scaledPoints--;
+							diff++;
+						}
 					}
+					idx = (idx + 1) % scaledPoints.length;
 				}
-				idx = (idx + 1) % scaledPoints.length;
 			}
-		}
 
-		// Add new questions with scaled points
-		for (let i = 0; i < selectedQuestions.length; i++) {
-			const questionId = selectedQuestions[i];
-			const scaledPointsForQuestion = scaledPoints.find(p => p.id === questionId)?.scaledPoints ?? 10;
+			// Add new questions with scaled points
+			for (let i = 0; i < selectedQuestions.length; i++) {
+				const questionId = selectedQuestions[i];
+				const scaledPointsForQuestion =
+					scaledPoints.find((p) => p.id === questionId)?.scaledPoints ?? 10;
 
-			questionsToAdd.push({
-				question_id: questionId,
-				order: startOrder + i,
-				points: scaledPointsForQuestion,
+				questionsToAdd.push({
+					question_id: questionId,
+					order: startOrder + i,
+					points: scaledPointsForQuestion,
+				});
+			}
+
+			// Update existing questions' points
+			const existingUpdates = questions.map((q) => {
+				const scaledPointsForQuestion =
+					scaledPoints.find((p) => p.id === q.question_id)?.scaledPoints ?? 10;
+				return {
+					question_id: q.question_id,
+					points: scaledPointsForQuestion,
+				};
 			});
-		}
 
-		// Update existing questions' points
-		const existingUpdates = questions.map(q => {
-			const scaledPointsForQuestion = scaledPoints.find(p => p.id === q.question_id)?.scaledPoints ?? 10;
-			return {
-				question_id: q.question_id,
-				points: scaledPointsForQuestion,
-			};
-		});
-
-		// Update existing questions first if needed
-		if (existingUpdates.length > 0) {
-			try {
-				await assessmentService.bulkUpdateQuestionSettings(assessmentId, existingUpdates);
-			} catch (error) {
-				showError(t('manageAssessmentQuestions.failedToScalePoints'));
-				setAddLoading(false);
-				return;
-			}
-		}
-
-		// Then add new questions
-		setAddLoading(true);
-		try {
-			await assessmentService.bulkAddQuestionsToAssessment(assessmentId, questionsToAdd);
-			showSuccess(
-				t('manageAssessmentQuestions.autoScaleSuccess', {
-					count: selectedQuestions.length,
-				})
-			);
-			setAddModalVisible(false);
-			setSelectedQuestions([]);
-			setQuestionPoints({});
-			setAddMode('manual');
-			onQuestionsChange?.();
-		} catch (error: any) {
-			// Handle specific lock error
-			if (error.response?.status === 422) {
-				const details = error.response.data?.details;
-				if (details?.rule === 'assessment_questions_locked') {
-					showError(
-						t('manageAssessmentQuestions.cannotAddQuestions') +
-						' - ' +
-						(details.context?.has_attempts
-							? t('manageAssessmentQuestions.studentsStarted')
-							: t('manageAssessmentQuestions.assessmentArchived'))
+			// Update existing questions first if needed
+			if (existingUpdates.length > 0) {
+				try {
+					await assessmentService.bulkUpdateQuestionSettings(
+						assessmentId,
+						existingUpdates
 					);
-					onQuestionsChange?.();
+				} catch (error) {
+					showError(t('manageAssessmentQuestions.failedToScalePoints'));
+					setAddLoading(false);
 					return;
 				}
 			}
-			// Error handled by interceptor for other cases
-		} finally {
-			setAddLoading(false);
+
+			// Then add new questions
+			setAddLoading(true);
+			try {
+				await assessmentService.bulkAddQuestionsToAssessment(assessmentId, questionsToAdd);
+				showSuccess(
+					t('manageAssessmentQuestions.autoScaleSuccess', {
+						count: selectedQuestions.length,
+					})
+				);
+				setAddModalVisible(false);
+				setSelectedQuestions([]);
+				setQuestionPoints({});
+				setAddMode('manual');
+				onQuestionsChange?.();
+			} catch (error: any) {
+				// Handle specific lock error
+				if (error.response?.status === 422) {
+					const details = error.response.data?.details;
+					if (details?.rule === 'assessment_questions_locked') {
+						showError(
+							t('manageAssessmentQuestions.cannotAddQuestions') +
+								' - ' +
+								(details.context?.has_attempts
+									? t('manageAssessmentQuestions.studentsStarted')
+									: t('manageAssessmentQuestions.assessmentArchived'))
+						);
+						onQuestionsChange?.();
+						return;
+					}
+				}
+				// Error handled by interceptor for other cases
+			} finally {
+				setAddLoading(false);
+			}
+			return;
 		}
-		return;
-	}
 
 		// Manual mode: validate and send with points
 		// Validate that all selected questions have points
@@ -492,10 +496,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotAddQuestion') +
-						' - ' +
-						(details.context?.has_attempts
-							? t('manageAssessmentQuestions.studentsStarted')
-							: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					// Refresh to update UI state
 					onQuestionsChange?.();
@@ -520,10 +524,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotRemoveQuestion') +
-						' - ' +
-						(details.context?.has_attempts
-							? t('manageAssessmentQuestions.studentsStarted')
-							: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					return;
@@ -561,10 +565,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
 							t('manageAssessmentQuestions.cannotReorder') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+								' - ' +
+								(details.context?.has_attempts
+									? t('manageAssessmentQuestions.studentsStarted')
+									: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 					}
 				}
@@ -603,9 +607,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 			await assessmentService.updateQuestionSettings(assessmentId, questionId, { points });
 			// Update local state optimistically instead of triggering full refetch
 			setQuestions((prev) =>
-				prev.map((q) =>
-					q.question_id === questionId ? { ...q, points } : q
-				)
+				prev.map((q) => (q.question_id === questionId ? { ...q, points } : q))
 			);
 			showSuccess(t('manageAssessmentQuestions.updatePointsSuccess'));
 		} catch (error: any) {
@@ -615,10 +617,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotUpdatePoints') +
-						' - ' +
-						(details.context?.has_attempts
-							? t('manageAssessmentQuestions.studentsStarted')
-							: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					return;
@@ -689,10 +691,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotBulkUpdate') +
-						' - ' +
-						(details.context?.has_attempts
-							? t('manageAssessmentQuestions.studentsStarted')
-							: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					setBulkLoading(false);
@@ -889,9 +891,12 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								setAddModalVisible(true);
 								fetchAvailableQuestions({ page: 1, size: 10 });
 								// Fetch question banks for the filter dropdown
-								questionBankService.getQuestionBanks({ page: 1, size: 100 }).then((res) => {
-									setQuestionBanks(res.banks || []);
-								}).catch(() => {});
+								questionBankService
+									.getQuestionBanks({ page: 1, size: 100 })
+									.then((res) => {
+										setQuestionBanks(res.banks || []);
+									})
+									.catch(() => {});
 							}}
 							title={t('manageAssessmentQuestions.addQuestion')}
 						>
@@ -945,8 +950,8 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					description={
 						totalPoints > MAX_TOTAL_POINTS
 							? t('manageAssessmentQuestions.exceededBy', {
-								points: Math.abs(MAX_TOTAL_POINTS - totalPoints),
-							})
+									points: Math.abs(MAX_TOTAL_POINTS - totalPoints),
+								})
 							: undefined
 					}
 				/>
@@ -999,10 +1004,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 										isQuestionsLocked
 											? undefined
 											: {
-												selectedRowKeys: selectedRows,
-												onChange: (keys) =>
-													setSelectedRows(keys as number[]),
-											}
+													selectedRowKeys: selectedRows,
+													onChange: (keys) =>
+														setSelectedRows(keys as number[]),
+												}
 									}
 									components={{
 										body: {
@@ -1085,18 +1090,18 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 											</Text>
 										</Space>
 									</Radio>
-							<Radio value="auto-scale">
-								<Space direction="vertical" size={0}>
-									<Text strong>
-										{t('manageAssessmentQuestions.autoScale')}
-									</Text>
-									<Text type="secondary" style={{ fontSize: 12 }}>
-										{t('manageAssessmentQuestions.autoScaleDesc')}
-									</Text>
+									<Radio value="auto-scale">
+										<Space direction="vertical" size={0}>
+											<Text strong>
+												{t('manageAssessmentQuestions.autoScale')}
+											</Text>
+											<Text type="secondary" style={{ fontSize: 12 }}>
+												{t('manageAssessmentQuestions.autoScaleDesc')}
+											</Text>
+										</Space>
+									</Radio>
 								</Space>
-							</Radio>
-						</Space>
-					</Radio.Group>
+							</Radio.Group>
 						</Space>
 					</Card>
 
@@ -1135,25 +1140,25 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 											<Text strong style={{ color: '#1890ff' }}>
 												{Math.floor(
 													100 /
-													(questions.length +
-														selectedQuestions.length)
+														(questions.length +
+															selectedQuestions.length)
 												)}{' '}
 												{t('gradingDetail.pointsUnit')}
 											</Text>
 											{100 % (questions.length + selectedQuestions.length) >
 												0 && (
-													<Text type="secondary" style={{ fontSize: 12 }}>
-														{' '}
-														(
-														{t('manageAssessmentQuestions.extraPointNote', {
-															count:
-																100 %
-																(questions.length +
-																	selectedQuestions.length),
-														})}
-														)
-													</Text>
-												)}
+												<Text type="secondary" style={{ fontSize: 12 }}>
+													{' '}
+													(
+													{t('manageAssessmentQuestions.extraPointNote', {
+														count:
+															100 %
+															(questions.length +
+																selectedQuestions.length),
+													})}
+													)
+												</Text>
+											)}
 										</Text>
 									</Space>
 								}
@@ -1222,7 +1227,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								onChange={(value) => {
 									setFilterBank(value);
 									// Auto-fetch when bank changes
-									setTimeout(() => fetchAvailableQuestions({ page: 1, size: 10 }), 0);
+									setTimeout(
+										() => fetchAvailableQuestions({ page: 1, size: 10 }),
+										0
+									);
 								}}
 								disabled={fetchingQuestions}
 								showSearch

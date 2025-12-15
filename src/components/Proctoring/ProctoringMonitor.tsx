@@ -3,7 +3,7 @@ import { Alert, Badge, Button, Card, Tag } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBrowserProctoring } from '../../hooks/useBrowserProctoring';
-import { ProctoringEvent, useMediaPipeFaceDetection } from '../../hooks/useProctoring';
+import { ProctoringEvent, useWorkerProctoring } from '../../hooks/useWorkerProctoring';
 
 interface ProctoringMonitorProps {
 	onViolation?: (event: ProctoringEvent) => void;
@@ -95,7 +95,7 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 		}
 	};
 
-	const { isProcessing, faceCount } = useMediaPipeFaceDetection(
+	const { isProcessing, faceCount } = useWorkerProctoring(
 		videoRef.current,
 		canvasRef.current,
 		videoReady,

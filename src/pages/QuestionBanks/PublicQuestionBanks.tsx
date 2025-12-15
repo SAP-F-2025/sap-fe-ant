@@ -36,8 +36,8 @@ const PublicQuestionBanks: React.FC = () => {
 	const { t } = useTranslation();
 
 	// Determine base path for navigation (student vs admin/teacher)
-	const basePath = location.pathname.startsWith('/student') 
-		? '/student/question-banks' 
+	const basePath = location.pathname.startsWith('/student')
+		? '/student/question-banks'
 		: '/question-banks';
 
 	const [loading, setLoading] = useState(false);

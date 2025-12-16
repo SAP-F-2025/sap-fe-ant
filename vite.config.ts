@@ -14,7 +14,11 @@ export default defineConfig({
 			output: {
 				manualChunks(id) {
 					if (id.includes('node_modules')) {
-						if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+						if (
+							id.includes('react') ||
+							id.includes('react-dom') ||
+							id.includes('react-router-dom')
+						) {
 							return 'react-vendor';
 						}
 						if (id.includes('antd') || id.includes('@ant-design/icons')) {
@@ -32,7 +36,11 @@ export default defineConfig({
 		},
 	},
 	optimizeDeps: {
-		exclude: ['@mediapipe/camera_utils', '@mediapipe/face_detection', '@mediapipe/tasks-vision'],
+		exclude: [
+			'@mediapipe/camera_utils',
+			'@mediapipe/face_detection',
+			'@mediapipe/tasks-vision',
+		],
 	},
 	worker: {
 		format: 'es',

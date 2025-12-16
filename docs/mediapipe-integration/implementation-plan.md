@@ -17,12 +17,12 @@
 - [x] Implement FaceLandmarker with 478 landmarks + iris (468, 473)
 - [x] Add event logging system (duration-based tracking with start/end)
 - [x] Implement 6 violation types:
-  - [x] face_not_detected
-  - [x] multiple_faces
-  - [x] looking_away (iris-based gaze tracking)
-  - [x] mouth_open
-  - [x] head_turned
-  - [x] eyes_closed (blink threshold removed)
+    - [x] face_not_detected
+    - [x] multiple_faces
+    - [x] looking_away (iris-based gaze tracking)
+    - [x] mouth_open
+    - [x] head_turned
+    - [x] eyes_closed (blink threshold removed)
 - [x] Test camera permissions
 - [x] Multiple simultaneous violations (Map-based)
 - [x] Auto-remove violations after 3s
@@ -108,10 +108,10 @@
 
 ```typescript
 // New endpoints needed:
-POST /api/assessments/{id}/proctoring/start
-POST /api/assessments/{id}/proctoring/events
-GET  /api/assessments/{id}/proctoring/summary
-POST /api/assessments/{id}/proctoring/terminate
+POST / api / assessments / { id } / proctoring / start;
+POST / api / assessments / { id } / proctoring / events;
+GET / api / assessments / { id } / proctoring / summary;
+POST / api / assessments / { id } / proctoring / terminate;
 ```
 
 ### 4.2 Service Layer

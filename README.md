@@ -23,11 +23,13 @@ This is a **feature-complete educational assessment management system** built wi
 ### 🎨 Design System & Theming
 
 ✅ **Token-First Design**
+
 - All spacing follows 8px scale
 - Design tokens for colors, typography, spacing, borders
 - No magic numbers - everything is token-based
 
 ✅ **Multi-Theme Support**
+
 - Light mode (default)
 - Dark mode
 - High contrast mode (accessibility)
@@ -35,6 +37,7 @@ This is a **feature-complete educational assessment management system** built wi
 - Smooth theme transitions
 
 ✅ **Responsive Design**
+
 - Breakpoint-aware components (xs → xxl)
 - Mobile-first approach
 - Collapsible sidebar on mobile
@@ -43,7 +46,9 @@ This is a **feature-complete educational assessment management system** built wi
 ### 🧩 Reusable Components
 
 #### DataTable Component
+
 Advanced table with enterprise features:
+
 - ✅ Server-side pagination, sorting, filtering
 - ✅ Row selection with bulk actions
 - ✅ Column visibility toggle
@@ -53,7 +58,9 @@ Advanced table with enterprise features:
 - ✅ Loading skeletons
 
 #### FormDrawer Component
+
 Smart form drawer with:
+
 - ✅ Zod schema validation
 - ✅ Dirty state tracking (prevent accidental close)
 - ✅ Optimistic updates
@@ -64,6 +71,7 @@ Smart form drawer with:
 ### 🚀 State Management
 
 #### React Query Integration
+
 - ✅ Query caching with smart invalidation
 - ✅ Optimistic updates
 - ✅ Global error handling via Ant Design messages
@@ -72,6 +80,7 @@ Smart form drawer with:
 - ✅ Stale-while-revalidate pattern
 
 #### Custom Hooks
+
 - `useUsers` - Fetch users with filters, pagination, sorting
 - `useCreateUser` - Create with cache invalidation
 - `useUpdateUser` - Update with optimistic updates
@@ -81,6 +90,7 @@ Smart form drawer with:
 ### 📄 Pages
 
 #### Users Management (Full CRUD Example)
+
 - ✅ Server-side table with all DataTable features
 - ✅ Search with 500ms debounce
 - ✅ Filter by role and status
@@ -91,6 +101,7 @@ Smart form drawer with:
 - ✅ Mock data for development
 
 #### Assessment Management
+
 - ✅ List, Create, Edit, Detail views
 - ✅ Rich form with 20+ settings
 - ✅ Status management (Draft → Active → Archived)
@@ -99,6 +110,7 @@ Smart form drawer with:
 - ✅ Accessibility options
 
 #### Question Management
+
 - ✅ Support for 7 question types
 - ✅ Dynamic form based on question type
 - ✅ Tag system
@@ -106,11 +118,13 @@ Smart form drawer with:
 - ✅ Usage tracking
 
 #### Question Banks
+
 - ✅ Public/Private visibility
 - ✅ Tag-based organization
 - ✅ Question count tracking
 
 #### Grading Module
+
 - ✅ List pending submissions
 - ✅ Manual grading with feedback
 - ✅ Score input
@@ -119,6 +133,7 @@ Smart form drawer with:
 ### 🛡️ Error Handling
 
 #### ErrorBoundary
+
 - ✅ Catches React errors
 - ✅ Shows user-friendly fallback
 - ✅ Displays stack trace in dev
@@ -126,6 +141,7 @@ Smart form drawer with:
 - ✅ Ready for error tracking integration (Sentry)
 
 #### Global Error Handling
+
 - ✅ React Query error cache
 - ✅ Axios interceptors
 - ✅ Toast notifications via Ant Design
@@ -144,12 +160,14 @@ Smart form drawer with:
 ### 🧪 Testing
 
 #### Unit Tests
+
 - ✅ Hook testing (`useUsers.test.ts`)
 - ✅ Component testing (`DataTable.test.tsx`)
 - ✅ Proper test setup with React Query wrapper
 - ✅ Mock data utilities
 
 #### Testing Stack
+
 - Vitest - Fast unit test runner
 - @testing-library/react - Component testing
 - @testing-library/user-event - User interaction simulation
@@ -242,55 +260,66 @@ npm run test:coverage
 ## 🎯 Key Decisions & Best Practices
 
 ### 1. Token-First Styling
+
 **Why:** Consistent spacing and colors across the app
 **How:** All values reference theme tokens
+
 ```tsx
 style={{ padding: token.paddingLG, margin: token.marginMD }}
 ```
 
 ### 2. Server-Side Table Operations
+
 **Why:** Scalable for large datasets
 **How:** Pagination, sorting, filtering happen on server
+
 ```tsx
 <DataTable
-  onPageChange={(page, size) => fetchData(page, size)}
-  onSortChange={(field, order) => fetchData(page, size, field, order)}
+	onPageChange={(page, size) => fetchData(page, size)}
+	onSortChange={(field, order) => fetchData(page, size, field, order)}
 />
 ```
 
 ### 3. Optimistic Updates
+
 **Why:** Better UX with instant feedback
 **How:** React Query mutation with onMutate
+
 ```tsx
 const updateMutation = useMutation({
-  onMutate: async (input) => {
-    // Update cache immediately
-    queryClient.setQueryData(key, optimisticData);
-  },
-  onError: (err, input, context) => {
-    // Rollback on error
-    queryClient.setQueryData(key, context.previousData);
-  },
+	onMutate: async (input) => {
+		// Update cache immediately
+		queryClient.setQueryData(key, optimisticData);
+	},
+	onError: (err, input, context) => {
+		// Rollback on error
+		queryClient.setQueryData(key, context.previousData);
+	},
 });
 ```
 
 ### 4. Form Validation with Zod
+
 **Why:** Type-safe validation at runtime
 **How:** Single source of truth for validation
+
 ```tsx
 const userSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
+	name: z.string().min(1),
+	email: z.string().email(),
 });
 ```
 
 ### 5. Error Boundaries
+
 **Why:** Graceful error handling
 **How:** Catch errors, show fallback, allow recovery
 
 ### 6. Mock Data for Development
+
 **Why:** Frontend development without backend dependency
 **How:** Toggle in `.env` file
+
 ```env
 VITE_USE_MOCK=true
 ```
@@ -315,11 +344,11 @@ Edit `src/theme/tokens.ts`:
 
 ```tsx
 export const lightTheme: ThemeConfig = {
-  token: {
-    colorPrimary: '#1890ff',  // Change primary color
-    borderRadius: 8,           // Change border radius
-    // ... more tokens
-  },
+	token: {
+		colorPrimary: '#1890ff', // Change primary color
+		borderRadius: 8, // Change border radius
+		// ... more tokens
+	},
 };
 ```
 
@@ -353,6 +382,7 @@ npx storybook@latest init
 ```
 
 Stories structure:
+
 ```
 src/components/DataTable/DataTable.stories.tsx
 ```
@@ -371,23 +401,23 @@ npm install -D @playwright/test
 
 ```tsx
 <DataTable<User>
-  columns={columns}
-  dataSource={users}
-  total={total}
-  onPageChange={(page, size) => setParams({ page, size })}
-  selectedRowKeys={selected}
-  onSelectionChange={(keys, rows) => setSelected(keys)}
-  bulkActions={[
-    {
-      key: 'delete',
-      label: 'Delete Selected',
-      icon: <DeleteOutlined />,
-      danger: true,
-      onClick: (rows) => handleBulkDelete(rows),
-    },
-  ]}
-  enableExport
-  onRefresh={() => refetch()}
+	columns={columns}
+	dataSource={users}
+	total={total}
+	onPageChange={(page, size) => setParams({ page, size })}
+	selectedRowKeys={selected}
+	onSelectionChange={(keys, rows) => setSelected(keys)}
+	bulkActions={[
+		{
+			key: 'delete',
+			label: 'Delete Selected',
+			icon: <DeleteOutlined />,
+			danger: true,
+			onClick: (rows) => handleBulkDelete(rows),
+		},
+	]}
+	enableExport
+	onRefresh={() => refetch()}
 />
 ```
 
@@ -395,18 +425,18 @@ npm install -D @playwright/test
 
 ```tsx
 <FormDrawer<UserInput>
-  title="Create User"
-  open={open}
-  onClose={() => setOpen(false)}
-  onSubmit={async (values) => {
-    await createUser(values);
-  }}
-  schema={userSchema}
-  loading={isCreating}
+	title="Create User"
+	open={open}
+	onClose={() => setOpen(false)}
+	onSubmit={async (values) => {
+		await createUser(values);
+	}}
+	schema={userSchema}
+	loading={isCreating}
 >
-  <Form.Item name="name" label="Name">
-    <Input />
-  </Form.Item>
+	<Form.Item name="name" label="Name">
+		<Input />
+	</Form.Item>
 </FormDrawer>
 ```
 
@@ -414,10 +444,10 @@ npm install -D @playwright/test
 
 ```tsx
 const { data, isLoading, refetch } = useUsers({
-  page: 1,
-  size: 10,
-  search: 'john',
-  role: 'admin',
+	page: 1,
+	size: 10,
+	search: 'john',
+	role: 'admin',
 });
 
 const createMutation = useCreateUser();

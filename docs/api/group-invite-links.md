@@ -19,29 +19,29 @@ This document describes the API endpoints required for the Group Invite Links fe
 
 ```json
 {
-  "id": 1,
-  "group_id": 123,
-  "token": "abc123xyz789...",
-  "use_limit": 10,
-  "used_count": 3,
-  "expires_at": "2025-12-17T10:00:00Z",
-  "created_by": "user-uuid-123",
-  "created_at": "2025-12-10T10:00:00Z",
-  "is_active": true
+	"id": 1,
+	"group_id": 123,
+	"token": "abc123xyz789...",
+	"use_limit": 10,
+	"used_count": 3,
+	"expires_at": "2025-12-17T10:00:00Z",
+	"created_by": "user-uuid-123",
+	"created_at": "2025-12-10T10:00:00Z",
+	"is_active": true
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | integer | Unique identifier |
-| `group_id` | integer | ID of the group this link belongs to |
-| `token` | string | Unique token for the invite link (URL-safe, ~32 chars recommended) |
-| `use_limit` | integer \| null | Maximum number of times this link can be used. `null` = unlimited |
-| `used_count` | integer | Number of times this link has been used |
-| `expires_at` | string \| null | ISO 8601 datetime when link expires. `null` = never expires |
-| `created_by` | string | User ID who created this link |
-| `created_at` | string | ISO 8601 datetime when link was created |
-| `is_active` | boolean | Whether the link is active (can be deactivated by owner) |
+| Field        | Type            | Description                                                        |
+| ------------ | --------------- | ------------------------------------------------------------------ |
+| `id`         | integer         | Unique identifier                                                  |
+| `group_id`   | integer         | ID of the group this link belongs to                               |
+| `token`      | string          | Unique token for the invite link (URL-safe, ~32 chars recommended) |
+| `use_limit`  | integer \| null | Maximum number of times this link can be used. `null` = unlimited  |
+| `used_count` | integer         | Number of times this link has been used                            |
+| `expires_at` | string \| null  | ISO 8601 datetime when link expires. `null` = never expires        |
+| `created_by` | string          | User ID who created this link                                      |
+| `created_at` | string          | ISO 8601 datetime when link was created                            |
+| `is_active`  | boolean         | Whether the link is active (can be deactivated by owner)           |
 
 ---
 
@@ -59,41 +59,41 @@ Generate a new invite link for a group.
 
 ```json
 {
-  "use_limit": 10,
-  "expires_in_hours": 168
+	"use_limit": 10,
+	"expires_in_hours": 168
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `use_limit` | integer \| null | No | Max uses. `null` or `0` = unlimited |
-| `expires_in_hours` | integer \| null | No | Hours until expiration. `null` = never expires |
+| Field              | Type            | Required | Description                                    |
+| ------------------ | --------------- | -------- | ---------------------------------------------- |
+| `use_limit`        | integer \| null | No       | Max uses. `null` or `0` = unlimited            |
+| `expires_in_hours` | integer \| null | No       | Hours until expiration. `null` = never expires |
 
 **Response:** `201 Created`
 
 ```json
 {
-  "id": 1,
-  "group_id": 123,
-  "token": "aB3xY9kLmN2pQ5rS8tU1vW4zC7eF0gH",
-  "use_limit": 10,
-  "used_count": 0,
-  "expires_at": "2025-12-17T10:00:00Z",
-  "created_by": "user-uuid-123",
-  "created_at": "2025-12-10T10:00:00Z",
-  "is_active": true,
-  "invite_url": "https://app.example.com/invite/aB3xY9kLmN2pQ5rS8tU1vW4zC7eF0gH"
+	"id": 1,
+	"group_id": 123,
+	"token": "aB3xY9kLmN2pQ5rS8tU1vW4zC7eF0gH",
+	"use_limit": 10,
+	"used_count": 0,
+	"expires_at": "2025-12-17T10:00:00Z",
+	"created_by": "user-uuid-123",
+	"created_at": "2025-12-10T10:00:00Z",
+	"is_active": true,
+	"invite_url": "https://app.example.com/invite/aB3xY9kLmN2pQ5rS8tU1vW4zC7eF0gH"
 }
 ```
 
 **Error Responses:**
 
-| Status | Description |
-|--------|-------------|
-| `400` | Invalid request body |
-| `401` | Unauthorized |
-| `403` | User does not have permission to manage this group |
-| `404` | Group not found |
+| Status | Description                                        |
+| ------ | -------------------------------------------------- |
+| `400`  | Invalid request body                               |
+| `401`  | Unauthorized                                       |
+| `403`  | User does not have permission to manage this group |
+| `404`  | Group not found                                    |
 
 ---
 
@@ -109,25 +109,25 @@ Get all invite links for a group.
 
 ```json
 [
-  {
-    "id": 1,
-    "group_id": 123,
-    "token": "aB3xY9kLmN2pQ5rS8tU1vW4zC7eF0gH",
-    "use_limit": 10,
-    "used_count": 3,
-    "expires_at": "2025-12-17T10:00:00Z",
-    "created_by": "user-uuid-123",
-    "created_at": "2025-12-10T10:00:00Z",
-    "is_active": true,
-    "invite_url": "https://app.example.com/invite/aB3xY9kLmN2pQ5rS8tU1vW4zC7eF0gH"
-  }
+	{
+		"id": 1,
+		"group_id": 123,
+		"token": "aB3xY9kLmN2pQ5rS8tU1vW4zC7eF0gH",
+		"use_limit": 10,
+		"used_count": 3,
+		"expires_at": "2025-12-17T10:00:00Z",
+		"created_by": "user-uuid-123",
+		"created_at": "2025-12-10T10:00:00Z",
+		"is_active": true,
+		"invite_url": "https://app.example.com/invite/aB3xY9kLmN2pQ5rS8tU1vW4zC7eF0gH"
+	}
 ]
 ```
 
 **Query Parameters (optional):**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Parameter     | Type    | Description                                            |
+| ------------- | ------- | ------------------------------------------------------ |
 | `active_only` | boolean | If `true`, only return active links (default: `false`) |
 
 ---
@@ -144,11 +144,11 @@ Deactivate an invite link so it can no longer be used.
 
 **Error Responses:**
 
-| Status | Description |
-|--------|-------------|
-| `401` | Unauthorized |
-| `403` | User does not have permission |
-| `404` | Link or group not found |
+| Status | Description                   |
+| ------ | ----------------------------- |
+| `401`  | Unauthorized                  |
+| `403`  | User does not have permission |
+| `404`  | Link or group not found       |
 
 ---
 
@@ -166,17 +166,17 @@ Check if an invite link token is valid. This is called when a user clicks an inv
 
 ```json
 {
-  "valid": true,
-  "group": {
-    "id": 123,
-    "name": "math-class-12a",
-    "display_name": "Math Class 12A",
-    "description": "Advanced mathematics study group",
-    "type": "class",
-    "member_count": 25,
-    "created_at": "2025-01-15T08:00:00Z"
-  },
-  "is_member": false
+	"valid": true,
+	"group": {
+		"id": 123,
+		"name": "math-class-12a",
+		"display_name": "Math Class 12A",
+		"description": "Advanced mathematics study group",
+		"type": "class",
+		"member_count": 25,
+		"created_at": "2025-01-15T08:00:00Z"
+	},
+	"is_member": false
 }
 ```
 
@@ -184,17 +184,17 @@ Check if an invite link token is valid. This is called when a user clicks an inv
 
 ```json
 {
-  "valid": true,
-  "group": {
-    "id": 123,
-    "name": "math-class-12a",
-    "display_name": "Math Class 12A",
-    "description": "Advanced mathematics study group",
-    "type": "class",
-    "member_count": 25,
-    "created_at": "2025-01-15T08:00:00Z"
-  },
-  "is_member": true
+	"valid": true,
+	"group": {
+		"id": 123,
+		"name": "math-class-12a",
+		"display_name": "Math Class 12A",
+		"description": "Advanced mathematics study group",
+		"type": "class",
+		"member_count": 25,
+		"created_at": "2025-01-15T08:00:00Z"
+	},
+	"is_member": true
 }
 ```
 
@@ -202,17 +202,17 @@ Check if an invite link token is valid. This is called when a user clicks an inv
 
 ```json
 {
-  "valid": false,
-  "error": "expired"
+	"valid": false,
+	"error": "expired"
 }
 ```
 
-| Error Code | Description |
-|------------|-------------|
-| `expired` | Link has passed its expiration date |
+| Error Code      | Description                            |
+| --------------- | -------------------------------------- |
+| `expired`       | Link has passed its expiration date    |
 | `limit_reached` | Link has reached its maximum use count |
-| `not_found` | Token does not exist |
-| `inactive` | Link has been deactivated by owner |
+| `not_found`     | Token does not exist                   |
+| `inactive`      | Link has been deactivated by owner     |
 
 ---
 
@@ -232,10 +232,10 @@ Use an invite link to join a group.
 
 ```json
 {
-  "success": true,
-  "group_id": 123,
-  "already_member": false,
-  "message": "Successfully joined the group"
+	"success": true,
+	"group_id": 123,
+	"already_member": false,
+	"message": "Successfully joined the group"
 }
 ```
 
@@ -243,27 +243,27 @@ Use an invite link to join a group.
 
 ```json
 {
-  "success": true,
-  "group_id": 123,
-  "already_member": true,
-  "message": "You are already a member of this group"
+	"success": true,
+	"group_id": 123,
+	"already_member": true,
+	"message": "You are already a member of this group"
 }
 ```
 
 **Error Responses:**
 
-| Status | Code | Description |
-|--------|------|-------------|
-| `400` | `expired` | Link has expired |
-| `400` | `limit_reached` | Link has reached maximum uses |
-| `404` | `not_found` | Token does not exist |
-| `400` | `inactive` | Link has been deactivated |
+| Status | Code            | Description                   |
+| ------ | --------------- | ----------------------------- |
+| `400`  | `expired`       | Link has expired              |
+| `400`  | `limit_reached` | Link has reached maximum uses |
+| `404`  | `not_found`     | Token does not exist          |
+| `400`  | `inactive`      | Link has been deactivated     |
 
 ```json
 {
-  "success": false,
-  "error": "expired",
-  "message": "This invite link has expired"
+	"success": false,
+	"error": "expired",
+	"message": "This invite link has expired"
 }
 ```
 
@@ -312,7 +312,7 @@ CREATE TABLE group_invite_links (
     created_by VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    
+
     INDEX idx_group_invite_links_token (token),
     INDEX idx_group_invite_links_group_id (group_id)
 );
@@ -322,8 +322,8 @@ CREATE TABLE group_invite_links (
 
 ## Frontend Routes
 
-| Route | Description |
-|-------|-------------|
+| Route            | Description                             |
+| ---------------- | --------------------------------------- |
 | `/invite/:token` | Public invite link page (requires auth) |
 
 The frontend will:

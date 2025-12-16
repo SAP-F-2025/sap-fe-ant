@@ -541,7 +541,8 @@
 }
 
 @keyframes badgePulse {
-	0%, 100% {
+	0%,
+	100% {
 		transform: scale(1);
 		box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.4);
 	}
@@ -550,4 +551,3 @@
 		box-shadow: 0 0 0 6px rgba(255, 77, 79, 0);
 	}
 }
-

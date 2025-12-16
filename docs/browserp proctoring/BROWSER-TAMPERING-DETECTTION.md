@@ -238,15 +238,15 @@ VITE_FORCE_TAMPER_DETECTION=true
 
 ```typescript
 type BrowserProctoringEvent = {
-  type: 'tab_switch' | 'fullscreen_exit' | 'copy_paste' | 'browser_tamper';
-  startTime: number;
-  endTime: number;
-  duration: number;
-  metadata?: {
-    action?: 'copy' | 'paste' | 'cut';
-    hidden?: boolean;
-    tamperType?: 'devtools' | 'console' | 'extension';
-  };
+	type: 'tab_switch' | 'fullscreen_exit' | 'copy_paste' | 'browser_tamper';
+	startTime: number;
+	endTime: number;
+	duration: number;
+	metadata?: {
+		action?: 'copy' | 'paste' | 'cut';
+		hidden?: boolean;
+		tamperType?: 'devtools' | 'console' | 'extension';
+	};
 };
 ```
 
@@ -254,12 +254,17 @@ type BrowserProctoringEvent = {
 
 ```typescript
 type ProctoringEvent = {
-  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 
-        'mouth_open' | 'head_turned' | 'eyes_closed';
-  startTime: number;
-  endTime: number;
-  duration: number;
-  metadata?: any;
+	type:
+		| 'face_not_detected'
+		| 'multiple_faces'
+		| 'looking_away'
+		| 'mouth_open'
+		| 'head_turned'
+		| 'eyes_closed';
+	startTime: number;
+	endTime: number;
+	duration: number;
+	metadata?: any;
 };
 ```
 
@@ -290,9 +295,9 @@ type ProctoringEvent = {
 - Determined users with advanced knowledge can bypass
 - Best used as **deterrent + detection** rather than prevention
 - For high-stakes exams, consider:
-  - Physical proctoring
-  - Lockdown browser (Respondus, Safe Exam Browser)
-  - Dedicated exam software at OS level
+    - Physical proctoring
+    - Lockdown browser (Respondus, Safe Exam Browser)
+    - Dedicated exam software at OS level
 
 ## Assessment Settings Integration
 
@@ -300,21 +305,21 @@ type ProctoringEvent = {
 
 ```typescript
 interface AssessmentSettings {
-  require_webcam?: boolean;              // ✅ Camera monitoring
-  prevent_tab_switching?: boolean;       // ✅ Tab switch detection
-  prevent_copy_paste?: boolean;          // ✅ Copy/paste blocking
-  require_full_screen?: boolean;         // ✅ Fullscreen enforcement
-  prevent_right_click?: boolean;         // ✅ Right-click blocking
-  
-  // Not yet implemented:
-  randomize_questions?: boolean;         // ❌ Shuffle questions
-  randomize_options?: boolean;           // ❌ Shuffle options
-  questions_per_page?: number;           // ❌ Pagination
-  show_progress_bar?: boolean;           // ❌ Progress bar toggle
-  require_identity_verification?: boolean; // ❌ Face verification
-  allow_screen_reader?: boolean;         // ❌ Accessibility
-  font_size_adjustment?: number;         // ❌ Font size
-  high_contrast_mode?: boolean;          // ❌ High contrast
+	require_webcam?: boolean; // ✅ Camera monitoring
+	prevent_tab_switching?: boolean; // ✅ Tab switch detection
+	prevent_copy_paste?: boolean; // ✅ Copy/paste blocking
+	require_full_screen?: boolean; // ✅ Fullscreen enforcement
+	prevent_right_click?: boolean; // ✅ Right-click blocking
+
+	// Not yet implemented:
+	randomize_questions?: boolean; // ❌ Shuffle questions
+	randomize_options?: boolean; // ❌ Shuffle options
+	questions_per_page?: number; // ❌ Pagination
+	show_progress_bar?: boolean; // ❌ Progress bar toggle
+	require_identity_verification?: boolean; // ❌ Face verification
+	allow_screen_reader?: boolean; // ❌ Accessibility
+	font_size_adjustment?: number; // ❌ Font size
+	high_contrast_mode?: boolean; // ❌ High contrast
 }
 ```
 

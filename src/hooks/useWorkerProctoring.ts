@@ -83,7 +83,10 @@ export const useWorkerProctoring = (
 	}, []);
 
 	const clearViolation = useCallback(
-		(ref: React.MutableRefObject<{ startTime: number } | null>, type: ProctoringEvent['type']) => {
+		(
+			ref: React.MutableRefObject<{ startTime: number } | null>,
+			type: ProctoringEvent['type']
+		) => {
 			if (ref.current) {
 				const endTime = Date.now();
 				const event: ProctoringEvent = {
@@ -348,7 +351,6 @@ export const useWorkerProctoring = (
 			}
 			setIsProcessing(false);
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [enabled, videoElement]);
 
 	return {

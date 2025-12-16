@@ -11,64 +11,64 @@ This document outlines the design for a Proctoring Review UI that allows teacher
 ### Backend Services
 
 1. **protocring-service** (Port 8081/8889) - Violation Storage & Analytics
-   - TimescaleDB for time-series violation data
-   - Continuous aggregates for hourly/daily stats
-   - Real-time violation ingestion
-   - Dashboard analytics endpoints
+    - TimescaleDB for time-series violation data
+    - Continuous aggregates for hourly/daily stats
+    - Real-time violation ingestion
+    - Dashboard analytics endpoints
 
 2. **assessment-service** - Core Assessment Logic
-   - Attempts, Questions, Grading
-   - Group management
+    - Attempts, Questions, Grading
+    - Group management
 
 ### Existing Frontend Components
 
 1. **Violation Detection (Student Side)**
-   - `ProctoringMonitor` - Real-time camera monitoring during exam
-   - `useProctoring` hook - MediaPipe face detection violations
-   - `useBrowserProctoring` hook - Tab switch, fullscreen, copy/paste detection
-   - `violationService` - Submits violations to protocring-service
+    - `ProctoringMonitor` - Real-time camera monitoring during exam
+    - `useProctoring` hook - MediaPipe face detection violations
+    - `useBrowserProctoring` hook - Tab switch, fullscreen, copy/paste detection
+    - `violationService` - Submits violations to protocring-service
 
 2. **Data Flow**
 
-   ```
-   Frontend (Exam)                    protocring-service
-   ├── useProctoring      ────────▶  POST /api/v1/violations
-   ├── useBrowserProctoring ───────▶  POST /api/v1/violations/batch
-   └── violationService
+    ```
+    Frontend (Exam)                    protocring-service
+    ├── useProctoring      ────────▶  POST /api/v1/violations
+    ├── useBrowserProctoring ───────▶  POST /api/v1/violations/batch
+    └── violationService
 
-   Frontend (Review)                  protocring-service
-   ├── ProctoringDashboard ◀────────  GET /api/v1/dashboard/*
-   └── GradingDetail       ◀────────  GET /api/v1/violations/attempt/{id}
-   ```
+    Frontend (Review)                  protocring-service
+    ├── ProctoringDashboard ◀────────  GET /api/v1/dashboard/*
+    └── GradingDetail       ◀────────  GET /api/v1/violations/attempt/{id}
+    ```
 
 3. **Violation Types** (from backend model)
 
-   | ID | Type | Category |
-   |----|------|----------|
-   | 0 | `face_not_detected` | Camera |
-   | 1 | `multiple_faces` | Camera |
-   | 2 | `looking_away` | Camera |
-   | 3 | `mouth_open` | Camera |
-   | 4 | `hand_detected` | Camera |
-   | 5 | `head_turned_away` | Camera |
-   | 6 | `copy_paste` | Browser |
-   | 7 | `switching_tab` | Browser |
-   | 8 | `full_screen` | Browser |
-   | 9 | `phone_detect` | Camera |
-   | 10 | `voice` | Audio |
-   | 11 | `browser_tamper` | Browser |
-   | 12 | `voice_chat` | Audio |
-   | 13 | `face_mismatch` | Identity |
-   | 14 | `fail_liveness_challenge` | Identity |
+    | ID  | Type                      | Category |
+    | --- | ------------------------- | -------- |
+    | 0   | `face_not_detected`       | Camera   |
+    | 1   | `multiple_faces`          | Camera   |
+    | 2   | `looking_away`            | Camera   |
+    | 3   | `mouth_open`              | Camera   |
+    | 4   | `hand_detected`           | Camera   |
+    | 5   | `head_turned_away`        | Camera   |
+    | 6   | `copy_paste`              | Browser  |
+    | 7   | `switching_tab`           | Browser  |
+    | 8   | `full_screen`             | Browser  |
+    | 9   | `phone_detect`            | Camera   |
+    | 10  | `voice`                   | Audio    |
+    | 11  | `browser_tamper`          | Browser  |
+    | 12  | `voice_chat`              | Audio    |
+    | 13  | `face_mismatch`           | Identity |
+    | 14  | `fail_liveness_challenge` | Identity |
 
 4. **Severity Levels** (from backend model)
 
-   | Level | Name | Description |
-   |-------|------|-------------|
-   | 0 | Low | Minor, informational |
-   | 1 | Medium | Attention needed |
-   | 2 | High | Suspicious behavior |
-   | 3 | Critical | Likely cheating |
+    | Level | Name     | Description          |
+    | ----- | -------- | -------------------- |
+    | 0     | Low      | Minor, informational |
+    | 1     | Medium   | Attention needed     |
+    | 2     | High     | Suspicious behavior  |
+    | 3     | Critical | Likely cheating      |
 
 ---
 
@@ -297,16 +297,16 @@ src/pages/Groups/
 
 ### Already Available APIs (protocring-service)
 
-| Feature | Endpoint | Status |
-|---------|----------|--------|
-| Get violations for attempt | `GET /violations/attempt/{id}` | ✅ Ready |
-| Get attempt summary | `GET /dashboard/attempts/{id}/summary` | ✅ Ready |
-| Get batch summaries | `GET /dashboard/attempts/summaries` | ✅ Ready |
-| Get hourly stats | `GET /dashboard/stats/hourly` | ✅ Ready |
-| Get daily stats | `GET /dashboard/stats/daily` | ✅ Ready |
-| Get user patterns | `GET /dashboard/users/{id}/patterns` | ✅ Ready |
-| Get dashboard overview | `GET /dashboard/overview` | ✅ Ready |
-| Get real-time stats | `GET /dashboard/realtime` | ✅ Ready |
+| Feature                    | Endpoint                               | Status   |
+| -------------------------- | -------------------------------------- | -------- |
+| Get violations for attempt | `GET /violations/attempt/{id}`         | ✅ Ready |
+| Get attempt summary        | `GET /dashboard/attempts/{id}/summary` | ✅ Ready |
+| Get batch summaries        | `GET /dashboard/attempts/summaries`    | ✅ Ready |
+| Get hourly stats           | `GET /dashboard/stats/hourly`          | ✅ Ready |
+| Get daily stats            | `GET /dashboard/stats/daily`           | ✅ Ready |
+| Get user patterns          | `GET /dashboard/users/{id}/patterns`   | ✅ Ready |
+| Get dashboard overview     | `GET /dashboard/overview`              | ✅ Ready |
+| Get real-time stats        | `GET /dashboard/realtime`              | ✅ Ready |
 
 ### Endpoints to Add (assessment-service or protocring-service)
 
@@ -336,223 +336,223 @@ Body: { violation_ids: number[], review_status: string }
 // ============ Request Types ============
 
 export interface BrowserInfo {
-  user_agent: string;
-  platform: string;
-  language: string;
-  screen_resolution: string;
-  timezone: string;
+	user_agent: string;
+	platform: string;
+	language: string;
+	screen_resolution: string;
+	timezone: string;
 }
 
 export interface CreateViolationRequest {
-  attempt_id: number;
-  user_id: string;
-  assessment_id: number;
-  violation_type: number;  // 0-14 (see violation type enum)
-  severity: number;        // 0-3 (Low/Medium/High/Critical)
-  confidence_score: number; // 0.0-1.0
-  snapshot_url?: string;
-  browser_info: BrowserInfo;
-  device_fingerprint: string;
-  created_at: string;      // ISO 8601 - violation start
-  ended_at: string;        // ISO 8601 - violation end
-  is_prolonged: boolean;
+	attempt_id: number;
+	user_id: string;
+	assessment_id: number;
+	violation_type: number; // 0-14 (see violation type enum)
+	severity: number; // 0-3 (Low/Medium/High/Critical)
+	confidence_score: number; // 0.0-1.0
+	snapshot_url?: string;
+	browser_info: BrowserInfo;
+	device_fingerprint: string;
+	created_at: string; // ISO 8601 - violation start
+	ended_at: string; // ISO 8601 - violation end
+	is_prolonged: boolean;
 }
 
 // ============ Response Types ============
 
 export interface ViolationLog {
-  id: number;
-  attempt_id: number;
-  user_id: string;
-  assessment_id: number;
-  violation_type: number;
-  severity: number;
-  confidence_score: number;
-  snapshot_url?: string;
-  browser_info: BrowserInfo;
-  device_fingerprint: string;
-  created_at: string;
-  ended_at: string;
-  is_prolonged: boolean;
+	id: number;
+	attempt_id: number;
+	user_id: string;
+	assessment_id: number;
+	violation_type: number;
+	severity: number;
+	confidence_score: number;
+	snapshot_url?: string;
+	browser_info: BrowserInfo;
+	device_fingerprint: string;
+	created_at: string;
+	ended_at: string;
+	is_prolonged: boolean;
 }
 
 export interface ViolationResponse {
-  id: number;
-  attempt_id: number;
-  user_id: string;
-  assessment_id: number;
-  violation_type: number;
-  violation_name: string;    // Human-readable name
-  severity: number;
-  severity_name: string;     // Human-readable severity
-  confidence_score: number;
-  created_at: string;
-  status: 'processed' | 'failed';
+	id: number;
+	attempt_id: number;
+	user_id: string;
+	assessment_id: number;
+	violation_type: number;
+	violation_name: string; // Human-readable name
+	severity: number;
+	severity_name: string; // Human-readable severity
+	confidence_score: number;
+	created_at: string;
+	status: 'processed' | 'failed';
 }
 
 export interface ViolationListResponse {
-  data: ViolationLog[];
-  count: number;
-  limit: number;
-  offset: number;
+	data: ViolationLog[];
+	count: number;
+	limit: number;
+	offset: number;
 }
 
 // ============ Dashboard Types ============
 
 export interface AttemptViolationSummary {
-  attempt_id: number;
-  user_id: string;
-  assessment_id: number;
-  first_violation_at: string;
-  last_violation_at: string;
-  duration_seconds: number;
-  total_violations: number;
-  unique_violation_types: number;
-  prolonged_violations_count: number;
-  critical_count: number;
-  high_count: number;
-  medium_count: number;
-  low_count: number;
-  max_severity_level: number;
-  violation_types: number[];
-  avg_confidence: number;
-  max_confidence: number;
-  min_confidence: number;
+	attempt_id: number;
+	user_id: string;
+	assessment_id: number;
+	first_violation_at: string;
+	last_violation_at: string;
+	duration_seconds: number;
+	total_violations: number;
+	unique_violation_types: number;
+	prolonged_violations_count: number;
+	critical_count: number;
+	high_count: number;
+	medium_count: number;
+	low_count: number;
+	max_severity_level: number;
+	violation_types: number[];
+	avg_confidence: number;
+	max_confidence: number;
+	min_confidence: number;
 }
 
 export interface HourlyViolationStats {
-  bucket: string;
-  total_violations: number;
-  unique_attempts: number;
-  unique_users: number;
-  critical_count: number;
-  high_count: number;
-  medium_count: number;
-  low_count: number;
-  face_not_detected_count: number;
-  multiple_faces_count: number;
-  looking_away_count: number;
-  hand_detected_count: number;
-  switching_tab_count: number;
-  fullscreen_count: number;
-  prolonged_count: number;
-  avg_confidence: number;
+	bucket: string;
+	total_violations: number;
+	unique_attempts: number;
+	unique_users: number;
+	critical_count: number;
+	high_count: number;
+	medium_count: number;
+	low_count: number;
+	face_not_detected_count: number;
+	multiple_faces_count: number;
+	looking_away_count: number;
+	hand_detected_count: number;
+	switching_tab_count: number;
+	fullscreen_count: number;
+	prolonged_count: number;
+	avg_confidence: number;
 }
 
 export interface DailyViolationStats extends HourlyViolationStats {
-  unique_assessments: number;
-  mouth_open_count: number;
-  copy_paste_count: number;
-  phone_detect_count: number;
-  avg_duration_seconds: number;
+	unique_assessments: number;
+	mouth_open_count: number;
+	copy_paste_count: number;
+	phone_detect_count: number;
+	avg_duration_seconds: number;
 }
 
 export interface UserViolationPattern {
-  bucket: string;
-  user_id: string;
-  total_violations: number;
-  attempts_count: number;
-  assessments_count: number;
-  critical_count: number;
-  high_count: number;
-  prolonged_count: number;
-  most_common_violation: number;
-  unique_violation_types: number;
-  has_multiple_faces: boolean;
-  has_hand_detected: boolean;
-  has_switching_tab: boolean;
-  has_fullscreen_exit: boolean;
-  avg_confidence: number;
+	bucket: string;
+	user_id: string;
+	total_violations: number;
+	attempts_count: number;
+	assessments_count: number;
+	critical_count: number;
+	high_count: number;
+	prolonged_count: number;
+	most_common_violation: number;
+	unique_violation_types: number;
+	has_multiple_faces: boolean;
+	has_hand_detected: boolean;
+	has_switching_tab: boolean;
+	has_fullscreen_exit: boolean;
+	avg_confidence: number;
 }
 
 export interface ViolationTypeCount {
-  violation_type: number;
-  type_name: string;
-  count: number;
-  percentage: number;
+	violation_type: number;
+	type_name: string;
+	count: number;
+	percentage: number;
 }
 
 export interface DashboardOverview {
-  total_violations: number;
-  total_attempts: number;
-  total_users: number;
-  total_assessments: number;
-  critical_count: number;
-  high_count: number;
-  medium_count: number;
-  low_count: number;
-  violations_change: number;  // % change from previous period
-  attempts_change: number;
-  users_change: number;
-  top_violation_types: ViolationTypeCount[];
+	total_violations: number;
+	total_attempts: number;
+	total_users: number;
+	total_assessments: number;
+	critical_count: number;
+	high_count: number;
+	medium_count: number;
+	low_count: number;
+	violations_change: number; // % change from previous period
+	attempts_change: number;
+	users_change: number;
+	top_violation_types: ViolationTypeCount[];
 }
 
 export interface RealTimeStats {
-  last_updated: string;
-  active_attempts: number;
-  violations_last_5min: number;
-  violations_last_hour: number;
-  critical_violations: number;
-  recent_violations: ViolationLog[];
+	last_updated: string;
+	active_attempts: number;
+	violations_last_5min: number;
+	violations_last_hour: number;
+	critical_violations: number;
+	recent_violations: ViolationLog[];
 }
 
 // ============ Enums ============
 
 export const ViolationType = {
-  FACE_NOT_DETECTED: 0,
-  MULTIPLE_FACES: 1,
-  LOOKING_AWAY: 2,
-  MOUTH_OPEN: 3,
-  HAND_DETECTED: 4,
-  HEAD_TURNED_AWAY: 5,
-  COPY_PASTE: 6,
-  SWITCHING_TAB: 7,
-  FULL_SCREEN: 8,
-  PHONE_DETECT: 9,
-  VOICE: 10,
-  BROWSER_TAMPER: 11,
-  VOICE_CHAT: 12,
-  FACE_MISMATCH: 13,
-  FAIL_LIVENESS_CHALLENGE: 14,
+	FACE_NOT_DETECTED: 0,
+	MULTIPLE_FACES: 1,
+	LOOKING_AWAY: 2,
+	MOUTH_OPEN: 3,
+	HAND_DETECTED: 4,
+	HEAD_TURNED_AWAY: 5,
+	COPY_PASTE: 6,
+	SWITCHING_TAB: 7,
+	FULL_SCREEN: 8,
+	PHONE_DETECT: 9,
+	VOICE: 10,
+	BROWSER_TAMPER: 11,
+	VOICE_CHAT: 12,
+	FACE_MISMATCH: 13,
+	FAIL_LIVENESS_CHALLENGE: 14,
 } as const;
 
 export const ViolationTypeName: Record<number, string> = {
-  0: 'Face Not Detected',
-  1: 'Multiple Faces',
-  2: 'Looking Away',
-  3: 'Mouth Open',
-  4: 'Hand Detected',
-  5: 'Head Turned Away',
-  6: 'Copy/Paste',
-  7: 'Tab Switch',
-  8: 'Fullscreen Exit',
-  9: 'Phone Detected',
-  10: 'Voice Detected',
-  11: 'Browser Tampered',
-  12: 'Voice Chat',
-  13: 'Face Mismatch',
-  14: 'Failed Liveness',
+	0: 'Face Not Detected',
+	1: 'Multiple Faces',
+	2: 'Looking Away',
+	3: 'Mouth Open',
+	4: 'Hand Detected',
+	5: 'Head Turned Away',
+	6: 'Copy/Paste',
+	7: 'Tab Switch',
+	8: 'Fullscreen Exit',
+	9: 'Phone Detected',
+	10: 'Voice Detected',
+	11: 'Browser Tampered',
+	12: 'Voice Chat',
+	13: 'Face Mismatch',
+	14: 'Failed Liveness',
 };
 
 export const Severity = {
-  LOW: 0,
-  MEDIUM: 1,
-  HIGH: 2,
-  CRITICAL: 3,
+	LOW: 0,
+	MEDIUM: 1,
+	HIGH: 2,
+	CRITICAL: 3,
 } as const;
 
 export const SeverityName: Record<number, string> = {
-  0: 'Low',
-  1: 'Medium',
-  2: 'High',
-  3: 'Critical',
+	0: 'Low',
+	1: 'Medium',
+	2: 'High',
+	3: 'Critical',
 };
 
 export const SeverityColor: Record<number, string> = {
-  0: '#52c41a',  // green
-  1: '#faad14',  // gold
-  2: '#fa8c16',  // orange
-  3: '#f5222d',  // red
+	0: '#52c41a', // green
+	1: '#faad14', // gold
+	2: '#fa8c16', // orange
+	3: '#f5222d', // red
 };
 ```
 
@@ -560,12 +560,12 @@ export const SeverityColor: Record<number, string> = {
 
 ## Severity Levels (Backend Definition)
 
-| Level | Name | Color | Description | Typical Violations |
-|-------|------|-------|-------------|-------------------|
-| 0 | Low | 🟢 Green | Minor, informational | `mouth_open`, brief `eyes_closed` |
-| 1 | Medium | 🟡 Yellow | Attention needed | `fullscreen_exit`, `head_turned` |
-| 2 | High | 🟠 Orange | Suspicious behavior | `looking_away`, `copy_paste` |
-| 3 | Critical | 🔴 Red | Likely cheating | `tab_switch`, `multiple_faces`, `face_not_detected`, `phone_detect` |
+| Level | Name     | Color     | Description          | Typical Violations                                                  |
+| ----- | -------- | --------- | -------------------- | ------------------------------------------------------------------- |
+| 0     | Low      | 🟢 Green  | Minor, informational | `mouth_open`, brief `eyes_closed`                                   |
+| 1     | Medium   | 🟡 Yellow | Attention needed     | `fullscreen_exit`, `head_turned`                                    |
+| 2     | High     | 🟠 Orange | Suspicious behavior  | `looking_away`, `copy_paste`                                        |
+| 3     | Critical | 🔴 Red    | Likely cheating      | `tab_switch`, `multiple_faces`, `face_not_detected`, `phone_detect` |
 
 > **Note**: Severity is calculated client-side in `violationService.ts` based on violation type. See `SEVERITY_MAP` constant.
 
@@ -600,11 +600,14 @@ export const SeverityColor: Record<number, string> = {
 // In App.tsx
 
 // Admin/Teacher routes
-<Route path="proctoring" element={
-  <RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
-    <ProctoringDashboard />
-  </RoleBasedRedirect>
-} />
+<Route
+	path="proctoring"
+	element={
+		<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+			<ProctoringDashboard />
+		</RoleBasedRedirect>
+	}
+/>
 
 // Proctoring events for specific attempt (via GradingDetail tab)
 // Already covered by /grading/:attemptId
@@ -650,88 +653,102 @@ import axios from 'axios';
 import { API_CONFIG, API_ENDPOINTS } from '../config/api';
 import { TokenService } from './tokenService';
 import type {
-  ViolationListResponse,
-  AttemptViolationSummary,
-  DashboardOverview,
-  RealTimeStats,
-  HourlyViolationStats,
-  DailyViolationStats,
-  UserViolationPattern,
+	ViolationListResponse,
+	AttemptViolationSummary,
+	DashboardOverview,
+	RealTimeStats,
+	HourlyViolationStats,
+	DailyViolationStats,
+	UserViolationPattern,
 } from '../types/proctoring';
 
 class ProctoringDashboardService {
-  private instance = axios.create({
-    baseURL: API_CONFIG.PROCTORING_BASE_URL,
-    timeout: API_CONFIG.TIMEOUT,
-  });
+	private instance = axios.create({
+		baseURL: API_CONFIG.PROCTORING_BASE_URL,
+		timeout: API_CONFIG.TIMEOUT,
+	});
 
-  constructor() {
-    this.instance.interceptors.request.use(async (config) => {
-      const token = await TokenService.getValidAccessToken();
-      if (token) config.headers.Authorization = `Bearer ${token}`;
-      return config;
-    });
-  }
+	constructor() {
+		this.instance.interceptors.request.use(async (config) => {
+			const token = await TokenService.getValidAccessToken();
+			if (token) config.headers.Authorization = `Bearer ${token}`;
+			return config;
+		});
+	}
 
-  async getViolationsByAttempt(attemptId: number, page = 1, pageSize = 10): Promise<ViolationListResponse> {
-    const { data } = await this.instance.get(
-      API_ENDPOINTS.PROCTORING_VIOLATIONS_BY_ATTEMPT(attemptId),
-      { params: { page, pageSize } }
-    );
-    return data;
-  }
+	async getViolationsByAttempt(
+		attemptId: number,
+		page = 1,
+		pageSize = 10
+	): Promise<ViolationListResponse> {
+		const { data } = await this.instance.get(
+			API_ENDPOINTS.PROCTORING_VIOLATIONS_BY_ATTEMPT(attemptId),
+			{ params: { page, pageSize } }
+		);
+		return data;
+	}
 
-  async getAttemptSummary(attemptId: number): Promise<AttemptViolationSummary> {
-    const { data } = await this.instance.get(
-      API_ENDPOINTS.PROCTORING_ATTEMPT_SUMMARY(attemptId)
-    );
-    return data;
-  }
+	async getAttemptSummary(attemptId: number): Promise<AttemptViolationSummary> {
+		const { data } = await this.instance.get(
+			API_ENDPOINTS.PROCTORING_ATTEMPT_SUMMARY(attemptId)
+		);
+		return data;
+	}
 
-  async getAttemptSummaries(attemptIds: number[]): Promise<{ data: AttemptViolationSummary[]; count: number }> {
-    const { data } = await this.instance.get(
-      API_ENDPOINTS.PROCTORING_ATTEMPT_SUMMARIES,
-      { params: { attempt_ids: attemptIds.join(',') } }
-    );
-    return data;
-  }
+	async getAttemptSummaries(
+		attemptIds: number[]
+	): Promise<{ data: AttemptViolationSummary[]; count: number }> {
+		const { data } = await this.instance.get(API_ENDPOINTS.PROCTORING_ATTEMPT_SUMMARIES, {
+			params: { attempt_ids: attemptIds.join(',') },
+		});
+		return data;
+	}
 
-  async getDashboardOverview(startTime?: string, endTime?: string): Promise<{ data: DashboardOverview }> {
-    const { data } = await this.instance.get(
-      API_ENDPOINTS.PROCTORING_OVERVIEW,
-      { params: { start_time: startTime, end_time: endTime } }
-    );
-    return data;
-  }
+	async getDashboardOverview(
+		startTime?: string,
+		endTime?: string
+	): Promise<{ data: DashboardOverview }> {
+		const { data } = await this.instance.get(API_ENDPOINTS.PROCTORING_OVERVIEW, {
+			params: { start_time: startTime, end_time: endTime },
+		});
+		return data;
+	}
 
-  async getRealTimeStats(): Promise<RealTimeStats> {
-    const { data } = await this.instance.get(API_ENDPOINTS.PROCTORING_REALTIME);
-    return data;
-  }
+	async getRealTimeStats(): Promise<RealTimeStats> {
+		const { data } = await this.instance.get(API_ENDPOINTS.PROCTORING_REALTIME);
+		return data;
+	}
 
-  async getHourlyStats(startTime?: string, endTime?: string): Promise<{ data: HourlyViolationStats[] }> {
-    const { data } = await this.instance.get(
-      API_ENDPOINTS.PROCTORING_STATS_HOURLY,
-      { params: { start_time: startTime, end_time: endTime } }
-    );
-    return data;
-  }
+	async getHourlyStats(
+		startTime?: string,
+		endTime?: string
+	): Promise<{ data: HourlyViolationStats[] }> {
+		const { data } = await this.instance.get(API_ENDPOINTS.PROCTORING_STATS_HOURLY, {
+			params: { start_time: startTime, end_time: endTime },
+		});
+		return data;
+	}
 
-  async getDailyStats(startTime?: string, endTime?: string): Promise<{ data: DailyViolationStats[] }> {
-    const { data } = await this.instance.get(
-      API_ENDPOINTS.PROCTORING_STATS_DAILY,
-      { params: { start_time: startTime, end_time: endTime } }
-    );
-    return data;
-  }
+	async getDailyStats(
+		startTime?: string,
+		endTime?: string
+	): Promise<{ data: DailyViolationStats[] }> {
+		const { data } = await this.instance.get(API_ENDPOINTS.PROCTORING_STATS_DAILY, {
+			params: { start_time: startTime, end_time: endTime },
+		});
+		return data;
+	}
 
-  async getUserPatterns(userId: string, startTime?: string, endTime?: string): Promise<{ data: UserViolationPattern[] }> {
-    const { data } = await this.instance.get(
-      API_ENDPOINTS.PROCTORING_USER_PATTERNS(userId),
-      { params: { start_time: startTime, end_time: endTime } }
-    );
-    return data;
-  }
+	async getUserPatterns(
+		userId: string,
+		startTime?: string,
+		endTime?: string
+	): Promise<{ data: UserViolationPattern[] }> {
+		const { data } = await this.instance.get(API_ENDPOINTS.PROCTORING_USER_PATTERNS(userId), {
+			params: { start_time: startTime, end_time: endTime },
+		});
+		return data;
+	}
 }
 
 export const proctoringDashboardService = new ProctoringDashboardService();
@@ -767,18 +784,18 @@ The `snapshot_url` field currently supports any URL. Options:
 
 1. **Review Status**: No review/audit trail in current model. Consider adding:
 
-   ```sql
-   ALTER TABLE violation_logs ADD COLUMN review_status VARCHAR(20) DEFAULT 'pending';
-   ALTER TABLE violation_logs ADD COLUMN reviewed_by VARCHAR(255);
-   ALTER TABLE violation_logs ADD COLUMN reviewed_at TIMESTAMPTZ;
-   ALTER TABLE violation_logs ADD COLUMN review_notes TEXT;
-   ```
+    ```sql
+    ALTER TABLE violation_logs ADD COLUMN review_status VARCHAR(20) DEFAULT 'pending';
+    ALTER TABLE violation_logs ADD COLUMN reviewed_by VARCHAR(255);
+    ALTER TABLE violation_logs ADD COLUMN reviewed_at TIMESTAMPTZ;
+    ALTER TABLE violation_logs ADD COLUMN review_notes TEXT;
+    ```
 
 2. **Group-Level Aggregation**: Need to support filtering by assessment_id or providing group-scoped summaries
 
 3. **User Info**: Frontend needs user name/email for display. Options:
-   - Join with assessment-service user data on frontend
-   - Add user info to violation logs (denormalization)
-   - Create a user lookup endpoint
+    - Join with assessment-service user data on frontend
+    - Add user info to violation logs (denormalization)
+    - Create a user lookup endpoint
 
 4. **WebSocket for Real-Time**: Consider adding WebSocket support for live monitoring during exams

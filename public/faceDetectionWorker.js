@@ -110,19 +110,31 @@ function detectFaces(frame, timestamp) {
 			if (leftIris && rightIris) {
 				// Horizontal gaze
 				const leftEyeWidth = leftEyeInner.x - leftEyeOuter.x;
-				const leftIrisPosX = leftEyeWidth !== 0 ? (leftIris.x - leftEyeOuter.x) / leftEyeWidth : 0.5;
+				const leftIrisPosX =
+					leftEyeWidth !== 0 ? (leftIris.x - leftEyeOuter.x) / leftEyeWidth : 0.5;
 				const rightEyeWidth = rightEyeInner.x - rightEyeOuter.x;
-				const rightIrisPosX = rightEyeWidth !== 0 ? (rightIris.x - rightEyeOuter.x) / rightEyeWidth : 0.5;
+				const rightIrisPosX =
+					rightEyeWidth !== 0 ? (rightIris.x - rightEyeOuter.x) / rightEyeWidth : 0.5;
 
 				// Vertical gaze
 				const leftEyeHeight = leftEyeBottom.y - leftEyeTop.y;
-				const leftIrisPosY = leftEyeHeight !== 0 ? (leftIris.y - leftEyeTop.y) / leftEyeHeight : 0.5;
+				const leftIrisPosY =
+					leftEyeHeight !== 0 ? (leftIris.y - leftEyeTop.y) / leftEyeHeight : 0.5;
 				const rightEyeHeight = rightEyeBottom.y - rightEyeTop.y;
-				const rightIrisPosY = rightEyeHeight !== 0 ? (rightIris.y - rightEyeTop.y) / rightEyeHeight : 0.5;
+				const rightIrisPosY =
+					rightEyeHeight !== 0 ? (rightIris.y - rightEyeTop.y) / rightEyeHeight : 0.5;
 
 				// Looking away check
-				const lookingLeftRight = leftIrisPosX < 0.3 || leftIrisPosX > 0.7 || rightIrisPosX < 0.3 || rightIrisPosX > 0.7;
-				const lookingUpDown = leftIrisPosY < 0.35 || leftIrisPosY > 0.65 || rightIrisPosY < 0.35 || rightIrisPosY > 0.65;
+				const lookingLeftRight =
+					leftIrisPosX < 0.3 ||
+					leftIrisPosX > 0.7 ||
+					rightIrisPosX < 0.3 ||
+					rightIrisPosX > 0.7;
+				const lookingUpDown =
+					leftIrisPosY < 0.35 ||
+					leftIrisPosY > 0.65 ||
+					rightIrisPosY < 0.35 ||
+					rightIrisPosY > 0.65;
 				isLookingAway = lookingLeftRight || lookingUpDown;
 
 				// Eyes closed check

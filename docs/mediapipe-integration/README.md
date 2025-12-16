@@ -39,9 +39,9 @@ npm install @mediapipe/tasks-vision@^0.10.20
 ```typescript
 // vite.config.ts
 export default defineConfig({
-  optimizeDeps: {
-    include: ['@mediapipe/tasks-vision'],
-  },
+	optimizeDeps: {
+		include: ['@mediapipe/tasks-vision'],
+	},
 });
 ```
 
@@ -203,25 +203,30 @@ VITE_FORCE_TAMPER_DETECTION=true   # Test mode (enforce security)
 ```typescript
 // Camera violations (MediaPipe)
 interface ProctoringEvent {
-  type: 'face_not_detected' | 'multiple_faces' | 'looking_away' | 
-        'mouth_open' | 'head_turned' | 'eyes_closed';
-  startTime: number;
-  endTime: number;
-  duration: number;
-  metadata?: any;
+	type:
+		| 'face_not_detected'
+		| 'multiple_faces'
+		| 'looking_away'
+		| 'mouth_open'
+		| 'head_turned'
+		| 'eyes_closed';
+	startTime: number;
+	endTime: number;
+	duration: number;
+	metadata?: any;
 }
 
 // Browser violations
 interface BrowserProctoringEvent {
-  type: 'tab_switch' | 'fullscreen_exit' | 'copy_paste' | 'browser_tamper';
-  startTime: number;
-  endTime: number;
-  duration: number;
-  metadata?: {
-    action?: 'copy' | 'paste' | 'cut';
-    hidden?: boolean;
-    tamperType?: 'devtools' | 'console' | 'extension';
-  };
+	type: 'tab_switch' | 'fullscreen_exit' | 'copy_paste' | 'browser_tamper';
+	startTime: number;
+	endTime: number;
+	duration: number;
+	metadata?: {
+		action?: 'copy' | 'paste' | 'cut';
+		hidden?: boolean;
+		tamperType?: 'devtools' | 'console' | 'extension';
+	};
 }
 ```
 

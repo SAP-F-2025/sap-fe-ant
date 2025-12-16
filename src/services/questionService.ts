@@ -16,9 +16,26 @@ class QuestionService {
 			difficulty?: string;
 			search?: string;
 			exclude_ids?: number[];
+			creator_id?: string;
+			category_id?: number;
+			bank_id?: number;
+			tags?: string[];
+			sort_by?: string;
+			sort_order?: 'asc' | 'desc';
 		}
 	): Promise<PaginatedQuestionResponse<Question>> {
-		return apiService.get<PaginatedQuestionResponse<Question>>(API_ENDPOINTS.QUESTIONS, params);
+		// Transform arrays to comma-separated strings for query params
+		const transformedParams = params
+			? {
+					...params,
+					exclude_ids: params.exclude_ids?.join(','),
+					tags: params.tags?.join(','),
+				}
+			: undefined;
+		return apiService.get<PaginatedQuestionResponse<Question>>(
+			API_ENDPOINTS.QUESTIONS,
+			transformedParams
+		);
 	}
 
 	async getQuestion(id: number): Promise<Question> {

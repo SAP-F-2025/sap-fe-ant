@@ -82,6 +82,7 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({ bankId, onQuestio
 		size: 10,
 		total: 0,
 	});
+	const [allBankQuestionIds, setAllBankQuestionIds] = useState<number[]>([]);
 
 	useEffect(() => {
 		fetchQuestions();
@@ -107,21 +108,23 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({ bankId, onQuestio
 		}
 	};
 
-	const fetchAvailableQuestions = async (params?: PaginationParams) => {
+	const fetchAvailableQuestions = async (params?: PaginationParams, excludeIds?: number[]) => {
 		setFetchingQuestions(true);
 		try {
-			const existingQuestionIds = questions.map((q) => q.id);
+			// Use provided excludeIds or fall back to state
+			const idsToExclude = excludeIds ?? allBankQuestionIds;
 
+			// Use GET /questions with all filter parameters
 			const data = await questionService.getQuestions({
 				page: params?.page || 1,
 				size: params?.size || 10,
 				search: searchText || undefined,
-				type: filterType,
-				difficulty: filterDifficulty,
-				exclude_ids: existingQuestionIds.length > 0 ? existingQuestionIds : undefined,
+				type: filterType || undefined,
+				difficulty: filterDifficulty || undefined,
+				exclude_ids: idsToExclude.length > 0 ? idsToExclude : undefined,
 			});
 
-			setAvailableQuestions(data.questions);
+			setAvailableQuestions(data.questions || []);
 			setAvailablePagination({
 				page: params?.page || 1,
 				size: data.size,
@@ -263,9 +266,24 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({ bankId, onQuestio
 						<Button
 							type="primary"
 							icon={<PlusOutlined />}
-							onClick={() => {
+							onClick={async () => {
 								setAddModalVisible(true);
-								fetchAvailableQuestions();
+								// Fetch ALL question IDs from this bank for proper exclusion
+								let excludeIds: number[] = [];
+								try {
+									const allBankQuestions =
+										await questionBankService.getQuestionBankQuestions(bankId, {
+											page: 1,
+											size: 9999, // Fetch all
+										});
+									excludeIds = allBankQuestions.questions.map((q) => q.id);
+									setAllBankQuestionIds(excludeIds);
+								} catch (error) {
+									// If fetching fails, use current page IDs as fallback
+									excludeIds = questions.map((q) => q.id);
+									setAllBankQuestionIds(excludeIds);
+								}
+								fetchAvailableQuestions(undefined, excludeIds);
 							}}
 						>
 							{t('manageQuestionBankQuestions.addBtn')}

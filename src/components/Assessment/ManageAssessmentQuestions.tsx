@@ -220,34 +220,25 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	const fetchAvailableQuestions = async (params?: PaginationParams) => {
 		setFetchingQuestions(true);
 		try {
-			let data;
+			// Get existing question IDs for server-side exclusion
+			const existingQuestionIds = questions.map((q) => q.question_id);
 
-			// If a bank is selected, fetch questions from that bank
-			if (filterBank) {
-				data = await questionBankService.getQuestionBankQuestions(filterBank, {
-					page: params?.page || 1,
-					size: params?.size || 10,
-				});
-			} else {
-				// Otherwise fetch all questions with filters
-				data = await questionService.getQuestions({
-					page: params?.page || 1,
-					size: params?.size || 10,
-					search: searchText || undefined,
-					type: filterType,
-					difficulty: filterDifficulty,
-				});
-			}
+			// Use GET /questions with all filter parameters
+			const data = await questionService.getQuestions({
+				page: params?.page || 1,
+				size: params?.size || 10,
+				search: searchText || undefined,
+				type: filterType || undefined,
+				difficulty: filterDifficulty || undefined,
+				bank_id: filterBank || undefined,
+				exclude_ids: existingQuestionIds.length > 0 ? existingQuestionIds : undefined,
+			});
 
-			// Filter out questions already in assessment
-			const existingQuestionIds = new Set(questions.map((q) => q.question_id));
-			const filteredQuestions = data.questions.filter((q) => !existingQuestionIds.has(q.id));
-
-			setAvailableQuestions(filteredQuestions);
+			setAvailableQuestions(data.questions || []);
 			setPagination({
 				page: data.page > 0 ? data.page : 1,
 				size: data.size,
-				total: data.total, // Use backend total for correct pagination
+				total: data.total,
 			});
 		} catch (error) {
 			// Error handled by interceptor
@@ -1250,7 +1241,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								style={{ width: '100%' }}
 								value={filterType}
 								onChange={(value) => setFilterType(value)}
-								disabled={fetchingQuestions || !!filterBank}
+								disabled={fetchingQuestions}
 							>
 								{Object.values(QuestionType).map((type) => (
 									<Select.Option key={type} value={type}>
@@ -1266,7 +1257,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								style={{ width: '100%' }}
 								value={filterDifficulty}
 								onChange={(value) => setFilterDifficulty(value)}
-								disabled={fetchingQuestions || !!filterBank}
+								disabled={fetchingQuestions}
 							>
 								{Object.values(DifficultyLevel).map((level) => (
 									<Select.Option key={level} value={level}>

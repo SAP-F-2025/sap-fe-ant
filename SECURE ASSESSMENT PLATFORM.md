@@ -133,171 +133,175 @@ INDEX
 
 [**LIST OF ABBREVIATIONS 9**](#list-of-abbreviations)
 
-[**INTRODUCTION 11**](#introduction)
+[**INTRODUCTION 10**](#introduction)
 
-[**CHAPTER 1: INTRODUCTION TO THE SYSTEM AND TECHNOLOGIES USED 13**](#chapter-1:-introduction-to-the-system-and-technologies-used)
+[**CHAPTER 1: INTRODUCTION TO THE SYSTEM AND TECHNOLOGIES USED 12**](#chapter-1:-introduction-to-the-system-and-technologies-used)
 
-[**1.1. System introduction 13**](#1.1.-system-introduction)
+[**1.1. System introduction 12**](#1.1.-system-introduction)
 
-[**1.1.1. Purposes and meanings of the project 13**](#1.1.1.-purposes-and-meanings-of-the-project)
+[**1.1.1. Purposes and meanings of the project 12**](#1.1.1.-purposes-and-meanings-of-the-project)
 
-[**1.1.2. Project’s scope 14**](#1.1.2.-project’s-scope)
+[**1.1.2. Project’s scope 12**](#1.1.2.-project’s-scope)
 
-[**1.1.3. Problems to be solved 14**](#1.1.3.-core-problems-to-be-solved)
+[**1.1.3. Core Problems to be solved 12**](#1.1.3.-core-problems-to-be-solved)
 
-[1.1.3.1. Student Monitoring During Exams 14](#1.1.3.1.-academic-integrity-in-remote-settings)
+[1.2. Technology used 13](#1.2.-technology-used)
 
-[1.1.3.2. Real-Time Notification System 14](#heading=h.vumh3xy4r0za)
+[1.2.1. Front-end 13](#1.2.1.-front-end)
 
-[**1.1.4. Problem solving direction 14**](#heading=h.sm4aaxrqsfx9)
+[1.2.2. Back-end 13](#1.2.2.-back-end)
 
-[1.1.4.1. MediaPipe-Based Real-Time Proctoring System 14](#1.2.1.-mediapipe-based-real-time-proctoring-system)
+[1.2.3. Front-end 13](#1.2.3.-front-end)
 
-[Technical Foundation and Architecture 14](#technical-foundation-and-architecture)
+[1.3. Some specific solutions approach 14](#1.3.-some-specific-solutions-approach)
 
-[Integration with Assessment Platform 15](#integration-with-assessment-platform)
+[1.3.2. Real-time communication: Server-sent Events 16](#1.3.2.-real-time-communication:-server-sent-events)
 
-[Performance Optimization and Scalability 15](#performance-optimization-and-scalability)
+[1.3.3. Infrastructure and DevOps 17](#1.3.3.-infrastructure-and-devops)
 
-[Privacy and Compliance Considerations 16](#privacy-and-compliance-considerations)
+[1.3.3.3 Container Orchestration: Kubernetes 27](#1.3.3.3-container-orchestration:-kubernetes)
 
-[1.1.4.2. AI external service 17](#heading=h.rgs8aeplr9x4)
+[**1.3.3.4. CI/CD Pipeline: Github Action 32**](#1.3.3.4.-ci/cd-pipeline:-github-action)
 
-[**1.2. Technologies used 17**](#heading=h.o3bp4vxm4l9j)
+[1.4. Architectural Patterns 36](#1.4.-architectural-patterns)
 
-[**1.2.1. Front-end 17**](#heading=h.yttbd6bvikr2)
+[1.4.1. Some popular software architectures 36](#1.4.1.-some-popular-software-architectures)
 
-[**1.2.2. Back-end 17**](#heading=h.geo8f0yuw5kq)
+[1.4.2. Overview of microservice architecture 38](#1.4.2.-overview-of-microservice-architecture)
 
-[1.2.2.1. Assessment Service 17](#heading=h.n0apwcjn625)
+[**CHAPTER 2: SYSTEM ANALYSIS AND DESIGN 41**](#chapter-2:-system-analysis-and-design)
 
-[1.2.2.2. Notification Service 17](#heading=h.ghczheo27hnx)
+[**2.1. Describe the actors, the terminology, and define the requirements 41**](#2.1.-describe-the-actors,-the-terminology,-and-define-the-requirements)
 
-[1.2.2.3. Identity Service (Casdoor) 17](#heading=h.ezbm0q4aelpw)
+[2.1.1. Identify and describe the actors 41](#2.1.1.-identify-and-describe-the-actors)
 
-[1.2.2.4. Identity Verification Service 17](#heading=h.cfgnmub6vpve)
+[2.1.2. Building a glossary 42](#2.1.2.-building-a-glossary)
 
-[1.2.2.5 .Proctoring Service 17](#heading=h.r3w8xs2r2t65)
+[2.1.3. Identify requirements 43](#2.1.3.-identify-requirements)
 
-[**1.2.3. Database 17**](#1.3.3.1.-database)
+[2.2. Use Case Identification and Description 48](#2.2.-use-case-identification-and-description)
 
-[**1.2.4. Infrastructure: 17**](#1.3.3.2.-message-broker:-redis-stream)
+[2.2.1. Overall use cases of the system 48](#2.2.1.-overall-use-cases-of-the-system)
 
-[**1.2.5. Microservice architecture 17**](#1.3.3.4.-ci/cd-pipeline:-github-action)
+[2.2.2. Detailed use cases for students. 48](#2.2.2.-detailed-use-cases-for-students.)
 
-[1.2.6.1. Some popular software architectures 17](#1.4.1.-some-popular-software-architectures)
+[2.2.3. Detailed use cases for teachers. 51](#2.2.3.-detailed-use-cases-for-teachers.)
 
-[1.2.6.2. Overview of microservice architecture 19](#1.4.2.-overview-of-microservice-architecture)
+[2.2.3. Detailed use cases for administrators. 53](#2.2.3.-detailed-use-cases-for-administrators.)
 
-[**CHAPTER 2: SYSTEM ANALYSIS AND DESIGN 23**](#chapter-2:-system-analysis-and-design)
+[2.2.4. Main scenarios for students. 55](#2.2.4.-main-scenarios-for-students.)
 
-[**2.1. Describe the actors, the terminology, and define the requirements 23**](#2.1.-describe-the-actors,-the-terminology,-and-define-the-requirements)
+[2.2.5. Main scenarios for teachers. 60](#2.2.5.-main-scenarios-for-teachers.)
 
-[2.1.1. Identify and describe the actors 23](#2.1.1.-identify-and-describe-the-actors)
+[2.3. System Analysis 82](#2.3.-system-analysis)
 
-[2.1.2. Building a glossary 24](#2.1.2.-building-a-glossary)
+[2.3.1. Assessment Service 82](#2.3.1.-assessment-service)
 
-[2.1.3. Identify requirements 24](#2.1.3.-identify-requirements)
+[2.3.2. Proctoring Service 84](#2.3.2.-proctoring-service)
 
-[2.1.3.1. Functional requirements 24](#2.1.3.1.-functional-requirements)
+[2.3.3. Identity Service (Casdoor) 85](<#2.3.3.-identity-service-(casdoor)>)
 
-[2.1.3.2. Non-functional requirements 24](#heading)
+[2.3.4. Identity Verification Service 87](#2.3.4.-identity-verification-service)
 
-[2.2. Use Case Identification and Description 24](#2.2.-use-case-identification-and-description)
+[2.3.5. Notification Service 87](#2.3.5.-notification-service)
 
-[2.2.1. Overall use cases of the system 24](#2.2.1.-overall-use-cases-of-the-system)
+[2.3.6. Group Service 88](#2.3.6.-group-service)
 
-[2.2.2. Detailed use cases for students. 24](#2.2.2.-detailed-use-cases-for-students.)
+[2.4. Building class diagrams at the design phase 91](#2.4.-building-class-diagrams-at-the-design-phase)
 
-[2.2.3. Detailed use cases for teachers. 24](#2.2.3.-detailed-use-cases-for-teachers.)
+[2.4.1. Assessment Service 91](#2.4.1.-assessment-service)
 
-[2.2.3. Detailed use cases for administrators. 24](#2.2.3.-detailed-use-cases-for-administrators.)
+[2.4.2. Identity Verification Service 92](#2.4.2.-identity-verification-service)
 
-[2.2.4. Main scenarios for students. 24](#2.2.4.-main-scenarios-for-students.)
+[2.4.3. Proctoring Service 92](#2.4.3.-proctoring-service)
 
-[2.2.5. Main scenarios for teachers. 24](#2.2.5.-main-scenarios-for-teachers.)
+[2.4.4. Casdoor Identity Service (minimalism version) 93](<#2.4.4.-casdoor-identity-service-(minimalism-version)>)
 
-[2.2.6. Main scenarios for administrators. 24](#2.2.6.-main-scenarios-for-administrators.)
+[2.4.5. Notification Service 93](#2.4.5.-notification-service)
 
-[2.3. System Analysis 24](#2.3.-system-analysis)
+[2.4.6. Group Service 94](#2.4.6.-group-service)
 
-[2.3.1. Extracting the system entity classes 24](#heading=h.xvttmallytap)
+[2.5. System sequence diagrams 94](#2.5.-system-sequence-diagrams)
 
-[2.3.2. Identifying relationships between classes 24](#heading=h.xu1vucmxo4dg)
+[2.5.1. Sequence diagrams for student functions 94](#2.5.1.-sequence-diagrams-for-student-functions)
 
-[2.4. Building class diagrams at the design phase 24](#2.4.-building-class-diagrams-at-the-design-phase)
+[2.5.2. Sequence diagrams for teacher functions 99](#2.5.2.-sequence-diagrams-for-teacher-functions)
 
-[2.5. System sequence diagrams 24](#2.5.-system-sequence-diagrams)
+[2.5.3. Sequence diagrams for administrator functions 106](#2.5.3.-sequence-diagrams-for-administrator-functions)
 
-2.5.1. Sequence diagrams for student functions 24
+[2.6. Database design 109](#2.6.-database-design)
 
-2.5.2. Sequence diagrams for teacher functions 24
+[2.6.1. Information of tables in the database. 109](#2.6.1.-information-of-tables-in-the-database.)
 
-[2.5.3. Sequence diagrams for administrator functions 24](#2.5.3.-sequence-diagrams-for-administrator-functions)
+[2.6.2. Database schema of the system. 109](#2.6.2.-database-schema-of-the-system.)
 
-[2.6. Database design 24](#2.6.-database-design)
+[2.7. Microservices architecture implementation 109](#2.7.-microservices-architecture-implementation)
 
-[2.6.1. Information of tables in the database. 25](#2.6.1.-information-of-tables-in-the-database.)
+[2.7.1. Overview 109](#2.7.1.-overview)
 
-[2.6.2. Database schema of the system. 25](#2.6.2.-database-schema-of-the-system.)
+[2.7.2. System Components 111](#2.7.2.-system-components)
 
-[2.7. Microservices architecture implementation 25](#2.7.-microservices-architecture-implementation)
+[2.7.3. Applying Technologies to the System 114](#2.7.3.-applying-technologies-to-the-system)
 
-[2.7.1. Overview 25](#heading=h.2tktifbsf4u0)
+[2.7.4. Selecting Appropriate Technologies 115](#2.7.4.-selecting-appropriate-technologies)
 
-[2.7.2. System components 25](#heading=h.oy09cgyaln3i)
+[2.7.5. Choosing Communication Methods Between Microservices 117](#2.7.5.-choosing-communication-methods-between-microservices)
 
-[2.7.3. Applying technologies to the system 25](#heading=h.i3juxh427y6b)
+[2.7.6. Designing a Hybrid Monolithic/Microservice System 118](#2.7.6.-designing-a-hybrid-monolithic/microservice-system)
 
-[2.8. System design 25](#2.8.-system-design)
+[2.8. System design 120](#2.8.-system-design)
 
-[2.8.1. Selecting appropriate technologies 25](#heading=h.scwy8u2c3jdb)
+[2.8.1. System design for 10,000 concurrent users and resource allocation 120](#2.8.1.-system-design-for-10,000-concurrent-users-and-resource-allocation)
 
-[2.8.2. Choosing communication methods between microservices 25](#heading=h.9nwt14lzwgko)
+[2.8.2. System sizing 121](#2.8.2.-system-sizing)
 
-[2.8.3. Designing a hybrid monolithic/microservice system. 25](#heading=h.u8yqkylmggkl)
+[2.8.3. Calculation of system operation costs 121](#2.8.3.-calculation-of-system-operation-costs)
 
-[2.9. System design for 10,000 concurrent users and resource allocation 25](#2.8.1.-system-design-for-10,000-concurrent-users-and-resource-allocation)
+[2.9. Chapter 2 conclusion 121](#2.9.-chapter-2-conclusion)
 
-[2.10. System sizing 25](#2.8.2.-system-sizing)
+[**CHAPTER 3: APPLICATION DEPLOYMENT 122**](#chapter-3:-application-deployment)
 
-[2.11. Calculation of system operation costs 25](#2.8.3.-calculation-of-system-operation-costs)
+[**3.1. Tools 122**](#3.1.-tools)
 
-[2.12. Chapter 2 conclusion 25](#2.9.-chapter-2-conclusion)
+[3.1.1. Tools used 122](#3.1.1.-tools-used)
 
-[**CHAPTER 3: APPLICATION DEPLOYMENT 27**](#chapter-3:-application-deployment)
+[3.1.2. Supporting libraries 122](#3.1.2.-supporting-libraries)
 
-[**3.1. Tools 27**](#3.1.-tools)
+[3.2. Installation results 122](#3.2.-installation-results)
 
-[3.1.1. Tools used 27](#3.1.1.-tools-used)
+[3.2.1. System deployment and packaging into images (using Docker) 122](<#3.2.1.-system-deployment-and-packaging-into-images-(using-docker)>)
 
-[3.1.2. Supporting libraries 27](#3.1.2.-supporting-libraries)
+[3.2.2. Deploying the system on Kubernetes (K8s) 122](<#3.2.2.-deploying-the-system-on-kubernetes-(k8s)>)
 
-[3.2. Installation results 27](#3.2.-installation-results)
+[3.2.3. Implementing the CI/CD pipeline 122](#3.2.3.-implementing-the-ci/cd-pipeline)
 
-[3.2.1. System deployment and packaging into images (using Docker) 27](<#3.2.1.-system-deployment-and-packaging-into-images-(using-docker)>)
+[3.2.4. Deploying tracing and monitoring tools 122](#3.2.4.-deploying-tracing-and-monitoring-tools)
 
-[3.2.2. Deploying the system on Kubernetes (K8s) 27](<#3.2.2.-deploying-the-system-on-kubernetes-(k8s)>)
+[3.2.5. Deploying the Mediapipe system on the client side 122](#3.2.5.-deploying-the-mediapipe-system-on-the-client-side)
 
-[3.2.3. Implementing the CI/CD pipeline 27](#3.2.3.-implementing-the-ci/cd-pipeline)
+[3.3. Applying production standards to the product 122](#3.3.-applying-production-standards-to-the-product)
 
-[3.2.4. Deploying tracing and monitoring tools 27](#3.2.4.-deploying-tracing-and-monitoring-tools)
+[3.4. Functional and non-functional testing (performance testing) 122](<#3.4.-functional-and-non-functional-testing-(performance-testing)>)
 
-[3.2.5. Deploying the Mediapipe system on the client side 27](#3.2.5.-deploying-the-mediapipe-system-on-the-client-side)
+[3.5. Issues related to cheating/fraud & methods to disable monitoring (nội dung Chương 4 cũ) 122](#heading)
 
-[3.3. Applying production standards to the product 27](#3.3.-applying-production-standards-to-the-product)
+[3.5.1. Disable copy/paste restrictions / tracking (Mediapipe-related) 122](#heading)
 
-[3.4. Functional and non-functional testing (performance testing) 27](<#3.4.-functional-and-non-functional-testing-(performance-testing)>)
+[3.5.2. Forge/proxy requests (manipulated results) 122](#heading)
 
-[**CONCLUSION 29**](#conclusion)
+[3.5.3. Multi-camera monitoring problem 122](#heading)
 
-[**1\. Summary of the implemented content 29**](#1.-summary-of-the-implemented-content)
+[3.5.4. Proposed solutions / mitigations 122](#3.5.4.-proposed-solutions-/-mitigations)
 
-[**2\. Achievements and limitations of the system 29**](#2.-achievements-and-limitations-of-the-system)
+[**CONCLUSION 124**](#conclusion)
 
-[**3\. The direction of future development 29**](#3.-the-direction-of-future-development)
+[**1\. Summary of the implemented content 124**](#1.-summary-of-the-implemented-content)
 
-[**REFERENCES 30**](#references)
+[**2\. Achievements and limitations of the system 124**](#2.-achievements-and-limitations-of-the-system)
+
+[**3\. The direction of future development 124**](#3.-the-direction-of-future-development)
+
+[**REFERENCES 125**](#references)
 
 # **LIST OF IMAGES** {#list-of-images}
 
@@ -362,7 +366,7 @@ The project not only builds an examination system but also applies advanced tech
 
 ### **1.1.3. Core Problems to be solved** {#1.1.3.-core-problems-to-be-solved}
 
-#### **1.1.3.1. Academic Integrity in Remote Settings** {#1.1.3.1.-academic-integrity-in-remote-settings}
+#### **1.1.3.1. Academic Integrity in Remote Settings**
 
 Ensuring the authenticity of test-takers and the integrity of the exam environment is the primary challenge in remote education. Without physical supervision, the platform must mitigate risks such as:
 
@@ -395,13 +399,79 @@ Fragmented tools create friction for educators and students. The platform must p
 - Grading & Feedback: Automated grading for objective questions and streamlined workflows for manual grading.
 - Notification & Analytics: Timely delivery of results and detailed reports on class performance and integrity incidents.
 
-## **1.2. Solution Approach**
+## **1.2. Technology used** {#1.2.-technology-used}
 
-#### **1.2.1. MediaPipe-Based Real-Time Proctoring System** {#1.2.1.-mediapipe-based-real-time-proctoring-system}
+### **1.2.1. Front-end** {#1.2.1.-front-end}
+
+The frontend application is built using modern web technologies optimized for performance, maintainability, and user experience. The following technologies form the foundation of the client-side implementation:
+
+#### **Core Framework and Language**
+
+**React 19** serves as the primary UI framework, providing a component-based architecture that enables efficient rendering through its virtual DOM implementation. React 19 introduces improved concurrent rendering capabilities and automatic batching of state updates, resulting in smoother user interactions during exam-taking sessions.
+
+**TypeScript 5.9** extends JavaScript with static typing, enabling early detection of type-related errors during development. This strict typing ensures robust code quality across the codebase and improves developer productivity through enhanced IDE support and autocompletion.
+
+**Vite (rolldown-vite)** is the build tool powering the development and production builds. Unlike traditional bundlers, Vite leverages native ES modules for instant development server startup and utilizes Rolldown (a Rust-based bundler) for optimized production builds with faster compilation times.
+
+#### **UI Component Library and Styling**
+
+**Ant Design 5.27** provides a comprehensive suite of enterprise-grade React components following design system principles. The library includes pre-built components for forms, tables, modals, and navigation, ensuring consistent UI/UX across the application.
+
+A **custom theme system** is implemented through design tokens ([tokens.ts](cci:7://file:///home/manhnt1/Works/sapfe/src/theme/tokens.ts:0:0-0:0)), gradient definitions ([gradients.ts](cci:7://file:///home/manhnt1/Works/sapfe/src/theme/gradients.ts:0:0-0:0)), and a ThemeProvider component. This enables consistent branding and supports both light and dark mode themes.
+
+**CSS Modules** are used for component-level styling, preventing style conflicts through automatic class name scoping and enabling maintainable, modular stylesheets.
+
+#### **State Management and Data Fetching**
+
+**TanStack React Query 5.90** handles server state management, providing automatic caching, background refetching, and optimistic updates. This eliminates the need for manual data fetching logic and ensures UI data remains synchronized with the server.
+
+**React Context API** manages client-side global state for authentication, theme preferences, and notification settings, avoiding unnecessary complexity from external state management libraries.
+
+**Axios 1.12** serves as the HTTP client for API communication, configured with interceptors for JWT token attachment, error handling, and request/response logging.
+
+#### **Internationalization**
+
+**i18next 25.7** with **react-i18next 16.3** provides comprehensive multi-language support. The system currently supports English (77KB translation file) and Vietnamese (89KB translation file). **i18next-browser-languagedetector** automatically detects the user's preferred language from browser settings.
+
+#### **AI/ML Integration**
+
+**MediaPipe Tasks Vision** (@mediapipe/tasks-vision) enables client-side face detection and facial landmark analysis for the proctoring system. Processing occurs entirely in the browser, ensuring student privacy by transmitting only violation metadata rather than video streams.
+
+A **Web Worker** architecture offloads MediaPipe processing to a separate thread, preventing UI blocking during intensive ML computations. GPU acceleration via WebGL2 is used when available, with automatic fallback to CPU processing.
+
+#### **Interactive Features**
+
+**dnd-kit** (@dnd-kit/core, @dnd-kit/sortable) powers drag-and-drop functionality for ordering questions and matching question types during exam-taking.
+
+**Recharts** provides interactive data visualization for analytics dashboards, displaying charts for exam statistics, violation trends, and performance metrics.
+
+**PapaParse** handles CSV parsing for question import/export functionality, enabling teachers to bulk upload questions from spreadsheet files.
+
+#### **Form Validation and Security**
+
+**Zod 4.1** provides runtime schema validation for form inputs and API responses, ensuring data integrity throughout the application.
+
+**Casdoor React SDK** integrates OAuth2 authentication, handling login flows, token management, and single sign-on (SSO) with external providers like Google.
+
+#### **Development and Quality Tools**
+
+**ESLint 9.39** with TypeScript plugins enforces code quality standards and catches potential issues during development.
+
+**Prettier 3.7** ensures consistent code formatting across the codebase.
+
+**Vitest** provides fast unit testing with React Testing Library for component testing, ensuring code reliability through automated tests.
+
+### **1.2.2. Back-end** {#1.2.2.-back-end}
+
+### **1.2.3. Front-end** {#1.2.3.-front-end}
+
+## **1.3. Some specific solutions approach** {#1.3.-some-specific-solutions-approach}
+
+#### **1.3.1. MediaPipe-Based Real-Time Proctoring System**
 
 MediaPipe, developed by Google Research, is an open-source framework for building multimodal applied machine learning pipelines. In the context of our secure assessment platform, MediaPipe serves as the core technology for implementing real-time proctoring capabilities through computer vision and artificial intelligence.
 
-##### **Technical Foundation and Architecture** {#technical-foundation-and-architecture}
+##### **Technical Foundation and Architecture**
 
 MediaPipe provides a comprehensive suite of pre-trained machine learning models optimized for real-time performance on various platforms. The framework utilizes a graph-based architecture where individual components (calculators) are connected to form processing pipelines. For our proctoring system, we leverage several key MediaPipe solutions:
 
@@ -409,7 +479,7 @@ MediaPipe provides a comprehensive suite of pre-trained machine learning models 
 - **Face Mesh**: Generates 468 3D facial landmarks in real-time, enabling precise facial geometry analysis and gaze direction estimation
 - **Pose Detection**: Utilizes BlazePose for full-body pose estimation, providing additional context for student behavior analysis
 
-##### **Integration with Assessment Platform** {#integration-with-assessment-platform}
+##### **Integration with Assessment Platform**
 
 The MediaPipe integration operates through a client-side processing approach, ensuring privacy compliance by processing video streams locally without transmitting raw video data to servers. The system architecture implements the following workflow:
 
@@ -419,7 +489,7 @@ The MediaPipe integration operates through a client-side processing approach, en
 - **Violation Assessment**: Applies configurable thresholds to determine violation severity and trigger appropriate responses
 - **Secure Transmission**: Sends only metadata and violation events to the backend system, maintaining student privacy
 
-##### **Performance Optimization and Scalability** {#performance-optimization-and-scalability}
+##### **Performance Optimization and Scalability**
 
 The implementation incorporates several optimization strategies to ensure system performance under concurrent usage scenarios:
 
@@ -428,7 +498,7 @@ The implementation incorporates several optimization strategies to ensure system
 - **Memory Management**: Employs efficient buffer management to prevent memory leaks during extended assessment sessions
 - **Browser Compatibility**: Ensures cross-platform functionality across modern web browsers through WebAssembly and WebGL acceleration
 
-##### **Privacy and Compliance Considerations** {#privacy-and-compliance-considerations}
+##### **Privacy and Compliance Considerations**
 
 The MediaPipe-based proctoring system adheres to strict privacy principles and regulatory compliance requirements:
 
@@ -439,13 +509,13 @@ The MediaPipe-based proctoring system adheres to strict privacy principles and r
 
 This approach enables the platform to provide comprehensive exam integrity monitoring while maintaining student privacy and system performance at scale.
 
-### **1.2.2. Real-time communication: Server-sent Events**
+### **1.3.2. Real-time communication: Server-sent Events** {#1.3.2.-real-time-communication:-server-sent-events}
 
-## **Introduction**
+#### **Introduction**
 
 Server-Sent Events (SSE) is a server push technology enabling a client to receive automatic updates from a server via an HTTP connection. It describes how servers can initiate data transmission towards clients once an initial client connection has been established. Unlike classic polling, where the client repeatedly asks for data, SSE establishes a persistent, long-lived connection, allowing the server to send data to the client whenever it becomes available.
 
-## **Technical Overview**
+#### **Technical Overview**
 
 - Standard / API: SSE is a web standard defined in the HTML Living Standard (often casually referred to as “HTML5-era”) and uses the EventSource interface in the browser.
 - Protocol: Operates over standard HTTP/HTTPS (typically a long-lived HTTP connection).
@@ -471,283 +541,283 @@ For a Notification Service, the primary requirement is to push information from 
 - Efficiency: It is lighter weight than maintaining full-duplex WebSocket connections for sporadic updates.
 - Resilience: The built-in reconnection logic simplifies the client-side implementation significantly.
 
-### **1.3.3. Infrastructure and DevOps**
+### **1.3.3. Infrastructure and DevOps** {#1.3.3.-infrastructure-and-devops}
 
-### **1.3.3.1. Database** {#1.3.3.1.-database}
+#### **1.3.3.1. Database**
 
-#### **1.3.3.1.1. Postgres:**
+##### 1.3.3.1.1. Postgres:
 
-## **Introduction**
+###### _Introduction_
 
 PostgreSQL, often referred to as Postgres, is a powerful open-source object-relational database management system (ORDBMS) with over 35 years of active development. Originally developed at the University of California, Berkeley, in 1986 as a successor to the Ingres database, PostgreSQL has evolved into one of the most advanced and feature-rich database systems available today.
 
 Known for its reliability, data integrity, and extensibility, PostgreSQL has become the database of choice for organizations ranging from startups to Fortune 500 companies. It supports both SQL for relational queries and JSON for non-relational workloads, making it a versatile solution for diverse application requirements.
 
-## **Key Features**
+###### _Key Features_
 
-### **ACID Compliance**
+- ACID Compliance
 
 PostgreSQL fully implements ACID properties, ensuring that database transactions are processed reliably. Atomicity guarantees that transactions are all-or-nothing operations. Consistency ensures that transactions bring the database from one valid state to another. Isolation prevents concurrent transactions from interfering with each other. Durability guarantees that committed transactions persist even in the event of system failures.
 
-### **Extensibility**
+- Extensibility
 
 One of PostgreSQL's most distinctive characteristics is its extensibility. Users can define custom data types, operators, functions, and index types. The extension system allows adding new functionality without modifying the core database code. Popular extensions include PostGIS for geospatial data, pg_trgm for fuzzy string matching, and pgcrypto for cryptographic functions.
 
-### **Advanced Data Types**
+- Advanced Data Types
 
 PostgreSQL supports a rich set of data types beyond standard SQL types. These include arrays for storing multiple values in a single column, hstore for key-value pairs, JSON and JSONB for document storage with indexing capabilities, geometric types for points, lines, and polygons, network address types for IP addresses and MAC addresses, UUID for universally unique identifiers, and range types for representing value ranges.
 
-### **Concurrency Control**
+- Concurrency Control
 
 PostgreSQL implements Multi-Version Concurrency Control (MVCC), allowing multiple transactions to access the database simultaneously without locking. Readers never block writers, and writers never block readers, resulting in high performance for concurrent workloads. Each transaction sees a consistent snapshot of the database, regardless of concurrent modifications.
 
-### **Full-Text Search**
+- Full-Text Search
 
 Built-in full-text search capabilities enable sophisticated text searching without external tools. PostgreSQL provides text search configurations for multiple languages, ranking functions for relevance scoring, and various indexing strategies for optimal performance. This eliminates the need for separate search engines in many applications.
 
-### **Replication and High Availability**
+- Replication and High Availability
 
 PostgreSQL offers multiple replication options for high availability and scalability. Streaming replication provides asynchronous or synchronous replication to standby servers. Logical replication enables selective replication of specific tables or data. Built-in failover mechanisms and tools like Patroni facilitate automatic failover in production environments.
 
-## **Architecture**
+###### _Architecture_
 
-### **Process Architecture**
+- Process Architecture
 
 PostgreSQL uses a process-based architecture where each client connection spawns a dedicated backend process. The postmaster process serves as the main daemon, accepting connections and forking backend processes. Background processes handle tasks such as writing dirty buffers to disk, checkpointing, autovacuum operations, and WAL archiving.
 
-### **Memory Architecture**
+- Memory Architecture
 
 Shared memory buffers cache frequently accessed data pages, reducing disk I/O. The shared buffer pool is configurable and typically sized to 25% of available RAM for dedicated database servers. Each backend process also has private memory for query processing, sorting, and hash operations.
 
-### **Storage Architecture**
+- Storage Architecture
 
 PostgreSQL organizes data into tablespaces, databases, schemas, and tables. Each table is stored as a collection of 8KB pages on disk. Large objects and TOAST (The Oversized-Attribute Storage Technique) handle values exceeding page size by compressing and storing them separately.
 
-### **Write-Ahead Logging**
+- Write-Ahead Logging
 
 The Write-Ahead Log (WAL) ensures durability and enables point-in-time recovery. Before modifying data files, PostgreSQL writes changes to the WAL. This sequential write pattern improves performance and provides a foundation for replication and backup strategies.
 
-## **Indexing Strategies**
+###### _Indexing Strategies_
 
-### **B-tree Indexes**
+- B-tree Indexes
 
 B-tree is the default index type, suitable for equality and range queries on sortable data. B-tree indexes support all comparison operators and efficiently handle ORDER BY clauses. They are the most versatile and commonly used index type in PostgreSQL.
 
-### **Hash Indexes**
+- Hash Indexes
 
 Hash indexes provide fast equality lookups but do not support range queries. Since PostgreSQL 10, hash indexes are fully WAL-logged and crash-safe, making them viable for specific use cases where only equality comparisons are needed.
 
-### **GiST Indexes**
+- GiST Indexes
 
 Generalized Search Tree (GiST) indexes support complex data types and queries. They enable indexing of geometric data, full-text search, and range types. GiST provides a framework for implementing custom index strategies for specialized data types.
 
-### **GIN Indexes**
+- GIN Indexes
 
 Generalized Inverted Indexes (GIN) excel at indexing composite values where multiple keys map to the same row. Common use cases include full-text search, JSONB documents, and array columns. GIN indexes provide fast lookups at the cost of slower updates.
 
-### **BRIN Indexes**
+- BRIN Indexes
 
 Block Range Indexes (BRIN) store summary information about ranges of physical table blocks. They are extremely compact and efficient for large tables where values correlate with physical storage order, such as timestamp columns in time-series data.
 
-## **Query Processing**
+###### _Query Processing_
 
-### **Query Planning**
+- Query Planning
 
 The query planner analyzes SQL statements and generates execution plans. It considers available indexes, table statistics, and cost estimates to choose optimal strategies. The planner uses dynamic programming to evaluate join orders and access methods for complex queries.
 
-### **Parallel Query Execution**
+- Parallel Query Execution
 
 PostgreSQL supports parallel query execution for large sequential scans, hash joins, and aggregations. The planner automatically parallelizes queries when beneficial, distributing work across multiple CPU cores. Parallel queries significantly improve performance for analytical workloads on large datasets.
 
-### **Query Optimization Techniques**
+- Query Optimization Techniques
 
 Common optimization techniques include using appropriate indexes for frequently queried columns, analyzing tables to update statistics for the query planner, using EXPLAIN ANALYZE to understand query execution, optimizing join orders and methods, and partitioning large tables for improved query performance and maintenance.
 
-## **Partitioning**
+- Partitioning
 
 PostgreSQL supports declarative partitioning for managing large tables by dividing them into smaller, more manageable pieces. Range partitioning divides data based on value ranges, commonly used for time-series data. List partitioning assigns rows to partitions based on discrete key values. Hash partitioning distributes rows evenly across partitions using a hash function.
 
 Partitioning improves query performance by enabling partition pruning, simplifies data management through partition-level operations, and facilitates archiving historical data by detaching or dropping old partitions.
 
-## **Comparison with Alternatives**
+###### _Comparison with Alternatives_
 
-### **PostgreSQL vs. MySQL**
+- PostgreSQL vs. MySQL
 
 PostgreSQL offers more advanced features including better JSON support, more sophisticated query planning, stronger ACID compliance, and richer data types. MySQL traditionally provides simpler administration and faster read performance for simple queries. PostgreSQL excels in complex analytical workloads and applications requiring advanced database features.
 
-### **PostgreSQL vs. Oracle**
+- PostgreSQL vs. Oracle
 
 PostgreSQL provides comparable functionality to Oracle for most use cases at no licensing cost. Oracle offers certain enterprise features and commercial support that some organizations require. PostgreSQL's open-source nature and extensibility make it attractive for organizations seeking to reduce vendor lock-in.
 
-### **PostgreSQL vs. NoSQL Databases**
+- PostgreSQL vs. NoSQL Databases
 
 PostgreSQL's JSONB support enables document storage patterns traditionally associated with MongoDB. While purpose-built NoSQL databases may offer better performance for specific use cases, PostgreSQL provides the flexibility to handle both relational and document workloads within a single system.
 
-#### **1.3.3.1.2. Timescale-DB:**
+##### 1.3.3.1.2. Timescale-DB:
 
-## **Introduction**
+###### _Introduction_
 
 TimescaleDB is an open-source time-series database built as an extension on top of PostgreSQL. Developed by Timescale, Inc. and first released in 2017, TimescaleDB combines the reliability and ecosystem of PostgreSQL with specialized optimizations for time-series data. This unique approach enables developers to use familiar SQL while achieving the performance characteristics required for time-series workloads.
 
 Unlike purpose-built time-series databases that require learning new query languages and paradigms, TimescaleDB looks and feels exactly like PostgreSQL. Applications can leverage existing PostgreSQL drivers, tools, and expertise while gaining automatic partitioning, time-series optimizations, and powerful analytical functions designed specifically for temporal data.
 
-## **Understanding Time-Series Data**
+###### _Understanding Time-Series Data_
 
 Time-series data consists of measurements or events tracked over time, characterized by a timestamp and one or more associated values. Common sources include IoT sensors generating metrics like temperature, pressure, and humidity at regular intervals, application monitoring systems collecting performance metrics and logs, financial systems tracking stock prices, transactions, and market data, infrastructure monitoring capturing CPU, memory, and network utilization, and user analytics recording events, sessions, and behavioral data.
 
 Time-series workloads exhibit distinct patterns. Data arrives primarily through inserts with rare updates to historical records. Queries typically focus on recent data with time-based filtering. Aggregations across time intervals are common analytical operations. Data volume grows continuously, requiring efficient storage and lifecycle management.
 
-## **Core Concepts**
+###### _Core Concepts_
 
-### **Hypertables**
+- Hypertable
 
 The hypertable is TimescaleDB's primary abstraction for time-series data. A hypertable appears as a single table but is automatically partitioned into chunks based on time intervals. This transparent partitioning enables efficient data management while maintaining the familiar PostgreSQL table interface.
 
 Creating a hypertable involves creating a standard PostgreSQL table and then converting it using the create_hypertable function. TimescaleDB handles all partitioning logic automatically, creating new chunks as data arrives and optimizing queries to access only relevant partitions.
 
-### **Chunks**
+- Chunks
 
 Chunks are the physical partitions that compose a hypertable. Each chunk covers a specific time range and is stored as a separate PostgreSQL table. This chunking strategy provides several benefits including improved query performance through chunk exclusion, efficient data lifecycle management by dropping or compressing entire chunks, parallel query execution across multiple chunks, and optimized insert performance by writing to recent chunks.
 
 The chunk time interval is configurable based on data characteristics and query patterns. Smaller chunks improve query performance for narrow time ranges but increase metadata overhead. Larger chunks reduce overhead but may include unnecessary data in query scans.
 
-### **Continuous Aggregates**
+- Continuous Aggregates
 
 Continuous aggregates automatically maintain materialized views that incrementally update as new data arrives. Unlike standard PostgreSQL materialized views that require full refresh, continuous aggregates efficiently process only new data, making them practical for large datasets.
 
 Continuous aggregates are ideal for dashboards and reports requiring pre-computed metrics. Common use cases include hourly, daily, or monthly rollups of raw measurements, real-time aggregations for monitoring dashboards, and historical trend analysis without scanning raw data.
 
-### **Compression**
+- Compression
 
 TimescaleDB provides native compression that dramatically reduces storage requirements for time-series data. Compression operates at the chunk level, converting row-oriented storage to a columnar format optimized for time-series queries. Compression ratios of 90-95% are common for typical time-series workloads.
 
 Compressed chunks remain queryable through standard SQL, with TimescaleDB transparently decompressing data as needed. Compression policies automate the process, compressing chunks older than a specified age without manual intervention.
 
-### **Data Retention Policies**
+- Data Retention Policies
 
 Automated data retention policies manage the lifecycle of time-series data. Policies can drop old chunks after a specified retention period, automatically removing data beyond the defined window. This prevents unbounded data growth and simplifies compliance with data retention requirements.
 
 Policies execute in the background through TimescaleDB's job scheduler, requiring no application changes or manual maintenance. Combining retention policies with compression and continuous aggregates enables efficient storage strategies where raw data is compressed after initial collection and eventually dropped while aggregated summaries are retained indefinitely.
 
-## **Architecture**
+###### _Architecture_
 
-### **Extension Architecture**
+- Extension Architecture
 
 TimescaleDB implements its functionality as a PostgreSQL extension rather than a fork. This approach ensures full compatibility with PostgreSQL features, extensions, and tools. Upgrades to PostgreSQL versions are straightforward, and the entire PostgreSQL ecosystem remains available.
 
 The extension intercepts queries targeting hypertables and optimizes execution based on time-series characteristics. Query planning incorporates chunk exclusion, parallel execution, and specialized algorithms for time-series operations.
 
-### **Distributed Architecture**
+- Distributed Architecture
 
 TimescaleDB supports distributed hypertables that span multiple database instances, enabling horizontal scalability for large-scale deployments. A distributed hypertable consists of an access node that receives queries and data nodes that store chunks.
 
 Data distribution uses consistent hashing based on a partition key combined with time-based chunking. Queries are automatically distributed to relevant data nodes, with results aggregated at the access node. This architecture scales write throughput and storage capacity across a cluster.
 
-### **Multi-Node Deployment**
+- Multi-Node Deployment
 
 Multi-node TimescaleDB deployments require careful planning for data distribution, query routing, and high availability. The access node coordinates distributed operations but represents a potential single point of failure. Data node replicas and automated failover mechanisms address availability requirements for production deployments.
 
-## **Performance Optimizations**
+###### _Performance Optimizations_
 
-### **Chunk Exclusion**
+- Chunk Exclusion
 
 TimescaleDB's query planner automatically excludes chunks that cannot contain relevant data based on query predicates. Queries with time range filters scan only chunks within the specified period, dramatically reducing I/O for queries on large datasets. This optimization is transparent and requires no query modifications.
 
-### **Parallel Query Execution**
+- Parallel Query Execution
 
 Queries across multiple chunks execute in parallel, leveraging multiple CPU cores for improved performance. TimescaleDB extends PostgreSQL's parallel query capabilities with awareness of chunk boundaries and time-series characteristics.
 
-### **Columnar Compression**
+- Columnar Compression
 
 Compressed chunks use columnar storage that provides excellent performance for analytical queries accessing specific columns. Compression algorithms exploit the temporal ordering and value patterns common in time-series data, achieving high compression ratios while maintaining query performance.
 
-### **Skip Scan**
+- Skip Scan
 
 The skip scan optimization improves performance for queries with DISTINCT or GROUP BY on high-cardinality time-series data. Rather than scanning all rows, skip scan leverages index ordering to jump between distinct values, significantly reducing the rows examined.
 
-### **Merge Append Optimization**
+- Merge Append Optimization
 
 Queries requiring sorted results across multiple chunks benefit from merge append optimization. Rather than sorting the entire result set, TimescaleDB merges pre-sorted chunk results, reducing memory usage and improving performance for ORDER BY queries.
 
-## **Analytical Functions**
+###### _Analytical Functions_
 
-### **Time Bucket Functions**
+- Time Bucket Functions
 
 The time_bucket function groups timestamps into fixed intervals for aggregation. This function is essential for time-series analysis, enabling queries like hourly averages, daily maximums, or weekly counts. Unlike PostgreSQL's date_trunc, time_bucket supports arbitrary interval sizes and handles edge cases common in time-series analysis.
 
-### **Gap Filling**
+- Gap Filling
 
 Time-series data often contains gaps due to missing measurements or irregular collection intervals. The time_bucket_gapfill function generates rows for missing time intervals, enabling visualization and analysis that requires continuous time series. Interpolation functions like locf (last observation carried forward) and interpolate provide values for filled gaps.
 
-### **Statistical Aggregates**
+- Statistical Aggregates
 
 TimescaleDB includes specialized statistical functions for time-series analysis. Percentile approximations using t-digest or uddsketch algorithms provide memory-efficient percentile calculations. Two-step aggregation enables accurate distributed statistics across multiple nodes. Correlation and regression functions support trend analysis and anomaly detection.
 
-### **Hyperfunctions**
+- Hyperfunctions
 
 Hyperfunctions are a collection of SQL functions designed for time-series analysis. They include functions for calculating deltas and rates of change, analyzing value distributions with percentile approximations, performing counter resets detection for monotonic counters, computing candlestick aggregations for financial data, and handling state transitions and duration calculations.
 
-## **Data Management**
+###### _Data Management_
 
-### **Automated Policies**
+- Automated Policies
 
 TimescaleDB's job scheduler executes automated policies for data management. Compression policies convert old chunks to columnar format based on age thresholds. Retention policies drop chunks beyond the configured retention period. Continuous aggregate refresh policies keep materialized views current with new data. Reorder policies optimize chunk storage for query patterns.
 
-### **Data Tiering**
+- Data Tiering
 
 TimescaleDB Cloud offers tiered storage that automatically moves older data to cost-effective object storage while maintaining query access. Hot data resides on fast local storage for low-latency queries. Warm and cold data moves to object storage tiers, reducing costs while remaining accessible through standard SQL queries.
 
-### **Backup and Recovery**
+- Backup and Recovery
 
 Standard PostgreSQL backup tools work with TimescaleDB, including pg_dump for logical backups and pg_basebackup for physical backups. Point-in-time recovery using WAL archiving enables recovery to any moment within the retention period. For distributed deployments, coordinated backup procedures ensure consistency across nodes.
 
-## **Integration Patterns**
+###### _Integration Patterns_
 
-### **Ingestion Pipelines**
+- Ingestion Pipelines
 
 High-volume time-series ingestion requires careful consideration of throughput and latency requirements. Batch inserts using COPY or multi-row INSERT statements provide higher throughput than individual inserts. Client-side buffering and parallel writers maximize ingestion performance. For extreme volumes, message queues like Kafka decouple producers from database writers.
 
-### **Visualization and Dashboards**
+- Visualization and Dashboards
 
 TimescaleDB integrates seamlessly with visualization tools that support PostgreSQL. Grafana provides native TimescaleDB support with specialized query builders for time-series visualization. Tableau, Power BI, and other business intelligence tools connect through standard PostgreSQL drivers. Continuous aggregates enable responsive dashboards on large datasets.
 
-### **Application Integration**
+- Application Integration
 
 Applications access TimescaleDB through any PostgreSQL client library. Connection poolers like PgBouncer manage connections for high-concurrency applications. ORMs and query builders that support PostgreSQL work without modification, though raw SQL often provides better performance for time-series queries.
 
-## **Comparison with Alternatives**
+###### _Comparison with Alternatives_
 
-### **TimescaleDB vs. InfluxDB**
+- TimescaleDB vs. InfluxDB
 
 InfluxDB is a purpose-built time-series database with its own query language (Flux or InfluxQL). TimescaleDB offers full SQL compatibility and leverages the PostgreSQL ecosystem. InfluxDB may provide better write performance for simple use cases, while TimescaleDB excels in complex queries, joins with relational data, and scenarios requiring PostgreSQL features.
 
-### **TimescaleDB vs. Native PostgreSQL**
+- TimescaleDB vs. Native PostgreSQL
 
 PostgreSQL can handle time-series data using manual partitioning, but TimescaleDB significantly reduces operational complexity. Automatic chunking, compression, and continuous aggregates eliminate manual partition management. Time-series specific optimizations provide better query performance than manual implementations.
 
-### **1.3.3.2. Message Broker: Redis Stream** {#1.3.3.2.-message-broker:-redis-stream}
+#### **1.3.3.2. Message Broker: Redis Stream**
 
-## **Introduction**
+##### Introduction
 
 Redis Streams is a data structure introduced in Redis 5.0 that models a log-like append-only data structure. It combines the simplicity of Redis with powerful messaging capabilities, making it an excellent choice for building event-driven architectures, message queues, and real-time data processing pipelines.
 
 Unlike traditional pub/sub systems, Redis Streams provides persistence, consumer groups, and message acknowledgment, addressing many limitations of simpler messaging patterns.
 
-## **Core Concepts**
+##### Core Concepts
 
-### **Stream Entries**
+###### _Stream Entries_
 
 A stream is essentially an ordered collection of entries, where each entry consists of one or more field-value pairs. Every entry is assigned a unique identifier that reflects the time it was added to the stream.
 
-### **Entry IDs**
+###### _Entry IDs_
 
 Each entry in a stream has a unique ID in the format `<millisecondsTime>-<sequenceNumber>`. For example, `1609459200000-0` represents the first entry added at that specific millisecond timestamp. Redis can auto-generate these IDs, or you can specify custom IDs as long as they maintain chronological order.
 
-### **Consumer Groups**
+###### _Consumer Groups_
 
 Consumer groups enable multiple consumers to cooperatively process messages from a stream. This mechanism provides load balancing across consumers, message acknowledgment tracking, and the ability to recover from failures without losing messages.
 
-## **Key Features**
+###### _Key Features_
 
 Redis Streams offers several advantages that distinguish it from other messaging solutions:
 
@@ -759,7 +829,7 @@ Redis Streams offers several advantages that distinguish it from other messaging
 **Blocking Reads**: Consumers can perform blocking reads to wait for new messages, reducing polling overhead and latency.  
 **Capped Streams**: Streams can be configured with a maximum length, automatically removing older entries when the limit is reached.
 
-## **Common Use Cases**
+###### _Common Use Cases_
 
 **Event Sourcing**: Redis Streams naturally fits event sourcing patterns where all changes to application state are stored as a sequence of events. The append-only nature and efficient range queries make it ideal for this purpose.  
 **Real-time Analytics**: Processing streams of events for real-time dashboards, metrics aggregation, and monitoring systems. The blocking read capability enables low-latency processing.  
@@ -767,39 +837,39 @@ Redis Streams offers several advantages that distinguish it from other messaging
 **Activity Feeds**: Implementing social media feeds, notification systems, or audit logs where chronological ordering and historical access are important.  
 **IoT Data Ingestion**: Collecting and processing high-volume sensor data where the append-only model and automatic ID generation simplify data management.
 
-## **Comparison with Alternatives**
+##### Comparison with Alternatives
 
-### **Redis Streams vs. Redis Pub/Sub**
+###### _Redis Streams vs. Redis Pub/Sub_
 
 Redis Pub/Sub is fire-and-forget: messages are lost if no subscriber is listening. Streams persist messages and support historical reads. Consumer groups in Streams provide acknowledgment and failure recovery, which Pub/Sub lacks entirely.
 
-### **Redis Streams vs. Kafka**
+###### _Redis Streams vs. Kafka_
 
 Apache Kafka offers stronger durability guarantees, higher throughput for very large-scale deployments, and a more mature ecosystem for stream processing. However, Redis Streams is simpler to operate, has lower latency for smaller-scale use cases, and integrates naturally if you already use Redis.
 
-### **Redis Streams vs. RabbitMQ**
+###### _Redis Streams vs. RabbitMQ_
 
 RabbitMQ provides richer routing capabilities and messaging patterns. Redis Streams offers simpler operations, the convenience of using your existing Redis infrastructure, and efficient storage of time-series-like data.
 
-### **1.3.3.3 Container Orchestration: Kubernetes**
+### **1.3.3.3 Container Orchestration: Kubernetes** {#1.3.3.3-container-orchestration:-kubernetes}
 
-## **Introduction**
+##### Introduction
 
 Kubernetes, often abbreviated as K8s, is an open-source container orchestration platform originally developed by Google and now maintained by the Cloud Native Computing Foundation (CNCF). Released in 2014, Kubernetes has become the de facto standard for deploying, scaling, and managing containerized applications in production environments.
 
 The name Kubernetes originates from Greek, meaning "helmsman" or "pilot," reflecting its role in steering containerized workloads. The abbreviation K8s represents the eight letters between "K" and "s" in the full name. Kubernetes builds upon fifteen years of experience running production workloads at Google, combined with best practices and ideas from the open-source community.
 
-## **Why Kubernetes?**
+###### _Why Kubernetes?_
 
 Modern applications are increasingly built as collections of microservices packaged in containers. While containers provide consistency and portability, managing hundreds or thousands of containers across multiple servers presents significant operational challenges. Kubernetes addresses these challenges by providing automated deployment and rollback capabilities, service discovery and load balancing, self-healing mechanisms for failed containers, horizontal scaling based on demand, storage orchestration for stateful applications, and configuration and secret management.
 
 Without an orchestration platform, teams would need to manually handle container placement, networking, scaling, and recovery from failures, which becomes impractical at scale.
 
-## **Architecture Overview**
+###### _Architecture Overview_
 
 Kubernetes follows a master-worker architecture, consisting of a control plane that manages the cluster and worker nodes that run application workloads.
 
-### **Control Plane Components**
+###### _Control Plane Components_
 
 The API Server serves as the central management entity and the front end for the Kubernetes control plane. All communication between components and external users passes through the API Server, which exposes the Kubernetes API and processes RESTful requests to modify cluster state.
 
@@ -811,7 +881,7 @@ The Controller Manager runs controller processes that regulate cluster state. Co
 
 The Cloud Controller Manager integrates with underlying cloud provider APIs, enabling Kubernetes to interact with cloud-specific resources such as load balancers, storage volumes, and networking components.
 
-### **Worker Node Components**
+###### _Worker Node Components_
 
 The Kubelet is an agent that runs on each worker node, ensuring that containers are running in pods as expected. It communicates with the control plane, receives pod specifications, and manages container lifecycle on its node.
 
@@ -819,45 +889,45 @@ Kube-proxy maintains network rules on nodes, enabling network communication to p
 
 The Container Runtime is the software responsible for running containers. Kubernetes supports various container runtimes including containerd, CRI-O, and any implementation of the Kubernetes Container Runtime Interface (CRI).
 
-## **Core Concepts and Objects**
+##### Core Concepts and Objects
 
-### **Pods**
+###### _Pods_
 
 A Pod is the smallest deployable unit in Kubernetes, representing a single instance of a running process in the cluster. A pod encapsulates one or more containers that share storage, network, and a specification for how to run. Containers within a pod communicate via localhost and share the same IP address and port space.
 
 While pods can contain multiple containers, the most common pattern is a single container per pod. Multi-container pods are used for tightly coupled processes that need to share resources, such as sidecar patterns for logging, proxying, or data synchronization.
 
-### **Deployments**
+###### _Deployments_
 
 Deployments provide declarative updates for pods and ReplicaSets. You describe the desired state in a Deployment specification, and the Deployment Controller changes the actual state to match. Deployments manage rolling updates and rollbacks, ensuring zero-downtime deployments by gradually replacing old pods with new ones.
 
 A typical Deployment specification defines the number of replicas, the container image to use, resource limits, and update strategy parameters such as maximum unavailable pods during updates.
 
-### **Services**
+###### _Services_
 
 Services provide stable networking for pods, which have ephemeral IP addresses that change when pods are recreated. A Service defines a logical set of pods and a policy for accessing them, typically identified by a label selector.
 
 Kubernetes supports several Service types. ClusterIP exposes the service on an internal IP within the cluster, making it reachable only from within. NodePort exposes the service on each node's IP at a static port, accessible from outside the cluster. LoadBalancer provisions an external load balancer in supported cloud environments. ExternalName maps the service to a DNS name, useful for accessing external services.
 
-### **ConfigMaps and Secrets**
+###### _ConfigMaps and Secrets_
 
 ConfigMaps store non-confidential configuration data as key-value pairs, allowing you to decouple configuration from container images. Applications can consume ConfigMaps as environment variables, command-line arguments, or configuration files mounted in volumes.
 
 Secrets function similarly to ConfigMaps but are intended for sensitive data such as passwords, tokens, and certificates. Kubernetes stores secrets encoded in base64 and provides mechanisms for encryption at rest. Pods reference secrets to access sensitive configuration without embedding credentials in application code.
 
-### **Namespaces**
+###### _Namespaces_
 
 Namespaces provide a mechanism for isolating groups of resources within a single cluster. They enable multiple teams or projects to share a cluster while maintaining logical separation. Resource quotas and access controls can be applied at the namespace level, making them useful for multi-tenant environments.
 
-### **Persistent Volumes**
+###### _Persistent Volumes_
 
 Persistent Volumes (PV) and Persistent Volume Claims (PVC) provide an abstraction for storage in Kubernetes. A PV represents a piece of storage provisioned by an administrator or dynamically provisioned using Storage Classes. A PVC is a request for storage by a user, specifying size and access modes. Kubernetes binds PVCs to appropriate PVs, allowing pods to use persistent storage that survives pod restarts and rescheduling.
 
-### **Ingress**
+###### _Ingress_
 
 Ingress manages external access to services within a cluster, typically HTTP and HTTPS traffic. An Ingress resource defines rules for routing external requests to internal services based on hostnames and paths. Ingress Controllers implement these rules, commonly using reverse proxies like NGINX, Traefik, or cloud provider load balancers.
 
-## **Networking in Kubernetes**
+###### _Networking in Kubernetes_
 
 Kubernetes implements a flat network model where every pod receives its own IP address and can communicate with any other pod in the cluster without NAT. This simplifies application design by eliminating the need for port mapping and enabling containers to behave as if they were on the same network.
 
@@ -865,7 +935,7 @@ The Container Network Interface (CNI) specification defines how network plugins 
 
 Network Policies define how pods communicate with each other and with external endpoints. By default, all pods can communicate freely, but Network Policies enable fine-grained control over ingress and egress traffic based on labels, namespaces, and IP blocks.
 
-## **Scaling and Autoscaling**
+###### _Scaling and Autoscaling_
 
 Kubernetes provides multiple mechanisms for scaling applications to meet demand.
 
@@ -877,7 +947,7 @@ The Vertical Pod Autoscaler (VPA) automatically adjusts CPU and memory requests 
 
 The Cluster Autoscaler automatically adjusts the number of nodes in a cluster based on pending pods that cannot be scheduled due to insufficient resources. It integrates with cloud providers to provision and deprovision nodes dynamically.
 
-## **Storage Management**
+###### _Storage Management_
 
 Kubernetes provides a robust storage framework supporting various storage backends and use cases.
 
@@ -885,7 +955,7 @@ Storage Classes define different classes of storage with specific performance ch
 
 StatefulSets manage stateful applications requiring stable network identities and persistent storage. Unlike Deployments, StatefulSets maintain a sticky identity for each pod, ensuring that pods are created and deleted in a predictable order and that persistent volumes remain associated with specific pod instances.
 
-## **Security Concepts**
+###### _Security Concepts_
 
 Role-Based Access Control (RBAC) regulates access to Kubernetes resources based on the roles of individual users or service accounts. Roles define permissions within a namespace, while ClusterRoles define cluster-wide permissions. RoleBindings and ClusterRoleBindings associate roles with subjects such as users, groups, or service accounts.
 
@@ -893,7 +963,7 @@ Pod Security Standards define security policies for pods, replacing the deprecat
 
 Service Accounts provide identities for processes running in pods. Applications use service accounts to authenticate with the Kubernetes API or external services. Each namespace has a default service account, and custom service accounts can be created with specific permissions.
 
-## **Observability**
+###### _Observability_
 
 Effective Kubernetes operations require comprehensive observability across logging, monitoring, and tracing.
 
@@ -903,7 +973,7 @@ Monitoring typically involves Prometheus for metrics collection and alerting, of
 
 Distributed tracing with tools like Jaeger or Zipkin helps track requests across microservices, identifying latency bottlenecks and understanding service dependencies.
 
-## **Deployment Strategies**
+###### _Deployment Strategies_
 
 Kubernetes supports various deployment strategies for updating applications with minimal disruption.
 
@@ -913,7 +983,7 @@ Blue-Green Deployments maintain two identical environments, with traffic switche
 
 Canary Deployments gradually route a percentage of traffic to new versions, allowing validation before full rollout. Service meshes like Istio or Linkerd provide sophisticated traffic management for implementing canary releases.
 
-## **Ecosystem and Tools**
+###### _Ecosystem and Tools_
 
 The Kubernetes ecosystem includes numerous tools that extend its capabilities.
 
@@ -925,118 +995,117 @@ Kustomize enables customization of Kubernetes manifests without templates, using
 
 Operators extend Kubernetes to manage complex stateful applications like databases and message queues. Operators encode operational knowledge into software, automating tasks that would otherwise require manual intervention.
 
-### **1.3.3.4. CI/CD Pipeline: Github Action** {#1.3.3.4.-ci/cd-pipeline:-github-action}
+### 1.3.3.4. CI/CD Pipeline: Github Action {#1.3.3.4.-ci/cd-pipeline:-github-action}
 
-## **Introduction**
+##### Introduction
 
 GitHub Actions is a powerful automation platform built directly into GitHub that enables developers to automate software workflows, including Continuous Integration and Continuous Deployment (CI/CD). Launched in 2019, it has rapidly become one of the most popular CI/CD solutions due to its seamless integration with GitHub repositories and its flexible, event-driven architecture.
 
 By defining workflows as code within your repository, GitHub Actions allows teams to build, test, and deploy applications automatically whenever specific events occur, such as code pushes, pull requests, or scheduled triggers.
 
-## **Understanding CI/CD**
+##### Understanding CI/CD
 
-### **Continuous Integration (CI)**
+###### _Continuous Integration (CI)_
 
 Continuous Integration is the practice of frequently merging code changes into a shared repository, where automated builds and tests verify each integration. This approach catches bugs early, reduces integration problems, and enables teams to develop software more rapidly with higher quality.
 
-### **Continuous Deployment/Delivery (CD)**
+###### _Continuous Deployment/Delivery (CD)_
 
 Continuous Delivery ensures that code is always in a deployable state by automating the release process up to the production environment. Continuous Deployment takes this further by automatically deploying every change that passes all tests to production without manual intervention.
 
-## **Core Concepts of GitHub Actions**
+##### Core Concepts of GitHub Actions
 
-### **Workflows**
+###### _Workflows_
 
 A workflow is an automated process defined in a YAML file stored in the .github/workflows directory of your repository. Each workflow consists of one or more jobs and is triggered by specific events. You can have multiple workflows in a single repository, each serving different purposes such as testing, building, or deploying.
 
-### **Events**
+###### _Events_
 
 Events are specific activities that trigger a workflow. Common events include pushing code to a branch, opening or merging a pull request, creating a release, or following a scheduled cron expression. GitHub supports a wide variety of events, allowing workflows to respond to virtually any activity in your repository.
 
-### **Jobs**
+###### _Jobs_
 
 Jobs are sets of steps that execute on the same runner. By default, jobs in a workflow run in parallel, but you can configure dependencies between jobs to run them sequentially. Each job runs in a fresh virtual environment, ensuring isolation and reproducibility.
 
-### **Steps**
+###### _Steps_
 
 Steps are individual tasks within a job. A step can run commands directly using shell scripts or execute pre-built actions. Steps within a job execute sequentially and share the same filesystem, allowing them to pass data between each other.
 
-### **Actions**
+###### _Actions_
 
 Actions are reusable units of code that perform specific tasks. You can use actions created by GitHub, the community, or build your own custom actions. The GitHub Marketplace hosts thousands of actions for common tasks like checking out code, setting up programming languages, deploying to cloud providers, and sending notifications.
 
-### **Runners**
+###### _Runners_
 
 Runners are servers that execute your workflows. GitHub provides hosted runners with Linux, Windows, and macOS environments, pre-configured with common tools and languages. For specialized requirements or enhanced security, you can also configure self-hosted runners on your own infrastructure.
 
-## **Key Features**
+##### Key Features
 
-### **Matrix Builds**
+###### _Matrix Builds_
 
 Matrix builds allow you to run the same job across multiple configurations simultaneously. This is particularly useful for testing applications across different operating systems, language versions, or environment variables:
 
-### **Secrets Management**
+###### _Secrets Management_
 
 GitHub Actions provides secure storage for sensitive information such as API keys, credentials, and tokens. Secrets are encrypted and only exposed to workflows at runtime. You can define secrets at the repository, environment, or organization level:
 
-### **Environments and Deployment Protection**
+###### _Environments and Deployment Protection_
 
 Environments allow you to configure deployment targets with specific protection rules. You can require manual approvals, restrict which branches can deploy, and define environment-specific secrets. This ensures proper governance over production deployments.
 
-### **Caching and Artifacts**
+###### _Caching and Artifacts_
 
 Caching dependencies between workflow runs significantly speeds up execution time. GitHub Actions supports caching for package managers like npm, pip, Maven, and Gradle. Artifacts allow you to persist data from workflow runs, such as build outputs, test results, or logs, for later retrieval or use in subsequent jobs.
 
-### **Reusable Workflows**
+###### _Reusable Workflows_
 
 Reusable workflows enable you to define a workflow once and call it from other workflows. This promotes consistency across repositories and reduces duplication. Organizations can maintain centralized workflow templates that individual repositories reference.
 
-### **Concurrency Control**
+###### _Concurrency Control_
 
 Concurrency settings prevent multiple instances of the same workflow from running simultaneously. This is particularly important for deployment workflows where running concurrent deployments could cause conflicts or inconsistencies.
 
-## **Common Use Cases**
+##### Common Use Cases
 
-### **Automated Testing**
+###### _Automated Testing_
 
 Running unit tests, integration tests, and end-to-end tests automatically on every pull request ensures code quality and prevents regressions. Test results can be reported as checks on pull requests, providing immediate feedback to developers.
 
-### **Code Quality and Security**
+###### _Code Quality and Security_
 
 Integrating linters, static analysis tools, and security scanners into your workflow catches potential issues before they reach production. Tools like ESLint, SonarQube, and Dependabot can be incorporated to maintain code standards and identify vulnerabilities.
 
-### **Build and Package**
+###### _Build and Package_
 
 Compiling applications, building Docker images, and creating release packages can be fully automated. Built artifacts can be published to package registries, container registries, or artifact storage for distribution.
 
-### **Deployment Automation**
+###### _Deployment Automation_
 
 Deploying applications to various platforms including cloud providers, Kubernetes clusters, serverless functions, and static site hosts. GitHub Actions integrates with AWS, Azure, Google Cloud, Vercel, Netlify, and many other platforms through official and community actions.
 
-### **Scheduled Tasks**
+###### _Scheduled Tasks_
 
 Running periodic jobs such as database backups, report generation, dependency updates, or cleanup tasks. Cron expressions define the schedule, and workflows execute automatically at the specified times.
 
-## **Comparison with Alternatives**
+##### Comparison with Alternatives
 
-### **GitHub Actions vs. Jenkins**
+###### _GitHub Actions vs. Jenkins_
 
 Jenkins offers greater flexibility and an extensive plugin ecosystem but requires self-hosting and maintenance. GitHub Actions provides a managed service with native GitHub integration, simpler configuration, and generous free tier for public repositories.
 
-### **GitHub Actions vs. GitLab CI/CD**
+###### _GitHub Actions vs. GitLab CI/CD_
 
 Both platforms offer similar capabilities with tight integration into their respective ecosystems. GitLab CI/CD is preferred when using GitLab for source control, while GitHub Actions is the natural choice for GitHub-hosted repositories.
 
-### **GitHub Actions vs. CircleCI**
+###### _GitHub Actions vs. CircleCI_
 
 CircleCI provides powerful caching, parallelism features, and a robust cloud infrastructure. GitHub Actions offers tighter GitHub integration and avoids the need for an additional external service in your development workflow.
 
-## **1.4. Architectural Patterns**
+## **1.4. Architectural Patterns** {#1.4.-architectural-patterns}
 
-#### **1.4.1. Some popular software architectures** {#1.4.1.-some-popular-software-architectures}
+### **1.4.1. Some popular software architectures** {#1.4.1.-some-popular-software-architectures}
 
-a) Kiến trúc nguyên khối (Monolithic Architecture)  
- Kiến trúc nguyên khối là mô hình phần mềm truyền thống, trong đó toàn bộ ứng dụng được xây dựng dưới dạng một khối duy nhất, chứa tất cả các thành phần và chức năng.
+#### **a) Kiến trúc nguyên khối (Monolithic Architecture)** **Kiến trúc nguyên khối là mô hình phần mềm truyền thống, trong đó toàn bộ ứng dụng được xây dựng dưới dạng một khối duy nhất, chứa tất cả các thành phần và chức năng.**
 
 - Đặc điểm:
     - Mọi thành phần (frontend, backend, database) đều được tích hợp chặt chẽ với nhau.
@@ -1051,7 +1120,7 @@ a) Kiến trúc nguyên khối (Monolithic Architecture)
     - Nếu một phần của hệ thống bị lỗi, toàn bộ ứng dụng có thể ngừng hoạt động.
     - Khó áp dụng các công nghệ mới vào một phần nhỏ của hệ thống.
 
-b) Kiến trúc hướng dịch vụ (Service-Oriented Architecture \- SOA)
+#### **b) Kiến trúc hướng dịch vụ (Service-Oriented Architecture \- SOA)**
 
 - SOA (Service-Oriented Architecture) là **một phong cách kiến trúc phần mềm** trong đó các chức năng của hệ thống được **đóng gói thành các dịch vụ độc lập (independent services)**.
 
@@ -1073,9 +1142,9 @@ b) Kiến trúc hướng dịch vụ (Service-Oriented Architecture \- SOA)
     - **Chi phí phát triển và bảo trì cao**, đòi hỏi hạ tầng đồng bộ.
     - **Hiệu suất thấp hơn** so với kiến trúc nguyên khối (monolithic) do chi phí truyền thông giữa các dịch vụ.
 
-#### **1.4.2. Overview of microservice architecture** {#1.4.2.-overview-of-microservice-architecture}
+### **1.4.2. Overview of microservice architecture** {#1.4.2.-overview-of-microservice-architecture}
 
-**a) Tổng quan**
+#### **a) Tổng quan**
 
 · Microservices là một kiến trúc phần mềm trong đó ứng dụng được chia thành nhiều **dịch vụ nhỏ** (micro-service) hoạt động độc lập. Mỗi dịch vụ đảm nhận một chức năng cụ thể và được triển khai, vận hành độc lập.
 
@@ -1087,7 +1156,7 @@ b) Kiến trúc hướng dịch vụ (Service-Oriented Architecture \- SOA)
 
 Hình 1\. 1\. Kiến trúc microservice
 
-**b) Ưu điểm:**
+#### **b) Ưu điểm:**
 
 - **Khả năng mở rộng:**
 
@@ -1127,7 +1196,7 @@ Hình 1\. 1\. Kiến trúc microservice
     - Đơn giản hóa việc quản lý dự án lớn.
     - Tạo điều kiện cho các nhóm nhỏ tập trung vào chuyên môn riêng.
 
-**c) Nhược điểm:**
+#### **c) Nhược điểm:**
 
 - **Phức tạp:** Việc chia nhỏ hệ thống thành nhiều dịch vụ dẫn đến sự phức tạp trong quản lý. Cần có các công cụ giám sát, logging và quản lý giao tiếp để đảm bảo các dịch vụ hoạt động đồng bộ.
 - **Chi phí:** Việc vận hành nhiều dịch vụ riêng biệt đòi hỏi tài nguyên lớn hơn so với hệ thống nguyên khối. Cần đầu tư vào hạ tầng (máy chủ, công cụ giám sát) và nhân lực để duy trì.
@@ -1185,7 +1254,7 @@ _Table 2.2. Glossary using in SAP_
 
 ### **2.1.3. Identify requirements** {#2.1.3.-identify-requirements}
 
-#### **2.1.3.1. Functional requirements** {#2.1.3.1.-functional-requirements}
+#### **2.1.3.1. Functional requirements**
 
 **A. User Management and Authentication (Casdoor)**
 
@@ -1434,7 +1503,7 @@ _Table 2.2. Glossary using in SAP_
 
 ### **2.2.4. Main scenarios for students.** {#2.2.4.-main-scenarios-for-students.}
 
-## **Table 2.1: Scenario of Authentication & Profile Management (as User)**
+Table 2.1: Scenario of Authentication & Profile Management (as User)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1444,7 +1513,7 @@ _Table 2.2. Glossary using in SAP_
 | **Main Scenario**  | 1\. Student navigates to the login page. 2\. System displays login form with OAuth2 options via Casdoor. 3\. Student enters credentials (username/email and password) or selects OAuth provider. 4\. System validates credentials through Casdoor identity service. 5\. System issues JWT access token upon successful authentication. 6\. System redirects student to the student dashboard showing available assessments. |
 | **Exception**      | 1.1 Invalid credentials: System displays error message and prompts student to re-enter credentials. 2.1 Account not found: System suggests registration or password recovery. 3.1 2FA required: System prompts for two-factor authentication code before granting access.                                                                                                                                                   |
 
-## **Table 2.2: Scenario of Take exam**
+Table 2.2: Scenario of Take exam
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1454,7 +1523,7 @@ _Table 2.2. Glossary using in SAP_
 | **Main Scenario**  | 1\. Student navigates to "My Assessments" page. 2\. System displays list of available assessments with status, due date, and remaining attempts. 3\. Student selects an assessment to take. 4\. System displays assessment details including duration, total questions, passing score, and proctoring requirements. 5\. Student clicks "Start Exam" button. 6\. System initializes AI Proctoring & Violation Detection (camera access, face verification). 7\. System creates new attempt record with status "in_progress" and starts timer. 8\. System displays questions (shuffled if configured) with navigation panel. 9\. Student answers questions and can navigate between questions. 10\. System auto-saves answers periodically. 11\. Student clicks "Submit Exam" when finished. 12\. System confirms submission, stops proctoring, and records completion time. 13\. System triggers Auto Grading for objective questions. 14\. System sends notification about exam completion. |
 | **Exception**      | 1.1 No available assessments: System displays message "No assessments available at this time." 2.1 Maximum attempts reached: System disables "Start Exam" button and shows remaining attempts as 0\. 3.1 Assessment expired: System displays "This assessment has expired" message. 4.1 Camera access denied: System prompts student to enable camera for proctoring or blocks exam start. 5.1 Face verification failed: System warns student and may block exam continuation. 6.1 Violation detected (tab switching, multiple faces, etc.): System logs violation, sends warning, and may auto-submit if critical. 7.1 Time expires: System auto-submits all current answers and marks attempt as "timeout". 8.1 Connection lost: System preserves last saved state and allows resume within time limit.                                                                                                                                                                                   |
 
-## **Table 2.3: Scenario of View results**
+Table 2.3: Scenario of View results
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1464,7 +1533,7 @@ _Table 2.2. Glossary using in SAP_
 | **Main Scenario**  | 1\. Student navigates to "My Attempts" or "Results" page. 2\. System displays list of all attempts with filtering options (by assessment, status, date range). 3\. Student selects an attempt to view details. 4\. System displays attempt summary including: \- Total score and passing status \- Time taken vs time allowed \- Score breakdown by question type \- Violation summary (if any) 5\. Student can view individual question results. 6\. System shows correct answers and explanations. |
 | **Exception**      | 1.1 No attempts found: System displays "You have not completed any assessments yet." 2.1 Results not yet available: System shows "Your results are being processed" for attempts pending manual grading. 3.1 Detailed results hidden: System displays only total score if teacher disabled detailed feedback.                                                                                                                                                                                        |
 
-## **Table 2.4: Scenario of Participate in Contest:**
+Table 2.4: Scenario of Participate in Contest:
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1474,7 +1543,7 @@ _Table 2.2. Glossary using in SAP_
 | **Main Scenario**  | 1\. Student navigates to "Contests" page. 2\. System displays list of available contests with status (upcoming, ongoing, ended). 3\. Student selects a contest to view details. 4\. System displays contest information including: \- Contest name and description \- Start time and end time \- Number of participants \- Rules and scoring system 5\. Student clicks "Join Contest" or "Register" button. 6\. System confirms registration and adds student to the participant list. 7\. When contest starts, student clicks "Enter Contest". 8\. System follows Take Exam scenario with contest-specific rules. 9\. Upon completion, system calculates ranking based on score and time. 10\. System displays leaderboard with student's position. 11\. System sends notification about contest results. |
 | **Exception**      | 1.1 Contest not found: System displays "Contest does not exist or has been removed." 2.1 Registration closed: System displays "Registration period has ended." 3.1 Contest not started: System shows countdown timer until contest begins. 4.1 Already registered: System shows "You are already registered for this contest." 5.1 Contest ended: System only allows viewing results and leaderboard.                                                                                                                                                                                                                                                                                                                                                                                                      |
 
-## **Table 2.5: Scenario of Manage Notification Preferences (as User):**
+Table 2.5: Scenario of Manage Notification Preferences (as User):
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | :----------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1483,7 +1552,7 @@ _Table 2.2. Glossary using in SAP_
 | **Post-condition** | Student's notification preferences are updated in the system                                                                                                                                                                                                                                                                                                                                                                                                             |
 | **Main Scenario**  | 1\. Student navigates to "Settings" or "Preferences" page. 2\. System displays current notification preferences. 3\. Student configures notification channels (Email, SSE, Push, SMS). 4\. Student selects which events to receive notifications for: \- Exam reminders \- Results available \- Contest announcements \- Violation warnings 5\. Student saves preferences. 6\. System validates and stores preferences. 7\. System confirms update with success message. |
 
-## **Table 2.6: Scenario of Join a Group (as Users):**
+Table 2.6: Scenario of Join a Group (as Users):
 
 ##
 
@@ -1497,7 +1566,7 @@ _Table 2.2. Glossary using in SAP_
 
 ### **2.2.5. Main scenarios for teachers.** {#2.2.5.-main-scenarios-for-teachers.}
 
-## **Table 3.1: Scenario of Authentication & Profile Management (as User)**
+Table 3.1: Scenario of Authentication & Profile Management (as User)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1509,7 +1578,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.2: Scenario of Manage Assessment, Bank & Questions \- Create Assessment**
+Table 3.2: Scenario of Manage Assessment, Bank & Questions \- Create Assessment
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | :----------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1521,7 +1590,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.3: Scenario of Manage Assessment, Bank & Questions \- Add Questions to Assessment**
+Table 3.3: Scenario of Manage Assessment, Bank & Questions \- Add Questions to Assessment
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1533,7 +1602,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.4: Scenario of Manage Assessment, Bank & Questions \- Create Question**
+Table 3.4: Scenario of Manage Assessment, Bank & Questions \- Create Question
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1545,7 +1614,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.5: Scenario of Manage Assessment, Bank & Questions \- Manage Question Bank**
+Table 3.5: Scenario of Manage Assessment, Bank & Questions \- Manage Question Bank
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | :----------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1557,7 +1626,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.6: Scenario of Manage Assessment, Bank & Questions \- Publish Assessment**
+Table 3.6: Scenario of Manage Assessment, Bank & Questions \- Publish Assessment
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1569,7 +1638,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.7: Scenario of Manage Contest \- Create and Manage Contest**
+Table 3.7: Scenario of Manage Contest \- Create and Manage Contest
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1581,7 +1650,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.8: Scenario of Grade & Evaluate \- Manual Grading**
+Table 3.8: Scenario of Grade & Evaluate \- Manual Grading
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1593,7 +1662,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.9: Scenario of Grade & Evaluate \- Review Violations**
+Table 3.9: Scenario of Grade & Evaluate \- Review Violations
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1605,7 +1674,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.10: Scenario of Monitor & Analytics \- Real-time Dashboard**
+Table 3.10: Scenario of Monitor & Analytics \- Real-time Dashboard
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | :----------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1617,7 +1686,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.11: Scenario of Monitor & Analytics \- Live Exam Monitoring**
+Table 3.11: Scenario of Monitor & Analytics \- Live Exam Monitoring
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1629,7 +1698,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 3.12: Scenario of Manage Notification Preferences (as User)**
+Table 3.12: Scenario of Manage Notification Preferences (as User)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1639,7 +1708,7 @@ _Table 2.2. Glossary using in SAP_
 | **Main Scenario**  | 1\. Teacher navigates to "Settings" or "Preferences" page. 2\. System displays current notification preferences. 3\. Teacher configures notification channels (Email, SSE, Push, SMS). 4\. Teacher selects which events to receive notifications for: \- Student attempt completion \- Pending grading alerts \- Violation detection alerts \- Assessment deadline reminders \- System announcements 5\. Teacher saves preferences. 6\. System validates and stores preferences. 7\. System confirms update with success message. |
 | **Exception**      | 1.1 Invalid configuration: System displays validation error for invalid settings. 2.1 Save failed: System displays error and prompts retry.                                                                                                                                                                                                                                                                                                                                                                                       |
 
-## **Table 3.12: Scenario of Assign/Publish Assessment to Group (as Teacher)**
+Table 3.12: Scenario of Assign/Publish Assessment to Group (as Teacher)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1649,7 +1718,7 @@ _Table 2.2. Glossary using in SAP_
 | **Main Scenario**  | 1\. Teacher opens an Assessment. 2\. Teacher selects "Assign To" and chooses one or more Groups. 3\. Teacher configures availability window, due date, and attempts (optional). 4\. Teacher clicks "Publish" (or "Assign"). 5\. System validates configuration and activates/assigns the assessment. 6\. System resolves group roster and creates assignment records for each student. 7\. System sends notifications to all Group members (SSE/Email). 8\. System shows confirmation with count of notified students. |
 | **Exception**      | 1.1 No permission for group: system blocks assignment. 2.1 Empty group: system warns "Group has no students". 3.1 Invalid schedule: system requires due date after start date.                                                                                                                                                                                                                                                                                                                                         |
 
-## **Table 3.12: Scenario of View Group Results (as Teacher)**
+Table 3.12: Scenario of View Group Results (as Teacher)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1659,9 +1728,9 @@ _Table 2.2. Glossary using in SAP_
 | **Main Scenario**  | 1\. Teacher navigates to "Reports" / "Analytics". 2\. Teacher selects an Assessment and filters by Group. 3\. System displays summary metrics: started, completed, average score, pass rate. 4\. System displays score distribution and violation summary (optional). 5\. System displays per-student list: score, status, time taken, violations. 6\. Teacher sorts/filters and opens any student attempt for details. 7\. Teacher exports the report (PDF/Excel). |
 | **Exception**      | 1.1 No attempts yet: system shows roster with "Not started" statuses. 2.1 Access denied: system blocks results outside teacher’s assigned groups.                                                                                                                                                                                                                                                                                                                   |
 
-### **2.2.6. Main scenarios for administrators.** {#2.2.6.-main-scenarios-for-administrators.}
+### **2.2.6. Main scenarios for administrators.**
 
-## **Table 4.1: Scenario of Authentication & Profile Management (as User)**
+Table 4.1: Scenario of Authentication & Profile Management (as User)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | :----------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1673,7 +1742,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.2: Scenario of Manage Users & Groups \- View and Manage Users**
+Table 4.2: Scenario of Manage Users & Groups \- View and Manage Users
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1685,7 +1754,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.3: Scenario of Manage Users & Groups \- Create User Groups**
+Table 4.3: Scenario of Manage Users & Groups \- Create User Groups
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | :----------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1697,7 +1766,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.4: Scenario of Manage Assessment, Bank & Questions (Admin Override)**
+Table 4.4: Scenario of Manage Assessment, Bank & Questions (Admin Override)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1709,7 +1778,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.5: Scenario of Manage Contest (Admin Override)**
+Table 4.5: Scenario of Manage Contest (Admin Override)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1721,7 +1790,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.6: Scenario of Grade & Evaluate (Admin Override)**
+Table 4.6: Scenario of Grade & Evaluate (Admin Override)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1733,7 +1802,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.7: Scenario of Monitor & Analytics (System-wide)**
+Table 4.7: Scenario of Monitor & Analytics (System-wide)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1745,7 +1814,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.8: Scenario of System Administration \- System Configuration**
+Table 4.8: Scenario of System Administration \- System Configuration
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1757,7 +1826,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.9: Scenario of System Administration \- View Audit Logs**
+Table 4.9: Scenario of System Administration \- View Audit Logs
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1769,7 +1838,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.10: Scenario of System Administration \- RBAC Management**
+Table 4.10: Scenario of System Administration \- RBAC Management
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1781,7 +1850,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.11: Scenario of Manage Notification Templates & Bulk Send \- Manage Templates**
+Table 4.11: Scenario of Manage Notification Templates & Bulk Send \- Manage Templates
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1793,7 +1862,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.12: Scenario of Manage Notification Templates & Bulk Send \- Send Bulk Notifications**
+Table 4.12: Scenario of Manage Notification Templates & Bulk Send \- Send Bulk Notifications
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | :----------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1805,7 +1874,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.13: Scenario of Manage Notification Templates & Bulk Send \- Monitor Notification Delivery**
+Table 4.13: Scenario of Manage Notification Templates & Bulk Send \- Monitor Notification Delivery
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1817,7 +1886,7 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **Table 4.14: Scenario of Manage Notification Preferences (as User)**
+Table 4.14: Scenario of Manage Notification Preferences (as User)
 
 | Field              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | :----------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1827,11 +1896,13 @@ _Table 2.2. Glossary using in SAP_
 | **Main Scenario**  | 1\. Admin navigates to "Settings" or "Preferences" page. 2\. System displays current notification preferences. 3\. Admin configures notification channels (Email, SSE, Push, SMS). 4\. Admin selects which events to receive notifications for: \- System alerts and warnings \- User registration notifications \- Security events \- High-priority violation alerts \- Scheduled report delivery 5\. Admin saves preferences. 6\. System validates and stores preferences. 7\. System confirms update with success message. |
 | **Exception**      | 1.1 Invalid configuration: System displays validation error for invalid settings. 2.1 Save failed: System displays error and prompts retry.                                                                                                                                                                                                                                                                                                                                                                                   |
 
+### **2.2.7. UI flows and screen mapping**
+
 ## **2.3. System Analysis** {#2.3.-system-analysis}
 
-## **2.3.1. Assessment Service**
+### **2.3.1. Assessment Service** {#2.3.1.-assessment-service}
 
-### **2.3.1.1. Extraction of System Entity Classes**
+#### **2.3.1.1. Extraction of System Entity Classes**
 
 **Main Entities:**
 
@@ -1852,7 +1923,7 @@ _Table 2.2. Glossary using in SAP_
 - **QuestionBankShare**: Represents sharing permissions for question banks between users.
 - **ImportJob**: Represents background jobs for bulk importing questions from external files.
 
-### **2.3.1.2. Identification of Relationships Between Classes**
+#### **2.3.1.2. Identification of Relationships Between Classes**
 
 - Each **User** can create multiple **Assessments**, each Assessment is created by exactly one User.
 - Each **User** can create multiple **Questions**, each Question is created by exactly one User.
@@ -1876,9 +1947,9 @@ _Table 2.2. Glossary using in SAP_
 
 ---
 
-## **2.3.2. Proctoring Service**
+### **2.3.2. Proctoring Service** {#2.3.2.-proctoring-service}
 
-### **2.3.2.1. Extraction of System Entity Classes**
+#### **2.3.2.1. Extraction of System Entity Classes**
 
 **Main Entities:**
 
@@ -1910,7 +1981,7 @@ _Table 2.2. Glossary using in SAP_
 - High (2)
 - Critical (3)
 
-### **2.3.2.2. Identification of Relationships Between Classes**
+#### **2.3.2.2. Identification of Relationships Between Classes**
 
 - Each **ViolationLog** is associated with one **AssessmentAttempt** (via attempt_id reference to Assessment Service), one Attempt can have multiple ViolationLogs.
 - Each **ViolationLog** is associated with one **User** (via user_id reference), one User can have multiple ViolationLogs across sessions.
@@ -1920,9 +1991,9 @@ _Table 2.2. Glossary using in SAP_
 - Each **ViolationAttemptSummary** summarizes all **ViolationLogs** for a specific attempt_id.
 - Each **ViolationUserPatterns** aggregates **ViolationLogs** by user per day for pattern analysis.
 
-## **2.3.3. Identity Service (Casdoor)**
+### **2.3.3. Identity Service (Casdoor)** {#2.3.3.-identity-service-(casdoor)}
 
-### **2.3.3.1. Extraction of System Entity Classes**
+#### **2.3.3.1. Extraction of System Entity Classes**
 
 **Core Authentication Entities:**
 
@@ -1975,7 +2046,7 @@ _Table 2.2. Glossary using in SAP_
 - **Form**: Represents custom form definitions for user interfaces.
 - **RadiusAccounting**: Represents RADIUS accounting records for network access.
 
-### **2.3.3.2. Identification of Relationships Between Classes**
+#### **2.3.3.2. Identification of Relationships Between Classes**
 
 **User and Organization:**
 
@@ -2013,9 +2084,9 @@ _Table 2.2. Glossary using in SAP_
 - Each **Payment** is made by one **User** for a specific **Product** or **Plan**.
 - Each **Transaction** records a payment operation for one **User**.
 
-## **2.3.4. Identity Verification Service**
+### **2.3.4. Identity Verification Service** {#2.3.4.-identity-verification-service}
 
-### **2.3.4.1. Extraction of System Entity Classes**
+#### **2.3.4.1. Extraction of System Entity Classes**
 
 **Main Entities:**
 
@@ -2025,16 +2096,16 @@ _Table 2.2. Glossary using in SAP_
 
 - **FaceEmbedding**: Represents the 512-dimensional face embedding vector stored in Redis with associated metadata (not in SQL, managed by application).
 
-### **2.3.4.2. Identification of Relationships Between Classes**
+#### **2.3.4.2. Identification of Relationships Between Classes**
 
 - Each **IdMapping** maps exactly one **User** (via user_id reference to Identity Service) to one internal alloc_id.
 - Each **User** can have at most one **IdMapping** (unique constraint on user_id).
 - Each **IdMapping** enables retrieval of the associated **FaceEmbedding** from Redis vector storage.
 - Each **FaceEmbedding** (in Redis) corresponds to exactly one **IdMapping** record.
 
-## **2.3.5. Notification Service**
+### **2.3.5. Notification Service** {#2.3.5.-notification-service}
 
-## **2.3.5.1. Extraction of System Entity Classes**
+#### **2.3.5.1. Extraction of System Entity Classes**
 
 The Notification Service is designed to manage multi-channel notifications including email, SSE (Server-Sent Events), and push notifications. It supports templated messages with dynamic content and user preference management.  
 Based on the database schema, the system entities are identified as follows:  
@@ -2064,16 +2135,16 @@ Based on the database schema, the system entities are identified as follows:
 - DAILY
 - WEEKLY
 
-### **2.3.5.2. Identification of Relationships Between Classes**
+#### **2.3.5.2. Identification of Relationships Between Classes**
 
 - Each **Notification** can use one **NotificationTemplate** (optional via template_id), one NotificationTemplate can be used by multiple Notifications.
 - Each **Notification** is sent to one recipient identified by recipient_id (reference to User in Identity Service).
 - Each **NotificationPreference** belongs to exactly one **User** (via user_id, unique constraint), each User has at most one NotificationPreference.
 - Each **NotificationTemplate** defines placeholders that are resolved using data provided when creating a **Notification**.
 
-## **2.3.6. Group Service**
+### **2.3.6. Group Service** {#2.3.6.-group-service}
 
-### **2.3.6.1. Extraction of System Entity Classes**
+#### **2.3.6.1. Extraction of System Entity Classes**
 
 **Purpose:** The Group Service manages teacher-created “classes/groups”, student membership, and the linkage between groups and assigned assessments. This service is designed as an isolated microservice with its own database, aligned with the system’s database-per-service architecture principles.
 
@@ -2096,7 +2167,7 @@ Based on the database schema, the system entities are identified as follows:
 
 ---
 
-### **2.3.6.2. Identification of Relationships Between Classes**
+#### **2.3.6.2. Identification of Relationships Between Classes**
 
 - **Teacher Ownership**
     - Each **ClassGroup** is owned by exactly one teacher (`owner_teacher_id` references **User** in Identity Service).  
@@ -2122,34 +2193,34 @@ Based on the database schema, the system entities are identified as follows:
 
 ## **2.4. Building class diagrams at the design phase** {#2.4.-building-class-diagrams-at-the-design-phase}
 
-### **2.4.1. Assessment Service**
+### **2.4.1. Assessment Service** {#2.4.1.-assessment-service}
 
 ![][image15]
 
-### **2.4.2. Identity Verification Service**
+### **2.4.2. Identity Verification Service** {#2.4.2.-identity-verification-service}
 
 ![][image16]
 
-### **2.4.3. Proctoring Service**
+### **2.4.3. Proctoring Service** {#2.4.3.-proctoring-service}
 
 ![][image17]
 
-### **2.4.4. Casdoor Identity Service (minimalism version)**
+### **2.4.4. Casdoor Identity Service (minimalism version)** {#2.4.4.-casdoor-identity-service-(minimalism-version)}
 
 ![][image18]  
 ![][image19]
 
-### **2.4.5. Notification Service**
+### **2.4.5. Notification Service** {#2.4.5.-notification-service}
 
 ![][image20]
 
-## **2.4.6. Group Service**
+### **2.4.6. Group Service** {#2.4.6.-group-service}
 
 ![][image21]
 
 ## **2.5. System sequence diagrams** {#2.5.-system-sequence-diagrams}
 
-### **2.5.1. Sequence diagrams for student functions**
+### **2.5.1. Sequence diagrams for student functions** {#2.5.1.-sequence-diagrams-for-student-functions}
 
 The student module focuses on the exam-taking experience. The following diagrams illustrate the core flows for taking an assessment and viewing results.
 
@@ -2274,7 +2345,7 @@ sequenceDiagram
 \`\`\`  
 ![][image24]
 
-### **2.5.1.4. Student joins a Group (invite code, with optional approval)**
+#### **2.5.1.4. Student joins a Group (invite code, with optional approval)**
 
 This sequence shows how a student joins a class/group from the UI. If the group requires approval, the system stores a pending request instead of activating membership immediately.
 
@@ -2305,7 +2376,7 @@ end
 
 ![][image25]
 
-### **2.5.2. Sequence diagrams for teacher functions**
+### **2.5.2. Sequence diagrams for teacher functions** {#2.5.2.-sequence-diagrams-for-teacher-functions}
 
 Teachers are responsible for content creation and exam monitoring. These diagrams show the workflow for creating a new assessment and monitoring an ongoing exam session.
 
@@ -2428,11 +2499,11 @@ sequenceDiagram
 \`\`\`  
 ![][image28]
 
-### **2.5.2.4. Teacher assigns/publishes a Test to a Group → all members get notified**
+#### **2.5.2.4. Teacher assigns/publishes a Test to a Group → all members get notified**
 
 This sequence shows how a teacher publishes a test to a group. The database stores the “group-assessment assignment” so all group members can see it (and notifications can be handled elsewhere).
 
-### **\---**
+\---
 
 config:
 
@@ -2472,9 +2543,9 @@ Service\--\>\>Page: Show success message
 
 ### **![][image29]**
 
-### **2.5.2.5. Teacher views Group scores (total \+ list)**
+#### **2.5.2.5. Teacher views Group scores (total \+ list)**
 
-### This sequence shows the teacher opening a scoreboard view: overall stats \+ per-student row list.
+This sequence shows the teacher opening a scoreboard view: overall stats \+ per-student row list.
 
 sequenceDiagram
 
@@ -2502,7 +2573,7 @@ DB--\>\>API: totalStats \+ scoreList
 
 API--\>\>Service: totalStats \+ scoreList
 
-### **Service--\>\>Page: Render totals \+ score table**
+Service--\>\>Page: Render totals \+ score table
 
 ###
 
@@ -2621,7 +2692,7 @@ These sequence diagrams illustrate the separation of concerns within the system 
 
 ## **2.7. Microservices architecture implementation** {#2.7.-microservices-architecture-implementation}
 
-## **2.7.1. Overview**
+### **2.7.1. Overview** {#2.7.1.-overview}
 
 The Online Examination and Proctoring System adopts a microservices architecture to achieve scalability, maintainability, and independent deployment capabilities. Each microservice operates independently with its own database, following the database-per-service pattern and clean architecture principles with clear separation into handlers, services, and repositories layers.  
 **Design Goals:**
@@ -2638,11 +2709,11 @@ The Online Examination and Proctoring System adopts a microservices architecture
 - Interface-based design for testability
 - Event-driven communication via Redis Streams
 
-## **2.7.2. System Components**
+### **2.7.2. System Components** {#2.7.2.-system-components}
 
 ![][image33]
 
-### **Core Microservices**
+#### **Core Microservices**
 
 **Assessment Service (GoLang)**
 
@@ -2697,7 +2768,7 @@ The Identity Service utilizes Casdoor as an external OAuth2/OIDC provider for ce
 | Database   | PostgreSQL                                                                                         |
 | Tables     | user, role, permission, organization, application, token, session, verification_record, and others |
 
-### **Database Architecture Summary**
+#### **Database Architecture Summary**
 
 | Service               | Database             | Key Tables                                                                   |
 | :-------------------- | :------------------- | :--------------------------------------------------------------------------- |
@@ -2708,9 +2779,9 @@ The Identity Service utilizes Casdoor as an external OAuth2/OIDC provider for ce
 | Session Service       | PostgreSQL           | user_sessions, assessment_sessions, session_activities                       |
 | Identity Service      | PostgreSQL (Casdoor) | user, role, permission, token, session                                       |
 
-## **2.7.3. Applying Technologies to the System**
+### **2.7.3. Applying Technologies to the System** {#2.7.3.-applying-technologies-to-the-system}
 
-### **Complete Technology Stack**
+#### **Complete Technology Stack**
 
 | Category            | Technology                        | Applied To                                  |
 | :------------------ | :-------------------------------- | :------------------------------------------ |
@@ -2729,9 +2800,9 @@ The Identity Service utilizes Casdoor as an external OAuth2/OIDC provider for ce
 | Testing             | K6                                | Load and performance testing                |
 | Frontend            | React, TypeScript                 | Web user interface                          |
 
-## **2.7.4. Selecting Appropriate Technologies**
+### **2.7.4. Selecting Appropriate Technologies** {#2.7.4.-selecting-appropriate-technologies}
 
-### **Technology Selection Matrix**
+#### **Technology Selection Matrix**
 
 | Component            | Options Considered                | Selected         | Rationale                                                                              |
 | :------------------- | :-------------------------------- | :--------------- | :------------------------------------------------------------------------------------- |
@@ -2742,7 +2813,7 @@ The Identity Service utilizes Casdoor as an external OAuth2/OIDC provider for ce
 | Event Streaming      | Kafka, RabbitMQ, Redis Streams    | Redis Streams    | Cost-effective (reuses existing Redis), simpler operations, sufficient throughput      |
 | Authentication       | Custom JWT, Keycloak, Casdoor     | Casdoor          | Lightweight, easy integration, full OAuth2/OIDC support, reduces complexity            |
 
-### **Trade-offs Analysis**
+#### **Trade-offs Analysis**
 
 | Decision                  | Advantages                                                                 | Disadvantages                                |
 | :------------------------ | :------------------------------------------------------------------------- | :------------------------------------------- |
@@ -2754,13 +2825,13 @@ The Identity Service utilizes Casdoor as an external OAuth2/OIDC provider for ce
 
 ---
 
-## **2.7.5. Choosing Communication Methods Between Microservices**
+### **2.7.5. Choosing Communication Methods Between Microservices** {#2.7.5.-choosing-communication-methods-between-microservices}
 
-### **Communication Patterns Overview**
+#### **Communication Patterns Overview**
 
 The system employs three primary communication patterns based on specific use case requirements.
 
-### **![][image34]Pattern Selection Criteria**
+#### **![][image34]Pattern Selection Criteria**
 
 | Pattern               | Technology      | When to Use                                                            | Examples                                               |
 | :-------------------- | :-------------- | :--------------------------------------------------------------------- | :----------------------------------------------------- |
@@ -2768,11 +2839,11 @@ The system employs three primary communication patterns based on specific use ca
 | Asynchronous (Events) | Redis Streams   | Background processing, loose coupling, eventual consistency acceptable | Send notifications, log violations, update analytics   |
 | Real-time Push        | SSE             | Server-initiated updates to browser, live monitoring                   | Proctoring alerts, instant notifications to teachers   |
 
-### **Redis Streams Architecture**
+#### **Redis Streams Architecture**
 
 The system uses Redis Streams with consumer groups for reliable, scalable event processing.
 
-### **![][image35]Event Types and Routing**
+#### **![][image35]Event Types and Routing**
 
 | Event Type           | Source Service     | Target Service       | Communication | Purpose                  |
 | :------------------- | :----------------- | :------------------- | :------------ | :----------------------- |
@@ -2782,13 +2853,13 @@ The system uses Redis Streams with consumer groups for reliable, scalable event 
 | proctoring.violation | Proctoring Service | Notification Service | Redis Streams | Alert proctors           |
 | session.completed    | Session Service    | Notification Service | Redis Streams | Send results             |
 
-## **2.7.6. Designing a Hybrid Monolithic/Microservice System**
+### **2.7.6. Designing a Hybrid Monolithic/Microservice System** {#2.7.6.-designing-a-hybrid-monolithic/microservice-system}
 
-### **Hybrid Architecture Strategy**
+#### **Hybrid Architecture Strategy**
 
 The system adopts a pragmatic hybrid approach, deploying true microservices only where the benefits justify the complexity, while keeping tightly coupled components as modules within services.
 
-### **Service Decomposition Strategy**
+#### **Service Decomposition Strategy**
 
 | Component             | Architecture               | Rationale                                                                       |
 | :-------------------- | :------------------------- | :------------------------------------------------------------------------------ |
@@ -2799,7 +2870,7 @@ The system adopts a pragmatic hybrid approach, deploying true microservices only
 | Session Management    | Module (within Assessment) | Tightly coupled with assessment lifecycle, same deployment schedule             |
 | Identity Service      | External SaaS              | Leverage Casdoor expertise, reduce authentication complexity                    |
 
-### **Decision Framework: Microservice vs Module**
+#### **Decision Framework: Microservice vs Module**
 
 | Criterion            | Choose Microservice                    | Choose Module                   |
 | :------------------- | :------------------------------------- | :------------------------------ |
@@ -2811,7 +2882,7 @@ The system adopts a pragmatic hybrid approach, deploying true microservices only
 | Domain Complexity    | High complexity, clear bounded context | Simple CRUD operations          |
 | Failure Isolation    | Must not affect other services         | Can tolerate coupled failures   |
 
-### **Benefits of Hybrid Approach**
+#### **Benefits of Hybrid Approach**
 
 The hybrid architecture provides several advantages for the current stage of development. First, it offers reduced complexity by avoiding microservice overhead for components that do not require it. Second, it enables faster development since modules can share code, deployment pipelines, and infrastructure. Third, it is cost effective because fewer services means lower infrastructure and operational costs. Fourth, it maintains clear boundaries by deploying microservices where truly needed for scaling or technology diversity. Finally, the architecture is evolution ready, allowing modules to be extracted into microservices when growth demands it.
 
@@ -2819,7 +2890,7 @@ The hybrid architecture provides several advantages for the current stage of dev
 
 ### **2.8.1. System design for 10,000 concurrent users and resource allocation** {#2.8.1.-system-design-for-10,000-concurrent-users-and-resource-allocation}
 
-### **a) Workload model (10,000 concurrent users)**
+#### **a) Workload model (10,000 concurrent users)**
 
 At peak exam time, concurrency primarily comes from:
 
@@ -2831,7 +2902,7 @@ At peak exam time, concurrency primarily comes from:
 
 Notification Service is well-aligned with these needs because **SSE** provides long-lived server→client delivery with built-in reconnection and Last-Event-ID support, and lower complexity than full WebSockets for notification-style traffic.
 
-### **b) Resource allocation principles**
+#### **b) Resource allocation principles**
 
 To make 10,000 concurrent users feasible without over-provisioning:
 
@@ -2877,17 +2948,17 @@ To make 10,000 concurrent users feasible without over-provisioning:
 
 ## **3.4. Functional and non-functional testing (performance testing)** {#3.4.-functional-and-non-functional-testing-(performance-testing)}
 
-## **3.5. Issues related to cheating/fraud & methods to disable monitoring (nội dung Chương 4 cũ)**
+## **3.5. Issues related to cheating/fraud & methods to disable monitoring** {#heading}
 
-## **3.5.1. Disable copy/paste restrictions / tracking (Mediapipe-related)**
+### **3.5.1. Disable copy/paste restrictions / tracking (Mediapipe-related)** {#heading}
 
-## **3.5.2. Forge/proxy requests (manipulated results)**
+### **3.5.2. Forge/proxy requests (manipulated results)** {#heading}
 
-## **3.5.3. Multi-camera monitoring problem**
+### **3.5.3. Multi-camera monitoring problem** {#heading}
 
-## **3.5.4. Proposed solutions / mitigations**
+### **3.5.4. Proposed solutions / mitigations** {#3.5.4.-proposed-solutions-/-mitigations}
 
-##
+## {#heading}
 
 #
 

@@ -269,16 +269,56 @@ export const ManageQuestionBankQuestions: React.FC<Props> = ({ bankId, onQuestio
 							onClick={async () => {
 								setAddModalVisible(true);
 								// Fetch ALL question IDs from this bank for proper exclusion
+								// Backend has a max page size, so we need to loop through all pages
 								let excludeIds: number[] = [];
 								try {
-									const allBankQuestions =
+									let allQuestionIds: number[] = [];
+									let currentPage = 1;
+									let totalPages = 1;
+
+									// Fetch first page to get total count
+									const firstPage =
 										await questionBankService.getQuestionBankQuestions(bankId, {
 											page: 1,
-											size: 9999, // Fetch all
+											size: 100, // Use reasonable page size
 										});
-									excludeIds = allBankQuestions.questions.map((q) => q.id);
+
+									allQuestionIds = firstPage.questions.map((q) => q.id);
+									totalPages = Math.ceil(firstPage.total / 100);
+
+									console.log(
+										'DEBUG: Total questions in bank:',
+										firstPage.total,
+										'Total pages:',
+										totalPages
+									);
+
+									// Fetch remaining pages if needed
+									for (
+										currentPage = 2;
+										currentPage <= totalPages;
+										currentPage++
+									) {
+										const pageData =
+											await questionBankService.getQuestionBankQuestions(
+												bankId,
+												{
+													page: currentPage,
+													size: 100,
+												}
+											);
+										const pageIds = pageData.questions.map((q) => q.id);
+										allQuestionIds = [...allQuestionIds, ...pageIds];
+									}
+
+									excludeIds = allQuestionIds;
+									console.log('DEBUG: All exclude IDs collected:', excludeIds);
 									setAllBankQuestionIds(excludeIds);
 								} catch (error) {
+									console.error(
+										'DEBUG: Error fetching all bank questions:',
+										error
+									);
 									// If fetching fails, use current page IDs as fallback
 									excludeIds = questions.map((q) => q.id);
 									setAllBankQuestionIds(excludeIds);

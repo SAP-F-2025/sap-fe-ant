@@ -174,6 +174,8 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 	});
 	// Add mode selection: 'manual', 'auto-assign', or 'auto-scale'
 	const [addMode, setAddMode] = useState<'manual' | 'auto-assign' | 'auto-scale'>('manual');
+	// Store all assessment question IDs for proper exclusion
+	const [allAssessmentQuestionIds, setAllAssessmentQuestionIds] = useState<number[]>([]);
 
 	// Bulk actions states
 	const [selectedRows, setSelectedRows] = useState<number[]>([]);
@@ -217,21 +219,26 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 		}
 	};
 
-	const fetchAvailableQuestions = async (params?: PaginationParams) => {
+	const fetchAvailableQuestions = async (
+		params?: PaginationParams,
+		excludeIds?: number[],
+		bankId?: number
+	) => {
 		setFetchingQuestions(true);
 		try {
-			// Get existing question IDs for server-side exclusion
-			const existingQuestionIds = questions.map((q) => q.question_id);
+			// Use provided excludeIds or fall back to state
+			const idsToExclude = excludeIds ?? allAssessmentQuestionIds;
 
 			// Use GET /questions with all filter parameters
+			// Use bankId parameter if provided, otherwise use filterBank state
 			const data = await questionService.getQuestions({
 				page: params?.page || 1,
 				size: params?.size || 10,
 				search: searchText || undefined,
 				type: filterType || undefined,
 				difficulty: filterDifficulty || undefined,
-				bank_id: filterBank || undefined,
-				exclude_ids: existingQuestionIds.length > 0 ? existingQuestionIds : undefined,
+				bank_id: bankId !== undefined ? bankId : filterBank || undefined,
+				exclude_ids: idsToExclude.length > 0 ? idsToExclude : undefined,
 			});
 
 			setAvailableQuestions(data.questions || []);
@@ -878,9 +885,15 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 						<Button
 							type="primary"
 							icon={<PlusOutlined />}
-							onClick={() => {
+							onClick={async () => {
 								setAddModalVisible(true);
-								fetchAvailableQuestions({ page: 1, size: 10 });
+
+								// Use the already-loaded questions state for exclusion
+								// Assessment questions are embedded in the assessment details response
+								const excludeIds = questions.map((q) => q.question_id);
+								setAllAssessmentQuestionIds(excludeIds);
+
+								fetchAvailableQuestions({ page: 1, size: 10 }, excludeIds);
 								// Fetch question banks for the filter dropdown
 								questionBankService
 									.getQuestionBanks({ page: 1, size: 100 })
@@ -1217,10 +1230,11 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 								value={filterBank}
 								onChange={(value) => {
 									setFilterBank(value);
-									// Auto-fetch when bank changes
-									setTimeout(
-										() => fetchAvailableQuestions({ page: 1, size: 10 }),
-										0
+									// Auto-fetch when bank changes - pass the new value directly
+									fetchAvailableQuestions(
+										{ page: 1, size: 10 },
+										undefined,
+										value
 									);
 								}}
 								disabled={fetchingQuestions}

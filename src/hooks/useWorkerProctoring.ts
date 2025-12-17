@@ -72,7 +72,7 @@ export const useWorkerProctoring = (
 	const headTurnedViolationRef = useRef<{ startTime: number } | null>(null);
 	const eyesClosedViolationRef = useRef<{ startTime: number } | null>(null);
 
-	const DETECTION_INTERVAL = 250; // 4fps - reduced for performance
+	const DETECTION_INTERVAL = 50; // 20fps - reduced for performance
 	const MAX_EVENTS = 50;
 
 	const addEvent = useCallback((event: ProctoringEvent) => {

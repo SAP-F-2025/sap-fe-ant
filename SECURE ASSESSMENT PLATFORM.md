@@ -145,180 +145,180 @@ Hanoi, 12 / 12 / 2025
 
 [1.1.2. Project’s scope 12](#1.1.2.-project’s-scope)
 
-[1.1.3. Core Problems to be solved 12](#1.1.3.-core-problems-to-be-solved)
+[1.1.3. Core Problems to be solved 13](#1.1.3.-core-problems-to-be-solved)
 
-[1.1.4. Some specific solutions approach 13](#1.1.4.-some-specific-solutions-approach)
+[1.1.4. Some specific solutions approach 14](#1.1.4.-some-specific-solutions-approach)
 
-[1.2. Technology used 17](#1.2.-technology-used)
+[1.2. Technology used 18](#1.2.-technology-used)
 
-[1.2.1. Front-end 17](#1.2.1.-front-end)
+[1.2.1. Front-end 18](#1.2.1.-front-end)
 
-[1.2.2. Back-end 19](#1.2.2.-back-end)
+[1.2.2. Back-end 20](#1.2.2.-back-end)
 
-[1.2.3. Database 19](#1.2.3.-database)
+[1.2.3. Database 20](#1.2.3.-database)
 
-[1.2.4. Message Broker: Redis Stream 27](#1.2.4.-message-broker:-redis-stream)
+[1.2.4. Message Broker: Redis Stream 28](#1.2.4.-message-broker:-redis-stream)
 
-[1.2.5. System Architecture 29](#1.2.5.-system-architecture)
+[1.2.5. System Architecture 30](#1.2.5.-system-architecture)
 
-[1.3. Infrastructure and DevOps 30](#1.3.-infrastructure-and-devops)
+[1.3. Infrastructure and DevOps 31](#1.3.-infrastructure-and-devops)
 
-[1.3.1. Container Orchestration: Kubernetes 31](#1.3.1.-container-orchestration:-kubernetes)
+[1.3.1. Container Orchestration: Kubernetes 32](#1.3.1.-container-orchestration:-kubernetes)
 
-[1.3.2. CI/CD Pipeline: GitHub Actions 32](#1.3.2.-ci/cd-pipeline:-github-actions)
+[1.3.2. CI/CD Pipeline: GitHub Actions 33](#1.3.2.-ci/cd-pipeline:-github-actions)
 
-[1.4. Chapter 1 Conclusion 33](#1.4.-chapter-1-conclusion)
+[1.4. Chapter 1 Conclusion 34](#1.4.-chapter-1-conclusion)
 
-[**CHAPTER 2: SYSTEM ANALYSIS AND DESIGN 34**](#chapter-2:-system-analysis-and-design)
+[**CHAPTER 2: SYSTEM ANALYSIS AND DESIGN 35**](#chapter-2:-system-analysis-and-design)
 
-[**2.1. Describe the actors, the terminology, and define the requirements 34**](#2.1.-describe-the-actors,-the-terminology,-and-define-the-requirements)
+[**2.1. Describe the actors, the terminology, and define the requirements 35**](#2.1.-describe-the-actors,-the-terminology,-and-define-the-requirements)
 
-[2.1.1. Identify and describe the actors 34](#2.1.1.-identify-and-describe-the-actors)
+[2.1.1. Identify and describe the actors 35](#2.1.1.-identify-and-describe-the-actors)
 
-[2.1.2. Building a glossary 35](#2.1.2.-building-a-glossary)
+[2.1.2. Building a glossary 36](#2.1.2.-building-a-glossary)
 
-[2.1.3. Identify requirements 36](#2.1.3.-identify-requirements)
+[2.1.3. Identify requirements 37](#2.1.3.-identify-requirements)
 
-[2.2. Use Case Identification and Description 41](#2.2.-use-case-identification-and-description)
+[2.2. Use Case Identification and Description 42](#2.2.-use-case-identification-and-description)
 
-[2.2.1. Overall use cases of the system 41](#2.2.1.-overall-use-cases-of-the-system)
+[2.2.1. Overall use cases of the system 42](#2.2.1.-overall-use-cases-of-the-system)
 
-[2.2.2. Detailed use cases for students. 41](#2.2.2.-detailed-use-cases-for-students.)
+[2.2.2. Detailed use cases for students. 42](#2.2.2.-detailed-use-cases-for-students.)
 
-[2.2.3. Detailed use cases for teachers. 44](#2.2.3.-detailed-use-cases-for-teachers.)
+[2.2.3. Detailed use cases for teachers. 45](#2.2.3.-detailed-use-cases-for-teachers.)
 
-[2.2.3. Detailed use cases for administrators. 46](#2.2.3.-detailed-use-cases-for-administrators.)
+[2.2.3. Detailed use cases for administrators. 47](#2.2.3.-detailed-use-cases-for-administrators.)
 
-[2.2.4. Main scenarios for students. 48](#2.2.4.-main-scenarios-for-students.)
+[2.2.4. Main scenarios for students. 49](#2.2.4.-main-scenarios-for-students.)
 
-[2.2.5. Main scenarios for teachers. 53](#2.2.5.-main-scenarios-for-teachers.)
+[2.2.5. Main scenarios for teachers. 54](#2.2.5.-main-scenarios-for-teachers.)
 
-[2.2.6. Main scenarios for administrators. 63](#2.2.6.-main-scenarios-for-administrators.)
+[2.2.6. Main scenarios for administrators. 64](#2.2.6.-main-scenarios-for-administrators.)
 
-[2.2.7. UI flows and screen mapping 75](#2.2.7.-ui-flows-and-screen-mapping)
+[2.2.7. UI flows and screen mapping 76](#2.2.7.-ui-flows-and-screen-mapping)
 
-[2.3. System Analysis 75](#2.3.-system-analysis)
+[2.3. System Analysis 76](#2.3.-system-analysis)
 
-[2.3.1. Assessment Service 75](#2.3.1.-assessment-service)
+[2.3.1. Assessment Service 76](#2.3.1.-assessment-service)
 
-[2.3.2. Proctoring Service 77](#2.3.2.-proctoring-service)
+[2.3.2. Proctoring Service 78](#2.3.2.-proctoring-service)
 
-[2.3.3. Identity Service (Casdoor) 78](<#2.3.3.-identity-service-(casdoor)>)
+[2.3.3. Identity Service (Casdoor) 79](<#2.3.3.-identity-service-(casdoor)>)
 
-[2.3.4. Identity Verification Service 80](#2.3.4.-identity-verification-service)
+[2.3.4. Identity Verification Service 81](#2.3.4.-identity-verification-service)
 
-[2.3.5. Notification Service 80](#2.3.5.-notification-service)
+[2.3.5. Notification Service 81](#2.3.5.-notification-service)
 
-[2.3.6. Group Service 81](#2.3.6.-group-service)
+[2.3.6. Group Service 82](#2.3.6.-group-service)
 
-[2.4. Building class diagrams at the design phase 84](#2.4.-building-class-diagrams-at-the-design-phase)
+[2.4. Building class diagrams at the design phase 85](#2.4.-building-class-diagrams-at-the-design-phase)
 
-[2.4.1. Assessment Service 84](#2.4.1.-assessment-service)
+[2.4.1. Assessment Service 85](#2.4.1.-assessment-service)
 
-[2.4.2. Identity Verification Service 85](#2.4.2.-identity-verification-service)
+[2.4.2. Identity Verification Service 86](#2.4.2.-identity-verification-service)
 
-[2.4.3. Proctoring Service 85](#2.4.3.-proctoring-service)
+[2.4.3. Proctoring Service 86](#2.4.3.-proctoring-service)
 
-[2.4.4. Casdoor Identity Service (minimalism version) 86](<#2.4.4.-casdoor-identity-service-(minimalism-version)>)
+[2.4.4. Casdoor Identity Service (minimalism version) 87](<#2.4.4.-casdoor-identity-service-(minimalism-version)>)
 
-[2.4.5. Notification Service 86](#2.4.5.-notification-service)
+[2.4.5. Notification Service 87](#2.4.5.-notification-service)
 
-[2.4.6. Group Service 87](#2.4.6.-group-service)
+[2.4.6. Group Service 88](#2.4.6.-group-service)
 
-[2.5. System sequence diagrams 87](#2.5.-system-sequence-diagrams)
+[2.5. System sequence diagrams 88](#2.5.-system-sequence-diagrams)
 
-[2.5.1. Sequence diagrams for student functions 87](#2.5.1.-sequence-diagrams-for-student-functions)
+[2.5.1. Sequence diagrams for student functions 88](#2.5.1.-sequence-diagrams-for-student-functions)
 
-[2.5.2. Sequence diagrams for teacher functions 92](#2.5.2.-sequence-diagrams-for-teacher-functions)
+[2.5.2. Sequence diagrams for teacher functions 93](#2.5.2.-sequence-diagrams-for-teacher-functions)
 
-[2.5.3. Sequence diagrams for administrator functions 99](#2.5.3.-sequence-diagrams-for-administrator-functions)
+[2.5.3. Sequence diagrams for administrator functions 100](#2.5.3.-sequence-diagrams-for-administrator-functions)
 
-[2.6. Database design 102](#2.6.-database-design)
+[2.6. Database design 103](#2.6.-database-design)
 
-[2.6.1. Information of tables in the database. 102](#2.6.1.-information-of-tables-in-the-database.)
+[2.6.1. Information of tables in the database. 103](#2.6.1.-information-of-tables-in-the-database.)
 
-[2.6.2. Database schema of the system. 102](#2.6.2.-database-schema-of-the-system.)
+[2.6.2. Database schema of the system. 103](#2.6.2.-database-schema-of-the-system.)
 
-[2.7. Microservices architecture implementation 102](#2.7.-microservices-architecture-implementation)
+[2.7. Microservices architecture implementation 103](#2.7.-microservices-architecture-implementation)
 
-[2.7.1. Overview 102](#2.7.1.-overview)
+[2.7.1. Overview 103](#2.7.1.-overview)
 
-[2.7.2. System Components 104](#2.7.2.-system-components)
+[2.7.2. System Components 105](#2.7.2.-system-components)
 
-[2.7.3. Applying Technologies to the System 107](#2.7.3.-applying-technologies-to-the-system)
+[2.7.3. Applying Technologies to the System 108](#2.7.3.-applying-technologies-to-the-system)
 
-[2.7.4. Selecting Appropriate Technologies 108](#2.7.4.-selecting-appropriate-technologies)
+[2.7.4. Selecting Appropriate Technologies 109](#2.7.4.-selecting-appropriate-technologies)
 
-[2.7.5. Choosing Communication Methods Between Microservices 110](#2.7.5.-choosing-communication-methods-between-microservices)
+[2.7.5. Choosing Communication Methods Between Microservices 111](#2.7.5.-choosing-communication-methods-between-microservices)
 
-[2.7.6. Designing a Hybrid Monolithic/Microservice System 111](#2.7.6.-designing-a-hybrid-monolithic/microservice-system)
+[2.7.6. Designing a Hybrid Monolithic/Microservice System 112](#2.7.6.-designing-a-hybrid-monolithic/microservice-system)
 
-[2.8. Frontend Architecture 113](#2.8.-frontend-architecture)
+[2.8. Frontend Architecture 114](#2.8.-frontend-architecture)
 
-[2.8.1. Project Structure and Module Organization 113](#2.8.1.-project-structure-and-module-organization)
+[2.8.1. Project Structure and Module Organization 114](#2.8.1.-project-structure-and-module-organization)
 
-[2.8.2. Component Design Pattern 115](#2.8.2.-component-design-pattern)
+[2.8.2. Component Design Pattern 116](#2.8.2.-component-design-pattern)
 
-[2.8.3. State Management Strategy 117](#2.8.3.-state-management-strategy)
+[2.8.3. State Management Strategy 118](#2.8.3.-state-management-strategy)
 
-[2.8.4. API Layer Design (Services Pattern) 119](<#2.8.4.-api-layer-design-(services-pattern)>)
+[2.8.4. API Layer Design (Services Pattern) 120](<#2.8.4.-api-layer-design-(services-pattern)>)
 
-[2.8.5. Custom Hooks Pattern 120](#2.8.5.-custom-hooks-pattern)
+[2.8.5. Custom Hooks Pattern 121](#2.8.5.-custom-hooks-pattern)
 
-[Hooks Directory Structure 120](#hooks-directory-structure)
+[Hooks Directory Structure 121](#hooks-directory-structure)
 
-[2.9. System design 122](#2.9.-system-design)
+[2.9. System design 123](#2.9.-system-design)
 
-[2.9.1. System design for 10,000 concurrent users and resource allocation 122](#2.9.1.-system-design-for-10,000-concurrent-users-and-resource-allocation)
+[2.9.1. System design for 10,000 concurrent users and resource allocation 123](#2.9.1.-system-design-for-10,000-concurrent-users-and-resource-allocation)
 
-[2.9.2. System sizing 122](#2.9.2.-system-sizing)
+[2.9.2. System sizing 123](#2.9.2.-system-sizing)
 
-[2.9.3. Calculation of system operation costs 122](#2.9.3.-calculation-of-system-operation-costs)
+[2.9.3. Calculation of system operation costs 123](#2.9.3.-calculation-of-system-operation-costs)
 
-[2.10. Chapter 2 conclusion 123](#2.10.-chapter-2-conclusion)
+[2.10. Chapter 2 conclusion 124](#2.10.-chapter-2-conclusion)
 
-[**CHAPTER 3: APPLICATION DEPLOYMENT 124**](#chapter-3:-application-deployment)
+[**CHAPTER 3: APPLICATION DEPLOYMENT 125**](#chapter-3:-application-deployment)
 
-[**3.1. Implementation and supporting tools 124**](#3.1.-implementation-and-supporting-tools)
+[**3.1. Implementation and supporting tools 125**](#3.1.-implementation-and-supporting-tools)
 
-[3.1.1. Tools used 124](#3.1.1.-tools-used)
+[3.1.1. Tools used 125](#3.1.1.-tools-used)
 
-[3.1.2. Supporting libraries 124](#3.1.2.-supporting-libraries)
+[3.1.2. Supporting libraries 125](#3.1.2.-supporting-libraries)
 
-[3.2. Installation results 124](#3.2.-installation-results)
+[3.2. Installation results 125](#3.2.-installation-results)
 
-[3.2.1. System deployment and packaging into images (using Docker) 124](<#3.2.1.-system-deployment-and-packaging-into-images-(using-docker)>)
+[3.2.1. System deployment and packaging into images (using Docker) 125](<#3.2.1.-system-deployment-and-packaging-into-images-(using-docker)>)
 
-[3.2.2. Deploying the system on Kubernetes (K8s) 124](<#3.2.2.-deploying-the-system-on-kubernetes-(k8s)>)
+[3.2.2. Deploying the system on Kubernetes (K8s) 127](<#3.2.2.-deploying-the-system-on-kubernetes-(k8s)>)
 
-[3.2.3. Implementing the CI/CD pipeline 124](#3.2.3.-implementing-the-ci/cd-pipeline)
+[3.2.3. Implementing the CI/CD pipeline 127](#3.2.3.-implementing-the-ci/cd-pipeline)
 
-[3.2.4. Deploying tracing and monitoring tools 124](#3.2.4.-deploying-tracing-and-monitoring-tools)
+[3.2.4. Deploying tracing and monitoring tools 127](#3.2.4.-deploying-tracing-and-monitoring-tools)
 
-[3.2.5. Deploying the Mediapipe system on the client side 124](#3.2.5.-deploying-the-mediapipe-system-on-the-client-side)
+[3.2.5. Deploying the Mediapipe system on the client side 127](#3.2.5.-deploying-the-mediapipe-system-on-the-client-side)
 
-[3.3. Functional and non-functional testing (performance testing) 124](<#3.3.-functional-and-non-functional-testing-(performance-testing)>)
+[3.3. Functional and non-functional testing (performance testing) 132](<#3.3.-functional-and-non-functional-testing-(performance-testing)>)
 
-[3.4. Issues related to cheating/fraud & methods to disable monitoring 124](#3.5.-chapter-3-conlcusion)
+[3.4. Issues related to cheating/fraud & methods to disable monitoring 132](#3.5.-chapter-3-conclusion)
 
-[3.4.1. Disable copy/paste restrictions / tracking (Mediapipe-related)](#3.5.-chapter-3-conlcusion)  
-[3.4.2. Forge/proxy requests (manipulated results) 124](#3.5.-chapter-3-conlcusion)
+[3.4.1. Disable copy/paste restrictions / tracking (Mediapipe-related)](#3.5.-chapter-3-conclusion)  
+[3.4.2. Forge/proxy requests (manipulated results) 133](#3.5.-chapter-3-conclusion)
 
-[3.4.3. Multi-camera monitoring problem 124](#3.5.-chapter-3-conlcusion)
+[3.4.3. Multi-camera monitoring problem 133](#3.5.-chapter-3-conclusion)
 
-[3.4.4. Proposed solutions / mitigations 124](#3.4.4.-proposed-solutions-/-mitigations)
+[3.4.4. Proposed solutions / mitigations 133](#3.4.4.-proposed-solutions-/-mitigations)
 
-[3.5. Chapter 3 Conlcusion 124](#3.5.-chapter-3-conlcusion)
+[3.5. Chapter 3 Conclusion 133](#3.5.-chapter-3-conclusion)
 
-[**CONCLUSION 125**](#conclusion)
+[**CONCLUSION 134**](#conclusion)
 
-[**1\. Summary of the implemented content 126**](#1.-summary-of-the-implemented-content)
+[**1\. Summary of the implemented content 134**](#1.-summary-of-the-implemented-content)
 
-[**2\. Achievements and limitations of the system 126**](#2.-achievements-and-limitations-of-the-system)
+[**2\. Achievements and limitations of the system 134**](#2.-achievements-and-limitations-of-the-system)
 
-[**3\. Future development directions 126**](#3.-future-development-directions)
+[**3\. Future development directions 134**](#3.-future-development-directions)
 
-[**REFERENCES 127**](#references)
+[**REFERENCES 135**](#references)
 
 # **LIST OF IMAGES** {#list-of-images}
 
@@ -380,6 +380,29 @@ The objective of this project is to build an online examination system with inte
 The project not only builds an examination system but also applies advanced technologies such as artificial intelligence, facial recognition, behavioral monitoring, and microservices architecture, aiming to optimize testing processes, enhance user experience, and improve operational efficiency. The system also brings practical value to both test-takers and educators, such as saving time and resources, ensuring fairness through automated proctoring, personalizing assessment experiences, supporting scalability for up to 10,000 concurrent users, and enabling remote testing capabilities that eliminate geographical barriers while maintaining rigorous academic standards.
 
 ### **1.1.2. Project’s scope** {#1.1.2.-project’s-scope}
+
+This project focuses on the design and development of a **Secure Assessment Platform** that enables online examinations with improved integrity, scalability, and system reliability. The system is developed as a web-based platform using a microservice-oriented architecture and modern deployment technologies.
+
+#### **1.1.2.1. In-Scope**
+
+The scope of the project includes:
+
+- **Frontend application**  
+   A web-based user interface that allows candidates to participate in online assessments, navigate exam content, and submit results. The frontend also supports client-side processing for assessment monitoring features.
+- **Backend services**  
+   A set of backend microservices responsible for assessment logic, session management, data processing, and communication with the frontend through RESTful APIs.
+- **Assessment integrity features**  
+   Basic mechanisms to support assessment integrity, such as event tracking and proctoring-related analysis, implemented to demonstrate secure assessment concepts.
+- **Data management**  
+   Persistent data storage using a relational database (PostgreSQL) and support for real-time or transient data processing using in-memory or streaming components (e.g., Redis).
+- **System deployment and containerization**  
+   Packaging of frontend and backend components into Docker container images with versioned tags. The system supports local deployment using Docker Compose and production-style deployment using Kubernetes to ensure consistency and reproducibility across environments.
+- **System documentation and design**  
+   Preparation of architectural, UML, and deployment diagrams, along with database design documentation to describe system structure and behavior.
+
+#### **1.1.2.2. Out of Scope and Limitations**
+
+This project does not aim to deliver a full commercial-grade proctoring solution. Advanced AI-based cheating detection, legal or regulatory compliance, large-scale performance testing, and integration with external learning management systems are outside the project scope. The system is developed as an academic prototype, emphasizing design clarity, functional correctness, and deployment practices rather than production-scale optimization.
 
 ### **1.1.3. Core Problems to be solved** {#1.1.3.-core-problems-to-be-solved}
 
@@ -3009,6 +3032,62 @@ To make 10,000 concurrent users feasible without over-provisioning:
 
 ### **3.2.1. System deployment and packaging into images (using Docker)** {#3.2.1.-system-deployment-and-packaging-into-images-(using-docker)}
 
+In this project, each component of the Secure Assessment Platform (SAP) is packaged as an independent Docker image. This approach ensures environment consistency across development, staging, and production, and enables independent deployment and scaling of microservices.
+
+We maintain a Dockerfile per component (React frontend, Golang, Java microservices, and supporting tools). Images are built using multi-stage builds to reduce final image size, improve cold-start time, and minimize the attack surface.
+
+#### **Docker image strategy**
+
+The platform is composed of multiple container images. The main images are:
+
+• frontend-ui: serves the React single-page application (built assets) via Nginx
+
+• api-gateway: reverse proxy / routing layer (optional; can be merged with frontend Nginx)
+
+• assessment-service, proctoring-service, notification-service, group-service, identity-verification-service: Golang and Java microservices
+
+• casdoor: identity provider deployed as a container
+
+• postgres (timescaledb) and redis: infrastructure dependencies used by the system
+
+#### **Multi-stage Dockerfiles**
+
+To optimize build artifacts, we apply multi-stage Docker builds. For Backend services, the first stage compiles a static binary and executes unit tests, while the final stage runs the binary in a minimal runtime image. For the frontend, the first stage builds static assets with Node.js, and the final stage serves them with Nginx.
+
+**Example (Golang service Dockerfile):**
+
+\# build stage  
+ FROM golang:1.22 AS builder  
+ WORKDIR /app  
+ COPY . .  
+ RUN go test ./...  
+ RUN CGO_ENABLED=0 GOOS=linux go build \-o service ./cmd/service
+
+\# runtime stage  
+ FROM gcr.io/distroless/static:nonroot  
+ WORKDIR /  
+ COPY \--from=builder /app/service /service  
+ USER nonroot:nonroot  
+ ENTRYPOINT \["/service"\]
+
+#### **Local deployment with Docker Compose**
+
+For local development and integration testing, docker compose is used to start the complete stack (microservices, PostgreSQL/TimescaleDB, Redis Streams, and Casdoor) with a single command. Environment variables and configuration files are injected into containers, and persistent data is stored in named volumes.
+
+**Typical commands:**
+
+docker compose up \-d \--build  
+ docker compose logs \-f  
+ docker compose down \-v
+
+#### **Versioning and publishing images**
+
+Images are tagged using semantic versioning and/or the Git commit SHA (e.g., v1.2.0, sha-\<commit\>). After a successful build, images are pushed to a container registry (Docker Hub or GitHub Container Registry). Kubernetes deployments then pull the exact image tag to ensure reproducibility between environments.
+
+![][image37]
+
+Figure 3.1. Docker packaging & deployment workflow
+
 ### **3.2.2. Deploying the system on Kubernetes (K8s)** {#3.2.2.-deploying-the-system-on-kubernetes-(k8s)}
 
 ### **3.2.3. Implementing the CI/CD pipeline** {#3.2.3.-implementing-the-ci/cd-pipeline}
@@ -3021,191 +3100,162 @@ The proctoring system deploys Google's MediaPipe face detection directly in the 
 
 #### **3.2.5.1. MediaPipe Integration and Setup**
 
-**Technology Overview**
+##### **Technology Overview**
 
-MediaPipe is Google's cross-platform framework for building ML pipelines. The proctoring system uses the FaceLandmarker model from the `@mediapipe/tasks-vision` package, which provides:
+MediaPipe is Google's cross-platform framework for building ML pipelines. The proctoring system uses the FaceLandmarker model from the \`@mediapipe/tasks-vision\` package, which provides:
 
-- 478 facial landmark points detection
-- Multi-face detection (up to 2 faces simultaneously)
-- Facial blendshapes for expression analysis
-- WebGL GPU acceleration support
+\- 478 facial landmark points detection  
+\- Multi-face detection (up to 2 faces simultaneously)  
+\- Facial blendshapes for expression analysis  
+\- WebGL GPU acceleration support
 
-**Model Configuration**
+##### **Model Configuration**
 
 The FaceLandmarker is initialized with the following configuration:
 
-```javascript
-faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-	baseOptions: {
-		modelAssetPath: 'https://storage.googleapis.com/.../face_landmarker.task',
-		delegate: 'GPU', // or 'CPU' as fallback
-	},
-	runningMode: 'IMAGE',
-	numFaces: 2,
-	minFaceDetectionConfidence: 0.5,
-	minFacePresenceConfidence: 0.5,
-	minTrackingConfidence: 0.5,
-	outputFaceBlendshapes: true,
-});
-```
+\`\`\`javascript  
+faceLandmarker \= await FaceLandmarker.createFromOptions(vision, {  
+ baseOptions: {  
+ modelAssetPath: 'https://storage.googleapis.com/.../face\_landmarker.task',  
+ delegate: 'GPU', // or 'CPU' as fallback  
+ },  
+ runningMode: 'IMAGE',  
+ numFaces: 2,  
+ minFaceDetectionConfidence: 0.5,  
+ minFacePresenceConfidence: 0.5,  
+ minTrackingConfidence: 0.5,  
+ outputFaceBlendshapes: true,  
+});  
+\`\`\`
 
-**Resource Loading**
+##### **Resource Loading**
 
 MediaPipe requires loading WebAssembly modules from a CDN at runtime:
 
-1. **Vision Task Runtime**: Loaded via `FilesetResolver.forVisionTasks()` from jsDelivr CDN
-2. **Face Landmarker Model**: Downloaded from Google Cloud Storage (~4MB)
-3. **WASM Binary**: Platform-specific WebAssembly module for computation
+1\. **Vision Task Runtime**: Loaded via \`FilesetResolver.forVisionTasks()\` from jsDelivr CDN  
+2\. **Face Landmarker Model**: Downloaded from Google Cloud Storage (\~4MB)  
+3\. **WASM Binary**: Platform-specific WebAssembly module for computation
 
 The model is cached by the browser after first load, reducing subsequent initialization time.
 
-**GPU/CPU Fallback Strategy**
+##### **GPU/CPU Fallback Strategy**
 
 The system implements automatic hardware acceleration detection:
 
-1. Attempt GPU initialization with `delegate: 'GPU'`
-2. If GPU fails (no WebGL2 support), catch the error
-3. Reinitialize with `delegate: 'CPU'`
-4. Report the active delegate for monitoring
+1\. Attempt GPU initialization with \`delegate: 'GPU'\`  
+2\. If GPU fails (no WebGL2 support), catch the error  
+3\. Reinitialize with \`delegate: 'CPU'\`  
+4\. Report the active delegate for monitoring
 
 GPU acceleration provides approximately 3-4x performance improvement on supported hardware.
 
 #### **3.2.5.2. Web Worker Optimization**
 
-**Problem Statement**
+##### **Problem Statement**
 
 The original implementation ran MediaPipe on the main thread, causing UI blocking:
 
 | Metric (Before)    | Value            | Issue            |
-| ------------------ | ---------------- | ---------------- |
+| :----------------- | :--------------- | :--------------- |
 | Thread Usage       | Main thread only | UI blocking      |
-| Detection Interval | 100ms (~10fps)   | High CPU load    |
+| Detection Interval | 100ms (\~10fps)  | High CPU load    |
 | Event Storage      | Unbounded array  | Memory leak risk |
 
-**Overcoming the MediaPipe Web Worker Limitation**
+##### **Overcoming the MediaPipe Web Worker Limitation**
 
-MediaPipe's official bundle uses ES Module exports, which are incompatible with Web Workers due to `importScripts()` restrictions. This is a known issue documented in **MediaPipe Issue #5257** on GitHub.
+MediaPipe's official bundle uses ES Module exports, which are incompatible with Web Workers due to \`importScripts()\` restrictions. This is a known issue documented in **MediaPipe Issue \#5257** on GitHub.
 
 This project overcame the limitation by patching the MediaPipe bundle to use global exports:
 
 **Original MediaPipe bundle (ESM exports):**
 
-```javascript
-export { Ia as DrawingUtils, Za as FaceDetector, uc as FaceLandmarker, ... };
-```
+\`\`\`javascript  
+export { Ia as DrawingUtils, Za as FaceDetector, uc as FaceLandmarker, ... };  
+\`\`\`
 
 **Patched bundle for Web Worker compatibility:**
 
-```javascript
-self.$mediapipe = { DrawingUtils: Ia, FaceDetector: Za, FaceLandmarker: uc, ... };
-```
+\`\`\`javascript  
+self.$mediapipe \= { DrawingUtils: Ia, FaceDetector: Za, FaceLandmarker: uc, ... };  
+\`\`\`
 
-The patched bundle is loaded via `importScripts()` in a classic Web Worker, enabling full MediaPipe functionality in a separate thread.
+The patched bundle is loaded via \`importScripts()\` in a classic Web Worker, enabling full MediaPipe functionality in a separate thread.
 
-**Solution Architecture**
+##### **Solution Architecture**
 
-The optimized architecture moves all ML processing to a dedicated Web Worker:
+The optimized architecture moves all ML processing to a dedicated Web Worker:  
+![][image38]
 
-```
-┌─────────────────────────────────────────────────┐
-│                  MAIN THREAD                     │
-│  ┌─────────────┐              ┌──────────────┐  │
-│  │   React UI  │              │   Camera     │  │
-│  │  Rendering  │              │   Video      │  │
-│  └─────────────┘              └──────┬───────┘  │
-│         ↑                            │          │
-│         │ Results              ImageBitmap      │
-│         │                      (320x240)        │
-│  ┌──────┴───────────────────────────────────────┐
-│  │         useWorkerProctoring Hook             │
-│  └──────────────────┬──────────────────────────┘│
-└─────────────────────┼───────────────────────────┘
-                      │ postMessage (zero-copy)
-                      ↓
-┌─────────────────────────────────────────────────┐
-│                 WEB WORKER THREAD                │
-│  ┌─────────────────────────────────────────┐    │
-│  │     faceDetectionWorker.js              │    │
-│  │  ┌─────────────┐    ┌───────────────┐   │    │
-│  │  │  MediaPipe  │    │ Face Analysis │   │    │
-│  │  │ FaceLandmark│    │ (6 violation  │   │    │
-│  │  │    detect() │    │  types)       │   │    │
-│  │  └─────────────┘    └───────────────┘   │    │
-│  └─────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────┘
-```
+##### **Implementation Components**
 
-**Implementation Components**
+| File                                 | Size    | Purpose                                      |
+| :----------------------------------- | :------ | :------------------------------------------- |
+| \`public/mediapipe-vision.js\`       | \~125KB | Patched MediaPipe bundle with global exports |
+| \`public/faceDetectionWorker.js\`    | \~6KB   | Classic Web Worker for face detection        |
+| \`src/hooks/useWorkerProctoring.ts\` | \~11KB  | React hook managing worker lifecycle         |
 
-| File                               | Size   | Purpose                                      |
-| ---------------------------------- | ------ | -------------------------------------------- |
-| `public/mediapipe-vision.js`       | ~125KB | Patched MediaPipe bundle with global exports |
-| `public/faceDetectionWorker.js`    | ~6KB   | Classic Web Worker for face detection        |
-| `src/hooks/useWorkerProctoring.ts` | ~11KB  | React hook managing worker lifecycle         |
-| `src/hooks/useProctoring.ts`       | ~21KB  | Original main-thread fallback (preserved)    |
-
-**Zero-Copy Frame Transfer**
+##### **Zero-Copy Frame Transfer**
 
 For efficient frame transfer between threads:
 
-1. `OffscreenCanvas` (320x240) captures video frame at reduced resolution
-2. `transferToImageBitmap()` creates transferable bitmap
-3. `postMessage()` with transfer list moves ownership to worker (zero-copy)
-4. Worker calls `frame.close()` after detection to release GPU memory
-5. Results returned as lightweight JSON (face count, violation flags)
+1\. \`OffscreenCanvas\` (320x240) captures video frame at reduced resolution  
+2\. \`transferToImageBitmap()\` creates transferable bitmap  
+3\. \`postMessage()\` with transfer list moves ownership to worker (zero-copy)  
+4\. Worker calls \`frame.close()\` after detection to release GPU memory  
+5\. Results returned as lightweight JSON (face count, violation flags)
 
 #### **3.2.5.3. Detection Pipeline and Results**
 
-**Violation Detection**
+##### **Violation Detection**
 
 The face detection runs at 4 FPS (250ms intervals) with the following landmark-based analysis:
 
-| Detection Type | Landmark Indices   | Threshold | Description                                 |
-| -------------- | ------------------ | --------- | ------------------------------------------- |
-| Face Count     | All landmarks      | n/a       | 0 = no face, 1 = valid, 2+ = multiple faces |
-| Gaze Direction | 468, 473 (iris)    | 0.3-0.7   | Iris position relative to eye corners       |
-| Eyes Closed    | 159, 145, 386, 374 | < 0.18    | Eye height/width aspect ratio               |
-| Mouth Open     | 13, 14 (lips)      | > 0.03    | Lip separation distance                     |
-| Head Turned    | 1, 234, 454        | > 0.15    | Nose-to-center distance vs face width       |
+| Detection Type | Landmark Indices   | Threshold | Description                                    |
+| :------------- | :----------------- | :-------- | :--------------------------------------------- |
+| Face Count     | All landmarks      | n/a       | 0 \= no face, 1 \= valid, 2+ \= multiple faces |
+| Gaze Direction | 468, 473 (iris)    | 0.3-0.7   | Iris position relative to eye corners          |
+| Eyes Closed    | 159, 145, 386, 374 | \< 0.18   | Eye height/width aspect ratio                  |
+| Mouth Open     | 13, 14 (lips)      | \> 0.03   | Lip separation distance                        |
+| Head Turned    | 1, 234, 454        | \> 0.15   | Nose-to-center distance vs face width          |
 
 Violations are tracked with start/end timestamps, enabling duration-based severity analysis.
 
-**Before vs After Comparison**
+##### **Before vs After Comparison**
 
-| Metric             | Before           | After                 | Improvement          |
-| ------------------ | ---------------- | --------------------- | -------------------- |
-| Thread Usage       | Main thread only | Main + Worker         | ✅ UI unblocked      |
-| Detection Interval | 100ms (10fps)    | 250ms (4fps)          | 60% fewer calls      |
-| Frame Resolution   | Full video       | 320x240               | Reduced memory       |
-| Frame Transfer     | N/A              | ImageBitmap           | Zero-copy            |
-| Event Storage      | Unbounded        | Max 50                | Memory leak fixed    |
-| GPU Fallback       | None             | CPU fallback          | Better compatibility |
-| MediaPipe Loading  | ES Module import | importScripts + patch | ✅ Worker compatible |
+| Metric             | Before           | After                  | Improvement          |
+| :----------------- | :--------------- | :--------------------- | :------------------- |
+| Thread Usage       | Main thread only | Main \+ Worker         | UI unblocked         |
+| Detection Interval | 100ms (10fps)    | 250ms (4fps)           | 60% fewer calls      |
+| Frame Resolution   | Full video       | 320x240                | Reduced memory       |
+| Frame Transfer     | N/A              | ImageBitmap            | Zero-copy            |
+| Event Storage      | Unbounded        | Max 50                 | Memory leak fixed    |
+| GPU Fallback       | None             | CPU fallback           | Better compatibility |
+| MediaPipe Loading  | ES Module import | importScripts \+ patch | Worker compatible    |
 
-**Browser Compatibility**
+##### **Browser Compatibility**
 
-| Browser | Minimum Version | Notes                    |
-| ------- | --------------- | ------------------------ |
-| Chrome  | 69+             | OffscreenCanvas required |
-| Firefox | 105+            | OffscreenCanvas required |
-| Safari  | 16.4+           | OffscreenCanvas + WebGL2 |
-| Edge    | 79+             | Chromium-based           |
+| Browser | Minimum Version | Notes                     |
+| :------ | :-------------- | :------------------------ |
+| Chrome  | 69+             | OffscreenCanvas required  |
+| Firefox | 105+            | OffscreenCanvas required  |
+| Safari  | 16.4+           | OffscreenCanvas \+ WebGL2 |
+| Edge    | 79+             | Chromium-based            |
 
-**Conclusion**
+##### **Conclusion**
 
-The Web Worker implementation successfully overcame a known MediaPipe upstream limitation (Issue #5257) through a patched bundle approach. This results in a significantly smoother user experience during proctored assessments, with the main thread completely free for UI rendering while ML processing runs independently in a dedicated worker thread.
+The Web Worker implementation successfully overcame a known MediaPipe upstream limitation (Issue \#5257) through a patched bundle approach. This results in a significantly smoother user experience during proctored assessments, with the main thread completely free for UI rendering while ML processing runs independently in a dedicated worker thread.
 
 ## **3.3. Functional and non-functional testing (performance testing)** {#3.3.-functional-and-non-functional-testing-(performance-testing)}
 
-## **3.4. Issues related to cheating/fraud & methods to disable monitoring** {#3.5.-chapter-3-conlcusion}
+## **3.4. Issues related to cheating/fraud & methods to disable monitoring** {#3.5.-chapter-3-conclusion}
 
-### **3.4.1. Disable copy/paste restrictions / tracking (Mediapipe-related)** **3.4.2. Forge/proxy requests (manipulated results)** {#3.5.-chapter-3-conlcusion}
+### **3.4.1. Disable copy/paste restrictions / tracking (Mediapipe-related)** **3.4.2. Forge/proxy requests (manipulated results)** {#3.5.-chapter-3-conclusion}
 
-### **3.4.3. Multi-camera monitoring problem** {#3.5.-chapter-3-conlcusion}
+### **3.4.3. Multi-camera monitoring problem** {#3.5.-chapter-3-conclusion}
 
 ### **3.4.4. Proposed solutions / mitigations** {#3.4.4.-proposed-solutions-/-mitigations}
 
-## **3.5. Chapter 3 Conlcusion** {#3.5.-chapter-3-conlcusion}
+## **3.5. Chapter 3 Conclusion** {#3.5.-chapter-3-conclusion}
 
 #
 

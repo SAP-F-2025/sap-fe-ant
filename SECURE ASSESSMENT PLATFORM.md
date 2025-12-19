@@ -119,7 +119,7 @@ Hanoi, 12 / 12 / 2025
 
 **REVIEWER**
 
-# **INDEX** {#index}
+# **TABLE OF CONTENTS** {#table-of-contents}
 
 [**ACKNOWLEDGEMENTS 1**](#acknowledgements)
 
@@ -127,67 +127,198 @@ Hanoi, 12 / 12 / 2025
 
 [**REVIEWER’S COMMENTS 3**](#reviewer’s-comments)
 
-[**INDEX 4**](#index)
+[**TABLE OF CONTENTS 4**](#table-of-contents)
 
-[**LIST OF IMAGES 5**](#list-of-images)
+[**LIST OF IMAGES 7**](#list-of-images)
 
-[**LIST OF TABLE 6**](#list-of-table)
+[**LIST OF TABLE 8**](#list-of-table)
 
-[**LIST OF ABBREVIATIONS 7**](#list-of-abbreviations)
+[**LIST OF ABBREVIATIONS 9**](#list-of-abbreviations)
 
-[**INTRODUCTION 8**](#introduction)
+[**INTRODUCTION 10**](#introduction)
 
-[**CHAPTER 1: INTRODUCTION TO THE SYSTEM AND TECHNOLOGIES USED 10**](#chapter-1:-introduction-to-the-system-and-technologies-used)
+[**CHAPTER 1: INTRODUCTION TO THE SYSTEM AND TECHNOLOGIES USED 12**](#chapter-1:-introduction-to-the-system-and-technologies-used)
 
-[**1.1. System introduction 10**](#1.1.-system-introduction)
+[**1.1. System introduction 12**](#1.1.-system-introduction)
 
-[1.2. Technology used 11](#1.2.-technology-used)
+[1.1.1. Purposes and meanings of the project 12](#1.1.1.-purposes-and-meanings-of-the-project)
 
-[1.3. Some specific solutions approach 14](#1.3.-some-specific-solutions-approach)
+[1.1.2. Project’s scope 12](#1.1.2.-project’s-scope)
 
-[1.4. Architectural Patterns 36](#1.4.-architectural-patterns)
+[1.1.3. Core Problems to be solved 12](#1.1.3.-core-problems-to-be-solved)
 
-[**CHAPTER 2: SYSTEM ANALYSIS AND DESIGN 41**](#chapter-2:-system-analysis-and-design)
+[1.1.4. Some specific solutions approach 13](#1.1.4.-some-specific-solutions-approach)
 
-[**2.1. Describe the actors, the terminology, and define the requirements 41**](#2.1.-describe-the-actors,-the-terminology,-and-define-the-requirements)
+[1.2. Technology used 17](#1.2.-technology-used)
 
-[2.2. Use Case Identification and Description 48](#2.2.-use-case-identification-and-description)
+[1.2.1. Front-end 17](#1.2.1.-front-end)
 
-[2.3. System Analysis 82](#2.3.-system-analysis)
+[1.2.2. Back-end 19](#1.2.2.-back-end)
 
-[2.4. Building class diagrams at the design phase 91](#2.4.-building-class-diagrams-at-the-design-phase)
+[1.2.3. Database 19](#1.2.3.-database)
 
-[2.5. System sequence diagrams 94](#2.5.-system-sequence-diagrams)
+[1.2.4. Message Broker: Redis Stream 27](#1.2.4.-message-broker:-redis-stream)
 
-[2.6. Database design 109](#2.6.-database-design)
+[1.2.5. System Architecture 29](#1.2.5.-system-architecture)
 
-[2.7. Microservices architecture implementation 109](#2.7.-microservices-architecture-implementation)
+[1.3. Infrastructure and DevOps 30](#1.3.-infrastructure-and-devops)
 
-[2.8. System design 120](#2.9.-system-design)
+[1.3.1. Container Orchestration: Kubernetes 31](#1.3.1.-container-orchestration:-kubernetes)
 
-[2.9. Chapter 2 conclusion 121](#2.10.-chapter-2-conclusion)
+[1.3.2. CI/CD Pipeline: GitHub Actions 32](#1.3.2.-ci/cd-pipeline:-github-actions)
 
-[**CHAPTER 3: APPLICATION DEPLOYMENT 122**](#chapter-3:-application-deployment)
+[1.4. Chapter 1 Conclusion 33](#1.4.-chapter-1-conclusion)
 
-[**3.1. Tools 122**](#3.1.-tools)
+[**CHAPTER 2: SYSTEM ANALYSIS AND DESIGN 34**](#chapter-2:-system-analysis-and-design)
 
-[3.2. Installation results 122](#3.2.-installation-results)
+[**2.1. Describe the actors, the terminology, and define the requirements 34**](#2.1.-describe-the-actors,-the-terminology,-and-define-the-requirements)
 
-[3.3. Applying production standards to the product 122](#3.3.-applying-production-standards-to-the-product)
+[2.1.1. Identify and describe the actors 34](#2.1.1.-identify-and-describe-the-actors)
 
-[3.4. Functional and non-functional testing (performance testing) 122](<#3.4.-functional-and-non-functional-testing-(performance-testing)>)
+[2.1.2. Building a glossary 35](#2.1.2.-building-a-glossary)
 
-[3.5. Issues related to cheating/fraud & methods to disable monitoring 122](#heading)
+[2.1.3. Identify requirements 36](#2.1.3.-identify-requirements)
 
-[**CONCLUSION 124**](#conclusion)
+[2.2. Use Case Identification and Description 41](#2.2.-use-case-identification-and-description)
 
-[**1\. Summary of the implemented content 124**](#1.-summary-of-the-implemented-content)
+[2.2.1. Overall use cases of the system 41](#2.2.1.-overall-use-cases-of-the-system)
 
-[**2\. Achievements and limitations of the system 124**](#2.-achievements-and-limitations-of-the-system)
+[2.2.2. Detailed use cases for students. 41](#2.2.2.-detailed-use-cases-for-students.)
 
-[**3\. The direction of future development 124**](#3.-the-direction-of-future-development)
+[2.2.3. Detailed use cases for teachers. 44](#2.2.3.-detailed-use-cases-for-teachers.)
 
-[**REFERENCES 125**](#references)
+[2.2.3. Detailed use cases for administrators. 46](#2.2.3.-detailed-use-cases-for-administrators.)
+
+[2.2.4. Main scenarios for students. 48](#2.2.4.-main-scenarios-for-students.)
+
+[2.2.5. Main scenarios for teachers. 53](#2.2.5.-main-scenarios-for-teachers.)
+
+[2.2.6. Main scenarios for administrators. 63](#2.2.6.-main-scenarios-for-administrators.)
+
+[2.2.7. UI flows and screen mapping 75](#2.2.7.-ui-flows-and-screen-mapping)
+
+[2.3. System Analysis 75](#2.3.-system-analysis)
+
+[2.3.1. Assessment Service 75](#2.3.1.-assessment-service)
+
+[2.3.2. Proctoring Service 77](#2.3.2.-proctoring-service)
+
+[2.3.3. Identity Service (Casdoor) 78](<#2.3.3.-identity-service-(casdoor)>)
+
+[2.3.4. Identity Verification Service 80](#2.3.4.-identity-verification-service)
+
+[2.3.5. Notification Service 80](#2.3.5.-notification-service)
+
+[2.3.6. Group Service 81](#2.3.6.-group-service)
+
+[2.4. Building class diagrams at the design phase 84](#2.4.-building-class-diagrams-at-the-design-phase)
+
+[2.4.1. Assessment Service 84](#2.4.1.-assessment-service)
+
+[2.4.2. Identity Verification Service 85](#2.4.2.-identity-verification-service)
+
+[2.4.3. Proctoring Service 85](#2.4.3.-proctoring-service)
+
+[2.4.4. Casdoor Identity Service (minimalism version) 86](<#2.4.4.-casdoor-identity-service-(minimalism-version)>)
+
+[2.4.5. Notification Service 86](#2.4.5.-notification-service)
+
+[2.4.6. Group Service 87](#2.4.6.-group-service)
+
+[2.5. System sequence diagrams 87](#2.5.-system-sequence-diagrams)
+
+[2.5.1. Sequence diagrams for student functions 87](#2.5.1.-sequence-diagrams-for-student-functions)
+
+[2.5.2. Sequence diagrams for teacher functions 92](#2.5.2.-sequence-diagrams-for-teacher-functions)
+
+[2.5.3. Sequence diagrams for administrator functions 99](#2.5.3.-sequence-diagrams-for-administrator-functions)
+
+[2.6. Database design 102](#2.6.-database-design)
+
+[2.6.1. Information of tables in the database. 102](#2.6.1.-information-of-tables-in-the-database.)
+
+[2.6.2. Database schema of the system. 102](#2.6.2.-database-schema-of-the-system.)
+
+[2.7. Microservices architecture implementation 102](#2.7.-microservices-architecture-implementation)
+
+[2.7.1. Overview 102](#2.7.1.-overview)
+
+[2.7.2. System Components 104](#2.7.2.-system-components)
+
+[2.7.3. Applying Technologies to the System 107](#2.7.3.-applying-technologies-to-the-system)
+
+[2.7.4. Selecting Appropriate Technologies 108](#2.7.4.-selecting-appropriate-technologies)
+
+[2.7.5. Choosing Communication Methods Between Microservices 110](#2.7.5.-choosing-communication-methods-between-microservices)
+
+[2.7.6. Designing a Hybrid Monolithic/Microservice System 111](#2.7.6.-designing-a-hybrid-monolithic/microservice-system)
+
+[2.8. Frontend Architecture 113](#2.8.-frontend-architecture)
+
+[2.8.1. Project Structure and Module Organization 113](#2.8.1.-project-structure-and-module-organization)
+
+[2.8.2. Component Design Pattern 115](#2.8.2.-component-design-pattern)
+
+[2.8.3. State Management Strategy 117](#2.8.3.-state-management-strategy)
+
+[2.8.4. API Layer Design (Services Pattern) 119](<#2.8.4.-api-layer-design-(services-pattern)>)
+
+[2.8.5. Custom Hooks Pattern 120](#2.8.5.-custom-hooks-pattern)
+
+[Hooks Directory Structure 120](#hooks-directory-structure)
+
+[2.9. System design 122](#2.9.-system-design)
+
+[2.9.1. System design for 10,000 concurrent users and resource allocation 122](#2.9.1.-system-design-for-10,000-concurrent-users-and-resource-allocation)
+
+[2.9.2. System sizing 122](#2.9.2.-system-sizing)
+
+[2.9.3. Calculation of system operation costs 122](#2.9.3.-calculation-of-system-operation-costs)
+
+[2.10. Chapter 2 conclusion 123](#2.10.-chapter-2-conclusion)
+
+[**CHAPTER 3: APPLICATION DEPLOYMENT 124**](#chapter-3:-application-deployment)
+
+[**3.1. Implementation and supporting tools 124**](#3.1.-implementation-and-supporting-tools)
+
+[3.1.1. Tools used 124](#3.1.1.-tools-used)
+
+[3.1.2. Supporting libraries 124](#3.1.2.-supporting-libraries)
+
+[3.2. Installation results 124](#3.2.-installation-results)
+
+[3.2.1. System deployment and packaging into images (using Docker) 124](<#3.2.1.-system-deployment-and-packaging-into-images-(using-docker)>)
+
+[3.2.2. Deploying the system on Kubernetes (K8s) 124](<#3.2.2.-deploying-the-system-on-kubernetes-(k8s)>)
+
+[3.2.3. Implementing the CI/CD pipeline 124](#3.2.3.-implementing-the-ci/cd-pipeline)
+
+[3.2.4. Deploying tracing and monitoring tools 124](#3.2.4.-deploying-tracing-and-monitoring-tools)
+
+[3.2.5. Deploying the Mediapipe system on the client side 124](#3.2.5.-deploying-the-mediapipe-system-on-the-client-side)
+
+[3.3. Functional and non-functional testing (performance testing) 124](<#3.3.-functional-and-non-functional-testing-(performance-testing)>)
+
+[3.4. Issues related to cheating/fraud & methods to disable monitoring 124](#3.5.-chapter-3-conlcusion)
+
+[3.4.1. Disable copy/paste restrictions / tracking (Mediapipe-related)](#3.5.-chapter-3-conlcusion)  
+[3.4.2. Forge/proxy requests (manipulated results) 124](#3.5.-chapter-3-conlcusion)
+
+[3.4.3. Multi-camera monitoring problem 124](#3.5.-chapter-3-conlcusion)
+
+[3.4.4. Proposed solutions / mitigations 124](#3.4.4.-proposed-solutions-/-mitigations)
+
+[3.5. Chapter 3 Conlcusion 124](#3.5.-chapter-3-conlcusion)
+
+[**CONCLUSION 125**](#conclusion)
+
+[**1\. Summary of the implemented content 126**](#1.-summary-of-the-implemented-content)
+
+[**2\. Achievements and limitations of the system 126**](#2.-achievements-and-limitations-of-the-system)
+
+[**3\. Future development directions 126**](#3.-future-development-directions)
+
+[**REFERENCES 127**](#references)
 
 # **LIST OF IMAGES** {#list-of-images}
 
@@ -195,7 +326,7 @@ Hanoi, 12 / 12 / 2025
 
 [Hình 2\. 1\. Usecase tổng quát hệ thống 35](#heading=h.720grugpm3ad)
 
-[Hình 3\. 1\. Giao diện home của người dung(1) 73](#heading=h.rbxijz3pii4e)
+[Hình 3\. 1\. Giao diện homecủa người dung(1) 73](#heading=h.rbxijz3pii4e)
 
 # **LIST OF TABLE** {#list-of-table}
 
@@ -242,15 +373,15 @@ This graduation project, titled "Building an Online Examination System and Proct
 
 ## **1.1. System introduction** {#1.1.-system-introduction}
 
-### **1.1.1. Purposes and meanings of the project**
+### **1.1.1. Purposes and meanings of the project** {#1.1.1.-purposes-and-meanings-of-the-project}
 
 The objective of this project is to build an online examination system with integrated proctoring tools supporting core functions such as assessment management, question banks, exam taking, and real-time monitoring. The system aims to create a secure, transparent, and user-friendly platform for test-takers while helping educational institutions minimize supervision costs, ensure exam integrity, and optimize testing operations in the digital transformation environment.
 
 The project not only builds an examination system but also applies advanced technologies such as artificial intelligence, facial recognition, behavioral monitoring, and microservices architecture, aiming to optimize testing processes, enhance user experience, and improve operational efficiency. The system also brings practical value to both test-takers and educators, such as saving time and resources, ensuring fairness through automated proctoring, personalizing assessment experiences, supporting scalability for up to 10,000 concurrent users, and enabling remote testing capabilities that eliminate geographical barriers while maintaining rigorous academic standards.
 
-### **1.1.2. Project’s scope**
+### **1.1.2. Project’s scope** {#1.1.2.-project’s-scope}
 
-### **1.1.3. Core Problems to be solved**
+### **1.1.3. Core Problems to be solved** {#1.1.3.-core-problems-to-be-solved}
 
 #### **1.1.3.1. Academic Integrity in Remote Settings**
 
@@ -285,9 +416,86 @@ Fragmented tools create friction for educators and students. The platform must p
 - Grading & Feedback: Automated grading for objective questions and streamlined workflows for manual grading.
 - Notification & Analytics: Timely delivery of results and detailed reports on class performance and integrity incidents.
 
+### **1.1.4. Some specific solutions approach** {#1.1.4.-some-specific-solutions-approach}
+
+#### **1.1.4.1. MediaPipe-Based Real-Time Proctoring System**
+
+MediaPipe, developed by Google Research, is an open-source framework for building multimodal applied machine learning pipelines. In the context of our secure assessment platform, MediaPipe serves as the core technology for implementing real-time proctoring capabilities through computer vision and artificial intelligence.
+
+##### **Technical Foundation and Architecture**
+
+MediaPipe provides a comprehensive suite of pre-trained machine learning models optimized for real-time performance on various platforms. The framework utilizes a graph-based architecture where individual components (calculators) are connected to form processing pipelines. For our proctoring system, we leverage several key MediaPipe solutions:
+
+- **Face Detection**: Employs the BlazeFace model, a lightweight convolutional neural network designed for mobile GPU inference, achieving sub-millisecond face detection on modern devices
+- **Face Mesh**: Generates 468 3D facial landmarks in real-time, enabling precise facial geometry analysis and gaze direction estimation
+- **Pose Detection**: Utilizes BlazePose for full-body pose estimation, providing additional context for student behavior analysis
+
+##### **Integration with Assessment Platform**
+
+The MediaPipe integration operates through a client-side processing approach, ensuring privacy compliance by processing video streams locally without transmitting raw video data to servers. The system architecture implements the following workflow:
+
+- **Camera Stream Acquisition**: Utilizes MediaPipe's Camera Utils for optimized video capture and preprocessing
+- **Real-Time Analysis**: Processes video frames through MediaPipe models to detect facial features, attention patterns, and behavioral anomalies
+- **Event Generation**: Converts detection results into structured proctoring events (face not detected, multiple persons, attention deviation)
+- **Violation Assessment**: Applies configurable thresholds to determine violation severity and trigger appropriate responses
+- **Secure Transmission**: Sends only metadata and violation events to the backend system, maintaining student privacy
+
+##### **Performance Optimization and Scalability**
+
+The implementation incorporates several optimization strategies to ensure system performance under concurrent usage scenarios:
+
+- **Model Quantization**: Utilizes TensorFlow Lite models for reduced computational overhead
+- **Frame Rate Control**: Implements adaptive frame processing (10-15 FPS) to balance accuracy and resource consumption
+- **Memory Management**: Employs efficient buffer management to prevent memory leaks during extended assessment sessions
+- **Browser Compatibility**: Ensures cross-platform functionality across modern web browsers through WebAssembly and WebGL acceleration
+
+##### **Privacy and Compliance Considerations**
+
+The MediaPipe-based proctoring system adheres to strict privacy principles and regulatory compliance requirements:
+
+- **Local Processing**: All video analysis occurs client-side, eliminating the need for video data transmission
+- **Data Minimization**: Only essential violation metadata is collected and stored
+- **Consent Management**: Implements explicit user consent mechanisms for camera access and monitoring
+- **GDPR/FERPA Compliance**: Ensures compliance with international data protection regulations through privacy-by-design principles
+
+This approach enables the platform to provide comprehensive exam integrity monitoring while maintaining student privacy and system performance at scale.
+
+#### **1.1.4.2. Real-time communication: Server-sent Events**
+
+#### **Introduction**
+
+Server-Sent Events (SSE) is a server push technology enabling a client to receive automatic updates from a server via an HTTP connection. It describes how servers can initiate data transmission towards clients once an initial client connection has been established. Unlike classic polling, where the client repeatedly asks for data, SSE establishes a persistent, long-lived connection, allowing the server to send data to the client whenever it becomes available.
+
+#### **Technical Overview**
+
+- Standard / API: SSE is a web standard defined in the HTML Living Standard (often casually referred to as “HTML5-era”) and uses the EventSource interface in the browser.
+- Protocol: Operates over standard HTTP/HTTPS (typically a long-lived HTTP connection).
+- Data Format: Messages are UTF-8 text using the MIME type text/event-stream, following the SSE field format (data:, id:, event:, etc.).
+- Mechanism: The client opens a connection and the server keeps it open, streaming events to the client as they occur (server → client only).
+- Built-in Features:
+    - Automatic Reconnection: Browsers automatically attempt to reconnect if the connection is dropped.
+    - Event IDs: Allows the server to send an ID with each event, so if a reconnection happens, the client can tell the server the last event it received (Last-Event-ID), preventing data loss.
+
+##### **Comparison SSE to WebSocket**
+
+| Feature         | Server-Sent Events (SSE)                                              | WebSockets                                                     |
+| :-------------- | :-------------------------------------------------------------------- | :------------------------------------------------------------- |
+| Directionality  | Unidirectional (Server to Client only).                               | Bidirectional (Full-duplex, Server \<-\> Client).              |
+| Complexity      | Low. Simple HTTP implementation. No special protocol handling needed. | High. Requires a custom protocol handshake and frame handling. |
+| Data Format     | Text only (UTF-8).                                                    | Binary and Text.                                               |
+| Ideal Use Cases | News feeds, stock tickers, notifications, status updates.             | Chat apps, multiplayer games, collaborative editing.           |
+
+##### **Why SSE for Notification Service?**
+
+For a Notification Service, the primary requirement is to push information from the system to the user (e.g., "Assessment Graded", "New Assignment"). The user rarely needs to send high-frequency real-time data back on the same channel. Therefore, SSE is often the superior choice because:
+
+- Simplicity: It leverages the existing HTTP infrastructure (Authentication, Load Balancing).
+- Efficiency: It is lighter weight than maintaining full-duplex WebSocket connections for sporadic updates.
+- Resilience: The built-in reconnection logic simplifies the client-side implementation significantly.
+
 ## **1.2. Technology used** {#1.2.-technology-used}
 
-### **1.2.1. Front-end**
+### **1.2.1. Front-end** {#1.2.1.-front-end}
 
 The frontend application is built using modern web technologies optimized for performance, maintainability, and user experience. The following technologies form the foundation of the client-side implementation:
 
@@ -347,92 +555,11 @@ A **Web Worker** architecture offloads MediaPipe processing to a separate thread
 
 **Vitest** provides fast unit testing with React Testing Library for component testing, ensuring code reliability through automated tests.
 
-### **1.2.2. Back-end**
+### **1.2.2. Back-end** {#1.2.2.-back-end}
 
-### **1.2.3. Other ?**
+### **1.2.3. Database** {#1.2.3.-database}
 
-## **1.3. Some specific solutions approach** {#1.3.-some-specific-solutions-approach}
-
-#### **1.3.1. MediaPipe-Based Real-Time Proctoring System**
-
-MediaPipe, developed by Google Research, is an open-source framework for building multimodal applied machine learning pipelines. In the context of our secure assessment platform, MediaPipe serves as the core technology for implementing real-time proctoring capabilities through computer vision and artificial intelligence.
-
-##### **Technical Foundation and Architecture**
-
-MediaPipe provides a comprehensive suite of pre-trained machine learning models optimized for real-time performance on various platforms. The framework utilizes a graph-based architecture where individual components (calculators) are connected to form processing pipelines. For our proctoring system, we leverage several key MediaPipe solutions:
-
-- **Face Detection**: Employs the BlazeFace model, a lightweight convolutional neural network designed for mobile GPU inference, achieving sub-millisecond face detection on modern devices
-- **Face Mesh**: Generates 468 3D facial landmarks in real-time, enabling precise facial geometry analysis and gaze direction estimation
-- **Pose Detection**: Utilizes BlazePose for full-body pose estimation, providing additional context for student behavior analysis
-
-##### **Integration with Assessment Platform**
-
-The MediaPipe integration operates through a client-side processing approach, ensuring privacy compliance by processing video streams locally without transmitting raw video data to servers. The system architecture implements the following workflow:
-
-- **Camera Stream Acquisition**: Utilizes MediaPipe's Camera Utils for optimized video capture and preprocessing
-- **Real-Time Analysis**: Processes video frames through MediaPipe models to detect facial features, attention patterns, and behavioral anomalies
-- **Event Generation**: Converts detection results into structured proctoring events (face not detected, multiple persons, attention deviation)
-- **Violation Assessment**: Applies configurable thresholds to determine violation severity and trigger appropriate responses
-- **Secure Transmission**: Sends only metadata and violation events to the backend system, maintaining student privacy
-
-##### **Performance Optimization and Scalability**
-
-The implementation incorporates several optimization strategies to ensure system performance under concurrent usage scenarios:
-
-- **Model Quantization**: Utilizes TensorFlow Lite models for reduced computational overhead
-- **Frame Rate Control**: Implements adaptive frame processing (10-15 FPS) to balance accuracy and resource consumption
-- **Memory Management**: Employs efficient buffer management to prevent memory leaks during extended assessment sessions
-- **Browser Compatibility**: Ensures cross-platform functionality across modern web browsers through WebAssembly and WebGL acceleration
-
-##### **Privacy and Compliance Considerations**
-
-The MediaPipe-based proctoring system adheres to strict privacy principles and regulatory compliance requirements:
-
-- **Local Processing**: All video analysis occurs client-side, eliminating the need for video data transmission
-- **Data Minimization**: Only essential violation metadata is collected and stored
-- **Consent Management**: Implements explicit user consent mechanisms for camera access and monitoring
-- **GDPR/FERPA Compliance**: Ensures compliance with international data protection regulations through privacy-by-design principles
-
-This approach enables the platform to provide comprehensive exam integrity monitoring while maintaining student privacy and system performance at scale.
-
-### **1.3.2. Real-time communication: Server-sent Events**
-
-#### **Introduction**
-
-Server-Sent Events (SSE) is a server push technology enabling a client to receive automatic updates from a server via an HTTP connection. It describes how servers can initiate data transmission towards clients once an initial client connection has been established. Unlike classic polling, where the client repeatedly asks for data, SSE establishes a persistent, long-lived connection, allowing the server to send data to the client whenever it becomes available.
-
-#### **Technical Overview**
-
-- Standard / API: SSE is a web standard defined in the HTML Living Standard (often casually referred to as “HTML5-era”) and uses the EventSource interface in the browser.
-- Protocol: Operates over standard HTTP/HTTPS (typically a long-lived HTTP connection).
-- Data Format: Messages are UTF-8 text using the MIME type text/event-stream, following the SSE field format (data:, id:, event:, etc.).
-- Mechanism: The client opens a connection and the server keeps it open, streaming events to the client as they occur (server → client only).
-- Built-in Features:
-    - Automatic Reconnection: Browsers automatically attempt to reconnect if the connection is dropped.
-    - Event IDs: Allows the server to send an ID with each event, so if a reconnection happens, the client can tell the server the last event it received (Last-Event-ID), preventing data loss.
-
-##### **Comparison SSE to WebSocket**
-
-| Feature         | Server-Sent Events (SSE)                                              | WebSockets                                                     |
-| :-------------- | :-------------------------------------------------------------------- | :------------------------------------------------------------- |
-| Directionality  | Unidirectional (Server to Client only).                               | Bidirectional (Full-duplex, Server \<-\> Client).              |
-| Complexity      | Low. Simple HTTP implementation. No special protocol handling needed. | High. Requires a custom protocol handshake and frame handling. |
-| Data Format     | Text only (UTF-8).                                                    | Binary and Text.                                               |
-| Ideal Use Cases | News feeds, stock tickers, notifications, status updates.             | Chat apps, multiplayer games, collaborative editing.           |
-
-##### **Why SSE for Notification Service?**
-
-For a Notification Service, the primary requirement is to push information from the system to the user (e.g., "Assessment Graded", "New Assignment"). The user rarely needs to send high-frequency real-time data back on the same channel. Therefore, SSE is often the superior choice because:
-
-- Simplicity: It leverages the existing HTTP infrastructure (Authentication, Load Balancing).
-- Efficiency: It is lighter weight than maintaining full-duplex WebSocket connections for sporadic updates.
-- Resilience: The built-in reconnection logic simplifies the client-side implementation significantly.
-
-### **1.3.3. Infrastructure and DevOps**
-
-#### **1.3.3.1. Database**
-
-##### **1.3.3.1.1. Postgres:**
+##### **1.2.3.1. Postgres:**
 
 ###### **_Introduction_**
 
@@ -540,7 +667,7 @@ PostgreSQL provides comparable functionality to Oracle for most use cases at no 
 
 PostgreSQL's JSONB support enables document storage patterns traditionally associated with MongoDB. While purpose-built NoSQL databases may offer better performance for specific use cases, PostgreSQL provides the flexibility to handle both relational and document workloads within a single system.
 
-##### **1.3.3.1.2. Timescale-DB:**
+##### **1.2.3.2. Timescale-DB:**
 
 ###### **_Introduction_**
 
@@ -682,7 +809,7 @@ InfluxDB is a purpose-built time-series database with its own query language (Fl
 
 PostgreSQL can handle time-series data using manual partitioning, but TimescaleDB significantly reduces operational complexity. Automatic chunking, compression, and continuous aggregates eliminate manual partition management. Time-series specific optimizations provide better query performance than manual implementations.
 
-#### **1.3.3.2. Message Broker: Redis Stream**
+### **1.2.4. Message Broker: Redis Stream** {#1.2.4.-message-broker:-redis-stream}
 
 ##### **Introduction**
 
@@ -738,356 +865,113 @@ Apache Kafka offers stronger durability guarantees, higher throughput for very l
 
 RabbitMQ provides richer routing capabilities and messaging patterns. Redis Streams offers simpler operations, the convenience of using your existing Redis infrastructure, and efficient storage of time-series-like data.
 
-### **1.3.3.3 Container Orchestration: Kubernetes**
+### **1.2.5. System Architecture** {#1.2.5.-system-architecture}
 
-##### **Introduction**
+#### **1.2.5.1. Overall about microservice architecture**
 
-Kubernetes, often abbreviated as K8s, is an open-source container orchestration platform originally developed by Google and now maintained by the Cloud Native Computing Foundation (CNCF). Released in 2014, Kubernetes has become the de facto standard for deploying, scaling, and managing containerized applications in production environments.
+- **Microservices** is a software architecture where an application is divided into many small, independent services.
+- Each service handles a **specific function** and can be **developed, deployed, and operated separately**.
 
-The name Kubernetes originates from Greek, meaning "helmsman" or "pilot," reflecting its role in steering containerized workloads. The abbreviation K8s represents the eight letters between "K" and "s" in the full name. Kubernetes builds upon fifteen years of experience running production workloads at Google, combined with best practices and ideas from the open-source community.
+- Microservices are widely used by large companies such as **Netflix, eBay, Amazon, Twitter, and PayPal**.
+- Because each service is an independent module, the system is easier to **develop, test, scale, and deploy**.  
+  ![][image2]
 
-###### **_Why Kubernetes?_**
+_(Figure 1.1. Microservice architecture)_
 
-Modern applications are increasingly built as collections of microservices packaged in containers. While containers provide consistency and portability, managing hundreds or thousands of containers across multiple servers presents significant operational challenges. Kubernetes addresses these challenges by providing automated deployment and rollback capabilities, service discovery and load balancing, self-healing mechanisms for failed containers, horizontal scaling based on demand, storage orchestration for stateful applications, and configuration and secret management.
+#### **b) Advantages**
 
-Without an orchestration platform, teams would need to manually handle container placement, networking, scaling, and recovery from failures, which becomes impractical at scale.
+- **Scalability:** Each service can be scaled independently. For example, if the payment service has high traffic, you only scale that service instead of the whole system.
+- **Fault tolerance:** If one service fails, other services can continue running. For example, if the email service fails, the system can still process orders.
+- **Flexibility:** Different services can use different programming languages and technologies. You can upgrade one service without affecting the entire system.
+- **Team management:** Teams can work on separate services, reducing dependencies and improving productivity.
 
-###### **_Architecture Overview_**
+#### **c) Disadvantages**
 
-Kubernetes follows a master-worker architecture, consisting of a control plane that manages the cluster and worker nodes that run application workloads.
+- **More complex:** Managing many services requires monitoring, logging, and coordination tools to keep everything working together.
+- **Higher cost:** Running multiple services usually needs more infrastructure and maintenance effort than a monolithic system.
+- **Communication challenges:** Services must communicate via APIs or message queues, which requires good standards and reliable tools.
 
-###### **_Control Plane Components_**
+## **1.3. Infrastructure and DevOps** {#1.3.-infrastructure-and-devops}
 
-The API Server serves as the central management entity and the front end for the Kubernetes control plane. All communication between components and external users passes through the API Server, which exposes the Kubernetes API and processes RESTful requests to modify cluster state.
+### **1.3.1. Container Orchestration: Kubernetes** {#1.3.1.-container-orchestration:-kubernetes}
 
-etcd is a distributed, consistent key-value store that serves as Kubernetes' backing store for all cluster data. It maintains the configuration data and state of the cluster, ensuring consistency across all control plane components.
+**Overview**  
+ Kubernetes (K8s) is an open-source platform used to **deploy, manage, and scale containerized applications**. It is widely used for microservice systems because it automates many operational tasks such as scheduling containers, scaling, and recovery.
 
-The Scheduler watches for newly created pods without assigned nodes and selects appropriate nodes for them to run on. Scheduling decisions consider factors such as resource requirements, hardware constraints, affinity specifications, and data locality.
+**Why Kubernetes is used**
 
-The Controller Manager runs controller processes that regulate cluster state. Controllers include the Node Controller for monitoring node health, the Replication Controller for maintaining correct pod counts, the Endpoints Controller for populating endpoint objects, and the Service Account Controller for creating default accounts and tokens.
+- **Automated deployment & updates:** supports rolling updates and rollback.
 
-The Cloud Controller Manager integrates with underlying cloud provider APIs, enabling Kubernetes to interact with cloud-specific resources such as load balancers, storage volumes, and networking components.
+- **Scalability:** scale services horizontally by increasing pod replicas.
 
-###### **_Worker Node Components_**
+- **Self-healing:** restarts or replaces failed containers automatically.
 
-The Kubelet is an agent that runs on each worker node, ensuring that containers are running in pods as expected. It communicates with the control plane, receives pod specifications, and manages container lifecycle on its node.
+- **Service discovery & load balancing:** stable access to pods via Services.
 
-Kube-proxy maintains network rules on nodes, enabling network communication to pods from inside and outside the cluster. It implements the Kubernetes Service concept by managing iptables rules or IPVS configurations.
+- **Configuration management:** manage config and sensitive credentials safely.
 
-The Container Runtime is the software responsible for running containers. Kubernetes supports various container runtimes including containerd, CRI-O, and any implementation of the Kubernetes Container Runtime Interface (CRI).
+**Architecture (high level)**
 
-##### **Core Concepts and Objects**
+- **Control Plane:** manages the whole cluster (API, scheduling, controllers, cluster state).
+- **Worker Nodes:** run the application workloads (pods/containers).
 
-###### **_Pods_**
+**Key Kubernetes objects**
 
-A Pod is the smallest deployable unit in Kubernetes, representing a single instance of a running process in the cluster. A pod encapsulates one or more containers that share storage, network, and a specification for how to run. Containers within a pod communicate via localhost and share the same IP address and port space.
+- **Pod:** smallest unit, runs one (or more) container(s).
+- **Deployment:** manages replicas and rolling updates of pods.
+- **Service:** provides a stable endpoint to access pods.
+- **Ingress:** routes external HTTP/HTTPS traffic into services.
+- **ConfigMap / Secret:** store configuration and sensitive data.
+- **Namespace:** logical isolation for teams/environments.
+- **PV/PVC:** persistent storage for stateful applications.
 
-While pods can contain multiple containers, the most common pattern is a single container per pod. Multi-container pods are used for tightly coupled processes that need to share resources, such as sidecar patterns for logging, proxying, or data synchronization.
+**Operational features commonly used**
 
-###### **_Deployments_**
+- **Autoscaling:** HPA scales pods based on CPU/memory metrics.
+- **Storage:** PVCs enable data persistence across pod restarts.
+- **Security:** RBAC controls permissions; service accounts for workloads.
+- **Observability:** logging \+ metrics monitoring (commonly Prometheus/Grafana).
 
-Deployments provide declarative updates for pods and ReplicaSets. You describe the desired state in a Deployment specification, and the Deployment Controller changes the actual state to match. Deployments manage rolling updates and rollbacks, ensuring zero-downtime deployments by gradually replacing old pods with new ones.
+---
 
-A typical Deployment specification defines the number of replicas, the container image to use, resource limits, and update strategy parameters such as maximum unavailable pods during updates.
+### **1.3.2. CI/CD Pipeline: GitHub Actions** {#1.3.2.-ci/cd-pipeline:-github-actions}
 
-###### **_Services_**
+**Overview**  
+ GitHub Actions is a CI/CD tool built into GitHub that allows you to **automate build, test, and deployment workflows** using YAML files stored in `.github/workflows/`.
 
-Services provide stable networking for pods, which have ephemeral IP addresses that change when pods are recreated. A Service defines a logical set of pods and a policy for accessing them, typically identified by a label selector.
+**CI/CD concept**
 
-Kubernetes supports several Service types. ClusterIP exposes the service on an internal IP within the cluster, making it reachable only from within. NodePort exposes the service on each node's IP at a static port, accessible from outside the cluster. LoadBalancer provisions an external load balancer in supported cloud environments. ExternalName maps the service to a DNS name, useful for accessing external services.
+- **CI (Continuous Integration):** automatically build and test code when changes are pushed or merged.
 
-###### **_ConfigMaps and Secrets_**
+- **CD (Continuous Delivery/Deployment):** automatically deliver/deploy the verified build to staging/production.
 
-ConfigMaps store non-confidential configuration data as key-value pairs, allowing you to decouple configuration from container images. Applications can consume ConfigMaps as environment variables, command-line arguments, or configuration files mounted in volumes.
+**Core components**
 
-Secrets function similarly to ConfigMaps but are intended for sensitive data such as passwords, tokens, and certificates. Kubernetes stores secrets encoded in base64 and provides mechanisms for encryption at rest. Pods reference secrets to access sensitive configuration without embedding credentials in application code.
+- **Workflow:** the full automation pipeline defined in YAML.
+- **Event triggers:** push, pull request, release, schedule, etc.
+- **Jobs & steps:** jobs are groups of steps; steps run sequentially.
+- **Actions:** reusable tasks (checkout code, login to registry, deploy, etc.).
+- **Runners:** machines that execute workflows (GitHub-hosted or self-hosted).
+- **Secrets & environments:** securely store tokens/credentials and manage deployment permissions.
 
-###### **_Namespaces_**
+**Typical pipeline for a Kubernetes project**
 
-Namespaces provide a mechanism for isolating groups of resources within a single cluster. They enable multiple teams or projects to share a cluster while maintaining logical separation. Resource quotas and access controls can be applied at the namespace level, making them useful for multi-tenant environments.
+**![][image3]**
 
-###### **_Persistent Volumes_**
+1. **Checkout code**
 
-Persistent Volumes (PV) and Persistent Volume Claims (PVC) provide an abstraction for storage in Kubernetes. A PV represents a piece of storage provisioned by an administrator or dynamically provisioned using Storage Classes. A PVC is a request for storage by a user, specifying size and access modes. Kubernetes binds PVCs to appropriate PVs, allowing pods to use persistent storage that survives pod restarts and rescheduling.
+2. **Install dependencies**
 
-###### **_Ingress_**
+3. **Lint \+ run tests**
 
-Ingress manages external access to services within a cluster, typically HTTP and HTTPS traffic. An Ingress resource defines rules for routing external requests to internal services based on hostnames and paths. Ingress Controllers implement these rules, commonly using reverse proxies like NGINX, Traefik, or cloud provider load balancers.
+4. **Build Docker image**
 
-###### **_Networking in Kubernetes_**
+5. **Push image to container registry**
 
-Kubernetes implements a flat network model where every pod receives its own IP address and can communicate with any other pod in the cluster without NAT. This simplifies application design by eliminating the need for port mapping and enabling containers to behave as if they were on the same network.
+6. **Deploy/update to Kubernetes (staging → production)**  
+   (Optional: manual approval for production deployments)
 
-The Container Network Interface (CNI) specification defines how network plugins integrate with Kubernetes. Popular CNI plugins include Calico for network policy enforcement, Flannel for simple overlay networking, Cilium for eBPF-based networking with advanced security features, and Weave Net for encrypted mesh networking.
-
-Network Policies define how pods communicate with each other and with external endpoints. By default, all pods can communicate freely, but Network Policies enable fine-grained control over ingress and egress traffic based on labels, namespaces, and IP blocks.
-
-###### **_Scaling and Autoscaling_**
-
-Kubernetes provides multiple mechanisms for scaling applications to meet demand.
-
-Manual scaling involves adjusting the replica count in a Deployment or StatefulSet specification, either through kubectl commands or by modifying the manifest. Kubernetes then creates or terminates pods to match the desired count.
-
-The Horizontal Pod Autoscaler (HPA) automatically scales the number of pod replicas based on observed metrics such as CPU utilization, memory usage, or custom application metrics. HPA continuously monitors metrics and adjusts replica counts within configured minimum and maximum bounds.
-
-The Vertical Pod Autoscaler (VPA) automatically adjusts CPU and memory requests and limits for containers based on historical usage. Unlike HPA, which adds more pods, VPA right-sizes existing pods to optimize resource utilization.
-
-The Cluster Autoscaler automatically adjusts the number of nodes in a cluster based on pending pods that cannot be scheduled due to insufficient resources. It integrates with cloud providers to provision and deprovision nodes dynamically.
-
-###### **_Storage Management_**
-
-Kubernetes provides a robust storage framework supporting various storage backends and use cases.
-
-Storage Classes define different classes of storage with specific performance characteristics, provisioners, and parameters. Administrators create Storage Classes to offer storage tiers such as SSD-backed high-performance storage or cost-effective standard storage. When users create PVCs referencing a Storage Class, Kubernetes dynamically provisions the appropriate storage.
-
-StatefulSets manage stateful applications requiring stable network identities and persistent storage. Unlike Deployments, StatefulSets maintain a sticky identity for each pod, ensuring that pods are created and deleted in a predictable order and that persistent volumes remain associated with specific pod instances.
-
-###### **_Security Concepts_**
-
-Role-Based Access Control (RBAC) regulates access to Kubernetes resources based on the roles of individual users or service accounts. Roles define permissions within a namespace, while ClusterRoles define cluster-wide permissions. RoleBindings and ClusterRoleBindings associate roles with subjects such as users, groups, or service accounts.
-
-Pod Security Standards define security policies for pods, replacing the deprecated Pod Security Policies. These standards define three profiles: Privileged allows unrestricted access, Baseline prevents known privilege escalations, and Restricted enforces security best practices for sensitive workloads.
-
-Service Accounts provide identities for processes running in pods. Applications use service accounts to authenticate with the Kubernetes API or external services. Each namespace has a default service account, and custom service accounts can be created with specific permissions.
-
-###### **_Observability_**
-
-Effective Kubernetes operations require comprehensive observability across logging, monitoring, and tracing.
-
-For logging, Kubernetes captures standard output and error streams from containers. Aggregation solutions like the EFK stack comprising Elasticsearch, Fluentd, and Kibana or Loki with Grafana collect and visualize logs from across the cluster.
-
-Monitoring typically involves Prometheus for metrics collection and alerting, often paired with Grafana for visualization. Kubernetes exposes metrics through the Metrics Server, and applications can expose custom metrics for consumption by monitoring systems and autoscalers.
-
-Distributed tracing with tools like Jaeger or Zipkin helps track requests across microservices, identifying latency bottlenecks and understanding service dependencies.
-
-###### **_Deployment Strategies_**
-
-Kubernetes supports various deployment strategies for updating applications with minimal disruption.
-
-Rolling Updates gradually replace old pods with new ones, ensuring that a minimum number of pods remain available throughout the process. This is the default strategy for Deployments and provides zero-downtime updates for most applications.
-
-Blue-Green Deployments maintain two identical environments, with traffic switched between them during releases. This approach enables instant rollback by reverting traffic to the previous environment.
-
-Canary Deployments gradually route a percentage of traffic to new versions, allowing validation before full rollout. Service meshes like Istio or Linkerd provide sophisticated traffic management for implementing canary releases.
-
-###### **_Ecosystem and Tools_**
-
-The Kubernetes ecosystem includes numerous tools that extend its capabilities.
-
-Helm is the package manager for Kubernetes, providing templating and release management for complex applications. Helm charts package Kubernetes manifests with configurable values, simplifying deployment and upgrades.
-
-kubectl is the command-line interface for interacting with Kubernetes clusters. It provides commands for deploying applications, inspecting resources, viewing logs, and executing commands in containers.
-
-Kustomize enables customization of Kubernetes manifests without templates, using overlays and patches to modify base configurations for different environments.
-
-Operators extend Kubernetes to manage complex stateful applications like databases and message queues. Operators encode operational knowledge into software, automating tasks that would otherwise require manual intervention.
-
-### 1.3.3.4. CI/CD Pipeline: Github Action
-
-##### **Introduction**
-
-GitHub Actions is a powerful automation platform built directly into GitHub that enables developers to automate software workflows, including Continuous Integration and Continuous Deployment (CI/CD). Launched in 2019, it has rapidly become one of the most popular CI/CD solutions due to its seamless integration with GitHub repositories and its flexible, event-driven architecture.
-
-By defining workflows as code within your repository, GitHub Actions allows teams to build, test, and deploy applications automatically whenever specific events occur, such as code pushes, pull requests, or scheduled triggers.
-
-##### **Understanding CI/CD**
-
-###### **_Continuous Integration (CI)_**
-
-Continuous Integration is the practice of frequently merging code changes into a shared repository, where automated builds and tests verify each integration. This approach catches bugs early, reduces integration problems, and enables teams to develop software more rapidly with higher quality.
-
-###### **_Continuous Deployment/Delivery (CD)_**
-
-Continuous Delivery ensures that code is always in a deployable state by automating the release process up to the production environment. Continuous Deployment takes this further by automatically deploying every change that passes all tests to production without manual intervention.
-
-##### **Core Concepts of GitHub Actions**
-
-###### **_Workflows_**
-
-A workflow is an automated process defined in a YAML file stored in the .github/workflows directory of your repository. Each workflow consists of one or more jobs and is triggered by specific events. You can have multiple workflows in a single repository, each serving different purposes such as testing, building, or deploying.
-
-###### **_Events_**
-
-Events are specific activities that trigger a workflow. Common events include pushing code to a branch, opening or merging a pull request, creating a release, or following a scheduled cron expression. GitHub supports a wide variety of events, allowing workflows to respond to virtually any activity in your repository.
-
-###### **_Jobs_**
-
-Jobs are sets of steps that execute on the same runner. By default, jobs in a workflow run in parallel, but you can configure dependencies between jobs to run them sequentially. Each job runs in a fresh virtual environment, ensuring isolation and reproducibility.
-
-###### **_Steps_**
-
-Steps are individual tasks within a job. A step can run commands directly using shell scripts or execute pre-built actions. Steps within a job execute sequentially and share the same filesystem, allowing them to pass data between each other.
-
-###### **_Actions_**
-
-Actions are reusable units of code that perform specific tasks. You can use actions created by GitHub, the community, or build your own custom actions. The GitHub Marketplace hosts thousands of actions for common tasks like checking out code, setting up programming languages, deploying to cloud providers, and sending notifications.
-
-###### **_Runners_**
-
-Runners are servers that execute your workflows. GitHub provides hosted runners with Linux, Windows, and macOS environments, pre-configured with common tools and languages. For specialized requirements or enhanced security, you can also configure self-hosted runners on your own infrastructure.
-
-##### **Key Features**
-
-###### **_Matrix Builds_**
-
-Matrix builds allow you to run the same job across multiple configurations simultaneously. This is particularly useful for testing applications across different operating systems, language versions, or environment variables:
-
-###### **_Secrets Management_**
-
-GitHub Actions provides secure storage for sensitive information such as API keys, credentials, and tokens. Secrets are encrypted and only exposed to workflows at runtime. You can define secrets at the repository, environment, or organization level:
-
-###### **_Environments and Deployment Protection_**
-
-Environments allow you to configure deployment targets with specific protection rules. You can require manual approvals, restrict which branches can deploy, and define environment-specific secrets. This ensures proper governance over production deployments.
-
-###### **_Caching and Artifacts_**
-
-Caching dependencies between workflow runs significantly speeds up execution time. GitHub Actions supports caching for package managers like npm, pip, Maven, and Gradle. Artifacts allow you to persist data from workflow runs, such as build outputs, test results, or logs, for later retrieval or use in subsequent jobs.
-
-###### **_Reusable Workflows_**
-
-Reusable workflows enable you to define a workflow once and call it from other workflows. This promotes consistency across repositories and reduces duplication. Organizations can maintain centralized workflow templates that individual repositories reference.
-
-###### **_Concurrency Control_**
-
-Concurrency settings prevent multiple instances of the same workflow from running simultaneously. This is particularly important for deployment workflows where running concurrent deployments could cause conflicts or inconsistencies.
-
-##### **Common Use Cases**
-
-###### **_Automated Testing_**
-
-Running unit tests, integration tests, and end-to-end tests automatically on every pull request ensures code quality and prevents regressions. Test results can be reported as checks on pull requests, providing immediate feedback to developers.
-
-###### **_Code Quality and Security_**
-
-Integrating linters, static analysis tools, and security scanners into your workflow catches potential issues before they reach production. Tools like ESLint, SonarQube, and Dependabot can be incorporated to maintain code standards and identify vulnerabilities.
-
-###### **_Build and Package_**
-
-Compiling applications, building Docker images, and creating release packages can be fully automated. Built artifacts can be published to package registries, container registries, or artifact storage for distribution.
-
-###### **_Deployment Automation_**
-
-Deploying applications to various platforms including cloud providers, Kubernetes clusters, serverless functions, and static site hosts. GitHub Actions integrates with AWS, Azure, Google Cloud, Vercel, Netlify, and many other platforms through official and community actions.
-
-###### **_Scheduled Tasks_**
-
-Running periodic jobs such as database backups, report generation, dependency updates, or cleanup tasks. Cron expressions define the schedule, and workflows execute automatically at the specified times.
-
-##### **Comparison with Alternatives**
-
-###### **_GitHub Actions vs. Jenkins_**
-
-Jenkins offers greater flexibility and an extensive plugin ecosystem but requires self-hosting and maintenance. GitHub Actions provides a managed service with native GitHub integration, simpler configuration, and generous free tier for public repositories.
-
-###### **_GitHub Actions vs. GitLab CI/CD_**
-
-Both platforms offer similar capabilities with tight integration into their respective ecosystems. GitLab CI/CD is preferred when using GitLab for source control, while GitHub Actions is the natural choice for GitHub-hosted repositories.
-
-###### **_GitHub Actions vs. CircleCI_**
-
-CircleCI provides powerful caching, parallelism features, and a robust cloud infrastructure. GitHub Actions offers tighter GitHub integration and avoids the need for an additional external service in your development workflow.
-
-## **1.4. Architectural Patterns** {#1.4.-architectural-patterns}
-
-### **1.4.1. Some popular software architectures**
-
-#### **a) Kiến trúc nguyên khối (Monolithic Architecture)** **Kiến trúc nguyên khối là mô hình phần mềm truyền thống, trong đó toàn bộ ứng dụng được xây dựng dưới dạng một khối duy nhất, chứa tất cả các thành phần và chức năng.**
-
-- Đặc điểm:
-    - Mọi thành phần (frontend, backend, database) đều được tích hợp chặt chẽ với nhau.
-    - Việc triển khai (deployment) chỉ yêu cầu một bản build duy nhất.
-    - Quản lý đơn giản, dễ phát triển ở giai đoạn ban đầu.
-- Ưu điểm:
-    - Dễ triển khai, dễ dàng trong việc kiểm tra và gỡ lỗi.
-    - Hiệu suất cao do không có chi phí giao tiếp giữa các dịch vụ.
-    - Tích hợp nhanh khi làm việc với các nhóm nhỏ.
-- Nhược điểm:
-    - Khó bảo trì và mở rộng khi ứng dụng lớn dần.
-    - Nếu một phần của hệ thống bị lỗi, toàn bộ ứng dụng có thể ngừng hoạt động.
-    - Khó áp dụng các công nghệ mới vào một phần nhỏ của hệ thống.
-
-#### **b) Kiến trúc hướng dịch vụ (Service-Oriented Architecture \- SOA)**
-
-- SOA (Service-Oriented Architecture) là **một phong cách kiến trúc phần mềm** trong đó các chức năng của hệ thống được **đóng gói thành các dịch vụ độc lập (independent services)**.
-
-- Mỗi dịch vụ đảm nhiệm một nghiệp vụ cụ thể và có thể **giao tiếp, phối hợp với nhau thông qua các giao thức truyền thông chuẩn** (như HTTP, AMQP, SOAP hoặc REST), nhằm **xây dựng nên các ứng dụng phức tạp từ các thành phần tái sử dụng**.
-
-* Đặc điểm:
-    - **Tính độc lập (Loose Coupling):** Các dịch vụ được phát triển, triển khai và mở rộng một cách độc lập, không phụ thuộc trực tiếp vào nhau.
-    - **Tính tái sử dụng (Reusability):** Một dịch vụ có thể được dùng lại trong nhiều ứng dụng hoặc quy trình nghiệp vụ khác nhau.
-    - **Tính tương tác (Interoperability):** Các dịch vụ có thể giao tiếp dù được viết bằng ngôn ngữ hay chạy trên nền tảng khác nhau, thông qua chuẩn chung (SOAP/XML, REST/JSON, v.v.).
-    - **Giao tiếp qua lớp trung gian:** Thông thường, việc trao đổi giữa các dịch vụ được quản lý bởi **Enterprise Service Bus (ESB)** hoặc **API Gateway** để đảm bảo định tuyến, bảo mật và giám sát.
-* Ưu điểm:
-    - Cho phép **tái sử dụng dịch vụ** trong nhiều hệ thống.
-    - **Dễ bảo trì, mở rộng** và **tích hợp** với các hệ thống bên ngoài.
-    - **Tăng tính linh hoạt** trong việc triển khai, thay đổi hoặc nâng cấp từng phần của hệ thống mà không ảnh hưởng đến toàn bộ ứng dụng.
-    - **Phù hợp với các tổ chức lớn** cần tích hợp nhiều hệ thống nghiệp vụ khác nhau.
-* Nhược điểm:
-    - **Phức tạp trong triển khai** do cần lớp tích hợp (ESB/API Gateway) và cơ chế quản lý dịch vụ.
-    - Có thể xuất hiện **điểm nghẽn (bottleneck)** tại ESB nếu thiết kế không tối ưu.
-    - **Chi phí phát triển và bảo trì cao**, đòi hỏi hạ tầng đồng bộ.
-    - **Hiệu suất thấp hơn** so với kiến trúc nguyên khối (monolithic) do chi phí truyền thông giữa các dịch vụ.
-
-### **1.4.2. Overview of microservice architecture**
-
-#### **a) Tổng quan**
-
-· Microservices là một kiến trúc phần mềm trong đó ứng dụng được chia thành nhiều **dịch vụ nhỏ** (micro-service) hoạt động độc lập. Mỗi dịch vụ đảm nhận một chức năng cụ thể và được triển khai, vận hành độc lập.
-
-· Kiến trúc microservices khá phổ biến hiện nay và được nhiều công ty lớn sử dụng như: Netflix, eBay, Amazon, Twitter, PayPal,...
-
-· Mỗi service trong kiến trúc này là mỗi module độc lập giúp dễ dàng phát triển, kiểm thử, mở rộng và triển khai…
-
-![][image2]
-
-Hình 1\. 1\. Kiến trúc microservice
-
-#### **b) Ưu điểm:**
-
-- **Khả năng mở rộng:**
-
-    Mỗi dịch vụ trong kiến trúc microservice được thiết kế độc lập, cho phép mở rộng một cách riêng biệt. Ví dụ: nếu một dịch vụ nhận được lưu lượng truy cập lớn (như dịch vụ xử lý thanh toán trong một ứng dụng thương mại điện tử), chỉ cần mở rộng dịch vụ này mà không cần tăng tài nguyên cho các dịch vụ khác.
-
-    Lợi ích:
-    - Tối ưu hóa tài nguyên hệ thống.
-    - Tiết kiệm chi phí vận hành vì chỉ cần mở rộng những phần cần thiết.
-    - Dễ dàng đáp ứng nhu cầu tăng trưởng theo thời gian.
-
-- **Khả năng chịu lỗi:**
-
-    Trong microservice, nếu một dịch vụ bị lỗi, các dịch vụ khác có thể tiếp tục hoạt động bình thường vì chúng hoạt động độc lập. Ví dụ, nếu dịch vụ gửi email bị lỗi, hệ thống vẫn có thể xử lý các đơn hàng mà không bị gián đoạn.
-
-    Lợi ích:
-
-    o Giảm thiểu rủi ro ngừng hoạt động toàn hệ thống.
-
-    o Cải thiện trải nghiệm người dùng khi hệ thống vẫn duy trì dịch vụ chính.
-
-- **Linh hoạt:**
-
-    Các dịch vụ có thể được viết bằng các ngôn ngữ lập trình khác nhau và sử dụng các công nghệ khác nhau. Nếu cần nâng cấp hoặc áp dụng công nghệ mới, bạn chỉ cần thực hiện trên một dịch vụ cụ thể mà không ảnh hưởng đến toàn bộ hệ thống.
-
-    Lợi ích:
-
-    o Dễ dàng thử nghiệm và tích hợp công nghệ mới.
-
-    o Giảm rủi ro khi triển khai các tính năng hoặc công nghệ mới.
-
-- **Quản lý đội ngũ:**
-
-    Với kiến trúc microservice, mỗi đội phát triển có thể chịu trách nhiệm cho một dịch vụ riêng biệt. Điều này giảm thiểu xung đột và sự phụ thuộc giữa các nhóm.
-
-    Lợi ích:
-    - Tăng năng suất làm việc của đội ngũ.
-    - Đơn giản hóa việc quản lý dự án lớn.
-    - Tạo điều kiện cho các nhóm nhỏ tập trung vào chuyên môn riêng.
-
-#### **c) Nhược điểm:**
-
-- **Phức tạp:** Việc chia nhỏ hệ thống thành nhiều dịch vụ dẫn đến sự phức tạp trong quản lý. Cần có các công cụ giám sát, logging và quản lý giao tiếp để đảm bảo các dịch vụ hoạt động đồng bộ.
-- **Chi phí:** Việc vận hành nhiều dịch vụ riêng biệt đòi hỏi tài nguyên lớn hơn so với hệ thống nguyên khối. Cần đầu tư vào hạ tầng (máy chủ, công cụ giám sát) và nhân lực để duy trì.
-- **Thách thức về giao tiếp:** Các dịch vụ phải giao tiếp với nhau thông qua giao thức API hoặc Message Queue. Điều này đòi hỏi sử dụng các công cụ và tiêu chuẩn giao tiếp hiệu quả.
+## **1.4. Chapter 1 Conclusion** {#1.4.-chapter-1-conclusion}
 
 #
 
@@ -1097,7 +981,7 @@ Hình 1\. 1\. Kiến trúc microservice
 
 This section identifies the key stakeholders (actors) who interact with the Secure Assessment Platform (SAP), defines the terminology used throughout the system analysis, and consolidates functional/non-functional requirements derived from the platform goals and the requirements draft.
 
-### **2.1.1. Identify and describe the actors**
+### **2.1.1. Identify and describe the actors** {#2.1.1.-identify-and-describe-the-actors}
 
 _Table 2.1. Main actors of SAP_
 
@@ -1114,7 +998,7 @@ In addition to the “human” actors above, the platform relies on technical ac
 - Auto-graded function: backend services which auto-grading multiple-choice questions.
 - Notification delivery mechanisms (real-time \+ email): needed to push alerts and results to admins/teachers/students.
 
-### **2.1.2. Building a glossary**
+### **2.1.2. Building a glossary** {#2.1.2.-building-a-glossary}
 
 _Table 2.2. Glossary using in SAP_
 
@@ -1139,7 +1023,7 @@ _Table 2.2. Glossary using in SAP_
 
 ###
 
-### **2.1.3. Identify requirements**
+### **2.1.3. Identify requirements** {#2.1.3.-identify-requirements}
 
 #### **2.1.3.1. Functional requirements**
 
@@ -1221,15 +1105,15 @@ _Table 2.2. Glossary using in SAP_
 **F. Group Management**
 
 - Students**:**
-    - FR-50: Allow a Student to join/leave a Group via invite code/link or join-request workflow.
+    - **FR-50**: Allow a Student to join/leave a Group via invite code/link or join-request workflow.
 - Teachers:
-    - FR-51: Allow Teacher/Admin to manage Group membership (approve/deny requests, remove members,bulk import/export roster).
-    - FR-52: Allow Teacher to assign/publish an Assessment to one or more Groups, with optional availability window and attempt limits per group.
-    - FR-55: Provide Teacher analytics at Group level (participants, completion rate, average/median, score)
+    - **FR-51**: Allow Teacher/Admin to manage Group membership (approve/deny requests, remove members,bulk import/export roster).
+    - **FR-52**: Allow Teacher to assign/publish an Assessment to one or more Groups, with optional availability window and attempt limits per group.
+    - **FR-55**: Provide Teacher analytics at Group level (participants, completion rate, average/median, score)
 - Assessment:
-    - FR-53: When an Assessment is assigned to a Group, notify all Group members via configured channels (SSE/Email) and support reminder notifications before due time.
-    - FR-54: Restrict assessment access so only students who are members of the target Group(s) can view/attempt the assigned Assessment.
-    - FR-55: Provide Teacher analytics at Group level (participants, completion rate, average/median, score distribution) and per-student list; allow export (PDF/Excel).
+    - **FR-53**: When an Assessment is assigned to a Group, notify all Group members via configured channels (SSE/Email) and support reminder notifications before due time.
+    - **FR-54**: Restrict assessment access so only students who are members of the target Group(s) can view/attempt the assigned Assessment.
+    - **FR-55**: Provide Teacher analytics at Group level (participants, completion rate, average/median, score distribution) and per-student list; allow export (PDF/Excel).
 
 #### **2.1.3.2. Non-functional requirements**
 
@@ -1345,50 +1229,50 @@ _Table 2.2. Glossary using in SAP_
 
 ## **2.2. Use Case Identification and Description** {#2.2.-use-case-identification-and-description}
 
-### **2.2.1. Overall use cases of the system**
-
-![][image3]
-
-### **2.2.2. Detailed use cases for students.**
-
-- Use case take exam:
+### **2.2.1. Overall use cases of the system** {#2.2.1.-overall-use-cases-of-the-system}
 
 ![][image4]
 
-- Use case view result:
+### **2.2.2. Detailed use cases for students.** {#2.2.2.-detailed-use-cases-for-students.}
+
+- Use case take exam:
 
 ![][image5]
 
-- Use case contest:  
-  ![][image6]
+- Use case view result:
 
-### **2.2.3. Detailed use cases for teachers.**
+![][image6]
+
+- Use case contest:  
+  ![][image7]
+
+### **2.2.3. Detailed use cases for teachers.** {#2.2.3.-detailed-use-cases-for-teachers.}
 
 - Use case manage assessment, question and question bank:  
-  ![][image7]
-- Use case manage contest:  
   ![][image8]
-- Use case grade and evaluate:  
+- Use case manage contest:  
   ![][image9]
+- Use case grade and evaluate:  
+  ![][image10]
 - Use case monitoring and analysis:
-
-![][image10]
-
-### **2.2.3. Detailed use cases for administrators.**
-
-- Use case manage user and group:
 
 ![][image11]
 
+### **2.2.3. Detailed use cases for administrators.** {#2.2.3.-detailed-use-cases-for-administrators.}
+
+- Use case manage user and group:
+
+![][image12]
+
 - Use case notification management:  
-  ![][image12]
-- Use case system administration:  
   ![][image13]
+- Use case system administration:  
+  ![][image14]
 - Use case monitoring and analytics system and proctoring:
 
-![][image14]
+![][image15]
 
-### **2.2.4. Main scenarios for students.**
+### **2.2.4. Main scenarios for students.** {#2.2.4.-main-scenarios-for-students.}
 
 Table 2.1: Scenario of Authentication & Profile Management (as User)
 
@@ -1451,7 +1335,7 @@ Table 2.6: Scenario of Join a Group (as Users):
 | **Main Scenario**  | 1\. Student navigates to "Groups" page. 2\. System displays available groups and/or a "Join via Code" field. 3\. Student enters group code (or selects a group) and clicks "Join" / "Request to Join". 4\. System validates group code and eligibility. 5\. If group is open: system adds student to group immediately. 6\. If approval is required: system stores request as Pending and notifies Teacher/Admin. 7\. System confirms the result (Joined/Pending) to the student. |
 | **Exception**      | 1.1 Invalid/expired code: system shows an error. 2.1 Group closed: system blocks join and suggests invitation. 3.1 Already member: system displays "You are already in this group".                                                                                                                                                                                                                                                                                               |
 
-### **2.2.5. Main scenarios for teachers.**
+### **2.2.5. Main scenarios for teachers.** {#2.2.5.-main-scenarios-for-teachers.}
 
 Table 3.1: Scenario of Authentication & Profile Management (as User)
 
@@ -1615,7 +1499,7 @@ Table 3.12: Scenario of View Group Results (as Teacher)
 | **Main Scenario**  | 1\. Teacher navigates to "Reports" / "Analytics". 2\. Teacher selects an Assessment and filters by Group. 3\. System displays summary metrics: started, completed, average score, pass rate. 4\. System displays score distribution and violation summary (optional). 5\. System displays per-student list: score, status, time taken, violations. 6\. Teacher sorts/filters and opens any student attempt for details. 7\. Teacher exports the report (PDF/Excel). |
 | **Exception**      | 1.1 No attempts yet: system shows roster with "Not started" statuses. 2.1 Access denied: system blocks results outside teacher’s assigned groups.                                                                                                                                                                                                                                                                                                                   |
 
-### **2.2.6. Main scenarios for administrators.**
+### **2.2.6. Main scenarios for administrators.** {#2.2.6.-main-scenarios-for-administrators.}
 
 Table 4.1: Scenario of Authentication & Profile Management (as User)
 
@@ -1783,11 +1667,11 @@ Table 4.14: Scenario of Manage Notification Preferences (as User)
 | **Main Scenario**  | 1\. Admin navigates to "Settings" or "Preferences" page. 2\. System displays current notification preferences. 3\. Admin configures notification channels (Email, SSE, Push, SMS). 4\. Admin selects which events to receive notifications for: \- System alerts and warnings \- User registration notifications \- Security events \- High-priority violation alerts \- Scheduled report delivery 5\. Admin saves preferences. 6\. System validates and stores preferences. 7\. System confirms update with success message. |
 | **Exception**      | 1.1 Invalid configuration: System displays validation error for invalid settings. 2.1 Save failed: System displays error and prompts retry.                                                                                                                                                                                                                                                                                                                                                                                   |
 
-### **2.2.7. UI flows and screen mapping**
+### **2.2.7. UI flows and screen mapping** {#2.2.7.-ui-flows-and-screen-mapping}
 
 ## **2.3. System Analysis** {#2.3.-system-analysis}
 
-### **2.3.1. Assessment Service**
+### **2.3.1. Assessment Service** {#2.3.1.-assessment-service}
 
 #### **2.3.1.1. Extraction of System Entity Classes**
 
@@ -1834,7 +1718,7 @@ Table 4.14: Scenario of Manage Notification Preferences (as User)
 
 ---
 
-### **2.3.2. Proctoring Service**
+### **2.3.2. Proctoring Service** {#2.3.2.-proctoring-service}
 
 #### **2.3.2.1. Extraction of System Entity Classes**
 
@@ -1878,7 +1762,7 @@ Table 4.14: Scenario of Manage Notification Preferences (as User)
 - Each **ViolationAttemptSummary** summarizes all **ViolationLogs** for a specific attempt_id.
 - Each **ViolationUserPatterns** aggregates **ViolationLogs** by user per day for pattern analysis.
 
-### **2.3.3. Identity Service (Casdoor)**
+### **2.3.3. Identity Service (Casdoor)** {#2.3.3.-identity-service-(casdoor)}
 
 #### **2.3.3.1. Extraction of System Entity Classes**
 
@@ -1971,7 +1855,7 @@ Table 4.14: Scenario of Manage Notification Preferences (as User)
 - Each **Payment** is made by one **User** for a specific **Product** or **Plan**.
 - Each **Transaction** records a payment operation for one **User**.
 
-### **2.3.4. Identity Verification Service**
+### **2.3.4. Identity Verification Service** {#2.3.4.-identity-verification-service}
 
 #### **2.3.4.1. Extraction of System Entity Classes**
 
@@ -1990,7 +1874,7 @@ Table 4.14: Scenario of Manage Notification Preferences (as User)
 - Each **IdMapping** enables retrieval of the associated **FaceEmbedding** from Redis vector storage.
 - Each **FaceEmbedding** (in Redis) corresponds to exactly one **IdMapping** record.
 
-### **2.3.5. Notification Service**
+### **2.3.5. Notification Service** {#2.3.5.-notification-service}
 
 #### **2.3.5.1. Extraction of System Entity Classes**
 
@@ -2029,7 +1913,7 @@ Based on the database schema, the system entities are identified as follows:
 - Each **NotificationPreference** belongs to exactly one **User** (via user_id, unique constraint), each User has at most one NotificationPreference.
 - Each **NotificationTemplate** defines placeholders that are resolved using data provided when creating a **Notification**.
 
-### **2.3.6. Group Service**
+### **2.3.6. Group Service** {#2.3.6.-group-service}
 
 #### **2.3.6.1. Extraction of System Entity Classes**
 
@@ -2080,34 +1964,34 @@ Based on the database schema, the system entities are identified as follows:
 
 ## **2.4. Building class diagrams at the design phase** {#2.4.-building-class-diagrams-at-the-design-phase}
 
-### **2.4.1. Assessment Service**
-
-![][image15]
-
-### **2.4.2. Identity Verification Service**
+### **2.4.1. Assessment Service** {#2.4.1.-assessment-service}
 
 ![][image16]
 
-### **2.4.3. Proctoring Service**
+### **2.4.2. Identity Verification Service** {#2.4.2.-identity-verification-service}
 
 ![][image17]
 
-### **2.4.4. Casdoor Identity Service (minimalism version)**
+### **2.4.3. Proctoring Service** {#2.4.3.-proctoring-service}
 
-![][image18]  
-![][image19]
+![][image18]
 
-### **2.4.5. Notification Service**
+### **2.4.4. Casdoor Identity Service (minimalism version)** {#2.4.4.-casdoor-identity-service-(minimalism-version)}
 
+![][image19]  
 ![][image20]
 
-### **2.4.6. Group Service**
+### **2.4.5. Notification Service** {#2.4.5.-notification-service}
 
 ![][image21]
 
+### **2.4.6. Group Service** {#2.4.6.-group-service}
+
+![][image22]
+
 ## **2.5. System sequence diagrams** {#2.5.-system-sequence-diagrams}
 
-### **2.5.1. Sequence diagrams for student functions**
+### **2.5.1. Sequence diagrams for student functions** {#2.5.1.-sequence-diagrams-for-student-functions}
 
 The student module focuses on the exam-taking experience. The following diagrams illustrate the core flows for taking an assessment and viewing results.
 
@@ -2161,7 +2045,7 @@ sequenceDiagram
     deactivate UI
 
 \`\`\`  
-![][image22]
+![][image23]
 
 #### **2.5.1.2. View Assessment Result Sequence Diagram**
 
@@ -2193,7 +2077,7 @@ sequenceDiagram
     deactivate UI
 
 \`\`\`  
-![][image23]
+![][image24]
 
 #### **2.5.1.3. Face Registration Sequence Diagram**
 
@@ -2230,7 +2114,7 @@ sequenceDiagram
     deactivate UI
 
 \`\`\`  
-![][image24]
+![][image25]
 
 #### **2.5.1.4. Student joins a Group (invite code, with optional approval)**
 
@@ -2261,9 +2145,9 @@ else Auto join
  Service--\>\>Page: Show "Joined successfully"  
 end
 
-![][image25]
+![][image26]
 
-### **2.5.2. Sequence diagrams for teacher functions**
+### **2.5.2. Sequence diagrams for teacher functions** {#2.5.2.-sequence-diagrams-for-teacher-functions}
 
 Teachers are responsible for content creation and exam monitoring. These diagrams show the workflow for creating a new assessment and monitoring an ongoing exam session.
 
@@ -2311,7 +2195,7 @@ sequenceDiagram
     deactivate UI
 
 \`\`\`  
-![][image26]
+![][image27]
 
 #### **2.5.2.2. Create Assessment Sequence Diagram**
 
@@ -2347,7 +2231,7 @@ sequenceDiagram
     deactivate UI
 
 \`\`\`  
-![][image27]
+![][image28]
 
 #### **2.5.2.3. Monitor Exam (Proctoring) Sequence Diagram**
 
@@ -2384,7 +2268,7 @@ sequenceDiagram
     deactivate UI
 
 \`\`\`  
-![][image28]
+![][image29]
 
 #### **2.5.2.4. Teacher assigns/publishes a Test to a Group → all members get notified**
 
@@ -2428,7 +2312,7 @@ API\--\>\>Service: PublishResult(success)
 
 Service\--\>\>Page: Show success message
 
-### **![][image29]**
+### **![][image30]**
 
 #### **2.5.2.5. Teacher views Group scores (total \+ list)**
 
@@ -2464,9 +2348,9 @@ Service--\>\>Page: Render totals \+ score table
 
 ###
 
-### **![][image30]**
+### **![][image31]**
 
-### **2.5.3. Sequence diagrams for administrator functions**
+### **2.5.3. Sequence diagrams for administrator functions** {#2.5.3.-sequence-diagrams-for-administrator-functions}
 
 Administrator functions are critical for maintaining the integrity and organization of the Secure Assessment Platform. The administrator is responsible for managing users, configuring system settings, and overseeing the overall operation. This section details the sequence of interactions for key administrator tasks, specifically focusing on User Management, which is fundamental to the system's security and accessibility.
 
@@ -2517,7 +2401,7 @@ sequenceDiagram
     deactivate UI
 
 \`\`\`  
-![][image31]  
+![][image32]  
 **_Figure 2.X. Sequence diagram for View User List function_**
 
 #### **2.5.3.2. Search Users Sequence Diagram**
@@ -2566,20 +2450,20 @@ sequenceDiagram
     deactivate UI
 
 \`\`\`  
-![][image32]  
+![][image33]  
 **_Figure 2.Y. Sequence diagram for Search Users function_**
 
 These sequence diagrams illustrate the separation of concerns within the system architecture, highlighting the interaction between the Presentation Layer (UI), Business Logic Layer (Service), and Data Access Layer (API/Database). This layered approach ensures maintainability and scalability of the administrator functions.
 
 ## **2.6. Database design** {#2.6.-database-design}
 
-### **2.6.1. Information of tables in the database.**
+### **2.6.1. Information of tables in the database.** {#2.6.1.-information-of-tables-in-the-database.}
 
-### **2.6.2. Database schema of the system.**
+### **2.6.2. Database schema of the system.** {#2.6.2.-database-schema-of-the-system.}
 
 ## **2.7. Microservices architecture implementation** {#2.7.-microservices-architecture-implementation}
 
-### **2.7.1. Overview**
+### **2.7.1. Overview** {#2.7.1.-overview}
 
 The Online Examination and Proctoring System adopts a microservices architecture to achieve scalability, maintainability, and independent deployment capabilities. Each microservice operates independently with its own database, following the database-per-service pattern and clean architecture principles with clear separation into handlers, services, and repositories layers.  
 **Design Goals:**
@@ -2596,9 +2480,9 @@ The Online Examination and Proctoring System adopts a microservices architecture
 - Interface-based design for testability
 - Event-driven communication via Redis Streams
 
-### **2.7.2. System Components**
+### **2.7.2. System Components** {#2.7.2.-system-components}
 
-![][image33]
+![][image34]
 
 #### **Core Microservices**
 
@@ -2666,7 +2550,7 @@ The Identity Service utilizes Casdoor as an external OAuth2/OIDC provider for ce
 | Session Service       | PostgreSQL           | user_sessions, assessment_sessions, session_activities                       |
 | Identity Service      | PostgreSQL (Casdoor) | user, role, permission, token, session                                       |
 
-### **2.7.3. Applying Technologies to the System**
+### **2.7.3. Applying Technologies to the System** {#2.7.3.-applying-technologies-to-the-system}
 
 #### **Complete Technology Stack**
 
@@ -2687,7 +2571,7 @@ The Identity Service utilizes Casdoor as an external OAuth2/OIDC provider for ce
 | Testing             | K6                                | Load and performance testing                |
 | Frontend            | React, TypeScript                 | Web user interface                          |
 
-### **2.7.4. Selecting Appropriate Technologies**
+### **2.7.4. Selecting Appropriate Technologies** {#2.7.4.-selecting-appropriate-technologies}
 
 #### **Technology Selection Matrix**
 
@@ -2712,13 +2596,13 @@ The Identity Service utilizes Casdoor as an external OAuth2/OIDC provider for ce
 
 ---
 
-### **2.7.5. Choosing Communication Methods Between Microservices**
+### **2.7.5. Choosing Communication Methods Between Microservices** {#2.7.5.-choosing-communication-methods-between-microservices}
 
 #### **Communication Patterns Overview**
 
 The system employs three primary communication patterns based on specific use case requirements.
 
-#### **![][image34]Pattern Selection Criteria**
+#### **![][image35]Pattern Selection Criteria**
 
 | Pattern               | Technology      | When to Use                                                            | Examples                                               |
 | :-------------------- | :-------------- | :--------------------------------------------------------------------- | :----------------------------------------------------- |
@@ -2730,7 +2614,7 @@ The system employs three primary communication patterns based on specific use ca
 
 The system uses Redis Streams with consumer groups for reliable, scalable event processing.
 
-#### **![][image35]Event Types and Routing**
+#### **![][image36]Event Types and Routing**
 
 | Event Type           | Source Service     | Target Service       | Communication | Purpose                  |
 | :------------------- | :----------------- | :------------------- | :------------ | :----------------------- |
@@ -2740,7 +2624,7 @@ The system uses Redis Streams with consumer groups for reliable, scalable event 
 | proctoring.violation | Proctoring Service | Notification Service | Redis Streams | Alert proctors           |
 | session.completed    | Session Service    | Notification Service | Redis Streams | Send results             |
 
-### **2.7.6. Designing a Hybrid Monolithic/Microservice System**
+### **2.7.6. Designing a Hybrid Monolithic/Microservice System** {#2.7.6.-designing-a-hybrid-monolithic/microservice-system}
 
 #### **Hybrid Architecture Strategy**
 
@@ -2777,37 +2661,35 @@ The hybrid architecture provides several advantages for the current stage of dev
 
 The frontend application follows a modular, feature-based architecture that promotes separation of concerns, code reusability, and maintainability. The project structure organizes code by technical responsibility while grouping related functionality together.
 
-### **2.8.1. Project Structure and Module Organization**
+### **2.8.1. Project Structure and Module Organization** {#2.8.1.-project-structure-and-module-organization}
 
 #### **Root Directory Structure**
 
-The source code is organized under the `src/` directory with clear separation between different architectural layers:
+The source code is organized under the src/ directory with clear separation between different architectural layers:
 
-```
-src/
-├── pages/           # Page-level components (route destinations)
-├── components/      # Reusable UI components
-├── services/        # API communication layer
-├── hooks/           # Custom React hooks
-├── contexts/        # React Context providers
-├── providers/       # Application-wide providers
-├── types/           # TypeScript type definitions
-├── utils/           # Utility functions
-├── config/          # Application configuration
-├── i18n/            # Internationalization resources
-├── theme/           # Design tokens and theming
-├── workers/         # Web Workers for background processing
-├── styles/          # Global stylesheets
-├── App.tsx          # Root component with routing
-└── main.tsx         # Application entry point
-```
+src/  
+├── pages/ \# Page-level components (route destinations)  
+├── components/ \# Reusable UI components  
+├── services/ \# API communication layer  
+├── hooks/ \# Custom React hooks  
+├── contexts/ \# React Context providers  
+├── providers/ \# Application-wide providers  
+├── types/ \# TypeScript type definitions  
+├── utils/ \# Utility functions  
+├── config/ \# Application configuration  
+├── i18n/ \# Internationalization resources  
+├── theme/ \# Design tokens and theming  
+├── workers/ \# Web Workers for background processing  
+├── styles/ \# Global stylesheets  
+├── App.tsx \# Root component with routing  
+└── main.tsx \# Application entry point
 
 #### **Pages Module**
 
-The `pages/` directory contains 12 feature modules, each representing a distinct functional area of the application:
+The pages/ directory contains 12 feature modules, each representing a distinct functional area of the application:
 
 | Module        | Files | Purpose                                 |
-| ------------- | ----- | --------------------------------------- |
+| :------------ | :---- | :-------------------------------------- |
 | Assessments   | 3     | Assessment listing and management       |
 | Auth          | 2     | Login/callback handling                 |
 | Dashboard     | 12    | Analytics and overview displays         |
@@ -2821,23 +2703,22 @@ The `pages/` directory contains 12 feature modules, each representing a distinct
 | Teacher       | 3     | Teacher dashboard and tools             |
 | Users         | 1     | User management (admin)                 |
 
-Each page module follows a consistent internal structure. Complex modules like `Exam/` contain their own subdirectories for components, hooks, and utilities, creating self-contained feature units.
+Each page module follows a consistent internal structure. Complex modules like Exam/ contain their own subdirectories for components, hooks, and utilities, creating self-contained feature units.
 
 #### **Component Architecture**
 
-The `components/` directory (31 items) contains shared, reusable UI components organized by functionality:
+The components/ directory (31 items) contains shared, reusable UI components organized by functionality:
 
-- **Layout Components**: `Layout/`, `AnimatedPage/` for page structure
-- **Data Display**: `DataTable/`, `StatCard/`, `StatusBadge/`
-- **Forms & Inputs**: `FormDrawer/`, `Questions/`
-- **Navigation & Auth**: `ProtectedRoute/`, `RoleBasedRedirect/`
-- **Feature Components**: `Proctoring/`, `NotificationDropdown/`, `SettingsModal/`
-
+Layout Components: Layout/, AnimatedPage/ for page structure  
+Data Display: DataTable/, StatCard/, StatusBadge/  
+Forms & Inputs: FormDrawer/, Questions/  
+Navigation & Auth: ProtectedRoute/, RoleBasedRedirect/  
+Feature Components: Proctoring/, NotificationDropdown/, SettingsModal/  
 This separation ensures page components remain focused on business logic while delegating presentation to reusable building blocks.
 
 #### **Type System**
 
-TypeScript type definitions are centralized in the `types/` directory:
+TypeScript type definitions are centralized in the types/ directory:
 
 - **index.ts** (20KB): Core domain types including User, Assessment, Question, Attempt, Group, and API response types. Defines over 50 interfaces covering all data models.
 - **proctoring.ts** (7KB): Specialized types for the proctoring system including violation events, detection states, and analytics data.
@@ -2848,17 +2729,14 @@ Strong typing throughout the application enables compile-time error detection, i
 
 The architecture enforces a unidirectional dependency flow to prevent circular imports and maintain clean boundaries:
 
-```
-pages → components → hooks → services → config
-                ↓
-         contexts/providers
-                ↓
-              types
-```
-
+pages → components → hooks → services → config  
+ ↓  
+ contexts/providers  
+ ↓  
+ types  
 This hierarchy ensures that lower-level modules (services, types) remain independent of higher-level concerns (pages, components), promoting testability and reusability across the application.
 
-### **2.8.2. Component Design Pattern**
+### **2.8.2. Component Design Pattern** {#2.8.2.-component-design-pattern}
 
 The frontend implements a layered component architecture that separates concerns between container components (smart) and presentational components (dumb), following React best practices.
 
@@ -2866,32 +2744,30 @@ The frontend implements a layered component architecture that separates concerns
 
 Page components serve as the entry points for each route and are responsible for:
 
-- **Data Fetching**: Using React Query hooks to fetch and cache server data
-- **State Coordination**: Managing local UI state and coordinating between child components
-- **Layout Composition**: Assembling the page structure from reusable components
-- **Route Protection**: Implementing access control via `ProtectedRoute` wrapper
+- Data Fetching: Using React Query hooks to fetch and cache server data
+- State Coordination: Managing local UI state and coordinating between child components
+- Layout Composition: Assembling the page structure from reusable components
+- Route Protection: Implementing access control via ProtectedRoute wrapper
 
 Example structure of a typical page component:
 
-```
-pages/Groups/
-├── GroupList.tsx           # Main list view with filtering
-├── GroupDetail.tsx         # Single group view with tabs
-├── GroupAssessmentsTab.tsx # Tab component for assessments
-├── GroupProctoringTab.tsx  # Tab component for proctoring
-├── GroupGradingTab.tsx     # Tab component for grading
-├── JoinGroupPage.tsx       # Student join flow
-└── GenerateInviteLinkModal.tsx # Modal for invite generation
-```
+pages/Groups/  
+├── GroupList.tsx \# Main list view with filtering  
+├── GroupDetail.tsx \# Single group view with tabs  
+├── GroupAssessmentsTab.tsx \# Tab component for assessments  
+├── GroupProctoringTab.tsx \# Tab component for proctoring  
+├── GroupGradingTab.tsx \# Tab component for grading  
+├── JoinGroupPage.tsx \# Student join flow  
+└── GenerateInviteLinkModal.tsx \# Modal for invite generation
 
 #### **Shared Components (Presentational Layer)**
 
-Shared components in `components/` are designed to be:
+Shared components in components/ are designed to be:
 
-- **Stateless**: Receive data via props, emit events via callbacks
-- **Reusable**: Generic enough to be used across multiple pages
-- **Styled**: Encapsulate their own CSS using CSS Modules
-- **Accessible**: Follow WCAG guidelines with proper ARIA attributes
+- Stateless: Receive data via props, emit events via callbacks
+- Reusable: Generic enough to be used across multiple pages
+- Styled: Encapsulate their own CSS using CSS Modules
+- Accessible: Follow WCAG guidelines with proper ARIA attributes
 
 #### **Route Protection Pattern**
 
@@ -2903,26 +2779,26 @@ The application implements role-based access control through wrapper components:
 
 #### **Routing Architecture**
 
-The application uses `react-router-dom` with a nested route structure organized by user role:
+The application uses react-router-dom with a nested route structure organized by user role:
 
-| Route Group | Access                     | Example Routes                                  |
-| ----------- | -------------------------- | ----------------------------------------------- |
-| Public      | Anyone                     | `/login`, `/callback`                           |
-| Admin       | Admin only                 | `/dashboard`, `/users`, `/groups`               |
-| Teacher     | Admin, Teacher             | `/assessments`, `/questions`, `/question-banks` |
-| Student     | All authenticated          | `/student/*`                                    |
-| Exam        | Protected, separate layout | `/student/take/:attemptId`                      |
+| Route Group | Access                     | Example Routes                            |
+| :---------- | :------------------------- | :---------------------------------------- |
+| Public      | Anyone                     | /login, /callback                         |
+| Admin       | Admin only                 | /dashboard, /users, /groups               |
+| Teacher     | Admin, Teacher             | /assessments, /questions, /question-banks |
+| Student     | All authenticated          | /student/\*                               |
+| Exam        | Protected, separate layout | /student/take/:attemptId                  |
 
 The routing implements two layout patterns:
 
-- **MainLayout**: Standard navigation with sidebar for all management pages
-- **ExamLayout**: Minimal distraction-free layout for exam-taking without navigation
+- MainLayout: Standard navigation with sidebar for all management pages
+- ExamLayout: Minimal distraction-free layout for exam-taking without navigation
 
 #### **Error Boundary Pattern**
 
-The `ErrorBoundary` component wraps the application to catch React errors gracefully, displaying a fallback UI instead of crashing the entire application. This ensures users see a helpful error message and can navigate away from broken states.
+The ErrorBoundary component wraps the application to catch React errors gracefully, displaying a fallback UI instead of crashing the entire application. This ensures users see a helpful error message and can navigate away from broken states.
 
-### **2.8.3. State Management Strategy**
+### **2.8.3. State Management Strategy** {#2.8.3.-state-management-strategy}
 
 The application employs a hybrid state management approach that distinguishes between server state and client state, using the most appropriate tool for each.
 
@@ -2930,52 +2806,50 @@ The application employs a hybrid state management approach that distinguishes be
 
 TanStack React Query manages all data fetched from the backend APIs. Key patterns include:
 
-- **Query Keys**: Structured keys like `['groups', groupId, 'members']` enable precise cache invalidation
+- **Query Keys**: Structured keys like \['groups', groupId, 'members'\] enable precise cache invalidation
 - **Stale-While-Revalidate**: Data is served from cache immediately while refreshing in the background
 - **Optimistic Updates**: UI updates immediately on mutations, rolling back on failure
 - **Automatic Refetching**: Data refreshes on window focus and network reconnection
 
-Query configuration in `QueryProvider.tsx`:
+Query configuration in QueryProvider.tsx:
 
-```typescript
-const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			staleTime: 5 * 60 * 1000, // 5 minutes
-			gcTime: 30 * 60 * 1000, // 30 minutes
-			retry: 3,
-			refetchOnWindowFocus: true,
-		},
-	},
-});
-```
+\`\`\`  
+const queryClient \= new QueryClient({  
+ defaultOptions: {  
+ queries: {  
+ staleTime: 5 \* 60 \* 1000, // 5 minutes  
+ gcTime: 30 \* 60 \* 1000, // 30 minutes  
+ retry: 3,  
+ refetchOnWindowFocus: true,  
+ },  
+ },  
+});  
+\`\`\`
 
 #### **Client State: React Context**
 
 React Context API manages global client-side state that doesn't come from the server:
 
-- **AuthContext**: Current user, authentication status, login/logout functions
-- **ThemeContext**: Light/dark mode preference, theme tokens
-- **NotificationContext**: Toast notifications, unread count
+- AuthContext: Current user, authentication status, login/logout functions
+- ThemeContext: Light/dark mode preference, theme tokens
+- NotificationContext: Toast notifications, unread count
 
-Context providers are composed at the application root in `App.tsx` following a specific nesting order that ensures proper dependency resolution:
+Context providers are composed at the application root in App.tsx following a specific nesting order that ensures proper dependency resolution:
 
-```
-ErrorBoundary
-  └── ThemeProvider          (theme state)
-        └── AntdApp          (Ant Design context)
-              └── NotificationProvider  (toast system)
-                    └── QueryProvider   (React Query)
-                          └── AuthProvider   (user state)
-                                └── SettingsModalProvider
-                                      └── BrowserRouter  (routing)
-```
+ErrorBoundary  
+ └── ThemeProvider (theme state)  
+ └── AntdApp (Ant Design context)  
+ └── NotificationProvider (toast system)  
+ └── QueryProvider (React Query)  
+ └── AuthProvider (user state)  
+ └── SettingsModalProvider  
+ └── BrowserRouter (routing)
 
-This hierarchy ensures that inner providers can access outer provider values. For example, `QueryProvider` can display error toasts via `NotificationProvider`, and `AuthProvider` can use React Query for user data fetching.
+This hierarchy ensures that inner providers can access outer provider values. For example, QueryProvider can display error toasts via NotificationProvider, and AuthProvider can use React Query for user data fetching.
 
 #### **Local Component State**
 
-For UI-specific state that doesn't need to be shared (form inputs, modal visibility, loading states), components use `useState` and `useReducer` hooks directly. This keeps state close to where it's used and avoids unnecessary global state pollution.
+For UI-specific state that doesn't need to be shared (form inputs, modal visibility, loading states), components use useState and useReducer hooks directly. This keeps state close to where it's used and avoids unnecessary global state pollution.
 
 #### **Why Not Redux?**
 
@@ -2986,87 +2860,87 @@ The decision to avoid Redux was intentional:
 - Reduced bundle size and boilerplate code
 - Simpler mental model for developers
 
-### **2.8.4. API Layer Design (Services Pattern)**
+### **2.8.4. API Layer Design (Services Pattern)** {#2.8.4.-api-layer-design-(services-pattern)}
 
 The frontend implements a service layer pattern that abstracts all HTTP communication behind strongly-typed service modules.
 
 #### **Service Structure**
 
-Each domain area has a dedicated service file in `services/`:
+Each domain area has a dedicated service file in services/:
 
-| Service                         | Purpose                                  |
-| ------------------------------- | ---------------------------------------- |
-| `assessmentService.ts`          | Assessment CRUD, publishing, statistics  |
-| `questionService.ts`            | Question management, filtering, import   |
-| `questionBankService.ts`        | Question bank CRUD, sharing              |
-| `groupService.ts`               | Group management, membership             |
-| `inviteLinkService.ts`          | Invite code/link generation, validation  |
-| `attemptService.ts`             | Exam attempts, answer submission         |
-| `gradingService.ts`             | Manual grading, score updates            |
-| `proctoringDashboardService.ts` | Real-time proctoring data, SSE streams   |
-| `faceVerificationService.ts`    | Face registration and verification       |
-| `violationService.ts`           | Violation reporting and retrieval        |
-| `userService.ts`                | User search and management               |
-| `notificationService.ts`        | Notification preferences, SSE connection |
-| `importExportService.ts`        | CSV parsing for question import/export   |
+| Service                       | Purpose                                  |
+| :---------------------------- | :--------------------------------------- |
+| assessmentService.ts          | Assessment CRUD, publishing, statistics  |
+| questionService.ts            | Question management, filtering, import   |
+| questionBankService.ts        | Question bank CRUD, sharing              |
+| groupService.ts               | Group management, membership             |
+| inviteLinkService.ts          | Invite code/link generation, validation  |
+| attemptService.ts             | Exam attempts, answer submission         |
+| gradingService.ts             | Manual grading, score updates            |
+| proctoringDashboardService.ts | Real-time proctoring data, SSE streams   |
+| faceVerificationService.ts    | Face registration and verification       |
+| violationService.ts           | Violation reporting and retrieval        |
+| userService.ts                | User search and management               |
+| notificationService.ts        | Notification preferences, SSE connection |
+| importExportService.ts        | CSV parsing for question import/export   |
 
 #### **Centralized Configuration**
 
-All API endpoints are defined in `config/api.ts`, providing:
+All API endpoints are defined in config/api.ts, providing:
 
-- **Base URLs**: Configurable via environment variables for different environments
-- **Endpoint Functions**: Type-safe functions that generate URLs with parameters
-- **Timeout Configuration**: Default 30-second timeout for all requests
+- Base URLs: Configurable via environment variables for different environments
+- Endpoint Functions: Type-safe functions that generate URLs with parameters
+- Timeout Configuration: Default 30-second timeout for all requests
 
 #### **Axios Instance**
 
 A configured Axios instance provides:
 
-- **JWT Token Injection**: Automatically attaches `Authorization` header
-- **Error Handling**: Centralized error transformation via interceptors
-- **Request/Response Logging**: Development-mode logging for debugging
+- JWT Token Injection: Automatically attaches Authorization header
+- Error Handling: Centralized error transformation via interceptors
+- Request/Response Logging: Development-mode logging for debugging
 
 #### **Error Handling Pattern**
 
-The `utils/errorHandler.ts` module provides centralized error handling:
+The utils/errorHandler.ts module provides centralized error handling:
 
 - Parses API error responses into user-friendly messages
 - Handles network errors, timeouts, and authentication failures
 - Triggers appropriate UI notifications via toast system
 
-### **2.8.5. Custom Hooks Pattern**
+### **2.8.5. Custom Hooks Pattern** {#2.8.5.-custom-hooks-pattern}
 
 Custom hooks encapsulate reusable logic, promoting code reuse and separation of concerns across the application.
 
-#### **Hooks Directory Structure**
+### **Hooks Directory Structure** {#hooks-directory-structure}
 
-The `hooks/` directory contains 10 custom hooks:
+The hooks/ directory contains 10 custom hooks:
 
-| Hook                      | Purpose                                           |
-| ------------------------- | ------------------------------------------------- |
-| `useProctoring.ts`        | MediaPipe integration, violation detection, state |
-| `useCamera.ts`            | Camera stream management, permissions             |
-| `useAuth.ts`              | Authentication state, login/logout functions      |
-| `useNotifications.ts`     | SSE connection, notification handling             |
-| `useKeyboardShortcuts.ts` | Global keyboard shortcut registration             |
-| `useFullscreen.ts`        | Fullscreen API wrapper for exam mode              |
-| `useTimer.ts`             | Countdown timer for exam duration                 |
-| `useDebounce.ts`          | Debounced value updates for search inputs         |
-| `useLocalStorage.ts`      | Persistent local storage with React state sync    |
-| `useMediaQuery.ts`        | Responsive breakpoint detection                   |
+| Hook                    | Purpose                                           |
+| :---------------------- | :------------------------------------------------ |
+| useProctoring.ts        | MediaPipe integration, violation detection, state |
+| useCamera.ts            | Camera stream management, permissions             |
+| useAuth.ts              | Authentication state, login/logout functions      |
+| useNotifications.ts     | SSE connection, notification handling             |
+| useKeyboardShortcuts.ts | Global keyboard shortcut registration             |
+| useFullscreen.ts        | Fullscreen API wrapper for exam mode              |
+| useTimer.ts             | Countdown timer for exam duration                 |
+| useDebounce.ts          | Debounced value updates for search inputs         |
+| useLocalStorage.ts      | Persistent local storage with React state sync    |
+| useMediaQuery.ts        | Responsive breakpoint detection                   |
 
 #### **Proctoring Hook Architecture**
 
-The `useProctoring` hook is the most complex, managing the AI-powered monitoring system:
+The useProctoring hook is the most complex, managing the AI-powered monitoring system:
 
-```typescript
-const { isMonitoring, violations, faceDetected, attentionScore, startMonitoring, stopMonitoring } =
-	useProctoring({
-		attemptId,
-		onViolation: handleViolation,
-		config: proctoringConfig,
-	});
-```
+\`\`\`  
+const { isMonitoring, violations, faceDetected, attentionScore, startMonitoring, stopMonitoring } \=  
+ useProctoring({  
+ attemptId,  
+ onViolation: handleViolation,  
+ config: proctoringConfig,  
+ });  
+\`\`\`
 
 Key responsibilities:
 
@@ -3077,17 +2951,17 @@ Key responsibilities:
 
 #### **Module-Specific Hooks**
 
-Complex page modules define their own hooks within their directory. For example, `pages/Exam/hooks/`:
+Complex page modules define their own hooks within their directory. For example, pages/Exam/hooks/:
 
-- `useExam.ts`: Assessment loading, question navigation
-- `useQuestion.ts`: Answer state, validation
-- `useTimer.ts`: Exam-specific countdown with auto-submit
+- useExam.ts: Assessment loading, question navigation
+- useQuestion.ts: Answer state, validation
+- useTimer.ts: Exam-specific countdown with auto-submit
 
 These module-specific hooks follow the same patterns but are scoped to their feature area, preventing the global hooks directory from becoming bloated.
 
 ## **2.9. System design** {#2.9.-system-design}
 
-### **2.9.1. System design for 10,000 concurrent users and resource allocation**
+### **2.9.1. System design for 10,000 concurrent users and resource allocation** {#2.9.1.-system-design-for-10,000-concurrent-users-and-resource-allocation}
 
 #### **a) Workload model (10,000 concurrent users)**
 
@@ -3117,47 +2991,221 @@ To make 10,000 concurrent users feasible without over-provisioning:
 4. **Observability-driven scaling**
     - You already include Datadog \+ K6 load testing in the stack; use K6 to validate the sizing assumptions and tune HPA thresholds.
 
-### **2.9.2. System sizing**
+### **2.9.2. System sizing** {#2.9.2.-system-sizing}
 
-### **2.9.3. Calculation of system operation costs**
+### **2.9.3. Calculation of system operation costs** {#2.9.3.-calculation-of-system-operation-costs}
 
 ## **2.10. Chapter 2 conclusion** {#2.10.-chapter-2-conclusion}
 
 # **CHAPTER 3: APPLICATION DEPLOYMENT** {#chapter-3:-application-deployment}
 
-## **3.1. Tools** {#3.1.-tools}
+## **3.1. Implementation and supporting tools** {#3.1.-implementation-and-supporting-tools}
 
-### **3.1.1. Tools used**
+### **3.1.1. Tools used** {#3.1.1.-tools-used}
 
-### **3.1.2. Supporting libraries**
+### **3.1.2. Supporting libraries** {#3.1.2.-supporting-libraries}
 
 ## **3.2. Installation results** {#3.2.-installation-results}
 
-### **3.2.1. System deployment and packaging into images (using Docker)**
+### **3.2.1. System deployment and packaging into images (using Docker)** {#3.2.1.-system-deployment-and-packaging-into-images-(using-docker)}
 
-### **3.2.2. Deploying the system on Kubernetes (K8s)**
+### **3.2.2. Deploying the system on Kubernetes (K8s)** {#3.2.2.-deploying-the-system-on-kubernetes-(k8s)}
 
-### **3.2.3. Implementing the CI/CD pipeline**
+### **3.2.3. Implementing the CI/CD pipeline** {#3.2.3.-implementing-the-ci/cd-pipeline}
 
-### **3.2.4. Deploying tracing and monitoring tools**
+### **3.2.4. Deploying tracing and monitoring tools** {#3.2.4.-deploying-tracing-and-monitoring-tools}
 
-### **3.2.5. Deploying the Mediapipe system on the client side**
+### **3.2.5. Deploying the Mediapipe system on the client side** {#3.2.5.-deploying-the-mediapipe-system-on-the-client-side}
 
-## **3.3. Applying production standards to the product** {#3.3.-applying-production-standards-to-the-product}
+The proctoring system deploys Google's MediaPipe face detection directly in the browser to enable real-time monitoring while preserving student privacy. This section documents the implementation architecture and the optimization techniques used to achieve smooth UI performance.
 
-## **3.4. Functional and non-functional testing (performance testing)** {#3.4.-functional-and-non-functional-testing-(performance-testing)}
+#### **3.2.5.1. MediaPipe Integration and Setup**
 
-## **3.5. Issues related to cheating/fraud & methods to disable monitoring** {#heading}
+**Technology Overview**
 
-### **3.5.1. Disable copy/paste restrictions / tracking (Mediapipe-related)** {#heading}
+MediaPipe is Google's cross-platform framework for building ML pipelines. The proctoring system uses the FaceLandmarker model from the `@mediapipe/tasks-vision` package, which provides:
 
-### **3.5.2. Forge/proxy requests (manipulated results)** {#heading}
+- 478 facial landmark points detection
+- Multi-face detection (up to 2 faces simultaneously)
+- Facial blendshapes for expression analysis
+- WebGL GPU acceleration support
 
-### **3.5.3. Multi-camera monitoring problem** {#heading}
+**Model Configuration**
 
-### **3.5.4. Proposed solutions / mitigations**
+The FaceLandmarker is initialized with the following configuration:
 
-## {#heading}
+```javascript
+faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+	baseOptions: {
+		modelAssetPath: 'https://storage.googleapis.com/.../face_landmarker.task',
+		delegate: 'GPU', // or 'CPU' as fallback
+	},
+	runningMode: 'IMAGE',
+	numFaces: 2,
+	minFaceDetectionConfidence: 0.5,
+	minFacePresenceConfidence: 0.5,
+	minTrackingConfidence: 0.5,
+	outputFaceBlendshapes: true,
+});
+```
+
+**Resource Loading**
+
+MediaPipe requires loading WebAssembly modules from a CDN at runtime:
+
+1. **Vision Task Runtime**: Loaded via `FilesetResolver.forVisionTasks()` from jsDelivr CDN
+2. **Face Landmarker Model**: Downloaded from Google Cloud Storage (~4MB)
+3. **WASM Binary**: Platform-specific WebAssembly module for computation
+
+The model is cached by the browser after first load, reducing subsequent initialization time.
+
+**GPU/CPU Fallback Strategy**
+
+The system implements automatic hardware acceleration detection:
+
+1. Attempt GPU initialization with `delegate: 'GPU'`
+2. If GPU fails (no WebGL2 support), catch the error
+3. Reinitialize with `delegate: 'CPU'`
+4. Report the active delegate for monitoring
+
+GPU acceleration provides approximately 3-4x performance improvement on supported hardware.
+
+#### **3.2.5.2. Web Worker Optimization**
+
+**Problem Statement**
+
+The original implementation ran MediaPipe on the main thread, causing UI blocking:
+
+| Metric (Before)    | Value            | Issue            |
+| ------------------ | ---------------- | ---------------- |
+| Thread Usage       | Main thread only | UI blocking      |
+| Detection Interval | 100ms (~10fps)   | High CPU load    |
+| Event Storage      | Unbounded array  | Memory leak risk |
+
+**Overcoming the MediaPipe Web Worker Limitation**
+
+MediaPipe's official bundle uses ES Module exports, which are incompatible with Web Workers due to `importScripts()` restrictions. This is a known issue documented in **MediaPipe Issue #5257** on GitHub.
+
+This project overcame the limitation by patching the MediaPipe bundle to use global exports:
+
+**Original MediaPipe bundle (ESM exports):**
+
+```javascript
+export { Ia as DrawingUtils, Za as FaceDetector, uc as FaceLandmarker, ... };
+```
+
+**Patched bundle for Web Worker compatibility:**
+
+```javascript
+self.$mediapipe = { DrawingUtils: Ia, FaceDetector: Za, FaceLandmarker: uc, ... };
+```
+
+The patched bundle is loaded via `importScripts()` in a classic Web Worker, enabling full MediaPipe functionality in a separate thread.
+
+**Solution Architecture**
+
+The optimized architecture moves all ML processing to a dedicated Web Worker:
+
+```
+┌─────────────────────────────────────────────────┐
+│                  MAIN THREAD                     │
+│  ┌─────────────┐              ┌──────────────┐  │
+│  │   React UI  │              │   Camera     │  │
+│  │  Rendering  │              │   Video      │  │
+│  └─────────────┘              └──────┬───────┘  │
+│         ↑                            │          │
+│         │ Results              ImageBitmap      │
+│         │                      (320x240)        │
+│  ┌──────┴───────────────────────────────────────┐
+│  │         useWorkerProctoring Hook             │
+│  └──────────────────┬──────────────────────────┘│
+└─────────────────────┼───────────────────────────┘
+                      │ postMessage (zero-copy)
+                      ↓
+┌─────────────────────────────────────────────────┐
+│                 WEB WORKER THREAD                │
+│  ┌─────────────────────────────────────────┐    │
+│  │     faceDetectionWorker.js              │    │
+│  │  ┌─────────────┐    ┌───────────────┐   │    │
+│  │  │  MediaPipe  │    │ Face Analysis │   │    │
+│  │  │ FaceLandmark│    │ (6 violation  │   │    │
+│  │  │    detect() │    │  types)       │   │    │
+│  │  └─────────────┘    └───────────────┘   │    │
+│  └─────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────┘
+```
+
+**Implementation Components**
+
+| File                               | Size   | Purpose                                      |
+| ---------------------------------- | ------ | -------------------------------------------- |
+| `public/mediapipe-vision.js`       | ~125KB | Patched MediaPipe bundle with global exports |
+| `public/faceDetectionWorker.js`    | ~6KB   | Classic Web Worker for face detection        |
+| `src/hooks/useWorkerProctoring.ts` | ~11KB  | React hook managing worker lifecycle         |
+| `src/hooks/useProctoring.ts`       | ~21KB  | Original main-thread fallback (preserved)    |
+
+**Zero-Copy Frame Transfer**
+
+For efficient frame transfer between threads:
+
+1. `OffscreenCanvas` (320x240) captures video frame at reduced resolution
+2. `transferToImageBitmap()` creates transferable bitmap
+3. `postMessage()` with transfer list moves ownership to worker (zero-copy)
+4. Worker calls `frame.close()` after detection to release GPU memory
+5. Results returned as lightweight JSON (face count, violation flags)
+
+#### **3.2.5.3. Detection Pipeline and Results**
+
+**Violation Detection**
+
+The face detection runs at 4 FPS (250ms intervals) with the following landmark-based analysis:
+
+| Detection Type | Landmark Indices   | Threshold | Description                                 |
+| -------------- | ------------------ | --------- | ------------------------------------------- |
+| Face Count     | All landmarks      | n/a       | 0 = no face, 1 = valid, 2+ = multiple faces |
+| Gaze Direction | 468, 473 (iris)    | 0.3-0.7   | Iris position relative to eye corners       |
+| Eyes Closed    | 159, 145, 386, 374 | < 0.18    | Eye height/width aspect ratio               |
+| Mouth Open     | 13, 14 (lips)      | > 0.03    | Lip separation distance                     |
+| Head Turned    | 1, 234, 454        | > 0.15    | Nose-to-center distance vs face width       |
+
+Violations are tracked with start/end timestamps, enabling duration-based severity analysis.
+
+**Before vs After Comparison**
+
+| Metric             | Before           | After                 | Improvement          |
+| ------------------ | ---------------- | --------------------- | -------------------- |
+| Thread Usage       | Main thread only | Main + Worker         | ✅ UI unblocked      |
+| Detection Interval | 100ms (10fps)    | 250ms (4fps)          | 60% fewer calls      |
+| Frame Resolution   | Full video       | 320x240               | Reduced memory       |
+| Frame Transfer     | N/A              | ImageBitmap           | Zero-copy            |
+| Event Storage      | Unbounded        | Max 50                | Memory leak fixed    |
+| GPU Fallback       | None             | CPU fallback          | Better compatibility |
+| MediaPipe Loading  | ES Module import | importScripts + patch | ✅ Worker compatible |
+
+**Browser Compatibility**
+
+| Browser | Minimum Version | Notes                    |
+| ------- | --------------- | ------------------------ |
+| Chrome  | 69+             | OffscreenCanvas required |
+| Firefox | 105+            | OffscreenCanvas required |
+| Safari  | 16.4+           | OffscreenCanvas + WebGL2 |
+| Edge    | 79+             | Chromium-based           |
+
+**Conclusion**
+
+The Web Worker implementation successfully overcame a known MediaPipe upstream limitation (Issue #5257) through a patched bundle approach. This results in a significantly smoother user experience during proctored assessments, with the main thread completely free for UI rendering while ML processing runs independently in a dedicated worker thread.
+
+## **3.3. Functional and non-functional testing (performance testing)** {#3.3.-functional-and-non-functional-testing-(performance-testing)}
+
+## **3.4. Issues related to cheating/fraud & methods to disable monitoring** {#3.5.-chapter-3-conlcusion}
+
+### **3.4.1. Disable copy/paste restrictions / tracking (Mediapipe-related)** **3.4.2. Forge/proxy requests (manipulated results)** {#3.5.-chapter-3-conlcusion}
+
+### **3.4.3. Multi-camera monitoring problem** {#3.5.-chapter-3-conlcusion}
+
+### **3.4.4. Proposed solutions / mitigations** {#3.4.4.-proposed-solutions-/-mitigations}
+
+## **3.5. Chapter 3 Conlcusion** {#3.5.-chapter-3-conlcusion}
 
 #
 
@@ -3181,7 +3229,7 @@ To make 10,000 concurrent users feasible without over-provisioning:
 
 ## **2\. Achievements and limitations of the system** {#2.-achievements-and-limitations-of-the-system}
 
-## **3\. The direction of future development** {#3.-the-direction-of-future-development}
+## **3\. Future development directions** {#3.-future-development-directions}
 
 #
 

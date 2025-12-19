@@ -3302,13 +3302,212 @@ The Web Worker implementation successfully overcame a known MediaPipe upstream l
 
 ## **3.3. Functional and non-functional testing (performance testing)** {#3.3.-functional-and-non-functional-testing-(performance-testing)}
 
-## **3.4. Issues related to cheating/fraud & methods to disable monitoring** {#3.5.-chapter-3-conclusion}
+## **3.4. Issues related to cheating/fraud & methods to disable monitoring** {#3.4.-issues-related-to-cheating}
 
-### **3.4.1. Disable copy/paste restrictions / tracking (Mediapipe-related)** **3.4.2. Forge/proxy requests (manipulated results)** {#3.5.-chapter-3-conclusion}
+This section examines the common attack vectors used to circumvent online proctoring systems and documents the frontend countermeasures implemented to mitigate these threats.
 
-### **3.4.3. Multi-camera monitoring problem** {#3.5.-chapter-3-conclusion}
+### **3.4.1. Common Cheating Methods and Attack Vectors**
 
-### **3.4.4. Proposed solutions / mitigations** {#3.4.4.-proposed-solutions-/-mitigations}
+Understanding how students may attempt to circumvent proctoring systems is essential for designing effective countermeasures. The following attack categories represent the most common threats to online assessment integrity.
+
+#### **Browser Tampering**
+
+Students with technical knowledge may attempt to manipulate the browser environment:
+
+| Attack Method | Technique | Risk Level |
+| ------------- | --------- | ---------- |
+| DevTools Access | F12, Ctrl+Shift+I to inspect/modify DOM | High |
+| Console Injection | Execute JavaScript to bypass restrictions | High |
+| View Source | Ctrl+U to examine client-side validation | Medium |
+| Browser Extensions | Install extensions that modify page behavior | High |
+| Console Override | Override `console.log` to hide debugging traces | Medium |
+
+#### **Copy/Paste Exploitation**
+
+Students may attempt to transfer question content or paste pre-prepared answers:
+
+- **Copy questions** to external applications or messaging platforms
+- **Paste answers** from notes, documents, or AI assistants
+- **Cut content** to bypass copy-only restrictions
+
+#### **Tab Switching and Screen Sharing**
+
+Leaving the exam window to access external resources:
+
+- Switch tabs to search engines or reference materials
+- Use split-screen or multiple monitors
+- Share screen with remote helpers via video call
+- Use virtual desktops to hide secondary windows
+
+#### **Fullscreen Bypass**
+
+Exiting fullscreen mode to access the desktop or other applications:
+
+- Press Escape or F11 to exit fullscreen
+- Use Alt+Tab to switch applications
+- Minimize browser window
+
+#### **Request Manipulation**
+
+Advanced attackers may intercept and modify API requests:
+
+- Use proxy tools (Burp Suite, Charles) to modify submission data
+- Replay previous successful submissions
+- Manipulate violation reports sent to backend
+
+### **3.4.2. Frontend Anti-Cheating Implementation**
+
+The platform implements multiple layers of client-side protection through specialized React hooks that work together to create a comprehensive monitoring system.
+
+#### **3.4.2.1. DevTools Blocker**
+
+The `useDevToolsBlocker` hook prevents access to browser developer tools:
+
+```typescript
+// Blocked keyboard shortcuts
+- F12                    // DevTools
+- Ctrl+Shift+I           // Inspect Element
+- Ctrl+Shift+J           // Console
+- Ctrl+Shift+C           // Element Picker
+- Ctrl+U                 // View Source
+- Right-click            // Context menu
+```
+
+Implementation approach:
+- Event listeners on `keydown` and `contextmenu` events
+- `preventDefault()` called on matched key combinations
+- Bypass mechanism for development environments via `shouldBypassTamperDetection()`
+
+#### **3.4.2.2. Browser Proctoring**
+
+The `useBrowserProctoring` hook monitors browser-level behaviors with configurable options:
+
+| Feature | Event Listeners | Configurable |
+| ------- | --------------- | ------------ |
+| Tab Switch Detection | `visibilitychange`, `blur`, `focus` | `preventTabSwitching` |
+| Fullscreen Monitoring | `fullscreenchange` | `requireFullscreen` |
+| Copy/Paste Prevention | `copy`, `paste`, `cut` | `preventCopyPaste` |
+| Tamper Detection | Window size monitoring | `detectTampering` |
+
+Violations are tracked with timing information:
+```typescript
+interface BrowserProctoringEvent {
+  type: 'tab_switch' | 'fullscreen_exit' | 'copy_paste' | 'browser_tamper';
+  startTime: number;
+  endTime: number;
+  duration: number;
+  metadata?: { action?: 'copy' | 'paste' | 'cut' };
+}
+```
+
+#### **3.4.2.3. Tamper Detection**
+
+The `useBrowserTamperDetection` hook performs active checks for browser manipulation:
+
+| Detection Method | Technique | Bypass Resistance |
+| ---------------- | --------- | ----------------- |
+| DevTools Open | Compare `window.outerWidth - innerWidth > 160` | Medium |
+| Debugger Timing | Measure `debugger` statement execution time | High |
+| Console Override | Check if `console.log.toString()` is native | Medium |
+| Suspicious Extensions | Query DOM for common cheat extension selectors | Low |
+
+The hook returns a `TamperStatus` object and triggers warnings before exam start:
+
+```typescript
+interface TamperStatus {
+  devTools: boolean;
+  consoleOverride: boolean;
+  suspiciousExtensions: boolean;
+}
+```
+
+#### **3.4.2.4. Fullscreen Enforcement**
+
+Students are required to enter fullscreen mode before starting the exam:
+
+1. **Entry**: `document.documentElement.requestFullscreen()` called on exam start
+2. **Monitoring**: `fullscreenchange` event listener detects exit
+3. **Warning**: Modal prompts student to re-enter fullscreen
+4. **Violation Logging**: Exit events are recorded and submitted to backend
+
+#### **3.4.2.5. Assessment Settings Integration**
+
+Teachers can configure anti-cheating features per assessment:
+
+```typescript
+interface AssessmentSettings {
+  require_webcam?: boolean;
+  prevent_tab_switching?: boolean;
+  prevent_right_click?: boolean;
+  prevent_copy_paste?: boolean;
+  require_full_screen?: boolean;
+  // ...
+}
+```
+
+### **3.4.3. Known Limitations**
+
+Despite the implemented countermeasures, certain limitations exist that attackers may exploit:
+
+#### **Single Camera Limitation**
+
+The system monitors only the front-facing webcam, leaving blind spots:
+
+- Secondary displays or devices outside camera view
+- Physical notes positioned below camera line of sight
+- Smart watches or small devices
+
+#### **No Audio Detection**
+
+The current implementation does not include audio monitoring:
+
+- Voice communication with remote helpers is undetected
+- Text-to-speech tools for reading content aloud
+- Audio recordings of pre-prepared answers
+
+*Note: Audio violation types exist in the codebase but detection is not implemented.*
+
+#### **Browser Extension Vulnerabilities**
+
+Sophisticated extensions can potentially:
+
+- Override event listeners after page load
+- Modify the DOM to show/hide content
+- Intercept and modify network requests
+- Disable fullscreen requirements
+
+#### **Virtual Machine Detection**
+
+Students may run the exam in a virtual machine:
+
+- Take snapshots to retry questions
+- Use host machine for research while VM is fullscreen
+- Clone VM state across multiple students
+
+### **3.4.4. Proposed Solutions and Mitigations**
+
+Future improvements to strengthen the anti-cheating system:
+
+| Limitation | Proposed Solution | Implementation Effort |
+| ---------- | ----------------- | --------------------- |
+| Single Camera | Secondary camera support, phone-as-camera | High |
+| No Audio | Web Audio API integration for voice detection | Medium |
+| Extensions | Content Security Policy, extension detection | Medium |
+| VM Detection | Hardware fingerprinting, timing analysis | High |
+| Request Manipulation | Request signing, server-side validation | Medium |
+
+#### **Defense in Depth Strategy**
+
+The current implementation follows a layered defense approach:
+
+1. **Prevention**: Block known attack vectors (DevTools, copy/paste)
+2. **Detection**: Monitor for suspicious behavior (tab switch, tamper)
+3. **Recording**: Log all violations with timestamps for review
+4. **Server Validation**: Backend verifies all submitted data
+
+While no client-side protection is foolproof, the combination of multiple detection methods significantly raises the difficulty of successful cheating and creates audit trails for post-exam review.
+
+
 
 ## **3.5. Chapter 3 Conclusion** {#3.5.-chapter-3-conclusion}
 

@@ -467,10 +467,12 @@ The MediaPipe integration operates through a client-side processing approach, en
 
 The implementation incorporates several optimization strategies to ensure system performance under concurrent usage scenarios:
 
-- **Model Quantization**: Utilizes TensorFlow Lite models for reduced computational overhead
-- **Frame Rate Control**: Implements adaptive frame processing (10-15 FPS) to balance accuracy and resource consumption
-- **Memory Management**: Employs efficient buffer management to prevent memory leaks during extended assessment sessions
-- **Browser Compatibility**: Ensures cross-platform functionality across modern web browsers through WebAssembly and WebGL acceleration
+- **Web Worker Offloading**: MediaPipe processing is offloaded to a dedicated Web Worker thread, completely freeing the main UI thread for responsive user interactions during exams. This required a patched MediaPipe bundle to overcome ES Module limitations with `importScripts()` (see Section 3.2.5 for implementation details)
+- **Zero-Copy Frame Transfer**: Video frames are transferred to the worker as `ImageBitmap` objects with ownership transfer, avoiding memory duplication
+- **Frame Rate Control**: Implements 4 FPS detection interval (250ms) to balance accuracy and resource consumption
+- **GPU/CPU Fallback**: Automatic detection of WebGL2 availability with graceful fallback to CPU processing
+- **Memory Management**: Event capping (max 50 violations) and explicit frame cleanup prevent memory leaks during extended sessions
+- **Browser Compatibility**: Requires OffscreenCanvas support (Chrome 69+, Firefox 105+, Safari 16.4+)
 
 ##### **Privacy and Compliance Considerations**
 
@@ -515,6 +517,59 @@ For a Notification Service, the primary requirement is to push information from 
 - Simplicity: It leverages the existing HTTP infrastructure (Authentication, Load Balancing).
 - Efficiency: It is lighter weight than maintaining full-duplex WebSocket connections for sporadic updates.
 - Resilience: The built-in reconnection logic simplifies the client-side implementation significantly.
+
+#### **1.1.4.3. Internationalization Strategy**
+
+The platform implements comprehensive multi-language support to serve diverse user populations across different regions. This internationalization (i18n) approach ensures that educators and students can interact with the system in their preferred language.
+
+##### **Technical Implementation**
+
+The i18n system is built on **i18next**, the leading internationalization framework for JavaScript applications, integrated with React through **react-i18next**. Key architectural decisions include:
+
+- **Namespace Organization**: Translations are organized by feature modules (auth, exam, groups, settings) enabling code-splitting and lazy loading of translation bundles
+- **Type Safety**: TypeScript integration ensures translation keys are type-checked at compile time, preventing runtime errors from missing translations
+- **Fallback Chain**: Missing translations gracefully fall back from specific locale (vi-VN) → base language (vi) → default language (en)
+
+##### **Language Detection and Switching**
+
+The **i18next-browser-languagedetector** plugin automatically detects user language preference through multiple sources in priority order:
+
+1. Query parameter (`?lng=vi`)
+2. LocalStorage (persisted user preference)
+3. Browser navigator language
+4. HTML lang attribute
+
+Users can manually switch languages through the Settings modal, with the preference persisted to localStorage for subsequent sessions.
+
+##### **Translation Management**
+
+The platform currently supports two languages:
+
+| Language | File Size | Coverage |
+| -------- | --------- | -------- |
+| English (en) | ~77 KB | 100% |
+| Vietnamese (vi) | ~89 KB | 100% |
+
+Translation files follow a hierarchical JSON structure with nested keys for organization:
+
+```json
+{
+  "exam": {
+    "title": "Take Assessment",
+    "submit": "Submit Answers",
+    "timeRemaining": "Time Remaining: {{minutes}}m {{seconds}}s"
+  }
+}
+```
+
+Dynamic values are interpolated using the `{{variable}}` syntax, supporting pluralization and formatting.
+
+##### **Benefits of Client-Side i18n**
+
+- **Instant Language Switching**: No server round-trip required; translations are bundled with the application
+- **Reduced Server Load**: Translation logic is handled entirely client-side
+- **Developer Experience**: React hooks (`useTranslation`) provide clean, declarative translation access in components
+- **Scalability**: Adding new languages requires only new translation JSON files without code changes
 
 ## **1.2. Technology used** {#1.2.-technology-used}
 

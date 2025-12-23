@@ -75,6 +75,61 @@ interface ViolationPayload {
 	device_fingerprint: string;
 }
 
+// Response interfaces for violation queries
+interface ViolationLog {
+	id: number;
+	attempt_id: number;
+	user_id: string;
+	assessment_id: number;
+	violation_type: number;
+	severity: number;
+	confidence_score: number;
+	snapshot_url?: string;
+	browser_info: {
+		user_agent: string;
+		platform: string;
+		language: string;
+		screen_resolution: string;
+		timezone: string;
+	};
+	device_fingerprint: string;
+	created_at: string;
+	ended_at: string;
+	is_prolonged: boolean;
+}
+
+interface ViolationAnalytics {
+	total_count: number;
+	count_by_type: Record<string, number>;
+	severity_distribution: Record<string, number>;
+	timeline: Array<{
+		timestamp: string;
+		count: number;
+		avg_confidence: number;
+	}>;
+}
+
+interface AttemptSummary {
+	attempt_id: number;
+	user_id: string;
+	assessment_id: number;
+	first_violation_at: string;
+	last_violation_at: string;
+	duration_seconds: number;
+	total_violations: number;
+	unique_violation_types: number;
+	prolonged_violations_count: number;
+	critical_count: number;
+	high_count: number;
+	medium_count: number;
+	low_count: number;
+	max_severity_level: number;
+	violation_types: number[];
+	avg_confidence: number;
+	max_confidence: number;
+	min_confidence: number;
+}
+
 class ViolationService {
 	private instance: AxiosInstance;
 
@@ -250,6 +305,140 @@ class ViolationService {
 		await this.instance.post(API_ENDPOINTS.PROCTORING_VIOLATIONS_BATCH, {
 			violations: payloads,
 		});
+	}
+
+	/**
+	 * Get violations for an attempt
+	 */
+	async getViolationsByAttempt(
+		attemptId: number,
+		page: number = 1,
+		pageSize: number = 10
+	): Promise<{ data: ViolationLog[]; count: number }> {
+		const response = await this.instance.get(
+			API_ENDPOINTS.PROCTORING_VIOLATIONS_BY_ATTEMPT(attemptId),
+			{
+				params: { page, pageSize },
+			}
+		);
+		return response.data;
+	}
+
+	/**
+	 * Get violation analytics for an attempt
+	 */
+	async getViolationAnalytics(
+		attemptId: number,
+		bucketSize: string = '5m'
+	): Promise<ViolationAnalytics> {
+		const response = await this.instance.get(
+			API_ENDPOINTS.PROCTORING_ANALYTICS(attemptId),
+			{
+				params: { bucket_size: bucketSize },
+			}
+		);
+		return response.data;
+	}
+
+	/**
+	 * Get attempt summary from dashboard
+	 */
+	async getAttemptSummary(attemptId: number): Promise<AttemptSummary | null> {
+		try {
+			const response = await this.instance.get(
+				API_ENDPOINTS.PROCTORING_ATTEMPT_SUMMARY(attemptId)
+			);
+			return response.data;
+		} catch (error: any) {
+			// Return null if not found (404) instead of throwing
+			if (error?.response?.status === 404) {
+				return null;
+			}
+			throw error;
+		}
+	}
+
+	/**
+	 * Get presigned URL for uploading violation snapshot to S3
+	 */
+	async getPresignedUploadURL(
+		attemptId: number,
+		violationType: number,
+		contentType: string = 'image/jpeg'
+	): Promise<{
+		upload_url: string;
+		object_key: string;
+		public_url: string;
+		expires_at: string;
+		content_type: string;
+	}> {
+		const response = await this.instance.get(API_ENDPOINTS.PROCTORING_PRESIGNED_URL, {
+			params: {
+				attempt_id: attemptId,
+				violation_type: violationType,
+				content_type: contentType,
+			},
+		});
+		return response.data;
+	}
+
+	/**
+	 * Upload image blob directly to S3 using presigned URL
+	 */
+	async uploadToS3(presignedUrl: string, blob: Blob, contentType: string): Promise<void> {
+		await fetch(presignedUrl, {
+			method: 'PUT',
+			body: blob,
+			headers: {
+				'Content-Type': contentType,
+			},
+		});
+	}
+
+	/**
+	 * Capture frame from video element and upload to S3
+	 * Returns the object key if successful, undefined otherwise
+	 */
+	async captureAndUploadSnapshot(
+		videoElement: HTMLVideoElement | null,
+		attemptId: number,
+		violationType: number
+	): Promise<string | undefined> {
+		if (!videoElement) return undefined;
+
+		try {
+			// Capture frame from video
+			const canvas = document.createElement('canvas');
+			canvas.width = videoElement.videoWidth || 640;
+			canvas.height = videoElement.videoHeight || 480;
+			const ctx = canvas.getContext('2d');
+			if (!ctx) return undefined;
+
+			// Mirror horizontally (webcam is mirrored)
+			ctx.scale(-1, 1);
+			ctx.drawImage(videoElement, -canvas.width, 0);
+
+			// Convert to blob
+			const blob = await new Promise<Blob | null>((resolve) => {
+				canvas.toBlob(resolve, 'image/jpeg', 0.85);
+			});
+			if (!blob) return undefined;
+
+			// Get presigned URL
+			const { upload_url, object_key } = await this.getPresignedUploadURL(
+				attemptId,
+				violationType,
+				'image/jpeg'
+			);
+
+			// Upload to S3
+			await this.uploadToS3(upload_url, blob, 'image/jpeg');
+
+			return object_key;
+		} catch (error) {
+			console.error('Failed to capture and upload snapshot:', error);
+			return undefined;
+		}
 	}
 }
 

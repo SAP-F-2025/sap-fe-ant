@@ -7,7 +7,7 @@ import {
 import { PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert, App, Button, Card, Col, Input, Row, Space, Spin, Tag, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { InTestFaceVerificationModal } from '../../components/Proctoring/InTestFaceVerificationModal';
@@ -79,6 +79,7 @@ const TakeAssessment: React.FC = () => {
 	const [lastSavedTime, setLastSavedTime] = useState<number | null>(null); // Track last successful save
 	const [customGrabbedId, setCustomGrabbedId] = useState<string | null>(null); // For custom keyboard ordering
 	const [focusedItemId, setFocusedItemId] = useState<string | null>(null); // Track focused item for visual feedback
+	const proctoringVideoRef = useRef<HTMLVideoElement | null>(null); // Reference to proctoring video for snapshot capture
 
 	// Setup sensors for drag-and-drop at top level (for ordering questions)
 	// Removed KeyboardSensor to use custom keyboard logic
@@ -296,14 +297,34 @@ const TakeAssessment: React.FC = () => {
 		setProctoringEvents((prev) => [...prev, event]);
 		console.log('Proctoring violation:', event);
 
-		// Submit to backend if violation ended
+		// Submit to backend if violation ended (with snapshot for camera violations)
 		if (user && attempt && event.duration > 0 && event.endTime > 0) {
 			try {
+				// Capture and upload snapshot for camera violations
+				let snapshotUrl: string | undefined;
+				if (proctoringVideoRef.current) {
+					const violationTypeMap: Record<string, number> = {
+						face_not_detected: 0,
+						multiple_faces: 1,
+						looking_away: 2,
+						mouth_open: 3,
+						head_turned: 5,
+						eyes_closed: 14,
+					};
+					const violationType = violationTypeMap[event.type] ?? 0;
+					snapshotUrl = await violationService.captureAndUploadSnapshot(
+						proctoringVideoRef.current,
+						attempt.id,
+						violationType
+					);
+				}
+
 				await violationService.submitCameraViolation(
 					event,
 					user.id,
 					attempt.id,
-					attempt.assessment_id
+					attempt.assessment_id,
+					snapshotUrl
 				);
 			} catch (error) {
 				console.error('Failed to submit camera violation:', error);
@@ -881,6 +902,9 @@ const TakeAssessment: React.FC = () => {
 				<>
 					<ProctoringMonitor
 						onViolation={handleProctoringViolation}
+						onVideoRef={(video) => {
+							proctoringVideoRef.current = video;
+						}}
 						onFaceCountChange={(count) => {
 							// Trigger verification if:
 							// 1. Face count returns to 1 from 0 or 2+ (normal case)

@@ -115,6 +115,7 @@ export const API_ENDPOINTS = {
 	PROCTORING_VIOLATIONS_LATEST: (attemptId: number) =>
 		`/api/v1/violations/attempt/${attemptId}/latest`,
 	PROCTORING_ANALYTICS: (attemptId: number) => `/api/v1/violations/analytics/${attemptId}`,
+	PROCTORING_PRESIGNED_URL: '/api/v1/violations/presigned-url',
 
 	// Proctoring Dashboard (uses PROCTORING_BASE_URL)
 	PROCTORING_ATTEMPT_SUMMARY: (attemptId: number) =>

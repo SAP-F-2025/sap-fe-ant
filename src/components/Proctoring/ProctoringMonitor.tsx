@@ -8,6 +8,7 @@ import { ProctoringEvent, useWorkerProctoring } from '../../hooks/useWorkerProct
 interface ProctoringMonitorProps {
 	onViolation?: (event: ProctoringEvent) => void;
 	onFaceCountChange?: (count: number) => void;
+	onVideoRef?: (videoElement: HTMLVideoElement | null) => void;
 	showLandmarks?: boolean;
 	compact?: boolean;
 	violationCount?: number;
@@ -20,6 +21,7 @@ interface ProctoringMonitorProps {
 export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	onViolation,
 	onFaceCountChange,
+	onVideoRef,
 	showLandmarks = false,
 	compact = false,
 	violationCount = 0,
@@ -73,10 +75,14 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 	const handleViolation = (event: ProctoringEvent) => {
 		const key = event.type;
 
+		// Always forward violation to parent for backend submission
+		onViolation?.(event);
+
 		if (event.duration === 0) {
+			// Violation just started - show in UI
 			setActiveViolations((prev) => new Map(prev).set(key, event));
-			onViolation?.(event);
 		} else {
+			// Violation ended - update UI and auto-hide after delay
 			setActiveViolations((prev) => new Map(prev).set(key, event));
 
 			const existingTimeout = violationTimeoutsRef.current.get(key);
@@ -162,6 +168,14 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 			videoRef.current.play().catch((err) => console.error('Video play failed:', err));
 		}
 	}, [streamReady, isExpanded, isMobile]);
+
+	// Expose video element to parent for snapshot capture
+	useEffect(() => {
+		if (videoReady && videoRef.current) {
+			onVideoRef?.(videoRef.current);
+		}
+		return () => onVideoRef?.(null);
+	}, [videoReady, onVideoRef]);
 
 	const getSize = () => {
 		const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;
@@ -350,8 +364,8 @@ export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
 									{isMobile
 										? violationCount
 										: t('proctoring.monitor.violationCount', {
-												count: violationCount,
-											})}
+											count: violationCount,
+										})}
 								</Tag>
 							)}
 							<Button

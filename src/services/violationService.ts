@@ -391,6 +391,7 @@ class ViolationService {
 			body: blob,
 			headers: {
 				'Content-Type': contentType,
+				'x-amz-acl': 'public-read',
 			},
 		});
 	}

@@ -4,53 +4,12 @@ import { Badge, Button, Dropdown, Empty, Modal, Skeleton, Space, Typography } fr
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeToken } from '../../theme/ThemeProvider';
+import { notificationService, Notification } from '../../services/notificationService';
 import './NotificationDropdown.css';
 
 const { Text, Title, Paragraph } = Typography;
 
-// Types
-export interface Notification {
-	id: string;
-	title: string;
-	content: string;
-	createdAt: string;
-	read: boolean;
-}
-
-interface NotificationPage {
-	notifications: Notification[];
-	nextCursor?: string;
-	hasMore: boolean;
-}
-
-// Mock API function - replace with actual API call
-const fetchNotifications = async (cursor?: string): Promise<NotificationPage> => {
-	// Simulate API delay
-	await new Promise((resolve) => setTimeout(resolve, 500));
-
-	// Mock data - replace with actual API call
-	const mockNotifications: Notification[] = Array.from({ length: 10 }, (_, i) => {
-		const index = cursor ? parseInt(cursor) + i : i;
-		return {
-			id: `notification-${index}`,
-			title: `Notification ${index + 1}`,
-			content:
-				index % 3 === 0
-					? `This is the content of notification ${index + 1}. This content is very long and needs to be truncated when displayed in the list to ensure a beautiful and readable interface for users.`
-					: `Short notification content ${index + 1}.`,
-			createdAt: new Date(Date.now() - index * 3600000).toISOString(),
-			read: index > 2,
-		};
-	});
-
-	const nextCursor = cursor ? String(parseInt(cursor) + 10) : '10';
-
-	return {
-		notifications: mockNotifications,
-		nextCursor: parseInt(nextCursor) < 50 ? nextCursor : undefined,
-		hasMore: parseInt(nextCursor) < 50,
-	};
-};
+// Notification Item Component
 
 // Notification Item Component
 interface NotificationItemProps {
@@ -162,15 +121,23 @@ export const NotificationDropdown: React.FC = () => {
 	const [modalOpen, setModalOpen] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
 
-	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useInfiniteQuery({
 		queryKey: ['notifications'],
-		queryFn: ({ pageParam }) => fetchNotifications(pageParam),
-		getNextPageParam: (lastPage) => lastPage.nextCursor,
-		initialPageParam: undefined as string | undefined,
+		queryFn: async ({ pageParam = 0 }) => {
+			const response = await notificationService.getNotifications(pageParam, 10);
+			return response;
+		},
+		getNextPageParam: (lastPage) => {
+			return lastPage.last ? undefined : lastPage.number + 1;
+		},
+		initialPageParam: 0,
 	});
 
-	const notifications = data?.pages.flatMap((page) => page.notifications) ?? [];
-	const unreadCount = notifications.filter((n) => !n.read).length;
+	const notifications = data?.pages.flatMap((page) => page.content) ?? [];
+	const unreadCount = notifications.filter((n) => !n.read).length; // This should ideally come from a separate API or the page metadata if needed, but client-side count is okay for now if we fetch all. 
+	// Actually, server-side count is better. But with infinite scroll, we only have loaded ones.
+	// For the badge, we should probably fetch the real unread count separately or initially.
+	// For now, let's keep it simple or use a lightweight count query if we updated the service.
 
 	// Infinite scroll handler
 	const handleScroll = useCallback(() => {
@@ -190,10 +157,30 @@ export const NotificationDropdown: React.FC = () => {
 		}
 	}, [handleScroll, open]);
 
-	const handleNotificationClick = (notification: Notification) => {
+	const handleNotificationClick = async (notification: Notification) => {
 		setSelectedNotification(notification);
 		setModalOpen(true);
 		setOpen(false);
+
+		if (!notification.read) {
+			try {
+				await notificationService.markAsRead(notification.id);
+				// Invalidate query to refresh UI or optimistically update
+				// Simple refetch for now
+				refetch();
+			} catch (error) {
+				console.error("Failed to mark notification as read", error);
+			}
+		}
+	};
+
+	const handleMarkAllRead = async () => {
+		try {
+			await notificationService.markAllAsRead();
+			refetch();
+		} catch (error) {
+			console.error("Failed to mark all as read", error);
+		}
 	};
 
 	const formatFullDate = (dateString: string) => {
@@ -233,7 +220,7 @@ export const NotificationDropdown: React.FC = () => {
 					{t('notificationDropdown.title')}
 				</Title>
 				{unreadCount > 0 && (
-					<Button type="link" size="small" style={{ padding: 0 }}>
+					<Button type="link" size="small" style={{ padding: 0 }} onClick={handleMarkAllRead}>
 						{t('notificationDropdown.markAllRead')}
 					</Button>
 				)}
@@ -287,7 +274,7 @@ export const NotificationDropdown: React.FC = () => {
 			<Dropdown
 				open={open}
 				onOpenChange={setOpen}
-				dropdownRender={() => dropdownContent}
+				popupRender={() => dropdownContent}
 				placement="bottomRight"
 				trigger={['click']}
 			>

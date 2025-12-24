@@ -126,4 +126,11 @@ export const API_ENDPOINTS = {
 	GROUP_ASSESSMENT: (groupId: number, assessmentId: number) =>
 		`/api/v1/groups/${groupId}/assessments/${assessmentId}`,
 	ASSESSMENT_GROUPS: (assessmentId: number) => `/api/v1/assessments/${assessmentId}/groups`,
+
+	// Notifications
+	NOTIFICATIONS: '/api/v1/notifications',
+	NOTIFICATIONS_MARK_READ: (id: string) => `/api/v1/notifications/${id}/read`,
+	NOTIFICATIONS_MARK_ALL_READ: '/api/v1/notifications/mark-all-read',
+	NOTIFICATIONS_UNREAD_COUNT: '/api/v1/notifications/unread-count',
+	SSE_CONNECT: '/api/v1/sse/connect',
 };

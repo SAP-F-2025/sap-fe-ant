@@ -31,6 +31,7 @@ import SharedQuestionBanks from './pages/QuestionBanks/SharedQuestionBanks';
 import QuestionForm from './pages/Questions/QuestionForm';
 import QuestionList from './pages/Questions/QuestionList';
 import UserManagement from './pages/Users/UserManagement';
+import NotificationManagement from './pages/Notifications/NotificationManagement';
 
 // Group Pages
 import GroupList from './pages/Groups/GroupList';
@@ -126,12 +127,23 @@ const AppRoutes: React.FC = () => {
 						}
 					/>
 
+
 					{/* Users Management */}
 					<Route
 						path="users"
 						element={
 							<RoleBasedRedirect allowedRoles={['admin']}>
 								<UserManagement />
+							</RoleBasedRedirect>
+						}
+					/>
+
+					{/* Notification Management */}
+					<Route
+						path="notifications"
+						element={
+							<RoleBasedRedirect allowedRoles={['admin']}>
+								<NotificationManagement />
 							</RoleBasedRedirect>
 						}
 					/>

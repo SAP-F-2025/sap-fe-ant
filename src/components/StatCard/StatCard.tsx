@@ -28,7 +28,7 @@ export const StatCard: React.FC<StatCardProps> = ({ icon, value, label, gradient
 
 	return (
 		<Card
-			bordered={false}
+			variant="borderless"
 			style={{
 				background: gradients[gradient],
 				borderRadius: token.borderRadiusLG,

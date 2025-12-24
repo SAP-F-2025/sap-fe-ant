@@ -32,7 +32,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ data, isLoad
 					<span style={{ fontWeight: 600 }}>{t('dashboard.scoreBySubject')}</span>
 				</Space>
 			}
-			bordered={false}
+			variant="borderless"
 			style={{ borderRadius: token.borderRadiusLG, ...elevation[2] }}
 		>
 			{isLoading ? (

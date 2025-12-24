@@ -317,6 +317,7 @@
 		"settings": "Settings",
 		"darkMode": "Dark Mode",
 		"logout": "Logout",
+		"notifications": "Notification Management",
 		"lightMode": "Light Mode"
 	},
 	"userManagement": {

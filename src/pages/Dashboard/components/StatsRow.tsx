@@ -28,7 +28,7 @@ interface StatCardItemProps {
 const StatCardItem: React.FC<StatCardItemProps> = ({ icon, value, label, color, delay }) => (
 	<Col xs={12} sm={6} lg={6} style={{ animationDelay: getStaggerDelay(delay) }}>
 		<Card
-			bordered={false}
+			variant="borderless"
 			style={{
 				background: color,
 				borderRadius: 12,
@@ -81,7 +81,7 @@ const StatCardItem: React.FC<StatCardItemProps> = ({ icon, value, label, color, 
 const StatCardSkeleton: React.FC<{ delay: number }> = ({ delay }) => (
 	<Col xs={12} sm={6} lg={6} style={{ animationDelay: getStaggerDelay(delay) }}>
 		<Card
-			bordered={false}
+			variant="borderless"
 			style={{
 				borderRadius: 12,
 				...elevation[1],

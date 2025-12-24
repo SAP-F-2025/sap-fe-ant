@@ -44,7 +44,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({ data, isLoading })
 					<span style={{ fontWeight: 600 }}>{t('dashboard.activityScore')}</span>
 				</Space>
 			}
-			bordered={false}
+			variant="borderless"
 			style={{ borderRadius: token.borderRadiusLG, ...elevation[2] }}
 		>
 			{isLoading ? (

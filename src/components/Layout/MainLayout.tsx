@@ -1,5 +1,6 @@
 import {
 	BankOutlined,
+	BellOutlined,
 	BookOutlined,
 	CheckCircleOutlined,
 	DashboardOutlined,
@@ -66,86 +67,96 @@ const MainLayout: React.FC = () => {
 
 	const menuItems: MenuProps['items'] = isStudent
 		? [
-				// Student menu items
-				{
-					key: '/student/dashboard',
-					icon: <DashboardOutlined />,
-					label: t('layout.studentDashboard'),
-				},
-				{
-					key: '/student/assessments',
-					icon: <BookOutlined />,
-					label: t('layout.assessments'),
-				},
-				{
-					key: '/student/manage-assessments',
-					icon: <FileTextOutlined />,
-					label: t('layout.manageAssessments'),
-				},
-				{
-					key: '/student/questions',
-					icon: <QuestionCircleOutlined />,
-					label: t('layout.manageQuestions'),
-				},
-				{
-					key: '/student/groups',
-					icon: <TeamOutlined />,
-					label: t('studentGroups.title'),
-				},
-				{
-					key: '/student/history',
-					icon: <HistoryOutlined />,
-					label: t('layout.history'),
-				},
-			]
+			// Student menu items
+			{
+				key: '/student/dashboard',
+				icon: <DashboardOutlined />,
+				label: t('layout.studentDashboard'),
+			},
+			{
+				key: '/student/assessments',
+				icon: <BookOutlined />,
+				label: t('layout.assessments'),
+			},
+			{
+				key: '/student/manage-assessments',
+				icon: <FileTextOutlined />,
+				label: t('layout.manageAssessments'),
+			},
+			{
+				key: '/student/questions',
+				icon: <QuestionCircleOutlined />,
+				label: t('layout.manageQuestions'),
+			},
+			{
+				key: '/student/groups',
+				icon: <TeamOutlined />,
+				label: t('studentGroups.title'),
+			},
+			{
+				key: '/student/history',
+				icon: <HistoryOutlined />,
+				label: t('layout.history'),
+			},
+		]
 		: [
-				// Admin/Teacher menu items
-				{
-					key: '/dashboard',
-					icon: <DashboardOutlined />,
-					label: t('layout.overview'),
-				},
-				// Only show Users menu for admin
-				...(user?.isAdmin
-					? [
-							{
-								key: '/users',
-								icon: <TeamOutlined />,
-								label: t('layout.users'),
-							},
-						]
-					: []),
-				// Only show Groups menu for admin
-				...(user?.isAdmin
-					? [
-							{
-								key: '/groups',
-								icon: <TeamOutlined />,
-								label: t('layout.groups'),
-							},
-						]
-					: []),
-				{
-					key: '/assessments',
-					icon: <FileTextOutlined />,
-					label: t('layout.manageAssessments'),
-				},
-				{
-					key: '/questions',
-					icon: <QuestionCircleOutlined />,
-					label: t('layout.manageQuestions'),
-				},
-				{
-					key: '/question-banks',
-					icon: <BankOutlined />,
-					label: t('layout.questionBanks'),
-				},
-				{
-					key: '/grading',
-					icon: <CheckCircleOutlined />,
-					label: t('layout.grading'),
-				},
-			];
+			// Admin/Teacher menu items
+			{
+				key: '/dashboard',
+				icon: <DashboardOutlined />,
+				label: t('layout.overview'),
+			},
+			// Only show Users menu for admin
+			...(user?.isAdmin
+				? [
+					{
+						key: '/users',
+						icon: <TeamOutlined />,
+						label: t('layout.users'),
+					},
+				]
+				: []),
+			// Only show Notifications menu for admin
+			...(user?.isAdmin
+				? [
+					{
+						key: '/notifications',
+						icon: <BellOutlined />,
+						label: t('layout.notifications') || 'Notifications',
+					},
+				]
+				: []),
+			// Only show Groups menu for admin
+			...(user?.isAdmin
+				? [
+					{
+						key: '/groups',
+						icon: <TeamOutlined />,
+						label: t('layout.groups'),
+					},
+				]
+				: []),
+			{
+				key: '/assessments',
+				icon: <FileTextOutlined />,
+				label: t('layout.manageAssessments'),
+			},
+			{
+				key: '/questions',
+				icon: <QuestionCircleOutlined />,
+				label: t('layout.manageQuestions'),
+			},
+			{
+				key: '/question-banks',
+				icon: <BankOutlined />,
+				label: t('layout.questionBanks'),
+			},
+			{
+				key: '/grading',
+				icon: <CheckCircleOutlined />,
+				label: t('layout.grading'),
+			},
+		];
 
 	// User dropdown menu handler
 	const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
@@ -252,6 +263,7 @@ const MainLayout: React.FC = () => {
 		if (path.startsWith('/student/results')) return '/student/history';
 		// Admin/Teacher paths
 		if (path.startsWith('/users')) return '/users';
+		if (path.startsWith('/notifications')) return '/notifications';
 		if (path.startsWith('/groups')) return '/groups';
 		if (path.startsWith('/assessments')) return '/assessments';
 		if (path.startsWith('/questions')) return '/questions';

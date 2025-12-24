@@ -26,7 +26,7 @@ const QuickStatCard: React.FC<QuickStatCardProps> = ({ title, value, icon, color
 	const { token } = useThemeToken();
 
 	return (
-		<Card bordered={false} style={{ borderRadius: token.borderRadiusLG, ...elevation[1] }}>
+		<Card variant="borderless" style={{ borderRadius: token.borderRadiusLG, ...elevation[1] }}>
 			<Statistic
 				title={title}
 				value={value}
@@ -40,7 +40,7 @@ const QuickStatCard: React.FC<QuickStatCardProps> = ({ title, value, icon, color
 				strokeColor={color}
 				showInfo={false}
 				style={{ marginTop: 8 }}
-				strokeWidth={8}
+				size={{ height: 8 }}
 			/>
 		</Card>
 	);

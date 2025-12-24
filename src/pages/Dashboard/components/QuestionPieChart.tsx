@@ -34,7 +34,7 @@ export const QuestionPieChart: React.FC<QuestionPieChartProps> = ({ data, isLoad
 					<span style={{ fontWeight: 600 }}>{t('dashboard.questionDistribution')}</span>
 				</Space>
 			}
-			bordered={false}
+			variant="borderless"
 			style={{ borderRadius: token.borderRadiusLG, ...elevation[2] }}
 		>
 			{isLoading ? (

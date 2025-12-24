@@ -161,7 +161,7 @@ const AssessmentList: React.FC = () => {
 		} catch (error: any) {
 			message.error(
 				error.response?.data?.message ||
-					t('assessmentList.exportError', 'Failed to export results')
+				t('assessmentList.exportError', 'Failed to export results')
 			);
 		} finally {
 			setExportingId(null);
@@ -411,7 +411,7 @@ const AssessmentList: React.FC = () => {
 
 			{/* Statistics Summary - Moved to bottom */}
 			<Card
-				bordered={false}
+				variant="borderless"
 				style={{
 					...elevation[1],
 					borderRadius: 16,

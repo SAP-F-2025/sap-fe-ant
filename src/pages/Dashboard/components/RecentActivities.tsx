@@ -31,7 +31,7 @@ export const RecentActivities: React.FC<RecentActivitiesProps> = ({ activities, 
 					<span style={{ fontWeight: 600 }}>{t('dashboard.recentActivities')}</span>
 				</Space>
 			}
-			bordered={false}
+			variant="borderless"
 			style={{
 				borderRadius: token.borderRadiusLG,
 				height: '100%',
@@ -72,7 +72,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, index, token }) =
 	return (
 		<Card
 			size="small"
-			bordered={false}
+			variant="borderless"
 			style={{
 				backgroundColor: token.colorBgLayout,
 				...elevation[1],

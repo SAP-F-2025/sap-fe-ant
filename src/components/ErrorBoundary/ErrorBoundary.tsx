@@ -1,150 +1,84 @@
 import { FrownOutlined, HomeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Button, Result, Space, Typography } from 'antd';
-import { Component, ErrorInfo, ReactNode } from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import React from 'react';
+import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 
 const { Paragraph, Text } = Typography;
 
-interface Props extends WithTranslation {
-	children: ReactNode;
-	fallback?: ReactNode;
-	onReset?: () => void;
-}
+const ErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBoundary }) => {
+	const { t } = useTranslation();
 
-interface State {
-	hasError: boolean;
-	error: Error | null;
-	errorInfo: ErrorInfo | null;
-}
-
-/**
- * Error Boundary Component
- * Catches errors in child components and displays a fallback UI
- * Includes error details in development mode
- */
-export class ErrorBoundary extends Component<Props, State> {
-	constructor(props: Props) {
-		super(props);
-		this.state = {
-			hasError: false,
-			error: null,
-			errorInfo: null,
-		};
-	}
-
-	static getDerivedStateFromError(error: Error): Pick<State, 'hasError' | 'error'> {
-		return {
-			hasError: true,
-			error,
-		};
-	}
-
-	componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-		// Log error to console in development
-		if (import.meta.env.DEV) {
-			console.error('Error caught by ErrorBoundary:', error, errorInfo);
-		}
-
-		// In production, you would send this to an error tracking service
-		// Example: Sentry.captureException(error, { extra: errorInfo });
-
-		this.setState({
-			errorInfo,
-		});
-	}
-
-	handleReset = (): void => {
-		const { onReset } = this.props;
-
-		this.setState({
-			hasError: false,
-			error: null,
-			errorInfo: null,
-		});
-
-		onReset?.();
-	};
-
-	handleGoHome = (): void => {
+	const handleGoHome = () => {
 		window.location.href = '/';
 	};
 
-	render(): ReactNode {
-		const { hasError, error, errorInfo } = this.state;
-		const { children, fallback } = this.props;
+	return (
+		<div
+			style={{
+				minHeight: '100vh',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				padding: '24px',
+			}}
+		>
+			<Result
+				status="error"
+				icon={<FrownOutlined />}
+				title={t('errorBoundary.title', 'Something went wrong')}
+				subTitle={t('errorBoundary.subtitle', 'We apologize for the inconvenience.')}
+				extra={
+					<Space size="middle">
+						<Button type="primary" icon={<ReloadOutlined />} onClick={resetErrorBoundary}>
+							{t('errorBoundary.retry', 'Try Again')}
+						</Button>
+						<Button icon={<HomeOutlined />} onClick={handleGoHome}>
+							{t('errorBoundary.backToHome', 'Back to Home')}
+						</Button>
+					</Space>
+				}
+			>
+				{/* Show error details in development */}
+				{import.meta.env.DEV && error && (
+					<div style={{ textAlign: 'left', marginTop: '24px' }}>
+						<Paragraph>
+							<Text strong>Error:</Text>
+						</Paragraph>
+						<Paragraph>
+							<Text code>{error.toString()}</Text>
+						</Paragraph>
+						<Paragraph>
+							<Text strong>Stack Trace:</Text>
+						</Paragraph>
+						<Paragraph>
+							<Text
+								code
+								style={{
+									whiteSpace: 'pre-wrap',
+								}}
+							>
+								{error.stack}
+							</Text>
+						</Paragraph>
+					</div>
+				)}
+			</Result>
+		</div>
+	);
+};
 
-		if (hasError) {
-			// Use custom fallback if provided
-			if (fallback) {
-				return fallback;
-			}
-
-			// Default error UI
-			return (
-				<div
-					style={{
-						minHeight: '100vh',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						padding: '24px',
-					}}
-				>
-					<Result
-						status="error"
-						icon={<FrownOutlined />}
-						title={this.props.t('errorBoundary.title')}
-						subTitle={this.props.t('errorBoundary.subtitle')}
-						extra={
-							<Space size="middle">
-								<Button
-									type="primary"
-									icon={<ReloadOutlined />}
-									onClick={this.handleReset}
-								>
-									{this.props.t('errorBoundary.retry')}
-								</Button>
-								<Button icon={<HomeOutlined />} onClick={this.handleGoHome}>
-									{this.props.t('errorBoundary.backToHome')}
-								</Button>
-							</Space>
-						}
-					>
-						{/* Show error details in development */}
-						{import.meta.env.DEV && error && (
-							<div style={{ textAlign: 'left', marginTop: '24px' }}>
-								<Paragraph>
-									<Text strong>Error:</Text>
-								</Paragraph>
-								<Paragraph>
-									<Text code>{error.toString()}</Text>
-								</Paragraph>
-								{errorInfo && (
-									<>
-										<Paragraph>
-											<Text strong>Stack Trace:</Text>
-										</Paragraph>
-										<Paragraph>
-											<Text
-												code
-												style={{
-													whiteSpace: 'pre-wrap',
-												}}
-											>
-												{errorInfo.componentStack}
-											</Text>
-										</Paragraph>
-									</>
-								)}
-							</div>
-						)}
-					</Result>
-				</div>
-			);
-		}
-
-		return children;
-	}
+interface ErrorBoundaryProps {
+	children: React.ReactNode;
+	onReset?: () => void;
 }
 
-export default withTranslation()(ErrorBoundary);
+export const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({ children, onReset }) => {
+	return (
+		<ReactErrorBoundary FallbackComponent={ErrorFallback} onReset={onReset}>
+			{children}
+		</ReactErrorBoundary>
+	);
+};
+
+export default ErrorBoundary;

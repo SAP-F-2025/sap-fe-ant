@@ -2629,6 +2629,26 @@ The routing implements two layout patterns:
 
 The ErrorBoundary component wraps the application to catch React errors gracefully, displaying a fallback UI instead of crashing the entire application. This ensures users see a helpful error message and can navigate away from broken states.
 
+#### **Exam Question Renderers**
+
+The exam module implements 7 question type components in `pages/Exam/components/QuestionTypes/`:
+
+| Type           | Features                                  |
+| :------------- | :---------------------------------------- |
+| MultipleChoice | Single/multi-select, option randomization |
+| TrueFalse      | Binary selection                          |
+| ShortAnswer    | Text input with word limit                |
+| Essay          | Rich text editor                          |
+| FillBlank      | Inline text fields with placeholders      |
+| Matching       | Drag-and-drop pairing (dnd-kit)           |
+| Ordering       | Sortable list with drag handles           |
+
+Each renderer receives question data via props and emits answer changes via `onAnswer` callback.
+
+#### **Settings Modal**
+
+A Discord-style `SettingsModal` component provides centralized access to theme selection, language switching, and notification preferences. Accessed via `Ctrl+,` keyboard shortcut.
+
 ### **2.7.3. State Management Strategy** {#2.7.3.-state-management-strategy}
 
 The application employs a hybrid state management approach that distinguishes between server state and client state, using the most appropriate tool for each.
@@ -2660,7 +2680,7 @@ const queryClient \= new QueryClient({
 React Context API manages global client-side state that doesn't come from the server:
 
 - AuthContext: Current user, authentication status, login/logout functions
-- ThemeContext: Light/dark mode preference, theme tokens
+- ThemeContext: Theme management with three variants (Light, Dark, High-Contrast), design tokens in `tokens.ts`, persisted to localStorage
 - NotificationContext: Toast notifications, unread count
 
 Context providers are composed at the application root in App.tsx following a specific nesting order that ensures proper dependency resolution:
@@ -2761,6 +2781,8 @@ The hooks/ directory contains 10 custom hooks:
 | useMediaQuery.ts        | Responsive breakpoint detection                   |
 
 ##### _Table 54\._ Hooks Directory Structure {#table-54.-hooks-directory-structure}
+
+The `useGlobalShortcuts` hook registers system-wide keyboard navigation: `Ctrl+/` (shortcuts modal), `Ctrl+,` (settings), and `Ctrl+Shift+T` (theme toggle). Shortcuts are disabled during exam mode to prevent accidental navigation.
 
 #### **Proctoring Hook Architecture**
 

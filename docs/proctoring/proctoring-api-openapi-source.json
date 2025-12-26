@@ -31,9 +31,7 @@
 	"paths": {
 		"/violations": {
 			"post": {
-				"tags": [
-					"Violations"
-				],
+				"tags": ["Violations"],
 				"summary": "Ingest single violation",
 				"description": "Process and store a single violation detection event",
 				"operationId": "ingestViolation",
@@ -124,9 +122,7 @@
 		},
 		"/violations/batch": {
 			"post": {
-				"tags": [
-					"Violations"
-				],
+				"tags": ["Violations"],
 				"summary": "Ingest batch violations",
 				"description": "Process and store multiple violations at once (max 50 per batch)",
 				"operationId": "ingestBatchViolations",
@@ -176,9 +172,7 @@
 		},
 		"/violations/attempt/{attempt_id}": {
 			"get": {
-				"tags": [
-					"Violations"
-				],
+				"tags": ["Violations"],
 				"summary": "Get violations by attempt",
 				"description": "Retrieve all violations for a specific attempt with pagination",
 				"operationId": "getViolationsByAttempt",
@@ -254,9 +248,7 @@
 		},
 		"/violations/attempt/{attempt_id}/latest": {
 			"get": {
-				"tags": [
-					"Violations"
-				],
+				"tags": ["Violations"],
 				"summary": "Get latest violation",
 				"description": "Get the most recent violation for a specific attempt",
 				"operationId": "getLatestViolation",
@@ -313,9 +305,7 @@
 		},
 		"/violations/analytics/{attempt_id}": {
 			"get": {
-				"tags": [
-					"Violations"
-				],
+				"tags": ["Violations"],
 				"summary": "Get violation analytics",
 				"description": "Get aggregated analytics for an attempt including counts,\nseverity distribution, and timeline\n",
 				"operationId": "getViolationAnalytics",
@@ -379,9 +369,7 @@
 		},
 		"/dashboard/stats/hourly": {
 			"get": {
-				"tags": [
-					"Dashboard"
-				],
+				"tags": ["Dashboard"],
 				"summary": "Get hourly violation statistics",
 				"description": "Get aggregated hourly violation stats from continuous aggregate",
 				"operationId": "getHourlyStats",
@@ -462,9 +450,7 @@
 		},
 		"/dashboard/stats/daily": {
 			"get": {
-				"tags": [
-					"Dashboard"
-				],
+				"tags": ["Dashboard"],
 				"summary": "Get daily violation statistics",
 				"description": "Get aggregated daily violation stats from continuous aggregate",
 				"operationId": "getDailyStats",
@@ -545,9 +531,7 @@
 		},
 		"/dashboard/attempts/{attempt_id}/summary": {
 			"get": {
-				"tags": [
-					"Dashboard"
-				],
+				"tags": ["Dashboard"],
 				"summary": "Get attempt violation summary",
 				"description": "Get aggregated violation summary for a specific attempt",
 				"operationId": "getAttemptSummary",
@@ -600,9 +584,7 @@
 		},
 		"/dashboard/attempts/summaries": {
 			"get": {
-				"tags": [
-					"Dashboard"
-				],
+				"tags": ["Dashboard"],
 				"summary": "Get summaries for multiple attempts",
 				"description": "Get violation summaries for multiple attempts (comma-separated IDs)",
 				"operationId": "getAttemptSummaries",
@@ -665,9 +647,7 @@
 		},
 		"/dashboard/users/{user_id}/patterns": {
 			"get": {
-				"tags": [
-					"Dashboard"
-				],
+				"tags": ["Dashboard"],
 				"summary": "Get violation patterns for a user",
 				"description": "Get daily violation patterns for a specific user",
 				"operationId": "getUserPatterns",
@@ -759,9 +739,7 @@
 		},
 		"/dashboard/overview": {
 			"get": {
-				"tags": [
-					"Dashboard"
-				],
+				"tags": ["Dashboard"],
 				"summary": "Get dashboard overview",
 				"description": "Get high-level dashboard metrics with comparison to previous period",
 				"operationId": "getDashboardOverview",
@@ -836,9 +814,7 @@
 		},
 		"/dashboard/realtime": {
 			"get": {
-				"tags": [
-					"Dashboard"
-				],
+				"tags": ["Dashboard"],
 				"summary": "Get real-time statistics",
 				"description": "Get real-time violation statistics for the last 5 minutes and last hour",
 				"operationId": "getRealTimeStats",
@@ -957,9 +933,7 @@
 			},
 			"BatchViolationRequest": {
 				"type": "object",
-				"required": [
-					"violations"
-				],
+				"required": ["violations"],
 				"properties": {
 					"violations": {
 						"type": "array",
@@ -1026,10 +1000,7 @@
 					},
 					"status": {
 						"type": "string",
-						"enum": [
-							"processed",
-							"failed"
-						],
+						"enum": ["processed", "failed"],
 						"example": "processed"
 					}
 				}
@@ -1130,13 +1101,7 @@
 			},
 			"BrowserInfo": {
 				"type": "object",
-				"required": [
-					"user_agent",
-					"platform",
-					"language",
-					"screen_resolution",
-					"timezone"
-				],
+				"required": ["user_agent", "platform", "language", "screen_resolution", "timezone"],
 				"properties": {
 					"user_agent": {
 						"type": "string",

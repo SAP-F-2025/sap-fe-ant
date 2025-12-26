@@ -2649,6 +2649,10 @@ Each renderer receives question data via props and emits answer changes via `onA
 
 A Discord-style `SettingsModal` component provides centralized access to theme selection, language switching, and notification preferences. Accessed via `Ctrl+,` keyboard shortcut.
 
+#### **Face Verification Flow**
+
+Before starting a proctored exam, students are routed through a `FaceVerification` page that captures a photo via webcam and verifies their identity against their registered face. The `faceVerificationService` sends the captured image to the backend for comparison, and only upon successful verification is the student allowed to proceed to the exam. This prevents impersonation attacks.
+
 ### **2.7.3. State Management Strategy** {#2.7.3.-state-management-strategy}
 
 The application employs a hybrid state management approach that distinguishes between server state and client state, using the most appropriate tool for each.

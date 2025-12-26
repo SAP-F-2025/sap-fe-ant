@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: sap-frontend-config
-  labels:
-    app: sap-frontend
+    name: sap-frontend-config
+    labels:
+        app: sap-frontend
 data:
-  # API Configuration
-  VITE_API_BASE_URL: "https://assessment.m3xd.dev"
-  VITE_VERIFICATION_API_BASE_URL: "https://verification.m3xd.dev"
-  VITE_PROCTORING_API_BASE_URL: "https://proctoring.m3xd.dev"
-  VITE_USE_MOCK: "false"
+    # API Configuration
+    VITE_API_BASE_URL: 'https://assessment.m3xd.dev'
+    VITE_VERIFICATION_API_BASE_URL: 'https://verification.m3xd.dev'
+    VITE_PROCTORING_API_BASE_URL: 'https://proctoring.m3xd.dev'
+    VITE_USE_MOCK: 'false'
 
-  # Casdoor OAuth Configuration
-  VITE_CASDOOR_SERVER_URL: "https://casdoor.m3xd.dev"
-  VITE_CASDOOR_CLIENT_ID: ""
-  VITE_CASDOOR_ORGANIZATION_NAME: "sap"
-  VITE_CASDOOR_APP_NAME: "sap-ant-client"
-  VITE_CASDOOR_REDIRECT_PATH: "/callback"
+    # Casdoor OAuth Configuration
+    VITE_CASDOOR_SERVER_URL: 'https://casdoor.m3xd.dev'
+    VITE_CASDOOR_CLIENT_ID: ''
+    VITE_CASDOOR_ORGANIZATION_NAME: 'sap'
+    VITE_CASDOOR_APP_NAME: 'sap-ant-client'
+    VITE_CASDOOR_REDIRECT_PATH: '/callback'
 
-  # Proctoring Configuration
-  VITE_FORCE_TAMPER_DETECTION: "false"
+    # Proctoring Configuration
+    VITE_FORCE_TAMPER_DETECTION: 'false'

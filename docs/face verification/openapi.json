@@ -8,9 +8,7 @@
 	"paths": {
 		"/api/v1/face/register": {
 			"post": {
-				"tags": [
-					"Face Recognition"
-				],
+				"tags": ["Face Recognition"],
 				"summary": "Register a new face",
 				"description": "Register a face for the authenticated user. The image should contain exactly one face.",
 				"operationId": "register_face_api_v1_face_register_post",
@@ -50,9 +48,7 @@
 		},
 		"/api/v1/face/verify": {
 			"post": {
-				"tags": [
-					"Face Recognition"
-				],
+				"tags": ["Face Recognition"],
 				"summary": "Verify face (1:1)",
 				"description": "Verify if a face image matches the authenticated user (1:1 verification)",
 				"operationId": "verify_face_api_v1_face_verify_post",
@@ -92,9 +88,7 @@
 		},
 		"/api/v1/face/identify": {
 			"post": {
-				"tags": [
-					"Face Recognition"
-				],
+				"tags": ["Face Recognition"],
 				"summary": "Identify face (1:N)",
 				"description": "Identify a person from face (search in all registered users)",
 				"operationId": "identify_face_api_v1_face_identify_post",
@@ -134,9 +128,7 @@
 		},
 		"/api/v1/face/detect": {
 			"post": {
-				"tags": [
-					"Face Recognition"
-				],
+				"tags": ["Face Recognition"],
 				"summary": "Detect faces",
 				"description": "Detect all faces in an image",
 				"operationId": "detect_faces_api_v1_face_detect_post",
@@ -176,9 +168,7 @@
 		},
 		"/api/v1/face/liveness": {
 			"post": {
-				"tags": [
-					"Face Recognition"
-				],
+				"tags": ["Face Recognition"],
 				"summary": "Check liveness",
 				"description": "Perform liveness detection on a face image",
 				"operationId": "check_liveness_api_v1_face_liveness_post",
@@ -218,9 +208,7 @@
 		},
 		"/api/v1/face/user": {
 			"delete": {
-				"tags": [
-					"Face Recognition"
-				],
+				"tags": ["Face Recognition"],
 				"summary": "Delete user",
 				"description": "Delete the authenticated user and their face data",
 				"operationId": "delete_user_api_v1_face_user_delete",
@@ -238,9 +226,7 @@
 		},
 		"/api/v1/face/users": {
 			"get": {
-				"tags": [
-					"Face Recognition"
-				],
+				"tags": ["Face Recognition"],
 				"summary": "List users",
 				"description": "Get list of all registered users",
 				"operationId": "list_users_api_v1_face_users_get",
@@ -258,9 +244,7 @@
 		},
 		"/api/v1/face/registration-status": {
 			"get": {
-				"tags": [
-					"Face Recognition"
-				],
+				"tags": ["Face Recognition"],
 				"summary": "Check registration status",
 				"description": "Check if the authenticated user has registered their face",
 				"operationId": "check_registration_status_api_v1_face_registration_status_get",
@@ -278,9 +262,7 @@
 		},
 		"/api/v1/active-liveness/challenge": {
 			"get": {
-				"tags": [
-					"Active Liveness"
-				],
+				"tags": ["Active Liveness"],
 				"summary": "Generate liveness challenge",
 				"description": "Generate a random liveness challenge (to be verified client-side with MediaPipe)",
 				"operationId": "generate_challenge_api_v1_active_liveness_challenge_get",
@@ -346,9 +328,7 @@
 		},
 		"/api/v1/active-liveness/verify-challenge": {
 			"post": {
-				"tags": [
-					"Active Liveness"
-				],
+				"tags": ["Active Liveness"],
 				"summary": "Verify challenge completion",
 				"description": "Mark challenge as completed (client verifies actions with MediaPipe)",
 				"operationId": "verify_challenge_api_v1_active_liveness_verify_challenge_post",
@@ -388,9 +368,7 @@
 		},
 		"/api/v1/active-liveness/challenge/{challenge_id}": {
 			"get": {
-				"tags": [
-					"Active Liveness"
-				],
+				"tags": ["Active Liveness"],
 				"summary": "Get challenge status",
 				"description": "Get the current status of a challenge with remaining time",
 				"operationId": "get_challenge_status_api_v1_active_liveness_challenge__challenge_id__get",
@@ -427,9 +405,7 @@
 				}
 			},
 			"delete": {
-				"tags": [
-					"Active Liveness"
-				],
+				"tags": ["Active Liveness"],
 				"summary": "Delete challenge",
 				"description": "Delete a challenge from the system",
 				"operationId": "delete_challenge_api_v1_active_liveness_challenge__challenge_id__delete",
@@ -468,9 +444,7 @@
 		},
 		"/api/v1/active-liveness/cleanup-expired": {
 			"post": {
-				"tags": [
-					"Active Liveness"
-				],
+				"tags": ["Active Liveness"],
 				"summary": "Cleanup expired challenges",
 				"description": "Manually cleanup expired challenges from memory storage",
 				"operationId": "cleanup_expired_challenges_api_v1_active_liveness_cleanup_expired_post",
@@ -488,9 +462,7 @@
 		},
 		"/api/v1/active-liveness/stats": {
 			"get": {
-				"tags": [
-					"Active Liveness"
-				],
+				"tags": ["Active Liveness"],
 				"summary": "Get challenge statistics",
 				"description": "Get statistics about liveness challenges",
 				"operationId": "get_challenge_stats_api_v1_active_liveness_stats_get",
@@ -508,9 +480,7 @@
 		},
 		"/health": {
 			"get": {
-				"tags": [
-					"Health"
-				],
+				"tags": ["Health"],
 				"summary": "Health check",
 				"description": "Check if the service is running and models are loaded",
 				"operationId": "health_check_health_get",
@@ -530,9 +500,7 @@
 		},
 		"/": {
 			"get": {
-				"tags": [
-					"Root"
-				],
+				"tags": ["Root"],
 				"summary": "Root endpoint",
 				"description": "Get service information",
 				"operationId": "root__get",
@@ -550,9 +518,7 @@
 		},
 		"/debug/config": {
 			"get": {
-				"tags": [
-					"Debug"
-				],
+				"tags": ["Debug"],
 				"summary": "Debug config",
 				"description": "Show current configuration (only available in DEBUG mode)",
 				"operationId": "debug_config_debug_config_get",
@@ -581,9 +547,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"image"
-				],
+				"required": ["image"],
 				"title": "Body_check_liveness_api_v1_face_liveness_post"
 			},
 			"Body_detect_faces_api_v1_face_detect_post": {
@@ -596,9 +560,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"image"
-				],
+				"required": ["image"],
 				"title": "Body_detect_faces_api_v1_face_detect_post"
 			},
 			"Body_identify_face_api_v1_face_identify_post": {
@@ -639,9 +601,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"image"
-				],
+				"required": ["image"],
 				"title": "Body_identify_face_api_v1_face_identify_post"
 			},
 			"Body_register_face_api_v1_face_register_post": {
@@ -654,9 +614,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"image"
-				],
+				"required": ["image"],
 				"title": "Body_register_face_api_v1_face_register_post"
 			},
 			"Body_verify_challenge_api_v1_active_liveness_verify_challenge_post": {
@@ -667,9 +625,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"challenge_id"
-				],
+				"required": ["challenge_id"],
 				"title": "Body_verify_challenge_api_v1_active_liveness_verify_challenge_post"
 			},
 			"Body_verify_face_api_v1_face_verify_post": {
@@ -702,9 +658,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"image"
-				],
+				"required": ["image"],
 				"title": "Body_verify_face_api_v1_face_verify_post"
 			},
 			"ChallengeResponse": {
@@ -728,12 +682,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"challenge_id",
-					"required_actions",
-					"timeout",
-					"instructions"
-				],
+				"required": ["challenge_id", "required_actions", "timeout", "instructions"],
 				"title": "ChallengeResponse",
 				"description": "Response model for challenge generation."
 			},
@@ -757,10 +706,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"faces_detected",
-					"faces"
-				],
+				"required": ["faces_detected", "faces"],
 				"title": "FaceDetectionResponse",
 				"description": "Face detection response."
 			},
@@ -799,10 +745,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"version",
-					"models_loaded"
-				],
+				"required": ["version", "models_loaded"],
 				"title": "HealthResponse",
 				"description": "Health check response."
 			},
@@ -852,10 +795,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"found",
-					"liveness_score"
-				],
+				"required": ["found", "liveness_score"],
 				"title": "IdentifyResponse",
 				"description": "Face identification response (1:N search)."
 			},
@@ -889,12 +829,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"is_live",
-					"liveness_score",
-					"det_score",
-					"bbox"
-				],
+				"required": ["is_live", "liveness_score", "det_score", "bbox"],
 				"title": "LivenessCheckResponse",
 				"description": "Liveness detection response."
 			},
@@ -931,12 +866,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"user_id",
-					"embedding_dim",
-					"bbox",
-					"det_score"
-				],
+				"required": ["user_id", "embedding_dim", "bbox", "det_score"],
 				"title": "RegisterResponse",
 				"description": "Face registration response."
 			},
@@ -966,11 +896,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"loc",
-					"msg",
-					"type"
-				],
+				"required": ["loc", "msg", "type"],
 				"title": "ValidationError"
 			},
 			"app__api__v1__endpoints__active_liveness__VerifyResponse": {
@@ -1000,11 +926,7 @@
 					}
 				},
 				"type": "object",
-				"required": [
-					"verified",
-					"status",
-					"message"
-				],
+				"required": ["verified", "status", "message"],
 				"title": "VerifyResponse",
 				"description": "Response model for challenge verification."
 			},

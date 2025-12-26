@@ -1,106 +1,106 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sap-frontend
-  labels:
-    app: sap-frontend
-    tier: frontend
-spec:
-  replicas: 2
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-  selector:
-    matchLabels:
-      app: sap-frontend
-  template:
-    metadata:
-      labels:
+    name: sap-frontend
+    labels:
         app: sap-frontend
         tier: frontend
-    spec:
-      containers:
-      - name: sap-frontend
-        image: your-registry/sap-frontend:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 80
-          name: http
-          protocol: TCP
-        env:
-        - name: VITE_API_BASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: sap-frontend-config
-              key: VITE_API_BASE_URL
-        - name: VITE_VERIFICATION_API_BASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: sap-frontend-config
-              key: VITE_VERIFICATION_API_BASE_URL
-        - name: VITE_PROCTORING_API_BASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: sap-frontend-config
-              key: VITE_PROCTORING_API_BASE_URL
-        - name: VITE_CASDOOR_SERVER_URL
-          valueFrom:
-            configMapKeyRef:
-              name: sap-frontend-config
-              key: VITE_CASDOOR_SERVER_URL
-        - name: VITE_CASDOOR_CLIENT_ID
-          valueFrom:
-            configMapKeyRef:
-              name: sap-frontend-config
-              key: VITE_CASDOOR_CLIENT_ID
-        - name: VITE_CASDOOR_ORGANIZATION_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: sap-frontend-config
-              key: VITE_CASDOOR_ORGANIZATION_NAME
-        - name: VITE_CASDOOR_APP_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: sap-frontend-config
-              key: VITE_CASDOOR_APP_NAME
-        - name: VITE_CASDOOR_REDIRECT_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: sap-frontend-config
-              key: VITE_CASDOOR_REDIRECT_PATH
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "100m"
-          limits:
-            memory: "1Gi"
-            cpu: "200m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 3
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 101  # nginx user
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
-          capabilities:
-            drop:
-            - ALL
-      # Uncomment nếu bạn sử dụng private registry
-      # imagePullSecrets:
-      # - name: regcred
+spec:
+    replicas: 2
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+    selector:
+        matchLabels:
+            app: sap-frontend
+    template:
+        metadata:
+            labels:
+                app: sap-frontend
+                tier: frontend
+        spec:
+            containers:
+                - name: sap-frontend
+                  image: your-registry/sap-frontend:latest
+                  imagePullPolicy: Always
+                  ports:
+                      - containerPort: 80
+                        name: http
+                        protocol: TCP
+                  env:
+                      - name: VITE_API_BASE_URL
+                        valueFrom:
+                            configMapKeyRef:
+                                name: sap-frontend-config
+                                key: VITE_API_BASE_URL
+                      - name: VITE_VERIFICATION_API_BASE_URL
+                        valueFrom:
+                            configMapKeyRef:
+                                name: sap-frontend-config
+                                key: VITE_VERIFICATION_API_BASE_URL
+                      - name: VITE_PROCTORING_API_BASE_URL
+                        valueFrom:
+                            configMapKeyRef:
+                                name: sap-frontend-config
+                                key: VITE_PROCTORING_API_BASE_URL
+                      - name: VITE_CASDOOR_SERVER_URL
+                        valueFrom:
+                            configMapKeyRef:
+                                name: sap-frontend-config
+                                key: VITE_CASDOOR_SERVER_URL
+                      - name: VITE_CASDOOR_CLIENT_ID
+                        valueFrom:
+                            configMapKeyRef:
+                                name: sap-frontend-config
+                                key: VITE_CASDOOR_CLIENT_ID
+                      - name: VITE_CASDOOR_ORGANIZATION_NAME
+                        valueFrom:
+                            configMapKeyRef:
+                                name: sap-frontend-config
+                                key: VITE_CASDOOR_ORGANIZATION_NAME
+                      - name: VITE_CASDOOR_APP_NAME
+                        valueFrom:
+                            configMapKeyRef:
+                                name: sap-frontend-config
+                                key: VITE_CASDOOR_APP_NAME
+                      - name: VITE_CASDOOR_REDIRECT_PATH
+                        valueFrom:
+                            configMapKeyRef:
+                                name: sap-frontend-config
+                                key: VITE_CASDOOR_REDIRECT_PATH
+                  resources:
+                      requests:
+                          memory: '512Mi'
+                          cpu: '100m'
+                      limits:
+                          memory: '1Gi'
+                          cpu: '200m'
+                  livenessProbe:
+                      httpGet:
+                          path: /health
+                          port: 80
+                      initialDelaySeconds: 10
+                      periodSeconds: 10
+                      timeoutSeconds: 3
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /health
+                          port: 80
+                      initialDelaySeconds: 5
+                      periodSeconds: 5
+                      timeoutSeconds: 3
+                      failureThreshold: 3
+                  securityContext:
+                      runAsNonRoot: true
+                      runAsUser: 101 # nginx user
+                      allowPrivilegeEscalation: false
+                      readOnlyRootFilesystem: false
+                      capabilities:
+                          drop:
+                              - ALL
+            # Uncomment nếu bạn sử dụng private registry
+            # imagePullSecrets:
+            # - name: regcred

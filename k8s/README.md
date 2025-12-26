@@ -43,10 +43,10 @@ docker push your-registry/sap-frontend:latest
 Chỉnh sửa `k8s/configmap.yaml` và thay đổi các giá trị API endpoints theo môi trường của bạn:
 
 ```yaml
-VITE_API_BASE_URL: "https://your-api.yourdomain.com"
-VITE_VERIFICATION_API_BASE_URL: "https://your-verification-api.yourdomain.com"
-VITE_PROCTORING_API_BASE_URL: "https://your-proctoring-api.yourdomain.com"
-VITE_CASDOOR_SERVER_URL: "https://your-casdoor.yourdomain.com"
+VITE_API_BASE_URL: 'https://your-api.yourdomain.com'
+VITE_VERIFICATION_API_BASE_URL: 'https://your-verification-api.yourdomain.com'
+VITE_PROCTORING_API_BASE_URL: 'https://your-proctoring-api.yourdomain.com'
+VITE_CASDOOR_SERVER_URL: 'https://your-casdoor.yourdomain.com'
 ```
 
 ### 2.2. Cập nhật Deployment
@@ -79,18 +79,21 @@ match: Host(`sap.yourdomain.com`)
 Cấu hình TLS:
 
 **Option 1: Sử dụng cert-manager (Recommended)**
+
 ```yaml
 tls:
-  certResolver: letsencrypt  # Tên cert resolver của bạn
+    certResolver: letsencrypt # Tên cert resolver của bạn
 ```
 
 **Option 2: Sử dụng existing TLS secret**
+
 ```yaml
 tls:
-  secretName: sap-frontend-tls
+    secretName: sap-frontend-tls
 ```
 
 Để tạo TLS secret thủ công:
+
 ```bash
 kubectl create secret tls sap-frontend-tls \
   --cert=path/to/cert.pem \
@@ -179,11 +182,13 @@ docker push your-registry/sap-frontend:v1.0.1
 ### 5.2. Update deployment
 
 **Option 1: Update image tag trong deployment.yaml và apply lại**
+
 ```bash
 kubectl apply -f k8s/deployment.yaml
 ```
 
 **Option 2: Sử dụng kubectl set image**
+
 ```bash
 kubectl set image deployment/sap-frontend \
   sap-frontend=your-registry/sap-frontend:v1.0.1
@@ -347,18 +352,18 @@ kubectl delete configmap sap-frontend-config
 2. **Resource limits**: Luôn set requests và limits cho CPU/Memory
 3. **Health checks**: Cấu hình liveness và readiness probes
 4. **Security**:
-   - Sử dụng non-root user
-   - Drop all capabilities
-   - Enable TLS
-   - Security headers middleware
+    - Sử dụng non-root user
+    - Drop all capabilities
+    - Enable TLS
+    - Security headers middleware
 5. **High Availability**:
-   - Ít nhất 2 replicas
-   - Pod anti-affinity rules
-   - PodDisruptionBudget
+    - Ít nhất 2 replicas
+    - Pod anti-affinity rules
+    - PodDisruptionBudget
 6. **Monitoring**:
-   - Integrate với Prometheus
-   - Setup alerts
-   - Log aggregation (ELK, Loki)
+    - Integrate với Prometheus
+    - Setup alerts
+    - Log aggregation (ELK, Loki)
 7. **CI/CD**: Automate build và deployment process
 8. **GitOps**: Sử dụng ArgoCD hoặc FluxCD cho declarative deployments
 

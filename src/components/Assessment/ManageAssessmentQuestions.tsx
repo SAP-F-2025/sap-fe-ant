@@ -336,7 +336,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 			}));
 
 			// Adjust for rounding errors to ensure total is exactly 100
-			let currentTotal = scaledPoints.reduce((sum, q) => sum + q.scaledPoints, 0);
+			const currentTotal = scaledPoints.reduce((sum, q) => sum + q.scaledPoints, 0);
 			let diff = 100 - currentTotal;
 
 			// Distribute the difference to largest questions first

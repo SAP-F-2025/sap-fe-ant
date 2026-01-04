@@ -41,25 +41,25 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
 				},
 				...(user?.isAdmin
 					? [
-							{
-								key: '/users',
-								icon: (
-									<Badge count={5} size="small" offset={[10, 0]}>
-										<TeamOutlined />
-									</Badge>
-								),
-								label: t('sidebar.users'),
-							},
-						]
+						{
+							key: '/users',
+							icon: (
+								<Badge count={5} size="small" offset={[10, 0]}>
+									<TeamOutlined />
+								</Badge>
+							),
+							label: t('sidebar.users'),
+						},
+					]
 					: []),
 				...(user?.isAdmin
 					? [
-							{
-								key: '/groups',
-								icon: <TeamOutlined />,
-								label: 'Quản lý nhóm',
-							},
-						]
+						{
+							key: '/groups',
+							icon: <TeamOutlined />,
+							label: 'Quản lý nhóm',
+						},
+					]
 					: []),
 			],
 		},
@@ -242,10 +242,10 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ collapsed, mode }) => {
 								}}
 								onMouseEnter={(e) => (e.currentTarget.style.color = '#ff4d4f')}
 								onMouseLeave={(e) =>
-									(e.currentTarget.style.color =
-										mode === 'dark'
-											? 'rgba(255,255,255,0.65)'
-											: 'rgba(0,0,0,0.65)')
+								(e.currentTarget.style.color =
+									mode === 'dark'
+										? 'rgba(255,255,255,0.65)'
+										: 'rgba(0,0,0,0.65)')
 								}
 							/>
 						</Tooltip>

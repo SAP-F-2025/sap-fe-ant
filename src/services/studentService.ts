@@ -97,6 +97,8 @@ class StudentService {
 			status?: string;
 			from_date?: string;
 			to_date?: string;
+			sort_by?: string;
+			sort_order?: 'asc' | 'desc';
 		}
 	): Promise<PaginatedResponse<AttemptWithAssessment>> {
 		if (API_CONFIG.USE_MOCK) {

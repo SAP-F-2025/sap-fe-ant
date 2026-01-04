@@ -23,6 +23,7 @@ import Login from './pages/Auth/Login';
 import Dashboard from './pages/Dashboard';
 import GradingDetail from './pages/Grading/GradingDetail';
 import GradingList from './pages/Grading/GradingList';
+import AttemptLiveMonitor from './pages/Grading/AttemptLiveMonitor';
 import PublicQuestionBanks from './pages/QuestionBanks/PublicQuestionBanks';
 import QuestionBankDetail from './pages/QuestionBanks/QuestionBankDetail';
 import QuestionBankForm from './pages/QuestionBanks/QuestionBankForm';
@@ -43,6 +44,7 @@ import AssessmentResults from './pages/Student/AssessmentResults';
 import AvailableAssessments from './pages/Student/AvailableAssessments';
 import FaceVerification from './pages/Student/FaceVerification';
 import StudentDashboard from './pages/Student/StudentDashboard';
+import CreatorDashboard from './pages/Student/CreatorDashboard';
 import StudentGroups from './pages/Student/StudentGroups';
 import StudentHistory from './pages/Student/StudentHistory';
 import StudentAssessmentList from './pages/Student/StudentAssessmentList';
@@ -304,12 +306,14 @@ const AppRoutes: React.FC = () => {
 					<Route path="grading">
 						<Route index element={<GradingList />} />
 						<Route path=":id" element={<GradingDetail />} />
+						<Route path=":id/live" element={<AttemptLiveMonitor />} />
 					</Route>
 
 					{/* Student routes */}
 					<Route path="student">
 						<Route index element={<Navigate to="/student/dashboard" replace />} />
 						<Route path="dashboard" element={<StudentDashboard />} />
+						<Route path="creator-dashboard" element={<CreatorDashboard />} />
 						<Route path="assessments" element={<AvailableAssessments />} />
 						<Route path="face-verification" element={<FaceVerification />} />
 						{/* Note: take/:attemptId moved to ExamLayout below */}

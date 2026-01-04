@@ -2,11 +2,13 @@ import {
 	CheckCircleOutlined,
 	ClockCircleOutlined,
 	CloseCircleOutlined,
+	ExclamationCircleOutlined,
 	FileTextOutlined,
 	HomeOutlined,
 	HourglassOutlined,
 	ReloadOutlined,
 	TrophyOutlined,
+	WarningOutlined,
 } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -32,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import studentService from '../../services/studentService';
+import violationService from '../../services/violationService';
 import type { AttemptDetail, QuestionScore, StudentAnswer } from '../../types';
 
 dayjs.extend(duration);
@@ -50,6 +53,22 @@ const AssessmentResults: React.FC = () => {
 		queryKey: ['attempt-detail', attemptId],
 		queryFn: () => studentService.getAttemptDetails(Number(attemptId)),
 		enabled: !!attemptId,
+	});
+
+	// Fetch violation summary for this attempt
+	const { data: violationSummary, isLoading: isLoadingViolations } = useQuery({
+		queryKey: ['violation-summary', attemptId],
+		queryFn: () => violationService.getAttemptSummary(Number(attemptId)),
+		enabled: !!attemptId,
+		retry: false, // Don't retry if no violations found
+	});
+
+	// Fetch violation analytics for timeline
+	const { data: violationAnalytics } = useQuery({
+		queryKey: ['violation-analytics', attemptId],
+		queryFn: () => violationService.getViolationAnalytics(Number(attemptId), '5m'),
+		enabled: !!attemptId && !!violationSummary && violationSummary.total_violations > 0,
+		retry: false,
 	});
 
 	if (isLoading) {
@@ -155,7 +174,7 @@ const AssessmentResults: React.FC = () => {
 							{answer.answer === true
 								? questionContent.true_label || t('assessmentResults.question.true')
 								: questionContent.false_label ||
-									t('assessmentResults.question.false')}
+								t('assessmentResults.question.false')}
 						</Tag>
 					);
 
@@ -180,16 +199,16 @@ const AssessmentResults: React.FC = () => {
 						<div style={{ padding: '8px' }}>
 							{typeof answer.answer === 'object'
 								? Object.entries(answer.answer).map(
-										([key, value]: [string, any]) => (
-											<div key={key} style={{ marginBottom: '8px' }}>
-												<Text strong>
-													{t('assessmentResults.question.blank', { key })}
-													:
-												</Text>{' '}
-												<Tag>{value}</Tag>
-											</div>
-										)
+									([key, value]: [string, any]) => (
+										<div key={key} style={{ marginBottom: '8px' }}>
+											<Text strong>
+												{t('assessmentResults.question.blank', { key })}
+												:
+											</Text>{' '}
+											<Tag>{value}</Tag>
+										</div>
 									)
+								)
 								: answer.answer}
 						</div>
 					);
@@ -253,7 +272,7 @@ const AssessmentResults: React.FC = () => {
 							{correctBool === true
 								? questionContent.true_label || t('assessmentResults.question.true')
 								: questionContent.false_label ||
-									t('assessmentResults.question.false')}
+								t('assessmentResults.question.false')}
 						</Tag>
 					);
 
@@ -411,17 +430,16 @@ const AssessmentResults: React.FC = () => {
 													: showCorrectness && isCorrect
 														? token.colorSuccessBg
 														: token.colorBgContainer,
-												border: `1px solid ${
-													isStudentAnswer
-														? showCorrectness && isCorrect
-															? token.colorSuccessBorder
-															: showCorrectness && !isCorrect
-																? token.colorErrorBorder
-																: token.colorInfoBorder
-														: showCorrectness && isCorrect
-															? token.colorSuccessBorder
-															: token.colorBorder
-												}`,
+												border: `1px solid ${isStudentAnswer
+													? showCorrectness && isCorrect
+														? token.colorSuccessBorder
+														: showCorrectness && !isCorrect
+															? token.colorErrorBorder
+															: token.colorInfoBorder
+													: showCorrectness && isCorrect
+														? token.colorSuccessBorder
+														: token.colorBorder
+													}`,
 												borderRadius: '4px',
 											}}
 										>
@@ -674,8 +692,8 @@ const AssessmentResults: React.FC = () => {
 										percent:
 											totalQuestions > 0
 												? ((correctAnswers / totalQuestions) * 100).toFixed(
-														1
-													)
+													1
+												)
 												: 0,
 									})}
 								</Text>
@@ -710,15 +728,14 @@ const AssessmentResults: React.FC = () => {
 							description={
 								passed
 									? t('assessmentResults.passedDescription', {
-											percent: percentage.toFixed(1),
-											passing: attempt.assessment?.passing_score,
-										})
-									: `${t('assessmentResults.failedDescription', { percent: percentage.toFixed(1), passing: attempt.assessment?.passing_score })} ${
-											attempt.assessment?.max_attempts &&
-											attempt.assessment.max_attempts > 1
-												? t('assessmentResults.canRetake')
-												: ''
-										}`
+										percent: percentage.toFixed(1),
+										passing: attempt.assessment?.passing_score,
+									})
+									: `${t('assessmentResults.failedDescription', { percent: percentage.toFixed(1), passing: attempt.assessment?.passing_score })} ${attempt.assessment?.max_attempts &&
+										attempt.assessment.max_attempts > 1
+										? t('assessmentResults.canRetake')
+										: ''
+									}`
 							}
 							type={passed ? 'success' : 'error'}
 							showIcon
@@ -726,6 +743,220 @@ const AssessmentResults: React.FC = () => {
 					)}
 				</Space>
 			</Card>
+
+			{/* Violation Summary Card */}
+			{violationSummary && violationSummary.total_violations > 0 && (
+				<Card
+					title={
+						<Space>
+							<WarningOutlined style={{ color: token.colorWarning }} />
+							<Text strong>Vi phạm giám sát</Text>
+						</Space>
+					}
+					style={{ marginTop: '24px' }}
+				>
+					<Space direction="vertical" style={{ width: '100%' }} size="large">
+						{/* Summary Stats */}
+						<Row gutter={[16, 16]}>
+							<Col xs={24} sm={12} md={6}>
+								<Card>
+									<Statistic
+										title="Tổng vi phạm"
+										value={violationSummary.total_violations}
+										prefix={<ExclamationCircleOutlined />}
+										valueStyle={{ color: token.colorWarning }}
+									/>
+								</Card>
+							</Col>
+							<Col xs={24} sm={12} md={6}>
+								<Card>
+									<Statistic
+										title="Mức nghiêm trọng"
+										value={violationSummary.critical_count}
+										suffix="/ Critical"
+										valueStyle={{ color: '#ff4d4f' }}
+									/>
+								</Card>
+							</Col>
+							<Col xs={24} sm={12} md={6}>
+								<Card>
+									<Statistic
+										title="Độ tin cậy TB"
+										value={violationSummary.avg_confidence}
+										precision={2}
+										suffix="/ 1.00"
+										valueStyle={{ fontSize: '24px' }}
+									/>
+								</Card>
+							</Col>
+							<Col xs={24} sm={12} md={6}>
+								<Card>
+									<Statistic
+										title="Vi phạm kéo dài"
+										value={violationSummary.prolonged_violations_count}
+										valueStyle={{ fontSize: '24px' }}
+									/>
+								</Card>
+							</Col>
+						</Row>
+
+						{/* Severity Breakdown */}
+						<div>
+							<Text strong style={{ marginBottom: '8px', display: 'block' }}>
+								Phân loại theo mức độ
+							</Text>
+							<Row gutter={[8, 8]}>
+								{violationSummary.critical_count > 0 && (
+									<Col>
+										<Tag color="error" style={{ fontSize: '14px', padding: '4px 12px' }}>
+											Nghiêm trọng: {violationSummary.critical_count}
+										</Tag>
+									</Col>
+								)}
+								{violationSummary.high_count > 0 && (
+									<Col>
+										<Tag color="warning" style={{ fontSize: '14px', padding: '4px 12px' }}>
+											Cao: {violationSummary.high_count}
+										</Tag>
+									</Col>
+								)}
+								{violationSummary.medium_count > 0 && (
+									<Col>
+										<Tag color="default" style={{ fontSize: '14px', padding: '4px 12px' }}>
+											Trung bình: {violationSummary.medium_count}
+										</Tag>
+									</Col>
+								)}
+								{violationSummary.low_count > 0 && (
+									<Col>
+										<Tag color="success" style={{ fontSize: '14px', padding: '4px 12px' }}>
+											Thấp: {violationSummary.low_count}
+										</Tag>
+									</Col>
+								)}
+							</Row>
+						</div>
+
+						{/* Violation Type Breakdown */}
+						{violationAnalytics && violationAnalytics.count_by_type && (
+							<div>
+								<Text strong style={{ marginBottom: '8px', display: 'block' }}>
+									Phân loại theo loại vi phạm
+								</Text>
+								<Row gutter={[8, 8]}>
+									{Object.entries(violationAnalytics.count_by_type)
+										.sort(([, a], [, b]) => (b as number) - (a as number))
+										.map(([type, count]) => (
+											<Col key={type}>
+												<Tag color="blue" style={{ fontSize: '13px', padding: '3px 10px' }}>
+													{type.replace(/_/g, ' ')}: {count}
+												</Tag>
+											</Col>
+										))}
+								</Row>
+							</div>
+						)}
+
+						{/* Timeline Visualization */}
+						{violationAnalytics && violationAnalytics.timeline && violationAnalytics.timeline.length > 0 && (
+							<div>
+								<Text strong style={{ marginBottom: '12px', display: 'block' }}>
+									Timeline vi phạm (theo khoảng 5 phút)
+								</Text>
+								<div
+									style={{
+										background: token.colorBgContainer,
+										border: `1px solid ${token.colorBorder}`,
+										borderRadius: '8px',
+										padding: '16px',
+										maxHeight: '300px',
+										overflowY: 'auto',
+									}}
+								>
+									<Space direction="vertical" style={{ width: '100%' }} size="small">
+										{violationAnalytics.timeline.map((point, idx) => {
+											const maxCount = Math.max(
+												...violationAnalytics.timeline.map((p) => p.count)
+											);
+											const barWidth = (point.count / maxCount) * 100;
+											const barColor =
+												point.count >= maxCount * 0.7
+													? '#ff4d4f'
+													: point.count >= maxCount * 0.4
+														? '#faad14'
+														: '#52c41a';
+
+											return (
+												<div key={idx} style={{ marginBottom: '8px' }}>
+													<div
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '12px',
+														}}
+													>
+														<Text
+															type="secondary"
+															style={{
+																minWidth: '80px',
+																fontSize: '12px',
+																fontFamily: 'monospace',
+															}}
+														>
+															{dayjs(point.timestamp).format('HH:mm:ss')}
+														</Text>
+														<div
+															style={{
+																flex: 1,
+																position: 'relative',
+															}}
+														>
+															<div
+																style={{
+																	width: `${barWidth}%`,
+																	height: '24px',
+																	backgroundColor: barColor,
+																	borderRadius: '4px',
+																	transition: 'width 0.3s ease',
+																}}
+															/>
+														</div>
+														<div
+															style={{
+																display: 'flex',
+																gap: '12px',
+																alignItems: 'center',
+															}}
+														>
+															<Tag color={barColor} style={{ margin: 0 }}>
+																{point.count} vi phạm
+															</Tag>
+															<Text type="secondary" style={{ fontSize: '12px' }}>
+																Độ tin cậy: {point.avg_confidence?.toFixed(2) ?? 'N/A'}
+															</Text>
+														</div>
+													</div>
+												</div>
+											);
+										})}
+									</Space>
+								</div>
+							</div>
+						)}
+
+						{/* Time Period */}
+						{violationSummary.first_violation_at && (
+							<div>
+								<Text type="secondary">
+									Thời gian: {dayjs(violationSummary.first_violation_at).format('HH:mm:ss')}{' '}
+									- {dayjs(violationSummary.last_violation_at).format('HH:mm:ss')}{' '}
+									({Math.floor(violationSummary.duration_seconds / 60)} phút)
+								</Text>
+							</div>
+						)}
+					</Space>
+				</Card>
+			)}
 
 			{/* Score Breakdown */}
 			{hasScoreBreakdown && (

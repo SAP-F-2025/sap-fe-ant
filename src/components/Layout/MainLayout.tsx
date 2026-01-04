@@ -1,5 +1,6 @@
 import {
 	BankOutlined,
+	BarChartOutlined,
 	BookOutlined,
 	CheckCircleOutlined,
 	DashboardOutlined,
@@ -63,91 +64,96 @@ const MainLayout: React.FC = () => {
 
 	const menuItems: MenuProps['items'] = isStudent
 		? [
-				// Student menu items (also includes group owners who aren't system admins)
-				{
-					key: '/student/dashboard',
-					icon: <DashboardOutlined />,
-					label: t('layout.studentDashboard'),
-				},
-				{
-					key: '/student/assessments',
-					icon: <BookOutlined />,
-					label: t('layout.assessments'),
-				},
-				{
-					key: '/student/manage-assessments',
-					icon: <FileTextOutlined />,
-					label: t('layout.manageAssessments'),
-				},
-				{
-					key: '/student/questions',
-					icon: <QuestionCircleOutlined />,
-					label: t('layout.manageQuestions'),
-				},
-				{
-					key: '/student/question-banks',
-					icon: <BankOutlined />,
-					label: t('layout.questionBanks'),
-				},
-				{
-					key: '/student/groups',
-					icon: <TeamOutlined />,
-					label: t('studentGroups.title'),
-				},
-				{
-					key: '/student/history',
-					icon: <HistoryOutlined />,
-					label: t('layout.history'),
-				},
-			]
+			// Student menu items (also includes group owners who aren't system admins)
+			{
+				key: '/student/dashboard',
+				icon: <DashboardOutlined />,
+				label: t('layout.studentDashboard'),
+			},
+			{
+				key: '/student/creator-dashboard',
+				icon: <BarChartOutlined />,
+				label: t('layout.creatorDashboard'),
+			},
+			{
+				key: '/student/assessments',
+				icon: <BookOutlined />,
+				label: t('layout.assessments'),
+			},
+			{
+				key: '/student/manage-assessments',
+				icon: <FileTextOutlined />,
+				label: t('layout.manageAssessments'),
+			},
+			{
+				key: '/student/questions',
+				icon: <QuestionCircleOutlined />,
+				label: t('layout.manageQuestions'),
+			},
+			{
+				key: '/student/question-banks',
+				icon: <BankOutlined />,
+				label: t('layout.questionBanks'),
+			},
+			{
+				key: '/student/groups',
+				icon: <TeamOutlined />,
+				label: t('studentGroups.title'),
+			},
+			{
+				key: '/student/history',
+				icon: <HistoryOutlined />,
+				label: t('layout.history'),
+			},
+		]
 		: [
-				// Admin/Teacher menu items
-				{
-					key: '/dashboard',
-					icon: <DashboardOutlined />,
-					label: t('layout.overview'),
-				},
-				// Only show Users menu for admin
-				...(user?.isAdmin
-					? [
-							{
-								key: '/users',
-								icon: <TeamOutlined />,
-								label: t('layout.users'),
-							},
-						]
-					: []),
-				// Only show Groups menu for admin
-				...(user?.isAdmin
-					? [
-							{
-								key: '/groups',
-								icon: <TeamOutlined />,
-								label: t('layout.groups'),
-							},
-						]
-					: []),
-				{
-					key: '/assessments',
-					icon: <FileTextOutlined />,
-					label: t('layout.manageAssessments'),
-				},
-				{
-					key: '/questions',
-					icon: <QuestionCircleOutlined />,
-					label: t('layout.manageQuestions'),
-				},
-				{
-					key: '/question-banks',
-					icon: <BankOutlined />,
-					label: t('layout.questionBanks'),
-				},
-				{
-					key: '/grading',
-					icon: <CheckCircleOutlined />,
-					label: t('layout.grading'),
-				},
-			];
+			// Admin/Teacher menu items
+			{
+				key: '/dashboard',
+				icon: <DashboardOutlined />,
+				label: t('layout.overview'),
+			},
+			// Only show Users menu for admin
+			...(user?.isAdmin
+				? [
+					{
+						key: '/users',
+						icon: <TeamOutlined />,
+						label: t('layout.users'),
+					},
+				]
+				: []),
+			// Only show Groups menu for admin
+			...(user?.isAdmin
+				? [
+					{
+						key: '/groups',
+						icon: <TeamOutlined />,
+						label: t('layout.groups'),
+					},
+				]
+				: []),
+			{
+				key: '/assessments',
+				icon: <FileTextOutlined />,
+				label: t('layout.manageAssessments'),
+			},
+			{
+				key: '/questions',
+				icon: <QuestionCircleOutlined />,
+				label: t('layout.manageQuestions'),
+			},
+			{
+				key: '/question-banks',
+				icon: <BankOutlined />,
+				label: t('layout.questionBanks'),
+			},
+			{
+				key: '/grading',
+				icon: <CheckCircleOutlined />,
+				label: t('layout.grading'),
+			},
+		];
 
 	// User dropdown menu handler
 	const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
@@ -244,6 +250,7 @@ const MainLayout: React.FC = () => {
 	const getSelectedKey = () => {
 		const path = location.pathname;
 		// Student paths
+		if (path.startsWith('/student/creator-dashboard')) return '/student/creator-dashboard';
 		if (path.startsWith('/student/dashboard')) return '/student/dashboard';
 		if (path.startsWith('/student/assessments')) return '/student/assessments';
 		if (path.startsWith('/student/manage-assessments')) return '/student/manage-assessments';

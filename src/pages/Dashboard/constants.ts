@@ -29,6 +29,21 @@ export const STAT_CARD_COLORS = {
 // Pie chart colors
 export const PIE_COLORS = ['#1890ff', '#52c41a', '#faad14', '#eb2f96', '#722ed1'] as const;
 
+// Trend indicator colors
+export const TREND_COLORS = {
+	positive: '#52c41a',
+	negative: '#ff4d4f',
+	neutral: '#8c8c8c',
+} as const;
+
+// Severity gradients for proctoring data
+export const SEVERITY_COLORS = {
+	critical: '#ff4d4f',
+	high: '#fa8c16',
+	medium: '#faad14',
+	low: '#52c41a',
+} as const;
+
 // Action text mapping for activities - now handled by i18n
 export const getActionTextKey = (action: string): string => {
 	const keyMap: Record<string, string> = {

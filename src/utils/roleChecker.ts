@@ -70,6 +70,6 @@ export const hasAnyRole = (user: RoleCheckUser | null, allowedRoles: UserRole[])
 	if (!user || allowedRoles.length === 0) return false;
 
 	const userRole = getUserRole(user);
-	console.log(userRole);
+
 	return allowedRoles.includes(userRole);
 };

@@ -6,8 +6,6 @@
 
 declare const self: DedicatedWorkerGlobalScope;
 
-console.log('Worker script loaded');
-
 // Message types
 interface WorkerMessage {
 	type: 'init' | 'detect' | 'stop';
@@ -35,14 +33,12 @@ let isReady = false;
 // Initialize MediaPipe using fetch/eval workaround for WASM loader
 async function initFaceDetection() {
 	try {
-		console.log('Worker: Step 1 - Starting dynamic import...');
 		// Dynamic import of MediaPipe
 		const mediapipe = await import('@mediapipe/tasks-vision');
-		console.log('Worker: Step 2 - Import successful');
 		FaceLandmarker = mediapipe.FaceLandmarker;
 		const FilesetResolver = mediapipe.FilesetResolver;
 
-		console.log('Worker: Step 3 - Calling FilesetResolver.forVisionTasks...');
+		// Get the vision file paths - with timeout to detect hangs
 		// Get the vision file paths - with timeout to detect hangs
 		const timeoutPromise = new Promise((_, reject) =>
 			setTimeout(
@@ -61,12 +57,10 @@ async function initFaceDetection() {
 			console.error('Worker: FilesetResolver failed or timed out:', raceError);
 			throw raceError;
 		}
-		console.log('Worker: Step 4 - FilesetResolver complete, visionFiles:', visionFiles);
 
 		// Workaround: fetch and eval the wasmLoaderPath to set globalThis.ModuleFactory
 		// This prevents the importScripts error in module workers
 		if (visionFiles.wasmLoaderPath) {
-			console.log('Worker: Step 5 - Fetching WASM loader from:', visionFiles.wasmLoaderPath);
 			try {
 				const response = await fetch(visionFiles.wasmLoaderPath);
 				const loaderScript = await response.text();
@@ -74,12 +68,9 @@ async function initFaceDetection() {
 				(0, eval)(loaderScript);
 				// Remove the path so MediaPipe doesn't try to importScripts it again
 				delete visionFiles.wasmLoaderPath;
-				console.log('Worker: Step 6 - Successfully loaded WASM via fetch/eval');
 			} catch (wasmError) {
 				console.warn('Worker: WASM loader fetch failed:', wasmError);
 			}
-		} else {
-			console.log('Worker: Step 5 - No wasmLoaderPath found');
 		}
 
 		const modelPath =
@@ -102,7 +93,6 @@ async function initFaceDetection() {
 				outputFacialTransformationMatrixes: false,
 			});
 			delegate = 'GPU';
-			console.log('Worker: Using GPU acceleration');
 		} catch (gpuError) {
 			console.warn('Worker: GPU not available, using CPU:', gpuError);
 			faceLandmarker = await FaceLandmarker.createFromOptions(visionFiles, {
@@ -122,7 +112,6 @@ async function initFaceDetection() {
 
 		isReady = true;
 		self.postMessage({ type: 'ready', delegate } as WorkerResponse);
-		console.log('Worker: Face detection initialized successfully');
 	} catch (error: any) {
 		console.error('Worker init error:', error);
 		self.postMessage({
@@ -245,12 +234,10 @@ function detectFaces(frame: ImageBitmap, timestamp: number) {
 
 // Handle messages from main thread
 self.onmessage = (e: MessageEvent<WorkerMessage>) => {
-	console.log('Worker received message:', e.data.type);
 	const { type, frame, timestamp } = e.data;
 
 	switch (type) {
 		case 'init':
-			console.log('Worker: Starting init...');
 			initFaceDetection();
 			break;
 		case 'detect':

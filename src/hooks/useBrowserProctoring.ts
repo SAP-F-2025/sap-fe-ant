@@ -35,16 +35,9 @@ export const useBrowserProctoring = ({
 	useEffect(() => {
 		if (!enabled) return;
 
-		console.log('Browser proctoring enabled:', {
-			preventTabSwitching,
-			requireFullscreen,
-			preventCopyPaste,
-		});
-
 		// Tab switching detection using both visibility and blur/focus
 		const handleVisibilityChange = () => {
 			if (!preventTabSwitching) return;
-			console.log('Visibility change:', document.hidden);
 			if (document.hidden) {
 				if (!tabSwitchViolationRef.current) {
 					tabSwitchViolationRef.current = { startTime: Date.now() };
@@ -55,7 +48,6 @@ export const useBrowserProctoring = ({
 						duration: 0,
 						metadata: { hidden: true },
 					};
-					console.log('Tab switch violation (hidden):', event);
 					onViolation?.(event);
 				}
 			} else {
@@ -69,7 +61,6 @@ export const useBrowserProctoring = ({
 						duration,
 						metadata: { hidden: false },
 					};
-					console.log('Tab switch violation (visible):', event);
 					onViolation?.(event);
 					tabSwitchViolationRef.current = null;
 				}
@@ -78,7 +69,6 @@ export const useBrowserProctoring = ({
 
 		const handleBlur = () => {
 			if (!preventTabSwitching) return;
-			console.log('Window blur, current violation:', !!tabSwitchViolationRef.current);
 			// Always trigger violation on blur if not already tracking
 			if (!tabSwitchViolationRef.current) {
 				tabSwitchViolationRef.current = { startTime: Date.now() };
@@ -89,14 +79,12 @@ export const useBrowserProctoring = ({
 					duration: 0,
 					metadata: { hidden: true },
 				};
-				console.log('Tab switch violation (blur):', event);
 				onViolation?.(event);
 			}
 		};
 
 		const handleFocus = () => {
 			if (!preventTabSwitching) return;
-			console.log('Window focus, current violation:', !!tabSwitchViolationRef.current);
 			// Always end violation on focus if tracking
 			if (tabSwitchViolationRef.current) {
 				const endTime = Date.now();
@@ -108,7 +96,6 @@ export const useBrowserProctoring = ({
 					duration,
 					metadata: { hidden: false },
 				};
-				console.log('Tab switch violation (focus):', event);
 				onViolation?.(event);
 				tabSwitchViolationRef.current = null;
 			}
@@ -116,12 +103,6 @@ export const useBrowserProctoring = ({
 
 		// Fullscreen exit detection
 		const handleFullscreenChange = () => {
-			console.log(
-				'Fullscreen change:',
-				!!document.fullscreenElement,
-				'requireFullscreen:',
-				requireFullscreen
-			);
 			if (requireFullscreen && !document.fullscreenElement) {
 				const event: BrowserProctoringEvent = {
 					type: 'fullscreen_exit',
@@ -129,7 +110,6 @@ export const useBrowserProctoring = ({
 					endTime: Date.now(),
 					duration: 0,
 				};
-				console.log('Fullscreen exit violation:', event);
 				onViolation?.(event);
 			}
 		};
@@ -197,7 +177,6 @@ export const useBrowserProctoring = ({
 						duration: 0,
 						metadata: { tamperType: 'devtools' },
 					};
-					console.log('Browser tamper detected (DevTools opened):', event);
 					onViolation?.(event);
 				} else if (!isDevToolsOpen && tamperViolationRef.current) {
 					// DevTools closed - end violation
@@ -210,11 +189,6 @@ export const useBrowserProctoring = ({
 						duration,
 						metadata: { tamperType: 'devtools' },
 					};
-					console.log(
-						'Browser tamper stopped (DevTools closed):',
-						event,
-						`Duration: ${duration}ms`
-					);
 					onViolation?.(event);
 					tamperViolationRef.current = null;
 				}

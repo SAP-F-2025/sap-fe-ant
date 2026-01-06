@@ -70,7 +70,7 @@ const Callback: React.FC = () => {
 				}
 
 				const data = await response.json();
-				console.log('Token response:', data);
+
 
 				if (data && data.access_token) {
 					// Store tokens using TokenService

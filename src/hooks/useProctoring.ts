@@ -93,7 +93,6 @@ export const useMediaPipeFaceDetection = (
 							outputFaceBlendshapes: true,
 							outputFacialTransformationMatrixes: false,
 						});
-						console.log('Face detection: Using GPU acceleration');
 					} else {
 						throw new Error('WebGL2 not available');
 					}
@@ -113,7 +112,6 @@ export const useMediaPipeFaceDetection = (
 						outputFaceBlendshapes: true,
 						outputFacialTransformationMatrixes: false,
 					});
-					console.log('Face detection: Using CPU (may be slower)');
 				}
 
 				faceLandmarkerRef.current = faceLandmarker;
@@ -294,7 +292,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: multiple_faces (${duration}ms)`);
 									onViolation?.(event);
 									multipleFacesViolationRef.current = null;
 								}
@@ -308,7 +305,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: looking_away (${duration}ms)`);
 									onViolation?.(event);
 									lookingAwayViolationRef.current = null;
 								}
@@ -322,7 +318,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: mouth_open (${duration}ms)`);
 									onViolation?.(event);
 									mouthOpenViolationRef.current = null;
 								}
@@ -336,7 +331,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: head_turned (${duration}ms)`);
 									onViolation?.(event);
 									headTurnedViolationRef.current = null;
 								}
@@ -350,7 +344,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: eyes_closed (${duration}ms)`);
 									onViolation?.(event);
 									eyesClosedViolationRef.current = null;
 								}
@@ -378,9 +371,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(
-										`Violation ended: face_not_detected (${duration}ms)`
-									);
 									onViolation?.(event);
 									noFaceViolationRef.current = null;
 								}
@@ -394,7 +384,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: looking_away (${duration}ms)`);
 									onViolation?.(event);
 									lookingAwayViolationRef.current = null;
 								}
@@ -408,7 +397,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: mouth_open (${duration}ms)`);
 									onViolation?.(event);
 									mouthOpenViolationRef.current = null;
 								}
@@ -422,7 +410,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: head_turned (${duration}ms)`);
 									onViolation?.(event);
 									headTurnedViolationRef.current = null;
 								}
@@ -436,7 +423,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: eyes_closed (${duration}ms)`);
 									onViolation?.(event);
 									eyesClosedViolationRef.current = null;
 								}
@@ -450,9 +436,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(
-										`Violation ended: face_not_detected (${duration}ms)`
-									);
 									onViolation?.(event);
 									noFaceViolationRef.current = null;
 								}
@@ -466,7 +449,6 @@ export const useMediaPipeFaceDetection = (
 										endTime,
 										duration,
 									};
-									console.log(`Violation ended: multiple_faces (${duration}ms)`);
 									onViolation?.(event);
 									multipleFacesViolationRef.current = null;
 								}
@@ -497,9 +479,6 @@ export const useMediaPipeFaceDetection = (
 											endTime,
 											duration,
 										};
-										console.log(
-											`Violation ended: looking_away (${duration}ms)`
-										);
 										onViolation?.(event);
 										lookingAwayViolationRef.current = null;
 									}
@@ -531,7 +510,6 @@ export const useMediaPipeFaceDetection = (
 											endTime,
 											duration,
 										};
-										console.log(`Violation ended: mouth_open (${duration}ms)`);
 										onViolation?.(event);
 										mouthOpenViolationRef.current = null;
 									}
@@ -563,7 +541,6 @@ export const useMediaPipeFaceDetection = (
 											endTime,
 											duration,
 										};
-										console.log(`Violation ended: head_turned (${duration}ms)`);
 										onViolation?.(event);
 										headTurnedViolationRef.current = null;
 									}

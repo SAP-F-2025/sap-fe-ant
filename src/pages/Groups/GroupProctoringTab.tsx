@@ -115,22 +115,13 @@ const GroupProctoringTab: React.FC<GroupProctoringTabProps> = ({ groupId }) => {
 			// Step 3: Fetch violation summaries for all attempts
 			if (allAttempts.length > 0) {
 				const attemptIds = allAttempts.map((a) => a.id);
-				console.log(
-					'[GroupProctoringTab] Fetching violation summaries for attempt IDs:',
-					attemptIds
-				);
 				try {
 					const summariesResponse =
 						await proctoringDashboardService.getAttemptSummaries(attemptIds);
-					console.log(
-						'[GroupProctoringTab] Violation summaries response:',
-						summariesResponse
-					);
 					const summaryMap: Record<string, AttemptViolationSummary> = {};
 					summariesResponse.data.forEach((s) => {
 						summaryMap[s.attempt_id.toString()] = s;
 					});
-					console.log('[GroupProctoringTab] Violation summary map:', summaryMap);
 					setViolationSummaries(summaryMap);
 				} catch (error) {
 					console.error(

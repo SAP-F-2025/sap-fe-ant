@@ -284,18 +284,12 @@ const TakeAssessment: React.FC = () => {
 
 	useEffect(() => {
 		if (settings) {
-			console.log('Assessment proctoring settings:', {
-				require_webcam: settings.require_webcam,
-				require_full_screen: settings.require_full_screen,
-				prevent_tab_switching: settings.prevent_tab_switching,
-				prevent_copy_paste: settings.prevent_copy_paste,
-			});
+			// Proctoring settings loaded
 		}
 	}, [settings]);
 
 	const handleProctoringViolation = async (event: ProctoringEvent) => {
 		setProctoringEvents((prev) => [...prev, event]);
-		console.log('Proctoring violation:', event);
 
 		// Submit to backend if violation ended (with snapshot for camera violations)
 		if (user && attempt && event.duration > 0 && event.endTime > 0) {
@@ -346,7 +340,7 @@ const TakeAssessment: React.FC = () => {
 				});
 			}, 3000);
 		}
-		console.log('Browser violation:', event);
+
 
 		// Submit to backend
 		if (user && attempt) {
@@ -384,7 +378,6 @@ const TakeAssessment: React.FC = () => {
 			if (settings.require_full_screen && !document.fullscreenElement) {
 				try {
 					await document.documentElement.requestFullscreen();
-					console.log('Entered fullscreen mode');
 				} catch (err) {
 					console.error('Failed to enter fullscreen:', err);
 					modal.warning({

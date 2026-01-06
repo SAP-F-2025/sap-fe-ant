@@ -167,7 +167,7 @@ export class TokenService {
 		}
 
 		// Token is expired, try to refresh
-		console.log('Access token expired, refreshing...');
+
 		return this.refreshAccessToken();
 	}
 }

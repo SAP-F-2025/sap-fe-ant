@@ -4,7 +4,6 @@ import {
 	ExclamationCircleOutlined,
 	EyeOutlined,
 	SyncOutlined,
-	TrophyOutlined,
 	UserOutlined,
 	WarningOutlined,
 } from '@ant-design/icons';
@@ -20,7 +19,6 @@ import {
 	Select,
 	Space,
 	Spin,
-	Statistic,
 	Table,
 	Tag,
 	Tooltip,
@@ -33,10 +31,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { gradingService, type AttemptListItem } from '../../services/gradingService';
 import proctoringDashboardService from '../../services/proctoringDashboardService';
-import { cardColors } from '../../styles/cardColors';
 import { elevation } from '../../styles/elevation';
 import { useThemeToken } from '../../theme/ThemeProvider';
 import { AttemptViolationSummary, getSeverityColor, getSeverityName } from '../../types/proctoring';
+import { AssessmentSidebar, GradingStatsRow } from './components';
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -60,35 +58,23 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 		Record<string, AttemptViolationSummary>
 	>({});
 
+	// Selected assessment from sidebar
+	const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
+	const [selectedAssessmentTitle, setSelectedAssessmentTitle] = useState<string>('');
+
 	// Filters
 	const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 	const [searchText, setSearchText] = useState('');
 
-	// Calculate statistics
-	const stats = useMemo(() => {
-		const graded = attempts.filter((a) => a.score !== undefined).length;
-		const pending = attempts.filter(
-			(a) => a.status === 'completed' && a.score === undefined
-		).length;
-		const avgScore =
-			graded > 0
-				? Math.round(
-						attempts
-							.filter((a) => a.score !== undefined)
-							.reduce((sum, a) => sum + (a.score || 0), 0) / graded
-					)
-				: 0;
-		return {
-			total: total,
-			graded,
-			pending,
-			avgScore,
-		};
-	}, [attempts, total]);
-
+	// Fetch attempts when assessment is selected
 	useEffect(() => {
-		fetchAttempts();
-	}, [pagination.current, pagination.pageSize, statusFilter, groupId]);
+		if (selectedAssessmentId) {
+			fetchAttempts();
+		} else {
+			setAttempts([]);
+			setTotal(0);
+		}
+	}, [pagination.current, pagination.pageSize, statusFilter, selectedAssessmentId]);
 
 	// Fetch violation summaries when attempts change
 	useEffect(() => {
@@ -96,21 +82,14 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 			if (attempts.length === 0) return;
 
 			const attemptIds = attempts.map((a) => a.id);
-			console.log(
-				'[GroupGradingTab] Fetching violation summaries for attempt IDs:',
-				attemptIds
-			);
 			try {
 				const response = await proctoringDashboardService.getAttemptSummaries(attemptIds);
-				console.log('[GroupGradingTab] Violation summaries response:', response);
 				const summaryMap: Record<string, AttemptViolationSummary> = {};
 				response.data.forEach((s) => {
 					summaryMap[s.attempt_id.toString()] = s;
 				});
-				console.log('[GroupGradingTab] Violation summary map:', summaryMap);
 				setViolationSummaries(summaryMap);
 			} catch (error) {
-				console.error('[GroupGradingTab] Failed to fetch violation summaries:', error);
 				// Silently fail - proctoring data is supplementary
 			}
 		};
@@ -119,19 +98,21 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 	}, [attempts]);
 
 	const fetchAttempts = async () => {
+		if (!selectedAssessmentId) return;
+
 		try {
 			setLoading(true);
 			const response = await gradingService.getAttempts({
 				page: pagination.current,
 				size: pagination.pageSize,
 				status: statusFilter,
+				assessment_id: selectedAssessmentId,
 				group_id: groupId,
 			});
 
 			setAttempts(response.data || []);
 			setTotal(response.total || 0);
 		} catch {
-			// Silent fail - show empty state
 			setAttempts([]);
 			setTotal(0);
 		} finally {
@@ -146,32 +127,24 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 		});
 	};
 
+	const handleAssessmentSelect = (assessmentId: number | null) => {
+		setSelectedAssessmentId(assessmentId);
+		// Reset pagination when changing assessment
+		setPagination((prev) => ({ ...prev, current: 1 }));
+	};
+
 	const filteredAttempts = useMemo(() => {
 		if (!searchText) return attempts;
 		const search = searchText.toLowerCase();
 		return attempts.filter(
 			(a) =>
 				a.student?.full_name?.toLowerCase().includes(search) ||
-				a.student?.email?.toLowerCase().includes(search) ||
-				a.assessment?.title?.toLowerCase().includes(search)
+				a.student?.email?.toLowerCase().includes(search)
 		);
 	}, [attempts, searchText]);
 
 	const getStatusTag = (attempt: AttemptListItem) => {
-		if (attempt.score !== undefined) {
-			return (
-				<Tag color="success" icon={<CheckCircleOutlined />}>
-					{t('gradingList.statusGraded')}
-				</Tag>
-			);
-		}
-		if (attempt.status === 'completed') {
-			return (
-				<Tag color="warning" icon={<ClockCircleOutlined />}>
-					{t('gradingList.statusPending')}
-				</Tag>
-			);
-		}
+		// Handle in_progress status
 		if (attempt.status === 'in_progress') {
 			return (
 				<Tag color="processing" icon={<SyncOutlined spin />}>
@@ -179,6 +152,52 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 				</Tag>
 			);
 		}
+
+		// Handle timeout status
+		if (attempt.status === 'timeout') {
+			// Timeout attempts may still need grading
+			if (attempt.is_pending_grade === true) {
+				return (
+					<Tag color="warning" icon={<ClockCircleOutlined />}>
+						{t('gradingList.statusPending')}
+					</Tag>
+				);
+			}
+			return (
+				<Tag color="error">
+					{t('gradingList.statusTimeout')}
+				</Tag>
+			);
+		}
+
+		// Handle abandoned status
+		if (attempt.status === 'abandoned') {
+			return (
+				<Tag color="default">
+					{t('gradingList.statusAbandoned')}
+				</Tag>
+			);
+		}
+
+		// Handle completed status - check grading status
+		if (attempt.status === 'completed') {
+			// is_pending_grade is the primary indicator
+			if (attempt.is_pending_grade === true) {
+				return (
+					<Tag color="warning" icon={<ClockCircleOutlined />}>
+						{t('gradingList.statusPending')}
+					</Tag>
+				);
+			}
+			// is_pending_grade === false or score exists means graded
+			return (
+				<Tag color="success" icon={<CheckCircleOutlined />}>
+					{t('gradingList.statusGraded')}
+				</Tag>
+			);
+		}
+
+		// Fallback for unknown statuses
 		return <Tag>{attempt.status}</Tag>;
 	};
 
@@ -206,22 +225,10 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 			),
 		},
 		{
-			title: t('gradingList.assessment'),
-			key: 'assessment',
-			render: (_, record) => (
-				<Text>{record.assessment?.title || `Assessment #${record.assessment_id}`}</Text>
-			),
-		},
-		{
 			title: t('gradingList.status'),
 			key: 'status',
 			width: 140,
 			render: (_, record) => getStatusTag(record),
-			filters: [
-				{ text: t('gradingList.statusGraded'), value: 'graded' },
-				{ text: t('gradingList.statusPending'), value: 'completed' },
-				{ text: t('gradingList.statusInProgress'), value: 'in_progress' },
-			],
 		},
 		{
 			title: t('gradingList.score'),
@@ -285,11 +292,6 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 					</Tooltip>
 				);
 			},
-			sorter: (a, b) => {
-				const aViolations = violationSummaries[a.id.toString()]?.total_violations || 0;
-				const bViolations = violationSummaries[b.id.toString()]?.total_violations || 0;
-				return aViolations - bViolations;
-			},
 		},
 		{
 			title: t('gradingList.submittedAt'),
@@ -302,7 +304,6 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 				) : (
 					<Text type="secondary">-</Text>
 				),
-			sorter: (a, b) => dayjs(a.completed_at || 0).unix() - dayjs(b.completed_at || 0).unix(),
 		},
 		{
 			title: t('gradingList.action'),
@@ -321,119 +322,111 @@ const GroupGradingTab: React.FC<GroupGradingTabProps> = ({ groupId }) => {
 		},
 	];
 
-	if (loading && attempts.length === 0) {
-		return (
-			<div style={{ textAlign: 'center', padding: 48 }}>
-				<Spin size="large" />
-			</div>
-		);
-	}
-
 	return (
-		<Space direction="vertical" size="large" style={{ width: '100%' }}>
-			{/* Statistics */}
-			<Row gutter={[16, 16]}>
-				<Col xs={12} sm={6}>
-					<Card
-						style={{ ...elevation[0], borderRadius: 12, background: cardColors.blue }}
-					>
-						<Statistic
-							title={t('gradingList.totalAttempts')}
-							value={stats.total}
-							prefix={<TrophyOutlined />}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card
-						style={{ ...elevation[0], borderRadius: 12, background: cardColors.green }}
-					>
-						<Statistic
-							title={t('gradingList.graded')}
-							value={stats.graded}
-							prefix={<CheckCircleOutlined />}
-							valueStyle={{ color: token.token.colorSuccess }}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card
-						style={{ ...elevation[0], borderRadius: 12, background: cardColors.orange }}
-					>
-						<Statistic
-							title={t('gradingList.pending')}
-							value={stats.pending}
-							prefix={<ClockCircleOutlined />}
-							valueStyle={{ color: token.token.colorWarning }}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card
-						style={{ ...elevation[0], borderRadius: 12, background: cardColors.purple }}
-					>
-						<Statistic
-							title={t('gradingList.avgScore')}
-							value={stats.avgScore}
-							suffix="%"
-						/>
-					</Card>
-				</Col>
-			</Row>
+		<Row gutter={24}>
+			{/* Left Sidebar - Assessment List */}
+			<Col xs={24} lg={6}>
+				<AssessmentSidebar
+					groupId={groupId}
+					selectedId={selectedAssessmentId}
+					onSelect={handleAssessmentSelect}
+				/>
+			</Col>
 
-			{/* Filters */}
-			<Card style={{ ...elevation[0], borderRadius: 12 }}>
-				<Space wrap>
-					<Search
-						placeholder={t('gradingList.searchPlaceholder')}
-						allowClear
-						style={{ width: 250 }}
-						onSearch={setSearchText}
-						onChange={(e) => !e.target.value && setSearchText('')}
-					/>
-					<Select
-						placeholder={t('gradingList.filterStatus')}
-						style={{ width: 150 }}
-						allowClear
-						value={statusFilter}
-						onChange={setStatusFilter}
-						options={[
-							{ label: t('gradingList.statusGraded'), value: 'graded' },
-							{ label: t('gradingList.statusPending'), value: 'completed' },
-							{ label: t('gradingList.statusInProgress'), value: 'in_progress' },
-						]}
-					/>
-				</Space>
-			</Card>
+			{/* Right Panel - Grading Content */}
+			<Col xs={24} lg={18}>
+				{selectedAssessmentId ? (
+					<Space direction="vertical" size="middle" style={{ width: '100%' }}>
+						{/* Stats Row */}
+						<GradingStatsRow
+							assessmentId={selectedAssessmentId}
+							groupId={groupId}
+							assessmentTitle={selectedAssessmentTitle}
+						/>
 
-			{/* Table */}
-			{filteredAttempts.length === 0 && !loading ? (
-				<Card style={{ ...elevation[0], borderRadius: 12 }}>
-					<Empty
-						description={t('gradingList.noAttempts')}
-						image={Empty.PRESENTED_IMAGE_SIMPLE}
-					/>
-				</Card>
-			) : (
-				<Card style={{ ...elevation[0], borderRadius: 12 }}>
-					<Table
-						columns={columns}
-						dataSource={filteredAttempts}
-						rowKey="id"
-						loading={loading}
-						pagination={{
-							current: pagination.current,
-							pageSize: pagination.pageSize,
-							total: total,
-							showSizeChanger: true,
-							showTotal: (total) => t('gradingList.totalItems', { total }),
+						{/* Filters */}
+						<Card style={{ ...elevation[0], borderRadius: 12 }}>
+							<Space wrap>
+								<Search
+									placeholder={t('gradingList.searchPlaceholder')}
+									allowClear
+									style={{ width: 250 }}
+									onSearch={setSearchText}
+									onChange={(e) => !e.target.value && setSearchText('')}
+								/>
+								<Select
+									placeholder={t('gradingList.filterStatus')}
+									style={{ width: 150 }}
+									allowClear
+									value={statusFilter}
+									onChange={setStatusFilter}
+									options={[
+										{ label: t('gradingList.statusGraded'), value: 'graded' },
+										{ label: t('gradingList.statusPending'), value: 'completed' },
+										{ label: t('gradingList.statusInProgress'), value: 'in_progress' },
+									]}
+								/>
+								<Button
+									icon={<SyncOutlined />}
+									onClick={fetchAttempts}
+									loading={loading}
+								>
+									{t('common.refresh', 'Làm mới')}
+								</Button>
+							</Space>
+						</Card>
+
+						{/* Table */}
+						<Card style={{ ...elevation[0], borderRadius: 12 }}>
+							{filteredAttempts.length === 0 && !loading ? (
+								<Empty
+									description={t('groupGrading.noAttempts', 'Chưa có bài nộp nào')}
+									image={Empty.PRESENTED_IMAGE_SIMPLE}
+								/>
+							) : (
+								<Table
+									columns={columns}
+									dataSource={filteredAttempts}
+									rowKey="id"
+									loading={loading}
+									pagination={{
+										current: pagination.current,
+										pageSize: pagination.pageSize,
+										total: total,
+										showSizeChanger: true,
+										showTotal: (total) => t('gradingList.totalItems', { total }),
+									}}
+									onChange={handleTableChange}
+									size="middle"
+								/>
+							)}
+						</Card>
+					</Space>
+				) : (
+					<Card
+						style={{
+							...elevation[1],
+							borderRadius: 16,
+							minHeight: 400,
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
 						}}
-						onChange={handleTableChange}
-						size="middle"
-					/>
-				</Card>
-			)}
-		</Space>
+					>
+						<Empty
+							description={
+								<Space direction="vertical" align="center">
+									<Text type="secondary" style={{ fontSize: 16 }}>
+										{t('groupGrading.selectAssessment', 'Chọn một bài thi để xem chi tiết chấm điểm')}
+									</Text>
+								</Space>
+							}
+							image={Empty.PRESENTED_IMAGE_SIMPLE}
+						/>
+					</Card>
+				)}
+			</Col>
+		</Row>
 	);
 };
 

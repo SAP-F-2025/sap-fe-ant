@@ -47,7 +47,10 @@ export interface AttemptDetailResponse {
 	completed_at?: string;
 	time_remaining?: number;
 	score?: number;
+	max_score?: number;
+	percentage?: number;
 	passed?: boolean;
+	is_pending_grade?: boolean;
 	student?: {
 		id: string;
 		full_name: string;
@@ -68,12 +71,13 @@ export interface AttemptDetailResponse {
 }
 
 export interface GradingOverview {
-	assessment_id: number;
+	assessment_id?: number;
 	total_attempts: number;
 	graded_attempts: number;
 	pending_attempts: number;
-	auto_gradable: number;
-	manual_required: number;
+	average_score?: number; // Added to match API
+	auto_gradable?: number;
+	manual_required?: number;
 	average_grading_time?: number;
 	grading_progress?: {
 		questions_graded: number;
@@ -97,6 +101,7 @@ export interface AttemptListItem {
 	time_remaining?: number;
 	score?: number;
 	passed?: boolean;
+	is_pending_grade?: boolean;
 	student?: {
 		id: string;
 		full_name: string;
@@ -195,6 +200,10 @@ class GradingService {
 			student_id?: number;
 			status?: string;
 			group_id?: number;
+			date_from?: string;
+			date_to?: string;
+			sort_by?: string;
+			sort_order?: 'asc' | 'desc';
 		}
 	): Promise<PaginatedAttemptResponse> {
 		return apiService.get<PaginatedAttemptResponse>('/api/v1/attempts', params);
@@ -277,12 +286,32 @@ class GradingService {
 
 	/**
 	 * Get grading overview for an assessment
+	 * @param assessmentId - Assessment ID
+	 * @param groupId - Optional group ID to filter attempts by group members
 	 */
-	async getGradingOverview(assessmentId: number): Promise<GradingOverview> {
+	async getGradingOverview(assessmentId: number, groupId?: number): Promise<GradingOverview> {
+		const params = groupId ? { group_id: groupId } : undefined;
 		return apiService.get<GradingOverview>(
-			`/api/v1/grading/assessments/${assessmentId}/overview`
+			`/api/v1/grading/assessments/${assessmentId}/overview`,
+			params
 		);
 	}
+
+	/**
+	 * Get grading stats overview for all assessments
+	 * - Admin: sees all assessments
+	 * - Teacher: sees only their own assessments
+	 */
+	async getGradingOverviewAll(): Promise<{
+		total_assessments: number;
+		total_attempts: number;
+		graded_attempts: number;
+		pending_attempts: number;
+		average_score: number;
+	}> {
+		return apiService.get('/api/v1/grading/overview');
+	}
+
 
 	/**
 	 * Regrade all answers for a specific question

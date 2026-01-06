@@ -28,7 +28,8 @@
 		"exportCsv": "Xuất CSV",
 		"profile": "Hồ sơ",
 		"logout": "Đăng xuất",
-		"selectedItems": "Đã chọn {{count}} mục"
+		"selectedItems": "Đã chọn {{count}} mục",
+		"unknown": "Không xác định"
 	},
 	"dataTable": {
 		"pagination": "{{start}}-{{end}} của {{total}} mục"
@@ -300,10 +301,28 @@
 		"report": "Báo cáo",
 		"activityChartLabel": "Biểu đồ hoạt động và điểm số",
 		"questionChartLabel": "Biểu đồ phân bổ loại câu hỏi",
-		"performanceChartLabel": "Biểu đồ điểm số theo môn học"
+		"performanceChartLabel": "Biểu đồ điểm số theo môn học",
+		"activeUsers": "Người dùng hoạt động",
+		"activeExams": "Bài thi đang diễn ra",
+		"recentViolations": "Vi phạm gần đây",
+		"liveUpdates": "Cập nhật trực tiếp",
+		"proctoringOverview": "Tổng quan giám sát",
+		"noProctoringData": "Chưa có dữ liệu giám sát",
+		"totalViolations": "tổng vi phạm",
+		"critical": "Nghiêm trọng",
+		"high": "Cao",
+		"medium": "Trung bình",
+		"low": "Thấp",
+		"topViolationTypes": "Loại vi phạm phổ biến",
+		"viewDetails": "Xem chi tiết",
+		"chartsTab": "Biểu đồ",
+		"activitiesTab": "Hoạt động",
+		"proctoringTab": "Giám sát",
+		"quickMetrics": "Chỉ số nhanh"
 	},
 	"layout": {
 		"studentDashboard": "Bảng điều khiển",
+		"creatorDashboard": "Thống kê nội dung",
 		"assessments": "Bài thi được giao",
 		"history": "Lịch sử",
 		"overview": "Tổng quan",
@@ -659,6 +678,7 @@
 		"statusTimeout": "Hết giờ",
 		"statusGraded": "Đã chấm",
 		"statusPending": "Chờ chấm",
+		"statusPendingGrade": "Chờ chấm điểm",
 		"totalItems": "Tổng {{total}} bài làm",
 		"statsTitle": "Thống kê tổng quan",
 		"totalSubmissions": "Tổng bài làm",
@@ -816,6 +836,16 @@
 	"studentDashboard": {
 		"title": "Bảng điều khiển",
 		"welcomeBack": "Chào mừng trở lại, {{name}}!",
+		"header": {
+			"welcomeBack": "Chào mừng trở lại, {{name}}!",
+			"todayIs": "Hôm nay là {{date}}"
+		},
+		"stats": {
+			"available": "Bài thi khả dụng",
+			"completed": "Đã hoàn thành",
+			"inProgress": "Đang làm",
+			"totalAttempts": "Tổng lượt làm"
+		},
 		"overview": {
 			"assessmentsAvailable": "Bài kiểm tra khả dụng",
 			"completed": "Đã hoàn thành",
@@ -823,10 +853,22 @@
 			"totalAttempts": "Tổng số lần làm"
 		},
 		"performance": {
+			"title": "Tổng quan hiệu suất",
 			"averageScore": "Điểm trung bình",
 			"passRate": "Tỷ lệ đạt",
 			"highestScore": "Điểm cao nhất",
-			"lowestScore": "Điểm thấp nhất"
+			"lowestScore": "Điểm thấp nhất",
+			"noData": "Hoàn thành một số bài kiểm tra để xem thống kê hiệu suất!",
+			"excellent": "Xuất sắc",
+			"good": "Tốt",
+			"average": "Trung bình",
+			"needsImprovement": "Cần cải thiện"
+		},
+		"quickStats": {
+			"title": "Thống kê nhanh",
+			"passRateTooltip": "Phần trăm bài kiểm tra bạn đã đạt",
+			"highestScoreTooltip": "Thành tích cao nhất của bạn",
+			"lowestScoreTooltip": "Điểm thấp nhất của bạn"
 		},
 		"recentAttempts": {
 			"title": "Lần làm bài gần đây",
@@ -846,8 +888,11 @@
 		},
 		"upcoming": {
 			"title": "Bài kiểm tra sắp tới",
-			"viewAll": "Xem tất cả",
-			"noUpcoming": "Không có bài kiểm tra sắp tới",
+			"viewAll": "Xem tất cả bài kiểm tra",
+			"noUpcoming": "Không có bài kiểm tra sắp tới. Hãy tận hưởng thời gian nghỉ ngơi!",
+			"dueToday": "Hạn hôm nay!",
+			"dueIn": "Còn {{days}} ngày",
+			"startNow": "Bắt đầu ngay",
 			"columns": {
 				"assessment": "Bài kiểm tra",
 				"dueDate": "Hạn nộp",
@@ -858,11 +903,62 @@
 			"daysRemaining": "Còn {{count}} ngày",
 			"start": "Bắt đầu"
 		},
+		"recent": {
+			"title": "Hoạt động gần đây",
+			"viewAll": "Xem lịch sử",
+			"noRecent": "Chưa có lần làm bài nào. Hãy bắt đầu một bài kiểm tra!",
+			"pending": "Đang chờ chấm",
+			"viewDetails": "Xem"
+		},
 		"quickActions": {
 			"title": "Thao tác nhanh",
 			"viewAssessments": "Xem bài kiểm tra",
 			"viewHistory": "Xem lịch sử",
-			"continueAttempt": "Tiếp tục làm bài"
+			"continueAttempt": "Tiếp tục làm bài",
+			"help": "Trợ giúp & Hỗ trợ"
+		}
+	},
+	"creatorDashboard": {
+		"title": "Thống kê nội dung",
+		"subtitle": "Tổng quan nội dung bạn đã tạo",
+		"header": {
+			"todayIs": "Hôm nay là {{date}}"
+		},
+		"stats": {
+			"myAssessments": "Bài thi của tôi",
+			"myQuestions": "Câu hỏi của tôi",
+			"questionBanks": "Ngân hàng câu hỏi",
+			"attemptsOnContent": "Lượt làm trên nội dung",
+			"active": "đang hoạt động"
+		},
+		"performance": {
+			"title": "Hiệu suất nội dung",
+			"attempts": "Lượt làm",
+			"avgScore": "Điểm TB"
+		},
+		"metrics": {
+			"title": "Chỉ số nhanh",
+			"averageScore": "Điểm trung bình",
+			"passRate": "Tỷ lệ đạt",
+			"completionRate": "Tỷ lệ hoàn thành"
+		},
+		"activity": {
+			"title": "Hoạt động gần đây",
+			"noActivity": "Chưa có hoạt động gần đây trên nội dung của bạn",
+			"completed": "đã hoàn thành",
+			"started": "đã bắt đầu"
+		},
+		"pending": {
+			"title": "Hành động chờ xử lý",
+			"grading": "{{count}} bài cần chấm điểm",
+			"drafts": "{{count}} bài thi nháp",
+			"viewGrading": "Xem chấm điểm",
+			"viewDrafts": "Xem bản nháp"
+		},
+		"quickActions": {
+			"createAssessment": "Tạo bài thi",
+			"createQuestion": "Tạo câu hỏi",
+			"createBank": "Tạo ngân hàng"
 		}
 	},
 	"availableAssessments": {
@@ -1719,7 +1815,14 @@
 		"overallFeedbackPlaceholder": "Nhập phản hồi chung cho học viên... (hoặc dùng nút 'Tạo phản hồi AI' ở trên)",
 		"attemptInfo": "Thông tin bài làm",
 		"assessment": "Bài thi",
-		"status": "Trạng thái",
+		"status": {
+			"completed": "Hoàn thành",
+			"in_progress": "Đang làm",
+			"abandoned": "Đã bỏ",
+			"timeout": "Hết giờ"
+		},
+		"statusLabel": "Trạng thái",
+		"statusPendingGrade": "Chờ chấm điểm",
 		"student": "Học viên",
 		"email": "Email",
 		"startedAt": "Bắt đầu",
@@ -1733,6 +1836,7 @@
 		"scoreDisplay": "{{score}} / {{max}} điểm",
 		"correctAnswers": "Câu đúng",
 		"incorrectAnswers": "Câu sai",
+		"unansweredQuestions": "Chưa trả lời",
 		"passedRequirement": "Đạt yêu cầu",
 		"failedRequirement": "Chưa đạt yêu cầu",
 		"passingScore": "Điểm chuẩn",
@@ -1741,6 +1845,7 @@
 		"questionNumber": "Câu {{number}}",
 		"flaggedQuestion": "Câu hỏi được đánh dấu",
 		"graded": "Đã chấm",
+		"needsManualGrade": "Cần chấm thủ công",
 		"scoreOutOf": "{{score}} / {{max}} điểm",
 		"question": "Câu hỏi",
 		"studentAnswerLabel": "Câu trả lời của học viên",
@@ -1805,7 +1910,13 @@
 		"noViolationsDesc": "Bài làm này không có vi phạm giám sát được ghi nhận.",
 		"time": "Thời gian",
 		"type": "Loại",
-		"severity": "Mức độ",
+		"severity": {
+			"label": "Mức độ",
+			"critical": "Nghiêm trọng",
+			"high": "Cao",
+			"medium": "Trung bình",
+			"low": "Thấp"
+		},
 		"duration": "Thời lượng",
 		"durationLabel": "Thời lượng",
 		"confidence": "Độ tin cậy",
@@ -2217,5 +2328,67 @@
 		"preview": "Câu hỏi sẽ xuất",
 		"andMore": "...và {{count}} câu hỏi khác",
 		"generating": "Đang tạo tệp..."
+	},
+	"liveMonitor": {
+		"title": "Giám sát Trực tiếp",
+		"attemptDetails": "Chi tiết lượt làm",
+		"invalidAttempt": "ID lượt làm không hợp lệ",
+		"loading": "Đang tải dữ liệu thời gian thực...",
+		"errorTitle": "Không thể tải dữ liệu",
+		"errorDescription": "Không thể lấy dữ liệu giám sát thời gian thực. Vui lòng thử lại.",
+		"live": "TRỰC TIẾP",
+		"completed": "ĐÃ HOÀN THÀNH",
+		"justUpdated": "Vừa cập nhật",
+		"lastUpdated": "Cập nhật lúc: {{time}}",
+		"neverUpdated": "Chưa cập nhật",
+		"refreshNow": "Làm mới ngay",
+		"timeRemaining": "Thời gian còn lại",
+		"timeWarning": "Còn chưa đầy 5 phút!",
+		"examEnded": "Bài thi đã kết thúc",
+		"progress": "Tiến độ",
+		"questionsAnswered": "Đã trả lời {{answered}}/{{total}} câu hỏi",
+		"violationSummary": "Tóm tắt vi phạm",
+		"totalViolations": "Tổng vi phạm",
+		"violationTimeline": "Dòng thời gian vi phạm",
+		"noViolations": "Không phát hiện vi phạm",
+		"noViolationsDesc": "Học viên này chưa vi phạm bất kỳ quy tắc giám sát nào",
+		"criticalAlert": "Phát hiện vi phạm nghiêm trọng!",
+		"highAlert": "Phát hiện vi phạm mức độ cao",
+		"alertDescription": "{{critical}} nghiêm trọng, {{high}} vi phạm cao cần chú ý",
+		"questionNumber": "Câu {{number}}",
+		"statusUnanswered": "Chưa trả lời",
+		"statusAnswered": "Đã trả lời",
+		"statusCorrect": "Đúng",
+		"statusIncorrect": "Sai",
+		"statusPartial": "Đúng một phần",
+		"legendUnanswered": "Chưa trả lời",
+		"legendAnswered": "Đã trả lời",
+		"legendCorrect": "Đúng",
+		"legendIncorrect": "Sai",
+		"assessment": "Bài kiểm tra",
+		"duration": "Thời lượng",
+		"passingScore": "Điểm đậu",
+		"passAt": "Đậu tại",
+		"timeTaken": "Thời gian làm bài",
+		"completedAt": "Hoàn thành lúc"
+	},
+	"groupGrading": {
+		"assessments": "Bài thi",
+		"selectAssessment": "Chọn một bài thi để xem chi tiết chấm điểm",
+		"searchAssessment": "Tìm bài thi...",
+		"noAssessments": "Chưa có bài thi nào",
+		"noSearchResults": "Không tìm thấy bài thi",
+		"noAttempts": "Chưa có bài nộp nào",
+		"gradedOf": "{{graded}}/{{total}} đã chấm",
+		"pendingCount": "{{count}} chờ chấm",
+		"pendingSummary": "{{pending}}/{{total}} cần chấm",
+		"allGraded": "Đã chấm hết",
+		"needsReview": "Cần review",
+		"gradingFor": "Chấm điểm cho",
+		"totalSubmissions": "Tổng nộp bài",
+		"graded": "Đã chấm",
+		"pending": "Chờ chấm",
+		"avgScore": "Điểm TB"
 	}
 }
+

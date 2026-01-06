@@ -1,4 +1,6 @@
 import {
+	ArrowDownOutlined,
+	ArrowUpOutlined,
 	BankOutlined,
 	CheckCircleOutlined,
 	FileTextOutlined,
@@ -10,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { getStaggerDelay } from '../../../styles/animations';
 import { elevation } from '../../../styles/elevation';
 import type { DashboardStats } from '../../../types';
-import { STAT_CARD_COLORS } from '../constants';
+import { STAT_CARD_COLORS, TREND_COLORS } from '../constants';
 
 const { Title, Text } = Typography;
 
@@ -20,60 +22,88 @@ interface StatCardItemProps {
 	label: string;
 	color: string;
 	delay: number;
+	trend?: number; // percentage change
 }
 
 /**
- * Individual stat card - compact horizontal layout
+ * Individual stat card - compact horizontal layout with trend indicator
  */
-const StatCardItem: React.FC<StatCardItemProps> = ({ icon, value, label, color, delay }) => (
-	<Col xs={12} sm={6} lg={6} style={{ animationDelay: getStaggerDelay(delay) }}>
-		<Card
-			bordered={false}
-			style={{
-				background: color,
-				borderRadius: 12,
-				border: 'none',
-				...elevation[1],
-			}}
-			styles={{ body: { padding: '12px 16px' } }}
-		>
-			<Flex align="center" gap={10}>
-				<Avatar
-					size={32}
-					icon={icon}
-					style={{
-						backgroundColor: 'rgba(255,255,255,0.2)',
-						border: 'none',
-						flexShrink: 0,
-					}}
-				/>
-				<Flex vertical gap={0}>
-					<Title
-						level={4}
+const StatCardItem: React.FC<StatCardItemProps> = ({ icon, value, label, color, delay, trend }) => {
+	const hasTrend = trend !== undefined && trend !== 0;
+	const isPositive = trend !== undefined && trend > 0;
+
+	return (
+		<Col xs={12} sm={6} lg={6} style={{ animationDelay: getStaggerDelay(delay) }}>
+			<Card
+				bordered={false}
+				style={{
+					background: color,
+					borderRadius: 12,
+					border: 'none',
+					...elevation[1],
+				}}
+				styles={{ body: { padding: '12px 16px' } }}
+			>
+				<Flex align="center" gap={10}>
+					<Avatar
+						size={32}
+						icon={icon}
 						style={{
-							color: 'white',
-							margin: 0,
-							fontSize: 20,
-							fontWeight: 700,
-							lineHeight: 1.2,
+							backgroundColor: 'rgba(255,255,255,0.2)',
+							border: 'none',
+							flexShrink: 0,
 						}}
-					>
-						{value}
-					</Title>
-					<Text
-						style={{
-							color: 'rgba(255, 255, 255, 0.85)',
-							fontSize: 11,
-							fontWeight: 500,
-						}}
-					>
-						{label}
-					</Text>
+					/>
+					<Flex vertical gap={0} style={{ flex: 1 }}>
+						<Flex align="center" gap={6}>
+							<Title
+								level={4}
+								style={{
+									color: 'white',
+									margin: 0,
+									fontSize: 20,
+									fontWeight: 700,
+									lineHeight: 1.2,
+								}}
+							>
+								{value.toLocaleString()}
+							</Title>
+							{hasTrend && (
+								<Flex
+									align="center"
+									gap={2}
+									style={{
+										fontSize: 10,
+										color: 'rgba(255,255,255,0.9)',
+										backgroundColor: 'rgba(255,255,255,0.2)',
+										padding: '2px 4px',
+										borderRadius: 4,
+									}}
+								>
+									{isPositive ? (
+										<ArrowUpOutlined style={{ fontSize: 8 }} />
+									) : (
+										<ArrowDownOutlined style={{ fontSize: 8 }} />
+									)}
+									<span>{Math.abs(trend).toFixed(1)}%</span>
+								</Flex>
+							)}
+						</Flex>
+						<Text
+							style={{
+								color: 'rgba(255, 255, 255, 0.85)',
+								fontSize: 11,
+								fontWeight: 500,
+							}}
+						>
+							{label}
+						</Text>
+					</Flex>
 				</Flex>
-			</Flex>
-		</Card>
-	</Col>
-);
+			</Card>
+		</Col>
+	);
+};
 
 /**
  * Loading skeleton for stat card
@@ -120,6 +150,7 @@ export const StatsRow: React.FC<StatsRowProps> = ({ stats }) => {
 			value: stats.overview.total_assessments,
 			label: t('dashboard.assessments'),
 			color: STAT_CARD_COLORS.primary,
+			trend: stats.trends?.assessments_change,
 		},
 		{
 			icon: <QuestionCircleOutlined style={{ fontSize: 16 }} />,
@@ -138,6 +169,7 @@ export const StatsRow: React.FC<StatsRowProps> = ({ stats }) => {
 			value: stats.overview.total_attempts,
 			label: t('dashboard.attempts'),
 			color: STAT_CARD_COLORS.warning,
+			trend: stats.trends?.attempts_change,
 		},
 	];
 

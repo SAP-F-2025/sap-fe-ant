@@ -1,7 +1,12 @@
 export { ActivityChart } from './ActivityChart';
+export { CompactStatsRow } from './CompactStatsRow';
 export { DashboardHeader } from './DashboardHeader';
+export { DetailTabs } from './DetailTabs';
 export { PerformanceChart } from './PerformanceChart';
+export { ProctoringOverview } from './ProctoringOverview';
 export { QuestionPieChart } from './QuestionPieChart';
+export { QuickMetricsPanel } from './QuickMetricsPanel';
 export { QuickStats } from './QuickStats';
+export { RealTimeStatus } from './RealTimeStatus';
 export { RecentActivities } from './RecentActivities';
 export { StatsRow } from './StatsRow';

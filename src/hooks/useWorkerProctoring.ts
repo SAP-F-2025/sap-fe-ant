@@ -205,7 +205,6 @@ export const useWorkerProctoring = (
 				workerReadyRef.current = true;
 				if (workerDelegate) {
 					setDelegate(workerDelegate);
-					console.log(`Face detection worker ready: Using ${workerDelegate}`);
 				}
 				return;
 			}
@@ -313,18 +312,14 @@ export const useWorkerProctoring = (
 
 		// Create classic worker from public folder (not module)
 		// Classic worker uses importScripts which MediaPipe requires
-		console.log('Creating classic worker...');
 		workerRef.current = new Worker('/faceDetectionWorker.js');
-		console.log('Worker created:', workerRef.current);
 
 		// Handle worker messages
 		workerRef.current.onmessage = (e: MessageEvent<WorkerResponse>) => {
-			console.log('Worker message received:', e.data.type);
 			handleWorkerMessageRef.current(e);
 
 			// Start detection loop when worker is ready
 			if (e.data.type === 'ready' && !animationFrameRef.current) {
-				console.log('Worker ready, starting detection loop');
 				detectLoop();
 			}
 		};
@@ -334,7 +329,6 @@ export const useWorkerProctoring = (
 		};
 
 		// Initialize worker
-		console.log('Sending init message to worker...');
 		workerRef.current.postMessage({ type: 'init' } as WorkerMessage);
 
 		return () => {

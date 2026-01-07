@@ -254,10 +254,30 @@ const StudentHistory: React.FC = () => {
 							type="primary"
 							size="small"
 							icon={<PlayCircleOutlined />}
-							onClick={() => navigate(`/student/take/${record.id}`)}
+							onClick={() => {
+								// Check if identity verification is required for resume
+								if (record.assessment?.settings?.require_identity_verification) {
+									navigate('/student/face-verification', {
+										state: {
+											assessment: {
+												id: record.assessment_id,
+												title: record.assessment_title,
+												duration: record.assessment?.duration || 60,
+												passing_score: record.assessment?.passing_score || 0,
+												attempts_used: 0,
+												max_attempts: 1,
+											},
+											resumeAttemptId: record.id,
+										},
+									});
+								} else {
+									navigate(`/student/take/${record.id}`);
+								}
+							}}
 						>
 							{t('studentHistory.continue')}
 						</Button>
+
 					) : (
 						<Button
 							type="link"

@@ -54,6 +54,9 @@
 		"goodLuck": "Good luck with your exam!",
 		"startNow": "Start Now",
 		"startError": "Cannot start the exam",
+		"resumeExamTitle": "Resume Exam",
+		"resumeNow": "Resume Now",
+		"resumeMessage": "Your identity has been verified. You can continue your exam.",
 		"preparingRoom": "Preparing to enter exam room",
 		"attemptsUsed": "Attempts",
 		"passingScore": "Passing Score",
@@ -1219,6 +1222,23 @@
 			"fill_blank": "Fill in the Blank",
 			"matching": "Matching",
 			"ordering": "Ordering"
+		},
+		"violations": {
+			"title": "Proctoring Violations",
+			"totalViolations": "Total Violations",
+			"severityLevel": "Severity Level",
+			"avgConfidence": "Avg Confidence",
+			"prolongedViolations": "Prolonged Violations",
+			"breakdownBySeverity": "Breakdown by Severity",
+			"breakdownByType": "Breakdown by Violation Type",
+			"timeline": "Violation Timeline (5-minute intervals)",
+			"violationCount": "{{count}} violations",
+			"confidence": "Confidence: {{value}}",
+			"timeRange": "Time: {{start}} - {{end}} ({{duration}} mins)",
+			"critical": "Critical",
+			"high": "High",
+			"medium": "Medium",
+			"low": "Low"
 		}
 	},
 	"exam": {
@@ -1922,6 +1942,11 @@
 			"paste": "paste",
 			"cut": "cut",
 			"browserTamper": "DevTools detected",
+			"handDetected": "Hand detected in frame",
+			"phoneDetected": "Phone detected",
+			"voice": "Voice detected",
+			"voiceChat": "Voice chat detected",
+			"faceMismatch": "Face mismatch",
 			"default": "Violation"
 		},
 		"loading": "Loading proctoring data...",

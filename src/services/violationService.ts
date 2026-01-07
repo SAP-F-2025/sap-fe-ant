@@ -103,10 +103,34 @@ interface ViolationAnalytics {
 	count_by_type: Record<string, number>;
 	severity_distribution: Record<string, number>;
 	timeline: Array<{
-		timestamp: string;
-		count: number;
-		avg_confidence: number;
+		bucket: string;
+		violation_count: number;
+		critical_count: number;
+		high_count: number;
+		medium_count: number;
+		low_count: number;
 	}>;
+	latest_violation?: {
+		id: number;
+		attempt_id: number;
+		user_id: string;
+		assessment_id: number;
+		violation_type: number;
+		severity: number;
+		confidence_score: number;
+		snapshot_url?: string;
+		browser_info: {
+			user_agent: string;
+			platform: string;
+			language: string;
+			screen_resolution: string;
+			timezone: string;
+		};
+		device_fingerprint: string;
+		created_at: string;
+		ended_at: string;
+		is_prolonged: boolean;
+	};
 }
 
 interface AttemptSummary {
@@ -391,7 +415,7 @@ class ViolationService {
 			body: blob,
 			headers: {
 				'Content-Type': contentType,
-				'x-amz-acl': 'public-read', 
+				'x-amz-acl': 'public-read',
 			},
 		});
 	}

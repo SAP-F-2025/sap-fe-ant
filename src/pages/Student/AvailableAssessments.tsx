@@ -75,7 +75,6 @@ const AvailableAssessments: React.FC = () => {
 										onOk: async () => {
 											await studentService.submitAttempt({
 												attempt_id: attempt.id,
-												answers: [],
 												end_reason: 'timeout',
 											});
 											// Refresh the list
@@ -83,7 +82,24 @@ const AvailableAssessments: React.FC = () => {
 										},
 									});
 								} else {
-									navigate(`/student/take/${attempt.id}`);
+									// Check if identity verification is required for resume
+									if (assessment.settings?.require_identity_verification) {
+										navigate('/student/face-verification', {
+											state: {
+												assessment: {
+													id: assessment.id,
+													title: assessment.title,
+													duration: assessment.duration,
+													passing_score: assessment.passing_score,
+													attempts_used: assessment.attempts_used,
+													max_attempts: assessment.max_attempts,
+												},
+												resumeAttemptId: attempt.id,
+											},
+										});
+									} else {
+										navigate(`/student/take/${attempt.id}`);
+									}
 								}
 							}
 						} catch (error: any) {

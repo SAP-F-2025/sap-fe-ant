@@ -135,23 +135,24 @@ const TakeAssessment: React.FC = () => {
 		mutationFn: async (data: CompleteAttemptRequest) => {
 			setIsSubmitting(true);
 
-			// Submit all violations before submitting attempt
+			// Submit any ongoing browser violations (camera violations are submitted on end)
+			// Since handleProctoringViolation now submits immediately when violation ends,
+			// we only need to batch submit ongoing browser violations (if any are still active)
 			if (user && attempt) {
-				const allViolations = [
-					...proctoringEvents.map((event) => ({
-						event,
-						type: 'camera' as const,
-					})),
-					...Array.from(browserViolations.values()).map((event) => ({
+				const ongoingBrowserViolations = Array.from(browserViolations.values())
+					.filter((event) => event.endTime === 0) // Only ongoing (not yet ended)
+					.map((event) => ({
 						event,
 						type: 'browser' as const,
-					})),
-				];
+					}));
 
-				if (allViolations.length > 0) {
+				if (ongoingBrowserViolations.length > 0) {
 					try {
+						console.log(
+							`Batch submitting ${ongoingBrowserViolations.length} ongoing browser violations`
+						);
 						await violationService.submitViolationsBatch(
-							allViolations,
+							ongoingBrowserViolations,
 							user.id,
 							attempt.id,
 							attempt.assessment_id

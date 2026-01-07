@@ -1,15 +1,17 @@
 import { BellOutlined, CloseOutlined } from '@ant-design/icons';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Dropdown, Empty, Modal, Skeleton, Space, Typography } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeToken } from '../../theme/ThemeProvider';
+import { notificationService } from '../../services/notificationService';
+import type { Notification, NotificationPage } from '../../types/notification';
 import './NotificationDropdown.css';
 
 const { Text, Title, Paragraph } = Typography;
 
-// Types
-export interface Notification {
+// Adapter interface for display - maps backend DTO to display format
+interface DisplayNotification {
 	id: string;
 	title: string;
 	content: string;
@@ -17,44 +19,33 @@ export interface Notification {
 	read: boolean;
 }
 
-interface NotificationPage {
-	notifications: Notification[];
-	nextCursor?: string;
+// Convert backend notification to display format
+const toDisplayNotification = (n: Notification): DisplayNotification => ({
+	id: n.id,
+	title: n.subject, // Backend uses 'subject', UI calls it 'title'
+	content: n.content,
+	createdAt: new Date(n.createdAt * 1000).toISOString(), // Convert Unix timestamp (seconds) to ISO string
+	read: n.read,
+});
+
+// Fetch notifications using real API
+const fetchNotifications = async (page: number = 0): Promise<{
+	notifications: DisplayNotification[];
+	nextPage?: number;
 	hasMore: boolean;
-}
-
-// Mock API function - replace with actual API call
-const fetchNotifications = async (cursor?: string): Promise<NotificationPage> => {
-	// Simulate API delay
-	await new Promise((resolve) => setTimeout(resolve, 500));
-
-	// Mock data - replace with actual API call
-	const mockNotifications: Notification[] = Array.from({ length: 10 }, (_, i) => {
-		const index = cursor ? parseInt(cursor) + i : i;
-		return {
-			id: `notification-${index}`,
-			title: `Notification ${index + 1}`,
-			content:
-				index % 3 === 0
-					? `This is the content of notification ${index + 1}. This content is very long and needs to be truncated when displayed in the list to ensure a beautiful and readable interface for users.`
-					: `Short notification content ${index + 1}.`,
-			createdAt: new Date(Date.now() - index * 3600000).toISOString(),
-			read: index > 2,
-		};
-	});
-
-	const nextCursor = cursor ? String(parseInt(cursor) + 10) : '10';
+}> => {
+	const response: NotificationPage = await notificationService.getNotifications(page, 20);
 
 	return {
-		notifications: mockNotifications,
-		nextCursor: parseInt(nextCursor) < 50 ? nextCursor : undefined,
-		hasMore: parseInt(nextCursor) < 50,
+		notifications: response.content.map(toDisplayNotification),
+		nextPage: response.last ? undefined : page + 1,
+		hasMore: !response.last,
 	};
 };
 
 // Notification Item Component
 interface NotificationItemProps {
-	notification: Notification;
+	notification: DisplayNotification;
 	onClick: () => void;
 	t: (key: string, options?: Record<string, unknown>) => string;
 	i18n: { language: string };
@@ -157,16 +148,34 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onCli
 export const NotificationDropdown: React.FC = () => {
 	const { token } = useThemeToken();
 	const { t, i18n } = useTranslation();
+	const queryClient = useQueryClient();
 	const [open, setOpen] = useState(false);
-	const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+	const [selectedNotification, setSelectedNotification] = useState<DisplayNotification | null>(null);
 	const [modalOpen, setModalOpen] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
 
+	// Fetch notifications with infinite query
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
 		queryKey: ['notifications'],
-		queryFn: ({ pageParam }) => fetchNotifications(pageParam),
-		getNextPageParam: (lastPage) => lastPage.nextCursor,
-		initialPageParam: undefined as string | undefined,
+		queryFn: ({ pageParam = 0 }) => fetchNotifications(pageParam),
+		getNextPageParam: (lastPage) => lastPage.nextPage,
+		initialPageParam: 0,
+	});
+
+	// Mark as read mutation
+	const markAsReadMutation = useMutation({
+		mutationFn: (id: string) => notificationService.markAsRead(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['notifications'] });
+		},
+	});
+
+	// Mark all as read mutation
+	const markAllAsReadMutation = useMutation({
+		mutationFn: () => notificationService.markAllAsRead(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['notifications'] });
+		},
 	});
 
 	const notifications = data?.pages.flatMap((page) => page.notifications) ?? [];
@@ -190,10 +199,19 @@ export const NotificationDropdown: React.FC = () => {
 		}
 	}, [handleScroll, open]);
 
-	const handleNotificationClick = (notification: Notification) => {
+	const handleNotificationClick = (notification: DisplayNotification) => {
+		// Mark as read if unread
+		if (!notification.read) {
+			markAsReadMutation.mutate(notification.id);
+		}
+
 		setSelectedNotification(notification);
 		setModalOpen(true);
 		setOpen(false);
+	};
+
+	const handleMarkAllAsRead = () => {
+		markAllAsReadMutation.mutate();
 	};
 
 	const formatFullDate = (dateString: string) => {
@@ -233,7 +251,13 @@ export const NotificationDropdown: React.FC = () => {
 					{t('notificationDropdown.title')}
 				</Title>
 				{unreadCount > 0 && (
-					<Button type="link" size="small" style={{ padding: 0 }}>
+					<Button
+						type="link"
+						size="small"
+						style={{ padding: 0 }}
+						onClick={handleMarkAllAsRead}
+						loading={markAllAsReadMutation.isPending}
+					>
 						{t('notificationDropdown.markAllRead')}
 					</Button>
 				)}

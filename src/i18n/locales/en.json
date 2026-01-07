@@ -262,7 +262,9 @@
 		"privacyPolicy": "Privacy Policy",
 		"viewPrivacy": "View privacy policy",
 		"appName": "SAP - Secure Assessment Platform",
-		"copyright": "© 2025 SAP Team. All rights reserved."
+		"copyright": "© 2025 SAP Team. All rights reserved.",
+		"preferencesSaved": "Preferences saved successfully",
+		"preferencesError": "Failed to save preferences"
 	},
 	"activities": {
 		"completedAssessment": "completed assessment",
@@ -1083,7 +1085,24 @@
 		"systemUpdates": "System Updates",
 		"systemUpdatesDesc": "Get notified about updates and maintenance",
 		"unsavedChanges": "You have unsaved changes",
-		"saveChanges": "Save Changes"
+		"saveChanges": "Save Changes",
+		"telegramTitle": "Telegram Notifications",
+		"telegramDesc": "Receive notifications via Telegram bot for instant alerts on your phone.",
+		"telegramLinkedStatus": "Telegram Connected",
+		"telegramNotLinked": "Telegram Not Connected",
+		"telegramNotLinkedDesc": "Connect your Telegram account to receive instant notifications.",
+		"telegramLink": "Connect Telegram",
+		"telegramRelink": "Reconnect",
+		"telegramUnlink": "Disconnect",
+		"telegramUnlinked": "Telegram disconnected successfully",
+		"telegramLinked": "Telegram connected successfully!",
+		"telegramLinkTitle": "Connect Telegram",
+		"telegramScanQR": "Scan this QR code with your phone or click the link below",
+		"telegramExpiresIn": "Expires in",
+		"telegramOpenInApp": "Open in Telegram App",
+		"telegramLinkError": "Failed to generate Telegram link",
+		"telegramUnlinkError": "Failed to disconnect Telegram",
+		"telegramLinkExpired": "Link expired. Please try again."
 	},
 	"notificationDropdown": {
 		"title": "Notifications",

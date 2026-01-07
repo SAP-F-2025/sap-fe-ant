@@ -10,6 +10,7 @@ import RoleBasedRedirect from './components/RoleBasedRedirect/RoleBasedRedirect'
 import { SettingsModalProvider, useSettingsModal } from './components/SettingsModal';
 import ShortcutsModal from './components/ShortcutsModal';
 import { AuthProvider } from './contexts/AuthContext';
+import { NotificationContextProvider } from './context/NotificationContext';
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
 import { QueryProvider } from './providers/QueryProvider';
 import { ThemeProvider, useTheme } from './theme/ThemeProvider';
@@ -394,11 +395,13 @@ const App: React.FC = () => {
 					<NotificationProvider>
 						<QueryProvider>
 							<AuthProvider>
-								<SettingsModalProvider>
-									<BrowserRouter>
-										<AppRoutes />
-									</BrowserRouter>
-								</SettingsModalProvider>
+								<NotificationContextProvider>
+									<SettingsModalProvider>
+										<BrowserRouter>
+											<AppRoutes />
+										</BrowserRouter>
+									</SettingsModalProvider>
+								</NotificationContextProvider>
 							</AuthProvider>
 						</QueryProvider>
 					</NotificationProvider>

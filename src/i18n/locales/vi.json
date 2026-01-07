@@ -262,7 +262,9 @@
 		"privacyPolicy": "Chính sách bảo mật",
 		"viewPrivacy": "Xem chính sách bảo mật",
 		"appName": "SAP - Secure Assessment Platform",
-		"copyright": "© 2025 SAP Team. All rights reserved."
+		"copyright": "© 2025 SAP Team. All rights reserved.",
+		"preferencesSaved": "Đã lưu cài đặt thành công",
+		"preferencesError": "Không thể lưu cài đặt"
 	},
 	"activities": {
 		"completedAssessment": "hoàn thành bài thi",
@@ -1083,7 +1085,24 @@
 		"systemUpdates": "Cập nhật hệ thống",
 		"systemUpdatesDesc": "Thông báo về các cập nhật và bảo trì",
 		"unsavedChanges": "Có thay đổi chưa lưu",
-		"saveChanges": "Lưu thay đổi"
+		"saveChanges": "Lưu thay đổi",
+		"telegramTitle": "Thông báo Telegram",
+		"telegramDesc": "Nhận thông báo qua Telegram bot để cập nhật tức thì trên điện thoại.",
+		"telegramLinkedStatus": "Telegram đã kết nối",
+		"telegramNotLinked": "Telegram chưa kết nối",
+		"telegramNotLinkedDesc": "Kết nối tài khoản Telegram để nhận thông báo tức thì.",
+		"telegramLink": "Kết nối Telegram",
+		"telegramRelink": "Kết nối lại",
+		"telegramUnlink": "Ngắt kết nối",
+		"telegramUnlinked": "Đã ngắt kết nối Telegram",
+		"telegramLinked": "Kết nối Telegram thành công!",
+		"telegramLinkTitle": "Kết nối Telegram",
+		"telegramScanQR": "Quét mã QR này bằng điện thoại hoặc click liên kết bên dưới",
+		"telegramExpiresIn": "Hết hạn sau",
+		"telegramOpenInApp": "Mở trong Telegram",
+		"telegramLinkError": "Không thể tạo liên kết Telegram",
+		"telegramUnlinkError": "Không thể ngắt kết nối Telegram",
+		"telegramLinkExpired": "Liên kết đã hết hạn. Vui lòng thử lại."
 	},
 	"notificationDropdown": {
 		"title": "Thông báo",

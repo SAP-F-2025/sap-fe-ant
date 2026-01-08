@@ -1,111 +1,121 @@
 import { API_CONFIG, API_ENDPOINTS } from '../config/api';
 import apiService from './api';
-import { Question, QuestionCreateRequest, PaginatedResponse, PaginationParams } from '../types';
+import {
+	Question,
+	QuestionCreateRequest,
+	PaginatedResponse,
+	PaginationParams,
+	PaginatedQuestionResponse,
+} from '../types';
 import { mockQuestions, paginateData, delay } from './mockData';
 
 class QuestionService {
-  async getQuestions(
-    params?: PaginationParams & { type?: string; difficulty?: string; search?: string }
-  ): Promise<PaginatedResponse<Question>> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      let filtered = [...mockQuestions];
+	async getQuestions(
+		params?: PaginationParams & {
+			type?: string;
+			difficulty?: string;
+			search?: string;
+			exclude_ids?: number[];
+			creator_id?: string;
+			category_id?: number;
+			bank_id?: number;
+			tags?: string[];
+			sort_by?: string;
+			sort_order?: 'asc' | 'desc';
+		}
+	): Promise<PaginatedQuestionResponse<Question>> {
+		// Transform arrays to comma-separated strings for query params
+		const transformedParams = params
+			? {
+					...params,
+					exclude_ids: params.exclude_ids?.join(','),
+					tags: params.tags?.join(','),
+				}
+			: undefined;
+		return apiService.get<PaginatedQuestionResponse<Question>>(
+			API_ENDPOINTS.QUESTIONS,
+			transformedParams
+		);
+	}
 
-      if (params?.type) {
-        filtered = filtered.filter((q) => q.type === params.type);
-      }
+	async getQuestion(id: number): Promise<Question> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			const question = mockQuestions.find((q) => q.id === id);
+			if (!question) throw new Error('Question not found');
+			return question;
+		}
 
-      if (params?.difficulty) {
-        filtered = filtered.filter((q) => q.difficulty === params.difficulty);
-      }
+		return apiService.get<Question>(API_ENDPOINTS.QUESTION_DETAIL(id));
+	}
 
-      if (params?.search) {
-        const search = params.search.toLowerCase();
-        filtered = filtered.filter((q) => q.text.toLowerCase().includes(search));
-      }
+	async createQuestion(data: QuestionCreateRequest): Promise<Question> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			const newQuestion: Question = {
+				id: mockQuestions.length + 1,
+				...data,
+				creator_id: 1,
+				created_at: new Date().toISOString(),
+				updated_at: new Date().toISOString(),
+				usage_count: 0,
+			};
+			mockQuestions.unshift(newQuestion);
+			return newQuestion;
+		}
 
-      return paginateData(filtered, params?.page, params?.size);
-    }
+		return apiService.post<Question>(API_ENDPOINTS.QUESTIONS, data);
+	}
 
-    return apiService.get<PaginatedResponse<Question>>(API_ENDPOINTS.QUESTIONS, params);
-  }
+	async updateQuestion(id: number, data: Partial<QuestionCreateRequest>): Promise<Question> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			const index = mockQuestions.findIndex((q) => q.id === id);
+			if (index === -1) throw new Error('Question not found');
 
-  async getQuestion(id: number): Promise<Question> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      const question = mockQuestions.find((q) => q.id === id);
-      if (!question) throw new Error('Question not found');
-      return question;
-    }
+			mockQuestions[index] = {
+				...mockQuestions[index],
+				...data,
+				updated_at: new Date().toISOString(),
+			};
+			return mockQuestions[index];
+		}
 
-    return apiService.get<Question>(API_ENDPOINTS.QUESTION_DETAIL(id));
-  }
+		return apiService.put<Question>(API_ENDPOINTS.QUESTION_DETAIL(id), data);
+	}
 
-  async createQuestion(data: QuestionCreateRequest): Promise<Question> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      const newQuestion: Question = {
-        id: mockQuestions.length + 1,
-        ...data,
-        creator_id: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        usage_count: 0,
-      };
-      mockQuestions.unshift(newQuestion);
-      return newQuestion;
-    }
+	async deleteQuestion(id: number): Promise<void> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			const index = mockQuestions.findIndex((q) => q.id === id);
+			if (index !== -1) {
+				mockQuestions.splice(index, 1);
+			}
+			return;
+		}
 
-    return apiService.post<Question>(API_ENDPOINTS.QUESTIONS, data);
-  }
+		return apiService.delete(API_ENDPOINTS.QUESTION_DETAIL(id));
+	}
 
-  async updateQuestion(id: number, data: Partial<QuestionCreateRequest>): Promise<Question> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      const index = mockQuestions.findIndex((q) => q.id === id);
-      if (index === -1) throw new Error('Question not found');
+	async batchCreateQuestions(questions: QuestionCreateRequest[]): Promise<Question[]> {
+		if (API_CONFIG.USE_MOCK) {
+			await delay();
+			const newQuestions = questions.map((data, index) => ({
+				id: mockQuestions.length + index + 1,
+				...data,
+				creator_id: 1,
+				created_at: new Date().toISOString(),
+				updated_at: new Date().toISOString(),
+				usage_count: 0,
+			}));
+			mockQuestions.unshift(...newQuestions);
+			return newQuestions;
+		}
 
-      mockQuestions[index] = {
-        ...mockQuestions[index],
-        ...data,
-        updated_at: new Date().toISOString(),
-      };
-      return mockQuestions[index];
-    }
-
-    return apiService.put<Question>(API_ENDPOINTS.QUESTION_DETAIL(id), data);
-  }
-
-  async deleteQuestion(id: number): Promise<void> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      const index = mockQuestions.findIndex((q) => q.id === id);
-      if (index !== -1) {
-        mockQuestions.splice(index, 1);
-      }
-      return;
-    }
-
-    return apiService.delete(API_ENDPOINTS.QUESTION_DETAIL(id));
-  }
-
-  async batchCreateQuestions(questions: QuestionCreateRequest[]): Promise<Question[]> {
-    if (API_CONFIG.USE_MOCK) {
-      await delay();
-      const newQuestions = questions.map((data, index) => ({
-        id: mockQuestions.length + index + 1,
-        ...data,
-        creator_id: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        usage_count: 0,
-      }));
-      mockQuestions.unshift(...newQuestions);
-      return newQuestions;
-    }
-
-    return apiService.post<Question[]>(API_ENDPOINTS.QUESTIONS_BATCH, { questions });
-  }
+		return apiService.post<Question[]>(API_ENDPOINTS.QUESTIONS_BATCH, {
+			questions,
+		});
+	}
 }
 
 export const questionService = new QuestionService();

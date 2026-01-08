@@ -1,35 +1,30 @@
-import React, { useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Layout,
-  Menu,
-  Typography,
-  Space,
-  Button,
-  Dropdown,
-  Switch,
-  Grid,
-  Badge,
-} from 'antd';
-import { elevation } from '../../styles/elevation';
-import type { MenuProps } from 'antd';
-import {
-  DashboardOutlined,
-  FileTextOutlined,
-  QuestionCircleOutlined,
-  BankOutlined,
-  CheckCircleOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UserOutlined,
-  BulbOutlined,
-  MoonOutlined,
-  SunOutlined,
-  TeamOutlined,
+	BankOutlined,
+	BarChartOutlined,
+	BookOutlined,
+	CheckCircleOutlined,
+	DashboardOutlined,
+	FileTextOutlined,
+	HistoryOutlined,
+	MenuFoldOutlined,
+	MenuUnfoldOutlined,
+	MoonOutlined,
+	QuestionCircleOutlined,
+	SettingOutlined,
+	SunOutlined,
+	TeamOutlined,
+	UserOutlined,
 } from '@ant-design/icons';
-import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
-import { gradients } from '../../theme/gradients';
+import type { MenuProps } from 'antd';
+import { Avatar, Button, Dropdown, Grid, Layout, Menu, Space, Switch } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { elevation } from '../../styles/elevation';
+import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
+import { NotificationDropdown } from '../NotificationDropdown';
+import { useSettingsModal } from '../SettingsModal';
 
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -45,258 +40,415 @@ const { useBreakpoint } = Grid;
  */
 
 const MainLayout: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { token } = useThemeToken();
-  const { mode, toggleDark, setMode } = useTheme();
-  const screens = useBreakpoint();
-  const { user, logout } = useAuth();
+	const { t } = useTranslation();
+	const [collapsed, setCollapsed] = useState(false);
+	const navigate = useNavigate();
+	const location = useLocation();
+	const { token } = useThemeToken();
+	const { mode, toggleDark, setMode } = useTheme();
+	const screens = useBreakpoint();
+	const { user, logout } = useAuth();
+	const { openSettings } = useSettingsModal();
 
-  // Auto-collapse on mobile
-  React.useEffect(() => {
-    if (screens.xs && !collapsed) {
-      setCollapsed(true);
-    }
-  }, [screens.xs]);
+	// Auto-collapse on mobile
+	React.useEffect(() => {
+		if (screens.xs && !collapsed) {
+			setCollapsed(true);
+		}
+	}, [screens.xs]);
 
-  // Menu items
-  const menuItems: MenuProps['items'] = [
-    {
-      key: '/dashboard',
-      icon: <DashboardOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Tổng quan</span>,
-    },
-    {
-      key: '/users',
-      icon: <TeamOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Người dùng</span>,
-    },
-    {
-      key: '/assessments',
-      icon: <FileTextOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Quản lý bài thi</span>,
-    },
-    {
-      key: '/questions',
-      icon: <QuestionCircleOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Quản lý câu hỏi</span>,
-    },
-    {
-      key: '/question-banks',
-      icon: <BankOutlined style={{ fontSize: 18 }} />,
-      label: <span style={{ fontWeight: 500 }}>Ngân hàng câu hỏi</span>,
-    },
-    {
-      key: '/grading',
-      icon: <Badge count={3} size="small" offset={[10, 0]}><CheckCircleOutlined style={{ fontSize: 18 }} /></Badge>,
-      label: <span style={{ fontWeight: 500 }}>Chấm điểm</span>,
-    },
-  ];
+	// Menu items - filter based on user role
+	// Admin users see admin menu, others see student menu
+	// Note: Group owners/co-owners will access grading through the student menu's groups section
+	const isStudent = !user?.isAdmin;
 
-  // User dropdown menu handler
-  const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
-    if (key === 'logout') {
-      logout();
-    } else if (key === 'profile' || key === 'settings') {
-      navigate(`/${key}`);
-    }
-  };
+	const menuItems: MenuProps['items'] = isStudent
+		? [
+			// Student menu items (also includes group owners who aren't system admins)
+			{
+				key: '/student/dashboard',
+				icon: <DashboardOutlined />,
+				label: t('layout.studentDashboard'),
+			},
+			{
+				key: '/student/creator-dashboard',
+				icon: <BarChartOutlined />,
+				label: t('layout.creatorDashboard'),
+			},
+			{
+				key: '/student/assessments',
+				icon: <BookOutlined />,
+				label: t('layout.assessments'),
+			},
+			{
+				key: '/student/manage-assessments',
+				icon: <FileTextOutlined />,
+				label: t('layout.manageAssessments'),
+			},
+			{
+				key: '/student/questions',
+				icon: <QuestionCircleOutlined />,
+				label: t('layout.manageQuestions'),
+			},
+			{
+				key: '/student/question-banks',
+				icon: <BankOutlined />,
+				label: t('layout.questionBanks'),
+			},
+			{
+				key: '/student/groups',
+				icon: <TeamOutlined />,
+				label: t('studentGroups.title'),
+			},
+			{
+				key: '/student/history',
+				icon: <HistoryOutlined />,
+				label: t('layout.history'),
+			},
+		]
+		: [
+			// Admin/Teacher menu items
+			{
+				key: '/dashboard',
+				icon: <DashboardOutlined />,
+				label: t('layout.overview'),
+			},
+			// Only show Users menu for admin
+			...(user?.isAdmin
+				? [
+					{
+						key: '/users',
+						icon: <TeamOutlined />,
+						label: t('layout.users'),
+					},
+				]
+				: []),
+			// Only show Groups menu for admin
+			...(user?.isAdmin
+				? [
+					{
+						key: '/groups',
+						icon: <TeamOutlined />,
+						label: t('layout.groups'),
+					},
+				]
+				: []),
+			{
+				key: '/assessments',
+				icon: <FileTextOutlined />,
+				label: t('layout.manageAssessments'),
+			},
+			{
+				key: '/questions',
+				icon: <QuestionCircleOutlined />,
+				label: t('layout.manageQuestions'),
+			},
+			{
+				key: '/question-banks',
+				icon: <BankOutlined />,
+				label: t('layout.questionBanks'),
+			},
+			{
+				key: '/grading',
+				icon: <CheckCircleOutlined />,
+				label: t('layout.grading'),
+			},
+		];
 
-  // User dropdown menu
-  const userMenuItems: MenuProps['items'] = [
-    {
-      key: 'profile',
-      label: 'Hồ sơ',
-    },
-    {
-      key: 'settings',
-      label: 'Cài đặt',
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'theme',
-      label: (
-        <Space>
-          <span>Chế độ tối</span>
-          <Switch
-            checked={mode === 'dark'}
-            onChange={toggleDark}
-            checkedChildren={<MoonOutlined />}
-            unCheckedChildren={<SunOutlined />}
-          />
-        </Space>
-      ),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'logout',
-      label: 'Đăng xuất',
-      danger: true,
-    },
-  ];
+	// User dropdown menu handler
+	const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
+		if (key === 'logout') {
+			logout();
+		} else if (key === 'settings') {
+			openSettings('my-account');
+		} else if (key === 'profile') {
+			openSettings('profile');
+		} else if (key === 'notifications') {
+			openSettings('notifications');
+		}
+	};
 
-  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
-    navigate(key);
-  };
+	// User dropdown menu
+	const userMenuItems: MenuProps['items'] = [
+		{
+			key: 'profile',
+			icon: <UserOutlined />,
+			label: t('layout.profile'),
+		},
+		{
+			key: 'settings',
+			icon: <SettingOutlined />,
+			label: t('layout.settings'),
+		},
+		{
+			type: 'divider',
+		},
+		{
+			key: 'theme',
+			label: (
+				<Space>
+					<span>{t('layout.darkMode')}</span>
+					<Switch
+						checked={mode === 'dark'}
+						onChange={toggleDark}
+						checkedChildren={<MoonOutlined />}
+						unCheckedChildren={<SunOutlined />}
+					/>
+				</Space>
+			),
+		},
+		{
+			type: 'divider',
+		},
+		{
+			key: 'logout',
+			label: t('layout.logout'),
+			danger: true,
+		},
+	];
 
-  // Get selected menu key based on current path
-  const getSelectedKey = () => {
-    const path = location.pathname;
-    if (path.startsWith('/users')) return '/users';
-    if (path.startsWith('/assessments')) return '/assessments';
-    if (path.startsWith('/questions')) return '/questions';
-    if (path.startsWith('/question-banks')) return '/question-banks';
-    if (path.startsWith('/grading')) return '/grading';
-    return path;
-  };
+	const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+		navigate(key);
+	};
 
-  // Calculate sider width based on collapsed state
-  const siderWidth = collapsed ? 80 : 200;
+	// Keyboard shortcuts
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Ctrl+B: Toggle sidebar
+			if (e.ctrlKey && e.key === 'b') {
+				e.preventDefault();
+				setCollapsed((prev) => !prev);
+			}
 
-  return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        breakpoint="lg"
-        collapsedWidth={80}
-        style={{
-          overflow: 'auto',
-          height: '100vh',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 1000,
-          background: mode === 'dark' ? '#1a1a1a' : '#ffffff',
-          borderRight: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
-        }}
-      >
-        {/* Logo */}
-        <div
-          style={{
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            color: mode === 'dark' ? '#ffffff' : token.colorPrimary,
-            fontSize: collapsed ? 24 : 18,
-            fontWeight: 700,
-            padding: `0 ${token.paddingLG}px`,
-            borderBottom: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
-            letterSpacing: '-0.5px',
-          }}
-        >
-          {collapsed ? '🎓' : (
-            <Space size={12}>
-              <span style={{ fontSize: 24 }}>🎓</span>
-              <span>SAP Assessment</span>
-            </Space>
-          )}
-        </div>
+			// Alt+Arrow: Navigate menu items
+			if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+				e.preventDefault();
+				const flatMenuItems = menuItems
+					.flatMap((item) => {
+						if (!item || typeof item !== 'object') return [];
+						const menuItem = item as any;
+						return menuItem.children
+							? menuItem.children.map((child: any) => child.key)
+							: [menuItem.key];
+					})
+					.filter((key) => key && key !== 'logout');
+				const currentKey = getSelectedKey();
+				const currentIndex = flatMenuItems.indexOf(currentKey);
+				if (currentIndex === -1) return;
+				const nextIndex =
+					e.key === 'ArrowDown'
+						? (currentIndex + 1) % flatMenuItems.length
+						: (currentIndex - 1 + flatMenuItems.length) % flatMenuItems.length;
+				navigate(flatMenuItems[nextIndex] as string);
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [location.pathname, menuItems, navigate]);
 
-        {/* Menu */}
-        <Menu
-          mode="inline"
-          selectedKeys={[getSelectedKey()]}
-          items={menuItems}
-          onClick={handleMenuClick}
-          style={{
-            borderRight: 0,
-            background: 'transparent',
-            fontSize: 14,
-            padding: '8px',
-          }}
-        />
-      </Sider>
+	// Get selected menu key based on current path
+	const getSelectedKey = () => {
+		const path = location.pathname;
+		// Student paths
+		if (path.startsWith('/student/creator-dashboard')) return '/student/creator-dashboard';
+		if (path.startsWith('/student/dashboard')) return '/student/dashboard';
+		if (path.startsWith('/student/assessments')) return '/student/assessments';
+		if (path.startsWith('/student/manage-assessments')) return '/student/manage-assessments';
+		if (path.startsWith('/student/questions')) return '/student/questions';
+		if (path.startsWith('/student/question-banks')) return '/student/question-banks';
+		if (path.startsWith('/student/groups')) return '/student/groups';
+		if (path.startsWith('/student/history')) return '/student/history';
+		if (path.startsWith('/student/take')) return '/student/assessments';
+		if (path.startsWith('/student/results')) return '/student/history';
+		// Admin/Teacher paths
+		if (path.startsWith('/users')) return '/users';
+		if (path.startsWith('/groups')) return '/groups';
+		if (path.startsWith('/assessments')) return '/assessments';
+		if (path.startsWith('/questions')) return '/questions';
+		if (path.startsWith('/question-banks')) return '/question-banks';
+		if (path.startsWith('/grading')) return '/grading';
+		return path;
+	};
 
-      <Layout
-        style={{
-          marginLeft: siderWidth,
-          transition: 'margin-left 0.2s',
-        }}
-      >
-        {/* Header */}
-        <Header
-          style={{
-            padding: `0 ${token.paddingLG}px`,
-            background: mode === 'dark' ? '#1a1a1a' : '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            borderBottom: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
-            position: 'sticky',
-            top: 0,
-            zIndex: 999,
-            ...elevation[1],
-          }}
-        >
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: 18,
-              width: 48,
-              height: 48,
-              borderRadius: token.borderRadius,
-            }}
-          />
+	// Calculate sider width based on collapsed state
+	const siderWidth = collapsed ? 80 : 240;
 
-          <Space size="middle">
-            {/* Theme toggle */}
-            <Button
-              type="text"
-              icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
-              onClick={toggleDark}
-              style={{
-                fontSize: 18,
-                width: 40,
-                height: 40,
-                borderRadius: token.borderRadius,
-              }}
-            />
+	return (
+		<Layout style={{ minHeight: '100vh' }}>
+			<Sider
+				trigger={null}
+				collapsible
+				collapsed={collapsed}
+				breakpoint="lg"
+				width={240}
+				collapsedWidth={80}
+				style={{
+					overflow: 'auto',
+					height: '100vh',
+					position: 'fixed',
+					left: 0,
+					top: 0,
+					bottom: 0,
+					zIndex: 1000,
+					background: token.colorBgContainer,
+					borderRight: `1px solid ${token.colorBorderSecondary}`,
+				}}
+			>
+				{/* Logo */}
+				<div
+					style={{
+						height: 64,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: collapsed ? 'center' : 'flex-start',
+						color: token.colorPrimary,
+						fontSize: collapsed ? 24 : 18,
+						fontWeight: 700,
+						padding: `0 ${token.paddingLG}px`,
+						borderBottom: `1px solid ${token.colorBorderSecondary}`,
+						letterSpacing: '-0.5px',
+					}}
+				>
+					{collapsed ? (
+						'🎓'
+					) : (
+						<Space size={12}>
+							<span style={{ fontSize: 24 }}>🎓</span>
+							<span>SAP</span>
+						</Space>
+					)}
+				</div>
 
-            {/* User dropdown */}
-            <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }} placement="bottomRight">
-              <Button
-                type="text"
-                icon={<UserOutlined />}
-                style={{
-                  height: 40,
-                  borderRadius: token.borderRadius,
-                  fontWeight: 500,
-                }}
-              >
-                {!screens.xs && (user?.name || 'User')}
-              </Button>
-            </Dropdown>
-          </Space>
-        </Header>
+				{/* Menu */}
+				<Menu
+					mode="inline"
+					selectedKeys={[getSelectedKey()]}
+					items={menuItems}
+					onClick={handleMenuClick}
+					style={{
+						borderRight: 0,
+						background: 'transparent',
+						fontSize: 14,
+						padding: '8px',
+					}}
+				/>
+			</Sider>
 
-        {/* Content */}
-        <Content
-          style={{
-            margin: token.marginLG,
-            padding: token.paddingXL,
-            minHeight: 280,
-            background: token.colorBgContainer,
-            borderRadius: 20,
-            border: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
-            ...elevation[0],
-          }}
-        >
-          <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
-  );
+			<Layout
+				style={{
+					marginLeft: siderWidth,
+					transition: 'margin-left 0.2s',
+					background: token.colorBgLayout,
+				}}
+			>
+				{/* Header */}
+				<Header
+					style={{
+						padding: `0 ${token.paddingLG}px`,
+						background: token.colorBgContainer,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						borderBottom: `1px solid ${token.colorBorderSecondary}`,
+						position: 'sticky',
+						top: 0,
+						zIndex: 999,
+					}}
+				>
+					<Button
+						type="text"
+						icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+						onClick={() => setCollapsed(!collapsed)}
+						style={{
+							fontSize: 18,
+							width: 48,
+							height: 48,
+						}}
+					/>
+
+					<Space size="middle">
+						{/* Theme toggle */}
+						<Button
+							type="text"
+							icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
+							onClick={toggleDark}
+							style={{
+								fontSize: 18,
+								width: 40,
+								height: 40,
+								borderRadius: token.borderRadius,
+							}}
+						/>
+
+						{/* Notifications */}
+						<NotificationDropdown />
+
+						{/* User dropdown */}
+						<Dropdown
+							menu={{
+								items: userMenuItems,
+								onClick: handleUserMenuClick,
+							}}
+							placement="bottomRight"
+						>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: 12,
+									cursor: 'pointer',
+									padding: '4px 12px',
+									borderRadius: token.borderRadius,
+									transition: 'background 0.2s',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.background = token.colorFillTertiary;
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.background = 'transparent';
+								}}
+							>
+								<Avatar
+									size={32}
+									icon={<UserOutlined />}
+									src={user?.avatar}
+									style={{
+										backgroundColor: token.colorPrimary,
+										flexShrink: 0,
+									}}
+								/>
+								{!screens.xs && (
+									<span
+										style={{
+											fontWeight: 500,
+											fontSize: 14,
+										}}
+									>
+										{user?.name || 'User'}
+									</span>
+								)}
+							</div>
+						</Dropdown>
+					</Space>
+				</Header>
+
+				{/* Content */}
+				<Content
+					style={{
+						margin: token.marginLG,
+						padding: token.paddingXL,
+						minHeight: 280,
+						background: token.colorBgContainer,
+						borderRadius: 20,
+						border: `1px solid ${token.colorBorderSecondary}`,
+						...elevation[0],
+					}}
+				>
+					<Outlet />
+				</Content>
+			</Layout>
+		</Layout>
+	);
 };
 
 export default MainLayout;

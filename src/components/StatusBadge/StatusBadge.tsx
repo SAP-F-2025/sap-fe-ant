@@ -1,90 +1,89 @@
-import React from 'react';
-import { Tag } from 'antd';
-import type { TagProps } from 'antd';
 import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
-  ExclamationCircleOutlined,
-  SyncOutlined,
-  MinusCircleOutlined,
+	CheckCircleOutlined,
+	ClockCircleOutlined,
+	CloseCircleOutlined,
+	ExclamationCircleOutlined,
+	MinusCircleOutlined,
+	SyncOutlined,
 } from '@ant-design/icons';
+import type { TagProps } from 'antd';
+import { Tag } from 'antd';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-export type StatusType = 
-  | 'active' 
-  | 'inactive' 
-  | 'draft' 
-  | 'archived' 
-  | 'pending' 
-  | 'completed' 
-  | 'failed' 
-  | 'in-progress';
+export type StatusType =
+	| 'active'
+	| 'inactive'
+	| 'draft'
+	| 'archived'
+	| 'pending'
+	| 'completed'
+	| 'failed'
+	| 'in-progress';
 
 interface StatusBadgeProps extends Omit<TagProps, 'color' | 'icon'> {
-  status: StatusType;
-  showIcon?: boolean;
+	status: StatusType;
+	showIcon?: boolean;
 }
 
-const statusConfig: Record<StatusType, { color: string; icon: React.ReactNode; label: string }> = {
-  active: {
-    color: 'success',
-    icon: <CheckCircleOutlined />,
-    label: 'Hoạt động',
-  },
-  inactive: {
-    color: 'default',
-    icon: <MinusCircleOutlined />,
-    label: 'Không hoạt động',
-  },
-  draft: {
-    color: 'default',
-    icon: <ClockCircleOutlined />,
-    label: 'Nháp',
-  },
-  archived: {
-    color: 'warning',
-    icon: <ExclamationCircleOutlined />,
-    label: 'Đã lưu trữ',
-  },
-  pending: {
-    color: 'processing',
-    icon: <ClockCircleOutlined />,
-    label: 'Chờ xử lý',
-  },
-  completed: {
-    color: 'success',
-    icon: <CheckCircleOutlined />,
-    label: 'Hoàn thành',
-  },
-  failed: {
-    color: 'error',
-    icon: <CloseCircleOutlined />,
-    label: 'Thất bại',
-  },
-  'in-progress': {
-    color: 'processing',
-    icon: <SyncOutlined spin />,
-    label: 'Đang xử lý',
-  },
-};
+const statusConfig: Record<StatusType, { color: string; icon: React.ReactNode; labelKey: string }> =
+	{
+		active: {
+			color: 'success',
+			icon: <CheckCircleOutlined />,
+			labelKey: 'statusBadge.active',
+		},
+		inactive: {
+			color: 'default',
+			icon: <MinusCircleOutlined />,
+			labelKey: 'statusBadge.inactive',
+		},
+		draft: {
+			color: 'default',
+			icon: <ClockCircleOutlined />,
+			labelKey: 'statusBadge.draft',
+		},
+		archived: {
+			color: 'warning',
+			icon: <ExclamationCircleOutlined />,
+			labelKey: 'statusBadge.archived',
+		},
+		pending: {
+			color: 'processing',
+			icon: <ClockCircleOutlined />,
+			labelKey: 'statusBadge.pending',
+		},
+		completed: {
+			color: 'success',
+			icon: <CheckCircleOutlined />,
+			labelKey: 'statusBadge.completed',
+		},
+		failed: {
+			color: 'error',
+			icon: <CloseCircleOutlined />,
+			labelKey: 'statusBadge.failed',
+		},
+		'in-progress': {
+			color: 'processing',
+			icon: <SyncOutlined spin />,
+			labelKey: 'statusBadge.inProgress',
+		},
+	};
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ 
-  status, 
-  showIcon = true,
-  children,
-  ...props 
+export const StatusBadge: React.FC<StatusBadgeProps> = ({
+	status,
+	showIcon = true,
+	children,
+	...props
 }) => {
-  const config = statusConfig[status];
+	const { t } = useTranslation();
+	const config = statusConfig[status];
 
-  return (
-    <Tag
-      color={config.color}
-      icon={showIcon ? config.icon : undefined}
-      {...props}
-    >
-      {children || config.label}
-    </Tag>
-  );
+	return (
+		<Tag color={config.color} icon={showIcon ? config.icon : undefined} {...props}>
+			{children || t(config.labelKey)}
+		</Tag>
+	);
 };
 
 export default StatusBadge;

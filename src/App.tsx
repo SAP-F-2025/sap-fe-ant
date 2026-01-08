@@ -1,25 +1,60 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './theme/ThemeProvider';
-import { QueryProvider } from './providers/QueryProvider';
-import { AuthProvider } from './contexts/AuthContext';
+import { App as AntdApp } from 'antd';
+import React, { useRef } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
+import ExamLayout from './components/Layout/ExamLayout';
 import MainLayout from './components/Layout/MainLayout';
+import { NotificationProvider } from './components/NotificationProvider/NotificationProvider';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import RoleBasedRedirect from './components/RoleBasedRedirect/RoleBasedRedirect';
+import { SettingsModalProvider, useSettingsModal } from './components/SettingsModal';
+import ShortcutsModal from './components/ShortcutsModal';
+import { AuthProvider } from './contexts/AuthContext';
+import { NotificationContextProvider } from './context/NotificationContext';
+import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
+import { QueryProvider } from './providers/QueryProvider';
+import { ThemeProvider, useTheme } from './theme/ThemeProvider';
 
 // Pages
-import Dashboard from './pages/Dashboard';
-import UserManagement from './pages/Users/UserManagement';
-import AssessmentList from './pages/Assessments/AssessmentList';
-import AssessmentForm from './pages/Assessments/AssessmentForm';
 import AssessmentDetail from './pages/Assessments/AssessmentDetail';
-import QuestionList from './pages/Questions/QuestionList';
-import QuestionForm from './pages/Questions/QuestionForm';
-import QuestionBankList from './pages/QuestionBanks/QuestionBankList';
-import QuestionBankForm from './pages/QuestionBanks/QuestionBankForm';
-import GradingList from './pages/Grading/GradingList';
-import Login from './pages/Auth/Login';
+import AssessmentForm from './pages/Assessments/AssessmentForm';
+import AssessmentList from './pages/Assessments/AssessmentList';
 import Callback from './pages/Auth/Callback';
+import Login from './pages/Auth/Login';
+import Dashboard from './pages/Dashboard';
+import GradingDetail from './pages/Grading/GradingDetail';
+import GradingList from './pages/Grading/GradingList';
+import AttemptLiveMonitor from './pages/Grading/AttemptLiveMonitor';
+import PublicQuestionBanks from './pages/QuestionBanks/PublicQuestionBanks';
+import QuestionBankDetail from './pages/QuestionBanks/QuestionBankDetail';
+import QuestionBankForm from './pages/QuestionBanks/QuestionBankForm';
+import QuestionBankList from './pages/QuestionBanks/QuestionBankList';
+import SharedQuestionBanks from './pages/QuestionBanks/SharedQuestionBanks';
+import QuestionForm from './pages/Questions/QuestionForm';
+import QuestionList from './pages/Questions/QuestionList';
+import UserManagement from './pages/Users/UserManagement';
+
+// Group Pages
+import GroupList from './pages/Groups/GroupList';
+import GroupDetail from './pages/Groups/GroupDetail';
+import GroupForm from './pages/Groups/GroupForm';
+import JoinGroupPage from './pages/Groups/JoinGroupPage';
+
+// Student Pages
+import AssessmentResults from './pages/Student/AssessmentResults';
+import AvailableAssessments from './pages/Student/AvailableAssessments';
+import FaceVerification from './pages/Student/FaceVerification';
+import StudentDashboard from './pages/Student/StudentDashboard';
+import CreatorDashboard from './pages/Student/CreatorDashboard';
+import StudentGroups from './pages/Student/StudentGroups';
+import StudentHistory from './pages/Student/StudentHistory';
+import StudentAssessmentList from './pages/Student/StudentAssessmentList';
+import TakeAssessment from './pages/Exam';
+
+// Teacher Pages
+import MyAssessments from './pages/Teacher/MyAssessments';
+import StudentProgress from './pages/Teacher/StudentProgress';
+import TeacherDashboard from './pages/Teacher/TeacherDashboard';
 
 /**
  * Main App Component
@@ -30,67 +65,350 @@ import Callback from './pages/Auth/Callback';
  * - BrowserRouter for routing
  */
 
+const AppRoutes: React.FC = () => {
+	const shortcutsRef = useRef<any>(null);
+	const { openSettings } = useSettingsModal();
+	const { toggleDark } = useTheme();
+	const location = useLocation();
+
+	useGlobalShortcuts({
+		onOpenShortcuts: () => shortcutsRef.current?.toggle(),
+		onOpenSettings: () => openSettings('my-account'),
+		onToggleTheme: toggleDark,
+	});
+
+	// Determine active context based on current route
+	const getActiveContext = () => {
+		const path = location.pathname;
+		if (path.includes('/student/take/')) return 'exam';
+		if (path.includes('/settings')) return 'settings';
+		return 'global';
+	};
+
+	return (
+		<>
+			<Routes>
+				{/* Public routes */}
+				<Route path="/login" element={<Login />} />
+				<Route path="/callback" element={<Callback />} />
+
+				{/* Exam mode route - separate layout without navigation */}
+				<Route
+					path="/student/take/:attemptId"
+					element={
+						<ProtectedRoute>
+							<ExamLayout />
+						</ProtectedRoute>
+					}
+				>
+					<Route index element={<TakeAssessment />} />
+				</Route>
+
+				{/* Join group via invite link - needs auth */}
+				<Route
+					path="/join/:token"
+					element={
+						<ProtectedRoute>
+							<JoinGroupPage />
+						</ProtectedRoute>
+					}
+				/>
+
+				{/* Protected routes */}
+				<Route
+					path="/"
+					element={
+						<ProtectedRoute>
+							<MainLayout />
+						</ProtectedRoute>
+					}
+				>
+					<Route
+						index
+						element={
+							<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<Navigate to="/dashboard" replace />
+							</RoleBasedRedirect>
+						}
+					/>
+					<Route
+						path="dashboard"
+						element={
+							<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+								<Dashboard />
+							</RoleBasedRedirect>
+						}
+					/>
+
+					{/* Users Management */}
+					<Route
+						path="users"
+						element={
+							<RoleBasedRedirect allowedRoles={['admin']}>
+								<UserManagement />
+							</RoleBasedRedirect>
+						}
+					/>
+
+					{/* Groups Management - Admin only */}
+					<Route path="groups">
+						<Route
+							index
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<GroupList />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="new"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<GroupForm />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path=":id"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<GroupDetail />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path=":id/edit"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin']}>
+									<GroupForm />
+								</RoleBasedRedirect>
+							}
+						/>
+					</Route>
+
+					{/* Assessment routes - Admin/Teacher only */}
+					<Route path="assessments">
+						<Route
+							index
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<AssessmentList />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="new"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<AssessmentForm />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="edit/:id"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<AssessmentForm />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path=":id"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<AssessmentDetail />
+								</RoleBasedRedirect>
+							}
+						/>
+					</Route>
+
+					{/* Question routes - Admin/Teacher only */}
+					<Route path="questions">
+						<Route
+							index
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<QuestionList />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="new"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<QuestionForm />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="edit/:id"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<QuestionForm />
+								</RoleBasedRedirect>
+							}
+						/>
+					</Route>
+
+					{/* Question Bank routes - Admin/Teacher only */}
+					<Route path="question-banks">
+						<Route
+							index
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<QuestionBankList />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="public"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<PublicQuestionBanks />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="shared"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<SharedQuestionBanks />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="new"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<QuestionBankForm />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="edit/:id"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<QuestionBankForm />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path=":id"
+							element={
+								<RoleBasedRedirect allowedRoles={['admin', 'teacher']}>
+									<QuestionBankDetail />
+								</RoleBasedRedirect>
+							}
+						/>
+					</Route>
+
+					{/* Grading routes - Accessible by admin and group owners/co-owners */}
+					{/* Backend API controls actual access based on group membership */}
+					<Route path="grading">
+						<Route index element={<GradingList />} />
+						<Route path=":id" element={<GradingDetail />} />
+						<Route path=":id/live" element={<AttemptLiveMonitor />} />
+					</Route>
+
+					{/* Student routes */}
+					<Route path="student">
+						<Route index element={<Navigate to="/student/dashboard" replace />} />
+						<Route path="dashboard" element={<StudentDashboard />} />
+						<Route path="creator-dashboard" element={<CreatorDashboard />} />
+						<Route path="assessments" element={<AvailableAssessments />} />
+						<Route path="face-verification" element={<FaceVerification />} />
+						{/* Note: take/:attemptId moved to ExamLayout below */}
+						<Route path="results/:attemptId" element={<AssessmentResults />} />
+						<Route path="history" element={<StudentHistory />} />
+						{/* Student Groups */}
+						<Route path="groups" element={<StudentGroups />} />
+						<Route path="groups/:id" element={<GroupDetail />} />
+						<Route path="groups/:id/edit" element={<GroupForm />} />
+
+						{/* Student Manage Assessments */}
+						<Route path="manage-assessments" element={<StudentAssessmentList />} />
+						<Route path="manage-assessments/new" element={<AssessmentForm />} />
+						<Route path="manage-assessments/:id" element={<AssessmentDetail />} />
+						<Route path="manage-assessments/:id/edit" element={<AssessmentForm />} />
+
+						{/* Student Question Management */}
+						<Route path="questions" element={<QuestionList />} />
+						<Route path="questions/new" element={<QuestionForm />} />
+						<Route path="questions/edit/:id" element={<QuestionForm />} />
+
+						{/* Student Question Banks */}
+						<Route path="question-banks" element={<QuestionBankList />} />
+						<Route path="question-banks/public" element={<PublicQuestionBanks />} />
+						<Route path="question-banks/shared" element={<SharedQuestionBanks />} />
+						<Route path="question-banks/new" element={<QuestionBankForm />} />
+						<Route path="question-banks/edit/:id" element={<QuestionBankForm />} />
+						<Route path="question-banks/:id" element={<QuestionBankDetail />} />
+					</Route>
+
+					{/* Teacher routes */}
+					<Route path="teacher">
+						<Route
+							index
+							element={
+								<RoleBasedRedirect allowedRoles={['teacher', 'admin']}>
+									<Navigate to="/teacher/dashboard" replace />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="dashboard"
+							element={
+								<RoleBasedRedirect allowedRoles={['teacher', 'admin']}>
+									<TeacherDashboard />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="my-assessments"
+							element={
+								<RoleBasedRedirect allowedRoles={['teacher', 'admin']}>
+									<MyAssessments />
+								</RoleBasedRedirect>
+							}
+						/>
+						<Route
+							path="student-progress"
+							element={
+								<RoleBasedRedirect allowedRoles={['teacher', 'admin']}>
+									<StudentProgress />
+								</RoleBasedRedirect>
+							}
+						/>
+					</Route>
+				</Route>
+			</Routes>
+			<ShortcutsModal ref={shortcutsRef} activeContext={getActiveContext()} />
+		</>
+	);
+};
+
 const App: React.FC = () => {
-  return (
-    <ErrorBoundary>
-      <ThemeProvider defaultMode="light">
-        <QueryProvider>
-          <AuthProvider>
-            <BrowserRouter>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/callback" element={<Callback />} />
-
-                {/* Protected routes */}
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <MainLayout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-
-                  {/* Users Management */}
-                  <Route path="users" element={<UserManagement />} />
-
-                  {/* Assessment routes */}
-                  <Route path="assessments">
-                    <Route index element={<AssessmentList />} />
-                    <Route path="new" element={<AssessmentForm />} />
-                    <Route path="edit/:id" element={<AssessmentForm />} />
-                    <Route path=":id" element={<AssessmentDetail />} />
-                  </Route>
-
-                  {/* Question routes */}
-                  <Route path="questions">
-                    <Route index element={<QuestionList />} />
-                    <Route path="new" element={<QuestionForm />} />
-                    <Route path="edit/:id" element={<QuestionForm />} />
-                  </Route>
-
-                  {/* Question Bank routes */}
-                  <Route path="question-banks">
-                    <Route index element={<QuestionBankList />} />
-                    <Route path="new" element={<QuestionBankForm />} />
-                    <Route path="edit/:id" element={<QuestionBankForm />} />
-                  </Route>
-
-                  {/* Grading routes */}
-                  <Route path="grading">
-                    <Route index element={<GradingList />} />
-                  </Route>
-                </Route>
-              </Routes>
-            </BrowserRouter>
-          </AuthProvider>
-        </QueryProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
-  );
+	return (
+		<ErrorBoundary>
+			<ThemeProvider defaultMode="light">
+				<AntdApp>
+					<NotificationProvider>
+						<QueryProvider>
+							<AuthProvider>
+								<NotificationContextProvider>
+									<SettingsModalProvider>
+										<BrowserRouter>
+											<AppRoutes />
+										</BrowserRouter>
+									</SettingsModalProvider>
+								</NotificationContextProvider>
+							</AuthProvider>
+						</QueryProvider>
+					</NotificationProvider>
+				</AntdApp>
+			</ThemeProvider>
+		</ErrorBoundary>
+	);
 };
 
 export default App;

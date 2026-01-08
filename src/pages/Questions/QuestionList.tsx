@@ -1,363 +1,610 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Table,
-  Button,
-  Space,
-  Input,
-  Select,
-  Tag,
-  Typography,
-  Modal,
-  message,
-  Tooltip,
-  Row,
-  Col,
-  Card,
-  Flex,
-  Avatar,
-} from 'antd';
-import { StatusBadge } from '../../components/StatusBadge/StatusBadge';
-import { elevation } from '../../styles/elevation';
-import { cardColors } from '../../styles/cardColors';
-import type { ColumnsType } from 'antd/es/table';
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  SearchOutlined,
-  QuestionCircleOutlined,
-  CopyOutlined,
-  BulbOutlined,
-  ThunderboltOutlined,
-  FireOutlined,
+	BulbOutlined,
+	CopyOutlined,
+	DeleteOutlined,
+	EditOutlined,
+	ExportOutlined,
+	FireOutlined,
+	ImportOutlined,
+	PlusOutlined,
+	QuestionCircleOutlined,
+	SearchOutlined,
+	ThunderboltOutlined,
 } from '@ant-design/icons';
-import { Question, QuestionType, DifficultyLevel } from '../../types';
+import {
+	Avatar,
+	Button,
+	Card,
+	Col,
+	Flex,
+	Input,
+	message,
+	Popconfirm,
+	Row,
+	Select,
+	Space,
+	Table,
+	Tag,
+	Tooltip,
+	Typography,
+} from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
+import QuestionExportModal from '../../components/Questions/QuestionExportModal';
+import QuestionImportModal from '../../components/Questions/QuestionImportModal';
 import questionService from '../../services/questionService';
+import { cardColors } from '../../styles/cardColors';
+import { elevation } from '../../styles/elevation';
 import { useThemeToken } from '../../theme/ThemeProvider';
+import { DifficultyLevel, Question, QuestionType } from '../../types';
+import { showSuccess } from '../../utils/errorHandler';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
 
 const QuestionList: React.FC = () => {
-  const navigate = useNavigate();
-  const token = useThemeToken();
-  const [loading, setLoading] = useState(false);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState({
-    page: 1,
-    size: 10,
-    type: undefined as string | undefined,
-    difficulty: undefined as string | undefined,
-    search: '',
-  });
+	const { t } = useTranslation();
+	const navigate = useNavigate();
+	const location = useLocation();
+	const token = useThemeToken();
+	const [loading, setLoading] = useState(false);
+	const [questions, setQuestions] = useState<Question[]>([]);
+	const [total, setTotal] = useState(0);
+	const [allQuestionsStats, setAllQuestionsStats] = useState<Question[]>([]);
+	const [filters, setFilters] = useState({
+		page: 1,
+		size: 10,
+		type: undefined as string | undefined,
+		difficulty: undefined as string | undefined,
+		search: '',
+	});
 
-  // Calculate statistics
-  const stats = useMemo(() => {
-    return {
-      total: questions.length,
-      easy: questions.filter((q) => q.difficulty === DifficultyLevel.Easy).length,
-      medium: questions.filter((q) => q.difficulty === DifficultyLevel.Medium).length,
-      hard: questions.filter((q) => q.difficulty === DifficultyLevel.Hard).length,
-    };
-  }, [questions]);
+	// Detect if we're in student context
+	const isStudentContext = location.pathname.startsWith('/student');
+	const basePath = isStudentContext ? '/student/questions' : '/questions';
 
-  useEffect(() => {
-    fetchQuestions();
-  }, [filters]);
+	// Import/Export modal states
+	const [importModalOpen, setImportModalOpen] = useState(false);
+	const [exportModalOpen, setExportModalOpen] = useState(false);
+	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+	const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
 
-  const fetchQuestions = async () => {
-    setLoading(true);
-    try {
-      const response = await questionService.getQuestions(filters);
-      setQuestions(response.data);
-      setTotal(response.total);
-    } catch (error) {
-      message.error('Không thể tải danh sách câu hỏi');
-    } finally {
-      setLoading(false);
-    }
-  };
+	// Calculate statistics from ALL questions, not just current page
+	const stats = useMemo(() => {
+		return {
+			total: total, // Use total from API
+			easy:
+				allQuestionsStats?.filter((q) => q.difficulty === DifficultyLevel.Easy).length || 0,
+			medium:
+				allQuestionsStats?.filter((q) => q.difficulty === DifficultyLevel.Medium).length ||
+				0,
+			hard:
+				allQuestionsStats?.filter((q) => q.difficulty === DifficultyLevel.Hard).length || 0,
+		};
+	}, [allQuestionsStats, total]);
 
-  const handleDelete = (id: number) => {
-    Modal.confirm({
-      title: 'Xác nhận xóa',
-      content: 'Bạn có chắc chắn muốn xóa câu hỏi này?',
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          await questionService.deleteQuestion(id);
-          message.success('Xóa câu hỏi thành công');
-          fetchQuestions();
-        } catch (error) {
-          message.error('Không thể xóa câu hỏi');
-        }
-      },
-    });
-  };
+	useEffect(() => {
+		fetchQuestions();
+	}, [filters]);
 
-  const handleDuplicate = async (id: number) => {
-    try {
-      const question = questions.find(q => q.id === id);
-      if (!question) return;
-      
-      const { id: _, created_at, updated_at, usage_count, ...questionData } = question;
-      await questionService.createQuestion({
-        ...questionData,
-        text: `${questionData.text} (Copy)`,
-      });
-      message.success('Sao chép câu hỏi thành công');
-      fetchQuestions();
-    } catch (error) {
-      message.error('Không thể sao chép câu hỏi');
-    }
-  };
+	// Fetch all questions for statistics (only once on mount)
+	useEffect(() => {
+		fetchAllQuestionsForStats();
+	}, []);
 
-  const getQuestionTypeLabel = (type: QuestionType) => {
-    const typeConfig = {
-      [QuestionType.MultipleChoice]: { color: 'blue', text: 'Trắc nghiệm' },
-      [QuestionType.TrueFalse]: { color: 'green', text: 'Đúng/Sai' },
-      [QuestionType.Essay]: { color: 'purple', text: 'Tự luận' },
-      [QuestionType.FillBlank]: { color: 'orange', text: 'Điền khuyết' },
-      [QuestionType.Matching]: { color: 'cyan', text: 'Ghép cặp' },
-      [QuestionType.Ordering]: { color: 'magenta', text: 'Sắp xếp' },
-      [QuestionType.ShortAnswer]: { color: 'geekblue', text: 'Trả lời ngắn' },
-    };
-    const config = typeConfig[type];
-    return <Tag color={config.color}>{config.text}</Tag>;
-  };
+	const fetchQuestions = async () => {
+		setLoading(true);
+		try {
+			const response = await questionService.getQuestions(filters);
+			setQuestions(response.questions || []);
+			setTotal(response.total);
+		} catch (error) {
+			message.error(t('questionList.loadError'));
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const getDifficultyTag = (difficulty: DifficultyLevel) => {
-    const difficultyConfig = {
-      [DifficultyLevel.Easy]: { color: 'success', text: 'Dễ' },
-      [DifficultyLevel.Medium]: { color: 'warning', text: 'Trung bình' },
-      [DifficultyLevel.Hard]: { color: 'error', text: 'Khó' },
-    };
-    const config = difficultyConfig[difficulty];
-    return <Tag color={config.color}>{config.text}</Tag>;
-  };
+	// Fetch all questions for statistics calculation
+	const fetchAllQuestionsForStats = async () => {
+		try {
+			// Fetch all questions with a large page size to get accurate difficulty counts
+			const response = await questionService.getQuestions({
+				page: 1,
+				size: 10000,
+			});
+			setAllQuestionsStats(response.questions || []);
+		} catch (error) {
+			console.error('Failed to fetch question statistics:', error);
+		}
+	};
 
-  const columns: ColumnsType<Question> = [
-    {
-      title: 'Câu hỏi',
-      dataIndex: 'text',
-      key: 'text',
-      width: 400,
-      render: (text, record) => (
-        <Space direction="vertical" size={0}>
-          <Text strong>
-            {text.length > 80 ? `${text.substring(0, 80)}...` : text}
-          </Text>
-          <Space size="small">
-            {record.tags?.slice(0, 3).map((tag) => (
-              <Tag key={tag} style={{ fontSize: 11 }}>
-                {tag}
-              </Tag>
-            ))}
-          </Space>
-        </Space>
-      ),
-    },
-    {
-      title: 'Loại',
-      dataIndex: 'type',
-      key: 'type',
-      width: 130,
-      render: (type) => getQuestionTypeLabel(type),
-    },
-    {
-      title: 'Độ khó',
-      dataIndex: 'difficulty',
-      key: 'difficulty',
-      width: 110,
-      render: (difficulty) => getDifficultyTag(difficulty),
-    },
-    {
-      title: 'Điểm',
-      dataIndex: 'points',
-      key: 'points',
-      width: 80,
-      align: 'center',
-    },
-    {
-      title: 'Lượt sử dụng',
-      dataIndex: 'usage_count',
-      key: 'usage_count',
-      width: 120,
-      align: 'center',
-      render: (count) => count || 0,
-    },
-    {
-      title: 'Thao tác',
-      key: 'action',
-      fixed: 'right',
-      width: 150,
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="Chỉnh sửa">
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => navigate(`/questions/edit/${record.id}`)}
-            />
-          </Tooltip>
-          <Tooltip title="Sao chép">
-            <Button 
-              type="text" 
-              icon={<CopyOutlined />}
-              onClick={() => handleDuplicate(record.id)}
-            />
-          </Tooltip>
-          <Tooltip title="Xóa">
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
-            />
-          </Tooltip>
-        </Space>
-      ),
-    },
-  ];
+	const handleDelete = async (id: number) => {
+		try {
+			await questionService.deleteQuestion(id);
+			showSuccess(t('questionList.deleteSuccess'));
+			fetchQuestions();
+		} catch (error) {
+			// message.error('Failed to delete question');
+		}
+	};
 
-  return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <Flex justify="space-between" align="center">
-        <Space direction="vertical" size={4}>
-          <Title level={2} style={{ margin: 0, fontWeight: 600 }}>
-            <QuestionCircleOutlined style={{ marginRight: 8 }} /> Quản lý câu hỏi
-          </Title>
-          <Text type="secondary" style={{ fontSize: 14 }}>
-            Tạo và quản lý ngân hàng câu hỏi
-          </Text>
-        </Space>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          size="large"
-          onClick={() => navigate('/questions/new')}
-          style={{ fontWeight: 500, height: 44, borderRadius: 10, paddingLeft: 24, paddingRight: 24 }}
-        >
-          Tạo câu hỏi mới
-        </Button>
-      </Flex>
+	const handleDuplicate = async (id: number) => {
+		try {
+			const question = questions.find((q) => q.id === id);
+			if (!question) return;
 
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.purple, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<QuestionCircleOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.total}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Tổng câu hỏi</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.green, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<BulbOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.easy}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Dễ</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.orange, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<ThunderboltOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.medium}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Trung bình</Text>
-            </Flex>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} style={{ background: cardColors.red, borderRadius: 16, ...elevation[1] }} styles={{ body: { padding: 20 } }}>
-            <Flex vertical align="center" gap={12}>
-              <Avatar size={44} icon={<FireOutlined style={{ fontSize: 20 }} />} style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: 'none' }} />
-              <Title level={3} style={{ color: 'white', margin: 0, fontSize: 32, fontWeight: 700 }}>{stats.hard}</Title>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: 13, fontWeight: 500 }}>Khó</Text>
-            </Flex>
-          </Card>
-        </Col>
-      </Row>
+			const { id: _, created_at, updated_at, usage_count, ...questionData } = question;
+			await questionService.createQuestion({
+				...questionData,
+				text: `${questionData.text} (Copy)`,
+			});
+			showSuccess(t('questionList.duplicateSuccess'));
+			fetchQuestions();
+		} catch (error) {
+			// message.error('Failed to duplicate question');
+		}
+	};
 
-      <Card style={{ ...elevation[1], borderRadius: 16 }}>
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          <Row gutter={16}>
-            <Col flex="auto">
-              <Search
-                placeholder="Tìm kiếm câu hỏi..."
-                allowClear
-                enterButton={<SearchOutlined />}
-                size="large"
-                onSearch={(value) =>
-                  setFilters({ ...filters, search: value, page: 1 })
-                }
-              />
-            </Col>
-            <Col>
-              <Select
-                placeholder="Loại câu hỏi"
-                style={{ width: 150 }}
-                size="large"
-                allowClear
-                onChange={(value) =>
-                  setFilters({ ...filters, type: value, page: 1 })
-                }
-                options={[
-                  { label: 'Trắc nghiệm', value: QuestionType.MultipleChoice },
-                  { label: 'Đúng/Sai', value: QuestionType.TrueFalse },
-                  { label: 'Tự luận', value: QuestionType.Essay },
-                  { label: 'Điền khuyết', value: QuestionType.FillBlank },
-                  { label: 'Ghép cặp', value: QuestionType.Matching },
-                  { label: 'Sắp xếp', value: QuestionType.Ordering },
-                  { label: 'Trả lời ngắn', value: QuestionType.ShortAnswer },
-                ]}
-              />
-            </Col>
-            <Col>
-              <Select
-                placeholder="Độ khó"
-                style={{ width: 130 }}
-                size="large"
-                allowClear
-                onChange={(value) =>
-                  setFilters({ ...filters, difficulty: value, page: 1 })
-                }
-                options={[
-                  { label: 'Dễ', value: DifficultyLevel.Easy },
-                  { label: 'Trung bình', value: DifficultyLevel.Medium },
-                  { label: 'Khó', value: DifficultyLevel.Hard },
-                ]}
-              />
-            </Col>
-          </Row>
+	const getQuestionTypeLabel = (type: QuestionType) => {
+		const typeConfig = {
+			[QuestionType.MultipleChoice]: {
+				color: 'blue',
+				text: t('question.type.multipleChoice'),
+			},
+			[QuestionType.TrueFalse]: {
+				color: 'green',
+				text: t('question.type.trueFalse'),
+			},
+			[QuestionType.Essay]: {
+				color: 'purple',
+				text: t('question.type.essay'),
+			},
+			[QuestionType.FillBlank]: {
+				color: 'orange',
+				text: t('question.type.fillBlank'),
+			},
+			[QuestionType.Matching]: {
+				color: 'cyan',
+				text: t('question.type.matching'),
+			},
+			[QuestionType.Ordering]: {
+				color: 'magenta',
+				text: t('question.type.ordering'),
+			},
+			[QuestionType.ShortAnswer]: {
+				color: 'geekblue',
+				text: t('question.type.shortAnswer'),
+			},
+		};
+		const config = typeConfig[type];
+		return <Tag color={config.color}>{config.text}</Tag>;
+	};
 
-          <Table
-            columns={columns}
-            dataSource={questions}
-            rowKey="id"
-            loading={loading}
-            scroll={{ x: 1200 }}
-            pagination={{
-              current: filters.page,
-              pageSize: filters.size,
-              total: total,
-              showSizeChanger: true,
-              showTotal: (total) => `Tổng ${total} câu hỏi`,
-              onChange: (page, size) =>
-                setFilters({ ...filters, page, size }),
-            }}
-          />
-        </Space>
-      </Card>
-    </Space>
-  );
+	const getDifficultyTag = (difficulty: DifficultyLevel) => {
+		const difficultyConfig = {
+			[DifficultyLevel.Easy]: {
+				color: 'success',
+				text: t('questionList.easy'),
+			},
+			[DifficultyLevel.Medium]: {
+				color: 'warning',
+				text: t('questionList.medium'),
+			},
+			[DifficultyLevel.Hard]: {
+				color: 'error',
+				text: t('questionList.hard'),
+			},
+		};
+		const config = difficultyConfig[difficulty];
+		return <Tag color={config.color}>{config.text}</Tag>;
+	};
+
+	const columns: ColumnsType<Question> = [
+		{
+			title: t('questionList.columnQuestion'),
+			dataIndex: 'text',
+			key: 'text',
+			width: 400,
+			render: (text, record) => (
+				<Space direction="vertical" size={0}>
+					<Text strong>{text.length > 80 ? `${text.substring(0, 80)}...` : text}</Text>
+					<Space size="small">
+						{record.tags?.slice(0, 3).map((tag) => (
+							<Tag key={tag} style={{ fontSize: 11 }}>
+								{tag}
+							</Tag>
+						))}
+					</Space>
+				</Space>
+			),
+		},
+		{
+			title: t('questionList.columnType'),
+			dataIndex: 'type',
+			key: 'type',
+			width: 130,
+			render: (type) => getQuestionTypeLabel(type),
+		},
+		{
+			title: t('questionList.columnDifficulty'),
+			dataIndex: 'difficulty',
+			key: 'difficulty',
+			width: 110,
+			render: (difficulty) => getDifficultyTag(difficulty),
+		},
+		{
+			title: t('questionList.columnPoints'),
+			dataIndex: 'points',
+			key: 'points',
+			width: 80,
+			align: 'center',
+		},
+		{
+			title: t('questionList.columnUsage'),
+			dataIndex: 'usage_count',
+			key: 'usage_count',
+			width: 120,
+			align: 'center',
+			render: (count) => count || 0,
+		},
+		{
+			title: t('questionList.columnActions'),
+			key: 'action',
+			fixed: 'right',
+			width: 150,
+			render: (_, record) => (
+				<Space size="small">
+					<Tooltip title={t('questionList.edit')}>
+						<Button
+							type="text"
+							icon={<EditOutlined />}
+							onClick={() => navigate(`${basePath}/edit/${record.id}`)}
+						/>
+					</Tooltip>
+					<Tooltip title={t('questionList.duplicate')}>
+						<Button
+							type="text"
+							icon={<CopyOutlined />}
+							onClick={() => handleDuplicate(record.id)}
+						/>
+					</Tooltip>
+					<Popconfirm
+						title={t('questionList.confirmDelete')}
+						description={t('questionList.confirmDeleteDesc')}
+						onConfirm={() => handleDelete(record.id)}
+						okText={t('common.delete')}
+						cancelText={t('common.cancel')}
+						okButtonProps={{ danger: true }}
+					>
+						<Tooltip title={t('questionList.delete')}>
+							<Button type="text" danger icon={<DeleteOutlined />} />
+						</Tooltip>
+					</Popconfirm>
+				</Space>
+			),
+		},
+	];
+
+	return (
+		<Space direction="vertical" size="large" style={{ width: '100%' }}>
+			<Flex justify="space-between" align="center">
+				<Space direction="vertical" size={4}>
+					<Title level={2} style={{ margin: 0, fontWeight: 600 }}>
+						<QuestionCircleOutlined style={{ marginRight: 8 }} />{' '}
+						{t('questionList.title')}
+					</Title>
+					<Text type="secondary" style={{ fontSize: 14 }}>
+						{t('questionList.subtitle')}
+					</Text>
+				</Space>
+
+				<Space>
+					<Button
+						icon={<ImportOutlined />}
+						size="large"
+						onClick={() => setImportModalOpen(true)}
+						style={{
+							fontWeight: 500,
+							height: 44,
+							borderRadius: 10,
+						}}
+					>
+						{t('questionList.import')}
+					</Button>
+					<Button
+						icon={<ExportOutlined />}
+						size="large"
+						onClick={() => setExportModalOpen(true)}
+						disabled={selectedQuestions.length === 0}
+						style={{
+							fontWeight: 500,
+							height: 44,
+							borderRadius: 10,
+						}}
+					>
+						{t('questionList.export')}{' '}
+						{selectedQuestions.length > 0 && `(${selectedQuestions.length})`}
+					</Button>
+					<Button
+						type="primary"
+						icon={<PlusOutlined />}
+						size="large"
+						onClick={() => navigate(`${basePath}/new`)}
+						style={{
+							fontWeight: 500,
+							height: 44,
+							borderRadius: 10,
+							paddingLeft: 24,
+							paddingRight: 24,
+						}}
+					>
+						{t('questionList.createNew')}
+					</Button>
+				</Space>
+			</Flex>
+
+			<Card style={{ ...elevation[1], borderRadius: 16 }}>
+				<Space direction="vertical" size="middle" style={{ width: '100%' }}>
+					<Row gutter={16}>
+						<Col flex="auto">
+							<Search
+								placeholder={t('questionList.searchPlaceholder')}
+								allowClear
+								enterButton={<SearchOutlined />}
+								size="large"
+								onSearch={(value) =>
+									setFilters({
+										...filters,
+										search: value,
+										page: 1,
+									})
+								}
+							/>
+						</Col>
+						<Col>
+							<Select
+								placeholder={t('questionList.typeFilter')}
+								style={{ width: 150 }}
+								size="large"
+								allowClear
+								onChange={(value) =>
+									setFilters({
+										...filters,
+										type: value,
+										page: 1,
+									})
+								}
+								options={[
+									{
+										label: t('question.type.multipleChoice'),
+										value: QuestionType.MultipleChoice,
+									},
+									{
+										label: t('question.type.trueFalse'),
+										value: QuestionType.TrueFalse,
+									},
+									{
+										label: t('question.type.essay'),
+										value: QuestionType.Essay,
+									},
+									{
+										label: t('question.type.fillBlank'),
+										value: QuestionType.FillBlank,
+									},
+									{
+										label: t('question.type.matching'),
+										value: QuestionType.Matching,
+									},
+									{
+										label: t('question.type.ordering'),
+										value: QuestionType.Ordering,
+									},
+									{
+										label: t('question.type.shortAnswer'),
+										value: QuestionType.ShortAnswer,
+									},
+								]}
+							/>
+						</Col>
+						<Col>
+							<Select
+								placeholder={t('questionList.difficultyFilter')}
+								style={{ width: 130 }}
+								size="large"
+								allowClear
+								onChange={(value) =>
+									setFilters({
+										...filters,
+										difficulty: value,
+										page: 1,
+									})
+								}
+								options={[
+									{
+										label: t('questionList.easy'),
+										value: DifficultyLevel.Easy,
+									},
+									{
+										label: t('questionList.medium'),
+										value: DifficultyLevel.Medium,
+									},
+									{
+										label: t('questionList.hard'),
+										value: DifficultyLevel.Hard,
+									},
+								]}
+							/>
+						</Col>
+					</Row>
+
+					<Table
+						columns={columns}
+						dataSource={questions}
+						rowKey="id"
+						loading={loading}
+						scroll={{ x: 1200 }}
+						rowSelection={{
+							selectedRowKeys,
+							onChange: (keys, rows) => {
+								setSelectedRowKeys(keys);
+								setSelectedQuestions(rows);
+							},
+						}}
+						pagination={{
+							current: filters.page,
+							pageSize: filters.size,
+							total: total,
+							showSizeChanger: true,
+							showTotal: (total) => t('questionList.totalItems', { count: total }),
+							onChange: (page, size) => setFilters({ ...filters, page, size }),
+						}}
+					/>
+				</Space>
+			</Card>
+
+			{/* Statistics Summary - Moved to bottom */}
+			<Card
+				bordered={false}
+				style={{
+					...elevation[1],
+					borderRadius: 16,
+					background: '#f5f5f5',
+				}}
+			>
+				<Space direction="vertical" size={8} style={{ width: '100%' }}>
+					<Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
+						{t('questionList.statsTitle')}
+					</Text>
+					<Row gutter={[12, 12]}>
+						<Col xs={12} sm={6}>
+							<Flex align="center" gap={8}>
+								<Avatar
+									size={36}
+									icon={<QuestionCircleOutlined style={{ fontSize: 16 }} />}
+									style={{
+										backgroundColor: cardColors.purple,
+										flexShrink: 0,
+									}}
+								/>
+								<Space direction="vertical" size={0}>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: 700,
+											lineHeight: 1.2,
+										}}
+									>
+										{stats.total}
+									</Text>
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{t('questionList.totalQuestions')}
+									</Text>
+								</Space>
+							</Flex>
+						</Col>
+						<Col xs={12} sm={6}>
+							<Flex align="center" gap={8}>
+								<Avatar
+									size={36}
+									icon={<BulbOutlined style={{ fontSize: 16 }} />}
+									style={{
+										backgroundColor: cardColors.green,
+										flexShrink: 0,
+									}}
+								/>
+								<Space direction="vertical" size={0}>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: 700,
+											lineHeight: 1.2,
+										}}
+									>
+										{stats.easy}
+									</Text>
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{t('questionList.easy')}
+									</Text>
+								</Space>
+							</Flex>
+						</Col>
+						<Col xs={12} sm={6}>
+							<Flex align="center" gap={8}>
+								<Avatar
+									size={36}
+									icon={<ThunderboltOutlined style={{ fontSize: 16 }} />}
+									style={{
+										backgroundColor: cardColors.orange,
+										flexShrink: 0,
+									}}
+								/>
+								<Space direction="vertical" size={0}>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: 700,
+											lineHeight: 1.2,
+										}}
+									>
+										{stats.medium}
+									</Text>
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{t('questionList.medium')}
+									</Text>
+								</Space>
+							</Flex>
+						</Col>
+						<Col xs={12} sm={6}>
+							<Flex align="center" gap={8}>
+								<Avatar
+									size={36}
+									icon={<FireOutlined style={{ fontSize: 16 }} />}
+									style={{
+										backgroundColor: cardColors.red,
+										flexShrink: 0,
+									}}
+								/>
+								<Space direction="vertical" size={0}>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: 700,
+											lineHeight: 1.2,
+										}}
+									>
+										{stats.hard}
+									</Text>
+									<Text type="secondary" style={{ fontSize: 12 }}>
+										{t('questionList.hard')}
+									</Text>
+								</Space>
+							</Flex>
+						</Col>
+					</Row>
+				</Space>
+			</Card>
+
+			{/* Import Modal */}
+			<QuestionImportModal
+				open={importModalOpen}
+				onClose={() => setImportModalOpen(false)}
+				onSuccess={() => {
+					fetchQuestions();
+					fetchAllQuestionsForStats();
+				}}
+			/>
+
+			{/* Export Modal */}
+			<QuestionExportModal
+				open={exportModalOpen}
+				onClose={() => setExportModalOpen(false)}
+				selectedQuestions={selectedQuestions}
+			/>
+		</Space>
+	);
 };
 
 export default QuestionList;

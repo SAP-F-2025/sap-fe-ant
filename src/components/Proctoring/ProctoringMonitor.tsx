@@ -1,0 +1,498 @@
+import { DragOutlined, MinusOutlined, PlusOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { Alert, Badge, Button, Card, Tag } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useBrowserProctoring } from '../../hooks/useBrowserProctoring';
+import { ProctoringEvent, useWorkerProctoring } from '../../hooks/useWorkerProctoring';
+
+interface ProctoringMonitorProps {
+	onViolation?: (event: ProctoringEvent) => void;
+	onFaceCountChange?: (count: number) => void;
+	onVideoRef?: (videoElement: HTMLVideoElement | null) => void;
+	showLandmarks?: boolean;
+	compact?: boolean;
+	violationCount?: number;
+	requireFullscreen?: boolean;
+	preventTabSwitching?: boolean;
+	preventCopyPaste?: boolean;
+	detectTampering?: boolean;
+}
+
+export const ProctoringMonitor: React.FC<ProctoringMonitorProps> = ({
+	onViolation,
+	onFaceCountChange,
+	onVideoRef,
+	showLandmarks = false,
+	compact = false,
+	violationCount = 0,
+	requireFullscreen = false,
+	preventTabSwitching = true,
+	preventCopyPaste = true,
+	detectTampering = false,
+}) => {
+	const { t } = useTranslation();
+	const cardRef = useRef<HTMLDivElement>(null);
+	const [position, setPosition] = useState(() => {
+		const saved = localStorage.getItem('proctoring-position');
+		return saved ? JSON.parse(saved) : { x: 20, y: 20 };
+	});
+	const [isDragging, setIsDragging] = useState(false);
+	const [isResizing, setIsResizing] = useState(false);
+	const dragOffset = useRef({ x: 0, y: 0 });
+	const [scale, setScale] = useState(() => {
+		const saved = localStorage.getItem('proctoring-scale');
+		return saved ? parseFloat(saved) : 1;
+	});
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [videoReady, setVideoReady] = useState(false);
+	const [streamReady, setStreamReady] = useState(false);
+	const [activeViolations, setActiveViolations] = useState<Map<string, ProctoringEvent>>(
+		new Map()
+	);
+	const streamRef = useRef<MediaStream | null>(null);
+	const violationTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+	const isMobile = windowWidth < 768;
+	const isTablet = windowWidth >= 768 && windowWidth < 1200;
+	const isDesktop = windowWidth >= 1200;
+
+	const [isExpanded, setIsExpanded] = useState(!isMobile);
+	const startXRef = useRef(0);
+	const startScaleRef = useRef(scale);
+
+	useEffect(() => {
+		const handleResize = () => setWindowWidth(window.innerWidth);
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
+
+	useEffect(() => {
+		if (isMobile && isExpanded) setIsExpanded(false);
+	}, [isMobile]);
+
+	const handleViolation = (event: ProctoringEvent) => {
+		const key = event.type;
+
+		// Always forward violation to parent for backend submission
+		onViolation?.(event);
+
+		if (event.duration === 0) {
+			// Violation just started - show in UI
+			setActiveViolations((prev) => new Map(prev).set(key, event));
+		} else {
+			// Violation ended - update UI and auto-hide after delay
+			setActiveViolations((prev) => new Map(prev).set(key, event));
+
+			const existingTimeout = violationTimeoutsRef.current.get(key);
+			if (existingTimeout) clearTimeout(existingTimeout);
+
+			const timeout = setTimeout(() => {
+				setActiveViolations((prev) => {
+					const next = new Map(prev);
+					next.delete(key);
+					return next;
+				});
+				violationTimeoutsRef.current.delete(key);
+			}, 3000);
+
+			violationTimeoutsRef.current.set(key, timeout);
+		}
+	};
+
+	const { isProcessing, faceCount } = useWorkerProctoring(
+		videoRef.current,
+		canvasRef.current,
+		videoReady,
+		showLandmarks,
+		handleViolation
+	);
+
+	useEffect(() => {
+		if (faceCount !== undefined) {
+			onFaceCountChange?.(faceCount);
+		}
+	}, [faceCount, onFaceCountChange]);
+
+	useBrowserProctoring({
+		enabled: true,
+		requireFullscreen,
+		preventTabSwitching,
+		preventCopyPaste,
+		detectTampering,
+		onViolation: handleViolation,
+	});
+
+	useEffect(() => {
+		let mounted = true;
+
+		const startCamera = async () => {
+			try {
+				const stream = await navigator.mediaDevices.getUserMedia({
+					video: { width: 640, height: 480 },
+				});
+
+				if (mounted) {
+					streamRef.current = stream;
+					setStreamReady(true);
+					setError(null);
+				}
+			} catch (err: any) {
+				if (mounted) {
+					setError(err.message || 'Failed to access camera');
+				}
+			}
+		};
+
+		startCamera();
+
+		return () => {
+			mounted = false;
+			if (streamRef.current) {
+				streamRef.current.getTracks().forEach((track) => track.stop());
+				streamRef.current = null;
+				setStreamReady(false);
+			}
+			violationTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
+			violationTimeoutsRef.current.clear();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
+			videoRef.current.srcObject = streamRef.current;
+			videoRef.current.onloadedmetadata = () => {
+				setVideoReady(true);
+			};
+			videoRef.current.play().catch((err) => console.error('Video play failed:', err));
+		}
+	}, [streamReady, isExpanded, isMobile]);
+
+	// Expose video element to parent for snapshot capture
+	useEffect(() => {
+		if (videoReady && videoRef.current) {
+			onVideoRef?.(videoRef.current);
+		}
+		return () => onVideoRef?.(null);
+	}, [videoReady, onVideoRef]);
+
+	const getSize = () => {
+		const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;
+		const baseHeight = isMobile ? 180 : isTablet ? 240 : compact ? 240 : 480;
+		return {
+			width: Math.round(baseWidth * scale),
+			height: Math.round(baseHeight * scale),
+		};
+	};
+	const size = getSize();
+
+	const handleMouseDown = (e: React.MouseEvent) => {
+		const target = e.target as HTMLElement;
+		if (target.classList.contains('resize-handle')) {
+			setIsResizing(true);
+			e.stopPropagation();
+		} else if (target.closest('.ant-card-head')) {
+			setIsDragging(true);
+			dragOffset.current = {
+				x: e.clientX - position.x,
+				y: e.clientY - position.y,
+			};
+		}
+	};
+
+	useEffect(() => {
+		const handleMouseMove = (e: MouseEvent) => {
+			if (isDragging && cardRef.current) {
+				const cardRect = cardRef.current.getBoundingClientRect();
+				let newX = e.clientX - dragOffset.current.x;
+				let newY = e.clientY - dragOffset.current.y;
+
+				newX = Math.max(0, Math.min(newX, window.innerWidth - cardRect.width));
+				newY = Math.max(0, Math.min(newY, window.innerHeight - cardRect.height));
+
+				setPosition({ x: newX, y: newY });
+			} else if (isResizing) {
+				if (startXRef.current === 0) {
+					startXRef.current = e.clientX;
+					startScaleRef.current = scale;
+				}
+				const deltaX = e.clientX - startXRef.current;
+				const baseWidth = isMobile ? 240 : isTablet ? 320 : compact ? 320 : 640;
+				const newScale = Math.max(
+					0.5,
+					Math.min(2, startScaleRef.current + deltaX / baseWidth)
+				);
+				setScale(newScale);
+			}
+		};
+
+		const handleMouseUp = () => {
+			if (isDragging) {
+				setIsDragging(false);
+				localStorage.setItem('proctoring-position', JSON.stringify(position));
+			}
+			if (isResizing) {
+				setIsResizing(false);
+				startXRef.current = 0;
+				localStorage.setItem('proctoring-scale', scale.toString());
+			}
+		};
+
+		if (isDragging || isResizing) {
+			document.addEventListener('mousemove', handleMouseMove);
+			document.addEventListener('mouseup', handleMouseUp);
+		}
+
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, [isDragging, isResizing, position, scale, isMobile, isTablet, compact]);
+
+	// Adjust position on window resize
+	useEffect(() => {
+		const handleResize = () => {
+			if (!cardRef.current) return;
+
+			const cardRect = cardRef.current.getBoundingClientRect();
+			let newX = position.x;
+			let newY = position.y;
+
+			// Adjust if card is outside viewport
+			if (newX + cardRect.width > window.innerWidth) {
+				newX = window.innerWidth - cardRect.width;
+			}
+			if (newY + cardRect.height > window.innerHeight) {
+				newY = window.innerHeight - cardRect.height;
+			}
+			if (newX < 0) newX = 0;
+			if (newY < 0) newY = 0;
+
+			if (newX !== position.x || newY !== position.y) {
+				setPosition({ x: newX, y: newY });
+				localStorage.setItem('proctoring-position', JSON.stringify({ x: newX, y: newY }));
+			}
+		};
+
+		window.addEventListener('resize', handleResize);
+		handleResize(); // Check on mount
+
+		return () => window.removeEventListener('resize', handleResize);
+	}, [position]);
+
+	return (
+		<>
+			{!isExpanded && isMobile && (
+				<div
+					style={{
+						position: 'fixed',
+						bottom: 20,
+						right: 20,
+						zIndex: 1000,
+					}}
+				>
+					<Badge count={violationCount} offset={[-5, 5]}>
+						<Button
+							type="primary"
+							shape="circle"
+							size="large"
+							icon={<VideoCameraOutlined />}
+							onClick={() => setIsExpanded(true)}
+							style={{ width: 56, height: 56 }}
+						/>
+					</Badge>
+				</div>
+			)}
+			<div
+				ref={cardRef}
+				style={{
+					position: 'fixed',
+					left: isMobile ? 10 : position.x,
+					top: isMobile ? 10 : position.y,
+					zIndex: 1000,
+					cursor: isDragging ? 'grabbing' : isResizing ? 'ew-resize' : 'default',
+					maxWidth: isMobile ? 'calc(100vw - 20px)' : 'none',
+					display: !isExpanded && isMobile ? 'none' : 'block',
+				}}
+				onMouseDown={handleMouseDown}
+			>
+				{isExpanded && !isMobile && (
+					<div
+						className="resize-handle"
+						style={{
+							position: 'absolute',
+							right: -4,
+							top: 0,
+							width: 8,
+							height: '100%',
+							cursor: 'ew-resize',
+							zIndex: 10,
+						}}
+					/>
+				)}
+				<Card
+					title={
+						<span
+							style={{
+								cursor: isMobile ? 'default' : 'grab',
+								userSelect: 'none',
+								fontSize: Math.round((isMobile ? 12 : 14) * scale),
+							}}
+						>
+							{!isMobile && <DragOutlined />}{' '}
+							{isMobile ? '📹' : t('proctoring.monitor.cameraTitle')}
+						</span>
+					}
+					size="small"
+					extra={
+						<div
+							style={{
+								display: 'flex',
+								gap: 8 * scale,
+								alignItems: 'center',
+							}}
+						>
+							{violationCount > 0 && (
+								<Tag
+									color="error"
+									style={{
+										margin: 0,
+										fontSize: Math.round((isMobile ? 10 : 12) * scale),
+									}}
+								>
+									{isMobile
+										? violationCount
+										: t('proctoring.monitor.violationCount', {
+											count: violationCount,
+										})}
+								</Tag>
+							)}
+							<Button
+								type="text"
+								size="small"
+								icon={isExpanded ? <MinusOutlined /> : <PlusOutlined />}
+								onClick={() => setIsExpanded(!isExpanded)}
+								style={{ fontSize: Math.round(14 * scale) }}
+							/>
+						</div>
+					}
+				>
+					{error && isExpanded && (
+						<Alert
+							type="error"
+							message={error}
+							showIcon
+							style={{
+								marginBottom: 16 * scale,
+								fontSize: Math.round(14 * scale),
+							}}
+						/>
+					)}
+
+					<div
+						style={{
+							position: 'relative',
+							width: size.width,
+							height: size.height,
+							display: isExpanded ? 'block' : 'none',
+						}}
+					>
+						<video
+							ref={videoRef}
+							autoPlay
+							playsInline
+							muted
+							style={{
+								width: '100%',
+								height: '100%',
+								backgroundColor: '#000',
+								borderRadius: 8,
+								transform: 'scaleX(-1)',
+							}}
+						/>
+						<canvas
+							ref={canvasRef}
+							width={size.width}
+							height={size.height}
+							style={{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								transform: 'scaleX(-1)',
+							}}
+						/>
+
+						{isProcessing && (
+							<div
+								style={{
+									position: 'absolute',
+									top: 8 * scale,
+									right: 8 * scale,
+									background: 'rgba(82, 196, 26, 0.8)',
+									padding: `${4 * scale}px ${8 * scale}px`,
+									borderRadius: 4 * scale,
+									color: 'white',
+									fontSize: Math.round(12 * scale),
+								}}
+							>
+								Monitoring
+							</div>
+						)}
+					</div>
+
+					{Array.from(activeViolations.values()).map((violation, index) => {
+						const getMessage = (type: string, metadata?: any) => {
+							switch (type) {
+								case 'face_not_detected':
+									return t('proctoring.violations.faceNotDetected');
+								case 'multiple_faces':
+									return t('proctoring.violations.multipleFaces');
+								case 'mouth_open':
+									return t('proctoring.violations.mouthOpen');
+								case 'head_turned':
+									return t('proctoring.violations.headTurned');
+								case 'eyes_closed':
+									return t('proctoring.violations.eyesClosed');
+								case 'looking_away':
+									return t('proctoring.violations.lookingAway');
+								case 'tab_switch':
+									return metadata?.hidden
+										? t('proctoring.violations.tabSwitch')
+										: t('proctoring.violations.tabReturn');
+								case 'fullscreen_exit':
+									return t('proctoring.violations.fullscreenExit');
+								case 'copy_paste':
+									return t('proctoring.violations.copyPaste', {
+										action:
+											metadata?.action === 'copy'
+												? t('proctoring.violations.copy')
+												: metadata?.action === 'paste'
+													? t('proctoring.violations.paste')
+													: t('proctoring.violations.cut'),
+									});
+								case 'browser_tamper':
+									return t('proctoring.violations.browserTamper');
+								default:
+									return t('proctoring.violations.default');
+							}
+						};
+
+						return (
+							<Alert
+								key={violation.type}
+								type={violation.duration === 0 ? 'error' : 'warning'}
+								message={getMessage(violation.type, violation.metadata)}
+								showIcon
+								style={{
+									marginTop: (index === 0 ? 12 : 8) * scale,
+									fontSize: Math.round((isMobile ? 11 : 14) * scale),
+								}}
+							/>
+						);
+					})}
+				</Card>
+			</div>
+		</>
+	);
+};

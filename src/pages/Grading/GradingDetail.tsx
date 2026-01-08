@@ -4,10 +4,12 @@ import {
 	CheckCircleOutlined,
 	ClockCircleOutlined,
 	CloseCircleOutlined,
+	DashboardOutlined,
 	ExclamationCircleOutlined,
 	EyeOutlined,
 	FileTextOutlined,
 	FlagOutlined,
+	HourglassOutlined,
 	SaveOutlined,
 	ThunderboltOutlined,
 	TrophyOutlined,
@@ -73,12 +75,9 @@ const GradingDetail: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [autoGrading, setAutoGrading] = useState(false);
-	const [generatingFeedback, setGeneratingFeedback] = useState(false);
 	const [attempt, setAttempt] = useState<AttemptDetailResponse | null>(null);
 	const [grades, setGrades] = useState<Map<number, AnswerGrade>>(new Map());
 	const [expandedAnswers, setExpandedAnswers] = useState<string[]>([]);
-	const [overallFeedback, setOverallFeedback] = useState('');
-	const [finalScore, setFinalScore] = useState<number | undefined>(undefined);
 	const [activeTab, setActiveTab] = useState<string>('answers');
 	const [violationCount, setViolationCount] = useState<number>(0);
 
@@ -220,100 +219,6 @@ const GradingDetail: React.FC = () => {
 		}
 	};
 
-	const handleGenerateFeedback = async () => {
-		if (!attempt) return;
-
-		try {
-			setGeneratingFeedback(true);
-			const result = await gradingService.generateFeedback({
-				attempt_id: attempt.id,
-				feedback_type: 'detailed',
-				include_suggestions: true,
-			});
-
-			setOverallFeedback(result.feedback);
-
-			modal.info({
-				title: t('gradingDetail.aiFeedbackTitle'),
-				width: 600,
-				content: (
-					<Space direction="vertical" style={{ width: '100%' }}>
-						<div>
-							<Text strong>{t('gradingDetail.aiFeedbackGeneral')}</Text>
-							<Paragraph>{result.feedback}</Paragraph>
-						</div>
-
-						{result.strengths && result.strengths.length > 0 && (
-							<div>
-								<Text strong style={{ color: '#52c41a' }}>
-									{t('gradingDetail.aiFeedbackStrengths')}
-								</Text>
-								<ul>
-									{result.strengths.map((s, i) => (
-										<li key={i}>{s}</li>
-									))}
-								</ul>
-							</div>
-						)}
-
-						{result.weaknesses && result.weaknesses.length > 0 && (
-							<div>
-								<Text strong style={{ color: '#ff4d4f' }}>
-									{t('gradingDetail.aiFeedbackWeaknesses')}
-								</Text>
-								<ul>
-									{result.weaknesses.map((w, i) => (
-										<li key={i}>{w}</li>
-									))}
-								</ul>
-							</div>
-						)}
-
-						{result.suggestions && result.suggestions.length > 0 && (
-							<div>
-								<Text strong style={{ color: '#1890ff' }}>
-									{t('gradingDetail.aiFeedbackSuggestions')}
-								</Text>
-								<ul>
-									{result.suggestions.map((s, i) => (
-										<li key={i}>{s}</li>
-									))}
-								</ul>
-							</div>
-						)}
-					</Space>
-				),
-			});
-		} catch (error) {
-			message.error(t('gradingDetail.generateFeedbackError'));
-		} finally {
-			setGeneratingFeedback(false);
-		}
-	};
-
-	const handleSaveOverallGrade = async () => {
-		if (!attempt) return;
-
-		try {
-			setSaving(true);
-			await gradingService.gradeAttempt(attempt.id, {
-				final_score: finalScore,
-				feedback: overallFeedback,
-			});
-
-			message.success(t('gradingDetail.saveOverallSuccess'));
-
-			// Reload attempt
-			if (id) {
-				await fetchAttemptDetail(parseInt(id));
-			}
-		} catch (error) {
-			message.error(t('gradingDetail.saveOverallError'));
-		} finally {
-			setSaving(false);
-		}
-	};
-
 	const handleRegradeQuestion = async (questionId: number) => {
 		modal.confirm({
 			title: t('gradingDetail.regradeTitle'),
@@ -348,14 +253,43 @@ const GradingDetail: React.FC = () => {
 		});
 	};
 
-	const getStatusColor = (status: string) => {
+	// Check if attempt is pending grade
+	const isPendingGrade = attempt?.is_pending_grade ?? false;
+
+	// Calculate time spent from timestamps if not provided
+	const getCalculatedTimeSpent = (): number => {
+		if (!attempt) return 0;
+		// Prefer time_spent from API if available
+		if (attempt.time_spent && attempt.time_spent > 0) {
+			return attempt.time_spent;
+		}
+		// Calculate from timestamps
+		if (attempt.completed_at && attempt.started_at) {
+			return dayjs(attempt.completed_at).diff(dayjs(attempt.started_at), 'second');
+		}
+		return 0;
+	};
+
+	const getStatusColor = (status: string, pendingGrade: boolean = false): string => {
+		// If pending grade, show warning color regardless of status
+		if (pendingGrade) {
+			return 'warning';
+		}
 		const statusMap: Record<string, string> = {
 			completed: 'success',
 			in_progress: 'processing',
 			abandoned: 'default',
 			timeout: 'error',
+			pending_grade: 'warning',
 		};
 		return statusMap[status] || 'default';
+	};
+
+	const getStatusLabel = (status: string, pendingGrade: boolean = false): string => {
+		if (pendingGrade) {
+			return t('gradingDetail.statusPendingGrade');
+		}
+		return t(`gradingDetail.status.${status}`, { defaultValue: status });
 	};
 
 	const getQuestionTypeLabel = (type: string) => {
@@ -381,7 +315,14 @@ const GradingDetail: React.FC = () => {
 
 	const calculateMaxScore = () => {
 		if (!attempt) return 0;
-		return attempt.answers.reduce((total, answer) => total + answer.max_score, 0);
+		// Ưu tiên sử dụng max_score từ attempt, fallback về tổng points của questions
+		if (attempt.max_score && attempt.max_score > 0) {
+			return attempt.max_score;
+		}
+		// Fallback: Cộng points từ mỗi question
+		return attempt.answers.reduce((total, answer) => {
+			return total + (answer.question?.points || answer.max_score || 0);
+		}, 0);
 	};
 
 	const calculateProgress = () => {
@@ -590,7 +531,7 @@ const GradingDetail: React.FC = () => {
 									<Tag
 										color={
 											(essayMinWords && essayWordCount < essayMinWords) ||
-											(essayMaxWords && essayWordCount > essayMaxWords)
+												(essayMaxWords && essayWordCount > essayMaxWords)
 												? 'warning'
 												: 'success'
 										}
@@ -1302,18 +1243,17 @@ const GradingDetail: React.FC = () => {
 				</Space>
 				<Space>
 					<Button
+						icon={<DashboardOutlined />}
+						onClick={() => navigate(`/grading/${id}/live`)}
+					>
+						{t('liveMonitor.title')}
+					</Button>
+					<Button
 						icon={<ThunderboltOutlined />}
 						onClick={handleAutoGrade}
 						loading={autoGrading}
 					>
 						{t('gradingDetail.autoGradeAll')}
-					</Button>
-					<Button
-						icon={<FileTextOutlined />}
-						onClick={handleGenerateFeedback}
-						loading={generatingFeedback}
-					>
-						{t('gradingDetail.generateAIFeedback')}
 					</Button>
 					<Button
 						type="primary"
@@ -1402,70 +1342,6 @@ const GradingDetail: React.FC = () => {
 				</Space>
 			</Card>
 
-			{/* Overall Grade & Feedback */}
-			<Card
-				title={
-					<Space>
-						<FileTextOutlined />
-						<Text strong>{t('gradingDetail.overallGradeAndFeedback')}</Text>
-					</Space>
-				}
-				style={{ ...elevation[1], borderRadius: 16 }}
-				extra={
-					<Button
-						type="primary"
-						icon={<SaveOutlined />}
-						onClick={handleSaveOverallGrade}
-						loading={saving}
-					>
-						{t('gradingDetail.saveOverallGrade')}
-					</Button>
-				}
-			>
-				<Row gutter={16}>
-					<Col xs={24} md={8}>
-						<Space direction="vertical" style={{ width: '100%' }}>
-							<Text strong>{t('gradingDetail.finalScoreLabel')}:</Text>
-							<InputNumber
-								min={0}
-								max={100}
-								step={0.5}
-								value={finalScore}
-								onChange={(value) => setFinalScore(value || undefined)}
-								style={{ width: '100%' }}
-								size="large"
-								placeholder={t('gradingDetail.finalScorePlaceholder')}
-							/>
-							<Text type="secondary" style={{ fontSize: 12 }}>
-								{t('gradingDetail.finalScoreHint')}
-							</Text>
-						</Space>
-					</Col>
-					<Col xs={24} md={16}>
-						<Space direction="vertical" style={{ width: '100%' }}>
-							<Flex justify="space-between">
-								<Text strong>{t('gradingDetail.overallFeedbackLabel')}:</Text>
-								{overallFeedback && (
-									<Button
-										size="small"
-										type="link"
-										onClick={() => setOverallFeedback('')}
-									>
-										{t('common.delete')}
-									</Button>
-								)}
-							</Flex>
-							<TextArea
-								rows={4}
-								value={overallFeedback}
-								onChange={(e) => setOverallFeedback(e.target.value)}
-								placeholder={t('gradingDetail.overallFeedbackPlaceholder')}
-							/>
-						</Space>
-					</Col>
-				</Row>
-			</Card>
-
 			{/* Attempt Info */}
 			<Row gutter={[16, 16]}>
 				<Col xs={24} lg={16}>
@@ -1482,8 +1358,13 @@ const GradingDetail: React.FC = () => {
 							<Descriptions.Item label={t('gradingDetail.assessment')}>
 								{attempt.assessment?.title}
 							</Descriptions.Item>
-							<Descriptions.Item label={t('gradingDetail.status')}>
-								<Tag color={getStatusColor(attempt.status)}>{attempt.status}</Tag>
+							<Descriptions.Item label={t('gradingDetail.statusLabel')}>
+								<Tag
+									color={getStatusColor(attempt.status, isPendingGrade)}
+									icon={isPendingGrade ? <HourglassOutlined /> : undefined}
+								>
+									{getStatusLabel(attempt.status, isPendingGrade)}
+								</Tag>
 							</Descriptions.Item>
 							<Descriptions.Item label={t('gradingDetail.student')}>
 								<Space>
@@ -1512,11 +1393,12 @@ const GradingDetail: React.FC = () => {
 							<Descriptions.Item label={t('gradingDetail.timeSpent')}>
 								<Space>
 									<ClockCircleOutlined />
-									{attempt.time_spent
-										? dayjs
-												.duration(attempt.time_spent, 'seconds')
-												.format('HH:mm:ss')
-										: '-'}
+									{(() => {
+										const calculatedTime = getCalculatedTimeSpent();
+										return calculatedTime > 0
+											? dayjs.duration(calculatedTime, 'seconds').format('HH:mm:ss')
+											: '-';
+									})()}
 								</Space>
 							</Descriptions.Item>
 							<Descriptions.Item label={t('gradingDetail.questionCount')}>
@@ -1630,7 +1512,7 @@ const GradingDetail: React.FC = () => {
 
 								{/* Score breakdown */}
 								<Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-									<Col span={12}>
+									<Col span={8}>
 										<Card
 											size="small"
 											style={{
@@ -1648,12 +1530,15 @@ const GradingDetail: React.FC = () => {
 												}
 												value={
 													attempt.answers.filter((a) => {
+														// Bỏ qua các câu chưa được trả lời
+														if (a.answer === null || a.answer === undefined) return false;
 														const grade = grades.get(a.id);
 														const score = grade?.score ?? a.score ?? 0;
-														return score >= a.max_score;
+														const maxScore = a.question?.points || a.max_score || 0;
+														return maxScore > 0 && score >= maxScore;
 													}).length
 												}
-												suffix={`/ ${attempt.answers.length}`}
+												suffix={`/ ${attempt.answers.filter(a => a.answer !== null && a.answer !== undefined).length}`}
 												valueStyle={{
 													fontSize: 20,
 													color: token.colorSuccess,
@@ -1661,7 +1546,7 @@ const GradingDetail: React.FC = () => {
 											/>
 										</Card>
 									</Col>
-									<Col span={12}>
+									<Col span={8}>
 										<Card
 											size="small"
 											style={{
@@ -1679,15 +1564,47 @@ const GradingDetail: React.FC = () => {
 												}
 												value={
 													attempt.answers.filter((a) => {
+														// Bỏ qua các câu chưa được trả lời
+														if (a.answer === null || a.answer === undefined) return false;
 														const grade = grades.get(a.id);
 														const score = grade?.score ?? a.score ?? 0;
-														return score < a.max_score;
+														const maxScore = a.question?.points || a.max_score || 0;
+														return maxScore > 0 && score < maxScore;
 													}).length
+												}
+												suffix={`/ ${attempt.answers.filter(a => a.answer !== null && a.answer !== undefined).length}`}
+												valueStyle={{
+													fontSize: 20,
+													color: token.colorError,
+												}}
+											/>
+										</Card>
+									</Col>
+									<Col span={8}>
+										<Card
+											size="small"
+											style={{
+												borderRadius: 12,
+												background: token.colorWarningBg,
+												border: `1px solid ${token.colorWarningBorder}`,
+												textAlign: 'center',
+											}}
+										>
+											<Statistic
+												title={
+													<Text type="secondary" style={{ fontSize: 12 }}>
+														{t('gradingDetail.unansweredQuestions')}
+													</Text>
+												}
+												value={
+													attempt.answers.filter(a =>
+														a.answer === null || a.answer === undefined
+													).length
 												}
 												suffix={`/ ${attempt.answers.length}`}
 												valueStyle={{
 													fontSize: 20,
-													color: token.colorError,
+													color: token.colorWarning,
 												}}
 											/>
 										</Card>
@@ -1794,12 +1711,19 @@ const GradingDetail: React.FC = () => {
 															)}
 														</Space>
 														<Space>
-															{answer.is_graded && (
+															{answer.is_graded ? (
 																<Tag
 																	color="success"
 																	icon={<CheckCircleOutlined />}
 																>
 																	{t('gradingDetail.graded')}
+																</Tag>
+															) : (
+																<Tag
+																	color="warning"
+																	icon={<HourglassOutlined />}
+																>
+																	{t('gradingDetail.needsManualGrade')}
 																</Tag>
 															)}
 															<Text strong>

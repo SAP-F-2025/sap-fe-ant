@@ -28,7 +28,8 @@
 		"exportCsv": "Export CSV",
 		"profile": "Profile",
 		"logout": "Logout",
-		"selectedItems": "Selected {{count}} items"
+		"selectedItems": "Selected {{count}} items",
+		"unknown": "Unknown"
 	},
 	"dataTable": {
 		"pagination": "{{start}}-{{end}} of {{total}} items"
@@ -53,6 +54,9 @@
 		"goodLuck": "Good luck with your exam!",
 		"startNow": "Start Now",
 		"startError": "Cannot start the exam",
+		"resumeExamTitle": "Resume Exam",
+		"resumeNow": "Resume Now",
+		"resumeMessage": "Your identity has been verified. You can continue your exam.",
 		"preparingRoom": "Preparing to enter exam room",
 		"attemptsUsed": "Attempts",
 		"passingScore": "Passing Score",
@@ -261,7 +265,9 @@
 		"privacyPolicy": "Privacy Policy",
 		"viewPrivacy": "View privacy policy",
 		"appName": "SAP - Secure Assessment Platform",
-		"copyright": "© 2025 SAP Team. All rights reserved."
+		"copyright": "© 2025 SAP Team. All rights reserved.",
+		"preferencesSaved": "Preferences saved successfully",
+		"preferencesError": "Failed to save preferences"
 	},
 	"activities": {
 		"completedAssessment": "completed assessment",
@@ -300,10 +306,28 @@
 		"report": "Report",
 		"activityChartLabel": "Activity and score chart",
 		"questionChartLabel": "Question type distribution chart",
-		"performanceChartLabel": "Score by subject chart"
+		"performanceChartLabel": "Score by subject chart",
+		"activeUsers": "Active Users",
+		"activeExams": "Active Exams",
+		"recentViolations": "Recent Violations",
+		"liveUpdates": "Live updates",
+		"proctoringOverview": "Proctoring Overview",
+		"noProctoringData": "No proctoring data available",
+		"totalViolations": "total violations",
+		"critical": "Critical",
+		"high": "High",
+		"medium": "Medium",
+		"low": "Low",
+		"topViolationTypes": "Top Violation Types",
+		"viewDetails": "View Details",
+		"chartsTab": "Charts",
+		"activitiesTab": "Activities",
+		"proctoringTab": "Proctoring",
+		"quickMetrics": "Quick Metrics"
 	},
 	"layout": {
 		"studentDashboard": "Dashboard",
+		"creatorDashboard": "My Content Stats",
 		"assessments": "Assessments",
 		"history": "History",
 		"overview": "Overview",
@@ -659,6 +683,7 @@
 		"statusTimeout": "Timeout",
 		"statusGraded": "Graded",
 		"statusPending": "Pending Review",
+		"statusPendingGrade": "Pending Grading",
 		"totalItems": "Total {{total}} submissions",
 		"statsTitle": "Overview Statistics",
 		"totalSubmissions": "Total Submissions",
@@ -816,6 +841,16 @@
 	"studentDashboard": {
 		"title": "Dashboard",
 		"welcomeBack": "Welcome back, {{name}}!",
+		"header": {
+			"welcomeBack": "Welcome back, {{name}}!",
+			"todayIs": "Today is {{date}}"
+		},
+		"stats": {
+			"available": "Available Assessments",
+			"completed": "Completed",
+			"inProgress": "In Progress",
+			"totalAttempts": "Total Attempts"
+		},
 		"overview": {
 			"assessmentsAvailable": "Assessments Available",
 			"completed": "Completed",
@@ -823,10 +858,22 @@
 			"totalAttempts": "Total Attempts"
 		},
 		"performance": {
+			"title": "Performance Overview",
 			"averageScore": "Average Score",
 			"passRate": "Pass Rate",
 			"highestScore": "Highest Score",
-			"lowestScore": "Lowest Score"
+			"lowestScore": "Lowest Score",
+			"noData": "Complete some assessments to see your performance metrics!",
+			"excellent": "Excellent",
+			"good": "Good",
+			"average": "Average",
+			"needsImprovement": "Needs Improvement"
+		},
+		"quickStats": {
+			"title": "Quick Stats",
+			"passRateTooltip": "Percentage of assessments you passed",
+			"highestScoreTooltip": "Your best performance",
+			"lowestScoreTooltip": "Your lowest score"
 		},
 		"recentAttempts": {
 			"title": "Recent Attempts",
@@ -846,8 +893,11 @@
 		},
 		"upcoming": {
 			"title": "Upcoming Assessments",
-			"viewAll": "View All",
-			"noUpcoming": "No upcoming assessments",
+			"viewAll": "View All Assessments",
+			"noUpcoming": "No upcoming assessments. Enjoy your break!",
+			"dueToday": "Due Today!",
+			"dueIn": "Due in {{days}} days",
+			"startNow": "Start Now",
 			"columns": {
 				"assessment": "Assessment",
 				"dueDate": "Due Date",
@@ -858,11 +908,62 @@
 			"daysRemaining": "{{count}} days left",
 			"start": "Start"
 		},
+		"recent": {
+			"title": "Recent Activity",
+			"viewAll": "View History",
+			"noRecent": "No recent attempts yet. Start an assessment!",
+			"pending": "Pending Grade",
+			"viewDetails": "View"
+		},
 		"quickActions": {
 			"title": "Quick Actions",
 			"viewAssessments": "View Assessments",
 			"viewHistory": "View History",
-			"continueAttempt": "Continue Attempt"
+			"continueAttempt": "Continue Attempt",
+			"help": "Help & Support"
+		}
+	},
+	"creatorDashboard": {
+		"title": "My Content Stats",
+		"subtitle": "Overview of content you've created",
+		"header": {
+			"todayIs": "Today is {{date}}"
+		},
+		"stats": {
+			"myAssessments": "My Assessments",
+			"myQuestions": "My Questions",
+			"questionBanks": "Question Banks",
+			"attemptsOnContent": "Attempts on My Content",
+			"active": "active"
+		},
+		"performance": {
+			"title": "Content Performance",
+			"attempts": "Attempts",
+			"avgScore": "Avg Score"
+		},
+		"metrics": {
+			"title": "Quick Metrics",
+			"averageScore": "Average Score",
+			"passRate": "Pass Rate",
+			"completionRate": "Completion Rate"
+		},
+		"activity": {
+			"title": "Recent Activity on My Content",
+			"noActivity": "No recent activity on your content",
+			"completed": "completed",
+			"started": "started"
+		},
+		"pending": {
+			"title": "Pending Actions",
+			"grading": "{{count}} pending grading",
+			"drafts": "{{count}} draft assessments",
+			"viewGrading": "View Grading",
+			"viewDrafts": "View Drafts"
+		},
+		"quickActions": {
+			"createAssessment": "Create Assessment",
+			"createQuestion": "Create Question",
+			"createBank": "Create Bank"
 		}
 	},
 	"availableAssessments": {
@@ -987,7 +1088,24 @@
 		"systemUpdates": "System Updates",
 		"systemUpdatesDesc": "Get notified about updates and maintenance",
 		"unsavedChanges": "You have unsaved changes",
-		"saveChanges": "Save Changes"
+		"saveChanges": "Save Changes",
+		"telegramTitle": "Telegram Notifications",
+		"telegramDesc": "Receive notifications via Telegram bot for instant alerts on your phone.",
+		"telegramLinkedStatus": "Telegram Connected",
+		"telegramNotLinked": "Telegram Not Connected",
+		"telegramNotLinkedDesc": "Connect your Telegram account to receive instant notifications.",
+		"telegramLink": "Connect Telegram",
+		"telegramRelink": "Reconnect",
+		"telegramUnlink": "Disconnect",
+		"telegramUnlinked": "Telegram disconnected successfully",
+		"telegramLinked": "Telegram connected successfully!",
+		"telegramLinkTitle": "Connect Telegram",
+		"telegramScanQR": "Scan this QR code with your phone or click the link below",
+		"telegramExpiresIn": "Expires in",
+		"telegramOpenInApp": "Open in Telegram App",
+		"telegramLinkError": "Failed to generate Telegram link",
+		"telegramUnlinkError": "Failed to disconnect Telegram",
+		"telegramLinkExpired": "Link expired. Please try again."
 	},
 	"notificationDropdown": {
 		"title": "Notifications",
@@ -1104,6 +1222,23 @@
 			"fill_blank": "Fill in the Blank",
 			"matching": "Matching",
 			"ordering": "Ordering"
+		},
+		"violations": {
+			"title": "Proctoring Violations",
+			"totalViolations": "Total Violations",
+			"severityLevel": "Severity Level",
+			"avgConfidence": "Avg Confidence",
+			"prolongedViolations": "Prolonged Violations",
+			"breakdownBySeverity": "Breakdown by Severity",
+			"breakdownByType": "Breakdown by Violation Type",
+			"timeline": "Violation Timeline (5-minute intervals)",
+			"violationCount": "{{count}} violations",
+			"confidence": "Confidence: {{value}}",
+			"timeRange": "Time: {{start}} - {{end}} ({{duration}} mins)",
+			"critical": "Critical",
+			"high": "High",
+			"medium": "Medium",
+			"low": "Low"
 		}
 	},
 	"exam": {
@@ -1719,7 +1854,14 @@
 		"overallFeedbackPlaceholder": "Enter overall feedback for student... (or use 'Generate AI Feedback' button above)",
 		"attemptInfo": "Attempt Information",
 		"assessment": "Assessment",
-		"status": "Status",
+		"status": {
+			"completed": "Completed",
+			"in_progress": "In Progress",
+			"abandoned": "Abandoned",
+			"timeout": "Timed Out"
+		},
+		"statusLabel": "Status",
+		"statusPendingGrade": "Pending Grading",
 		"student": "Student",
 		"email": "Email",
 		"startedAt": "Started",
@@ -1733,6 +1875,7 @@
 		"scoreDisplay": "{{score}} / {{max}} points",
 		"correctAnswers": "Correct",
 		"incorrectAnswers": "Wrong",
+		"unansweredQuestions": "Unanswered",
 		"passedRequirement": "Passed",
 		"failedRequirement": "Not Passed",
 		"passingScore": "Passing score",
@@ -1741,6 +1884,7 @@
 		"questionNumber": "Question {{number}}",
 		"flaggedQuestion": "Flagged question",
 		"graded": "Graded",
+		"needsManualGrade": "Manual Grade",
 		"scoreOutOf": "{{score}} / {{max}} points",
 		"question": "Question",
 		"studentAnswerLabel": "Student's Answer",
@@ -1798,6 +1942,11 @@
 			"paste": "paste",
 			"cut": "cut",
 			"browserTamper": "DevTools detected",
+			"handDetected": "Hand detected in frame",
+			"phoneDetected": "Phone detected",
+			"voice": "Voice detected",
+			"voiceChat": "Voice chat detected",
+			"faceMismatch": "Face mismatch",
 			"default": "Violation"
 		},
 		"loading": "Loading proctoring data...",
@@ -1805,7 +1954,13 @@
 		"noViolationsDesc": "This attempt has no proctoring violations recorded.",
 		"time": "Time",
 		"type": "Type",
-		"severity": "Severity",
+		"severity": {
+			"label": "Severity",
+			"critical": "Critical",
+			"high": "High",
+			"medium": "Medium",
+			"low": "Low"
+		},
 		"duration": "Duration",
 		"durationLabel": "Duration",
 		"confidence": "Confidence",
@@ -2217,5 +2372,67 @@
 		"preview": "Questions to export",
 		"andMore": "...and {{count}} more",
 		"generating": "Generating file..."
+	},
+	"liveMonitor": {
+		"title": "Live Monitor",
+		"attemptDetails": "Attempt Details",
+		"invalidAttempt": "Invalid attempt ID",
+		"loading": "Loading realtime data...",
+		"errorTitle": "Failed to load data",
+		"errorDescription": "Unable to fetch realtime monitoring data. Please try again.",
+		"live": "LIVE",
+		"completed": "COMPLETED",
+		"justUpdated": "Just updated",
+		"lastUpdated": "Last updated: {{time}}",
+		"neverUpdated": "Not yet updated",
+		"refreshNow": "Refresh now",
+		"timeRemaining": "Time Remaining",
+		"timeWarning": "Less than 5 minutes left!",
+		"examEnded": "Exam has ended",
+		"progress": "Progress",
+		"questionsAnswered": "{{answered}} of {{total}} questions answered",
+		"violationSummary": "Violation Summary",
+		"totalViolations": "Total Violations",
+		"violationTimeline": "Violation Timeline",
+		"noViolations": "No violations detected",
+		"noViolationsDesc": "This student has not triggered any proctoring alerts",
+		"criticalAlert": "Critical violations detected!",
+		"highAlert": "High severity violations detected",
+		"alertDescription": "{{critical}} critical, {{high}} high severity violations require attention",
+		"questionNumber": "Question {{number}}",
+		"statusUnanswered": "Not answered yet",
+		"statusAnswered": "Answered",
+		"statusCorrect": "Correct",
+		"statusIncorrect": "Incorrect",
+		"statusPartial": "Partial credit",
+		"legendUnanswered": "Unanswered",
+		"legendAnswered": "Answered",
+		"legendCorrect": "Correct",
+		"legendIncorrect": "Incorrect",
+		"assessment": "Assessment",
+		"duration": "Duration",
+		"passingScore": "Passing Score",
+		"passAt": "Pass at",
+		"timeTaken": "Time Taken",
+		"completedAt": "Completed at"
+	},
+	"groupGrading": {
+		"assessments": "Assessments",
+		"selectAssessment": "Select an assessment to view grading details",
+		"searchAssessment": "Search assessments...",
+		"noAssessments": "No assessments available",
+		"noSearchResults": "No assessments found",
+		"noAttempts": "No submissions yet",
+		"gradedOf": "{{graded}}/{{total}} graded",
+		"pendingCount": "{{count}} pending",
+		"pendingSummary": "{{pending}}/{{total}} need grading",
+		"allGraded": "All graded",
+		"needsReview": "Needs review",
+		"gradingFor": "Grading for",
+		"totalSubmissions": "Total Submissions",
+		"graded": "Graded",
+		"pending": "Pending",
+		"avgScore": "Avg Score"
 	}
 }
+

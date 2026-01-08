@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button, Card, Select, Space, Table, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -30,7 +30,7 @@ const StudentHistory: React.FC = () => {
 	const [pageSize, setPageSize] = useState(10);
 	const [statusFilter, setStatusFilter] = useState<AttemptStatus | undefined>();
 
-	const { data, isLoading } = useQuery({
+	const { data, isLoading, isFetching } = useQuery({
 		queryKey: ['student-history', page, pageSize, statusFilter],
 		queryFn: () =>
 			studentService.getAttemptHistory({
@@ -38,7 +38,15 @@ const StudentHistory: React.FC = () => {
 				size: pageSize,
 				status: statusFilter,
 			}),
+		placeholderData: (previousData) => previousData, // Keep previous data while fetching (v5 syntax)
+		staleTime: 30 * 1000, // Cache data for 30 seconds
+		refetchOnWindowFocus: true, // Refetch when user returns to tab
 	});
+
+	// Reset to page 1 when filter changes
+	useEffect(() => {
+		setPage(1);
+	}, [statusFilter]);
 
 	// Helper function to check if results should be hidden
 	const isPendingGrading = (record: AttemptWithAssessment): boolean => {
@@ -53,28 +61,28 @@ const StudentHistory: React.FC = () => {
 
 	const getStatusTag = (status: string) => {
 		const statusMap: Record<string, { color: string; icon: React.ReactNode; textKey: string }> =
-			{
-				in_progress: {
-					color: 'processing',
-					icon: <ClockCircleOutlined />,
-					textKey: 'studentHistory.status.inProgress',
-				},
-				completed: {
-					color: 'success',
-					icon: <CheckCircleOutlined />,
-					textKey: 'studentHistory.status.completed',
-				},
-				abandoned: {
-					color: 'default',
-					icon: <CloseCircleOutlined />,
-					textKey: 'studentHistory.status.abandoned',
-				},
-				timeout: {
-					color: 'error',
-					icon: <ClockCircleOutlined />,
-					textKey: 'studentHistory.status.timeout',
-				},
-			};
+		{
+			in_progress: {
+				color: 'processing',
+				icon: <ClockCircleOutlined />,
+				textKey: 'studentHistory.status.inProgress',
+			},
+			completed: {
+				color: 'success',
+				icon: <CheckCircleOutlined />,
+				textKey: 'studentHistory.status.completed',
+			},
+			abandoned: {
+				color: 'default',
+				icon: <CloseCircleOutlined />,
+				textKey: 'studentHistory.status.abandoned',
+			},
+			timeout: {
+				color: 'error',
+				icon: <ClockCircleOutlined />,
+				textKey: 'studentHistory.status.timeout',
+			},
+		};
 
 		const statusInfo = statusMap[status] || {
 			color: 'default',
@@ -155,8 +163,6 @@ const StudentHistory: React.FC = () => {
 					</Text>
 				);
 			},
-			sorter: (a: AttemptWithAssessment, b: AttemptWithAssessment) =>
-				(a.score || 0) - (b.score || 0),
 		},
 		{
 			title: t('studentHistory.columns.result'),
@@ -203,9 +209,6 @@ const StudentHistory: React.FC = () => {
 					</Text>
 				</div>
 			),
-			sorter: (a: AttemptWithAssessment, b: AttemptWithAssessment) =>
-				dayjs(a.started_at).unix() - dayjs(b.started_at).unix(),
-			defaultSortOrder: 'descend' as const,
 		},
 		{
 			title: t('studentHistory.columns.completedAt'),
@@ -251,10 +254,30 @@ const StudentHistory: React.FC = () => {
 							type="primary"
 							size="small"
 							icon={<PlayCircleOutlined />}
-							onClick={() => navigate(`/student/take/${record.id}`)}
+							onClick={() => {
+								// Check if identity verification is required for resume
+								if (record.assessment?.settings?.require_identity_verification) {
+									navigate('/student/face-verification', {
+										state: {
+											assessment: {
+												id: record.assessment_id,
+												title: record.assessment_title,
+												duration: record.assessment?.duration || 60,
+												passing_score: record.assessment?.passing_score || 0,
+												attempts_used: 0,
+												max_attempts: 1,
+											},
+											resumeAttemptId: record.id,
+										},
+									});
+								} else {
+									navigate(`/student/take/${record.id}`);
+								}
+							}}
 						>
 							{t('studentHistory.continue')}
 						</Button>
+
 					) : (
 						<Button
 							type="link"

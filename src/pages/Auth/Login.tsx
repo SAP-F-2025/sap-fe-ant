@@ -1,421 +1,343 @@
-import {
-	LoginOutlined,
-	RocketOutlined,
-	SafetyOutlined,
-	ThunderboltOutlined,
-} from '@ant-design/icons';
-import { Button, Typography } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import { LoginOutlined } from '@ant-design/icons';
+import { Button, Card, Divider, Space, theme, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import * as THREE from 'three';
 import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '../../theme/ThemeProvider';
 
 const { Title, Text } = Typography;
 
+/**
+ * Premium Login Page with Cinematic Reveal Animation
+ *
+ * Features:
+ * - Animated gradient background
+ * - Floating light orbs
+ * - 3-stage cinematic reveal (logo → card → content)
+ * - Breathing glow effect on card
+ * - Interactive button hover effects
+ * - Full light/dark mode support
+ */
 const Login: React.FC = () => {
 	const { t } = useTranslation();
 	const { login, isAuthenticated } = useAuth();
 	const navigate = useNavigate();
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const [showWelcome, setShowWelcome] = useState(true);
+	const { token } = theme.useToken();
+	const { mode } = useTheme();
+	const [animationStage, setAnimationStage] = useState(0);
 
 	useEffect(() => {
 		if (isAuthenticated) navigate('/dashboard');
 	}, [isAuthenticated, navigate]);
 
+	// Trigger animation stages
 	useEffect(() => {
-		const timer = setTimeout(() => setShowWelcome(false), 2000);
-		return () => clearTimeout(timer);
+		const timers = [
+			setTimeout(() => setAnimationStage(1), 100), // Logo appears
+			setTimeout(() => setAnimationStage(2), 500), // Card reveals
+			setTimeout(() => setAnimationStage(3), 900), // Content fades in
+		];
+		return () => timers.forEach(clearTimeout);
 	}, []);
 
-	useEffect(() => {
-		if (!canvasRef.current) return;
-
-		const scene = new THREE.Scene();
-		const camera = new THREE.PerspectiveCamera(
-			75,
-			window.innerWidth / window.innerHeight,
-			0.1,
-			1000
-		);
-		const renderer = new THREE.WebGLRenderer({
-			canvas: canvasRef.current,
-			alpha: true,
-			antialias: true,
-		});
-
-		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.setClearColor(0x00cccc, 1);
-		camera.position.z = 5;
-
-		// Gradient background
-		const bgGeometry = new THREE.PlaneGeometry(50, 50);
-		const bgMaterial = new THREE.ShaderMaterial({
-			uniforms: { time: { value: 0 } },
-			vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-			fragmentShader: `
-        uniform float time;
-        varying vec2 vUv;
-        void main() {
-          vec3 color1 = vec3(0.0, 0.8, 0.8);
-          vec3 color2 = vec3(0.0, 0.6, 0.9);
-          vec3 color3 = vec3(0.1, 0.7, 0.85);
-          vec3 color4 = vec3(0.0, 0.5, 0.75);
-          
-          float noise = sin(vUv.x * 3.0 + time * 0.3) * cos(vUv.y * 2.0 + time * 0.2) * 0.15;
-          float diagonal = (vUv.x + vUv.y) * 0.5;
-          
-          vec3 color = mix(color1, color2, vUv.y + noise);
-          color = mix(color, color3, diagonal);
-          color = mix(color, color4, sin(time * 0.2) * 0.1 + 0.5);
-          
-          gl_FragColor = vec4(color, 1.0);
-        }
-      `,
-		});
-		const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
-		bgMesh.position.z = -10;
-		scene.add(bgMesh);
-
-		// Floating spheres
-		const spheres: THREE.Mesh[] = [];
-		const sphereGeometry = new THREE.SphereGeometry(0.12, 32, 32);
-		for (let i = 0; i < 15; i++) {
-			const material = new THREE.MeshBasicMaterial({
-				color: new THREE.Color().setHSL(0.5 + Math.random() * 0.1, 0.6, 0.7),
-				transparent: true,
-				opacity: 0.25,
-			});
-			const sphere = new THREE.Mesh(sphereGeometry, material);
-			sphere.position.set(
-				(Math.random() - 0.5) * 10,
-				(Math.random() - 0.5) * 10,
-				(Math.random() - 0.5) * 5
-			);
-			sphere.userData.velocity = {
-				x: (Math.random() - 0.5) * 0.008,
-				y: (Math.random() - 0.5) * 0.008,
-			};
-			spheres.push(sphere);
-			scene.add(sphere);
-		}
-
-		// Particles
-		const particlesGeometry = new THREE.BufferGeometry();
-		const positions = new Float32Array(600 * 3);
-		for (let i = 0; i < 600 * 3; i++) positions[i] = (Math.random() - 0.5) * 15;
-		particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-		const particlesMaterial = new THREE.PointsMaterial({
-			size: 0.015,
-			color: 0xffffff,
-			transparent: true,
-			opacity: 0.4,
-			blending: THREE.AdditiveBlending,
-		});
-		const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-		scene.add(particles);
-
-		const animate = () => {
-			requestAnimationFrame(animate);
-			bgMaterial.uniforms.time.value += 0.01;
-			particles.rotation.y += 0.0003;
-			spheres.forEach((sphere) => {
-				sphere.position.x += sphere.userData.velocity.x;
-				sphere.position.y += sphere.userData.velocity.y;
-				if (Math.abs(sphere.position.x) > 5) sphere.userData.velocity.x *= -1;
-				if (Math.abs(sphere.position.y) > 5) sphere.userData.velocity.y *= -1;
-				sphere.rotation.x += 0.008;
-				sphere.rotation.y += 0.008;
-			});
-			renderer.render(scene, camera);
-		};
-		animate();
-
-		const handleResize = () => {
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
-			renderer.setSize(window.innerWidth, window.innerHeight);
-		};
-		window.addEventListener('resize', handleResize);
-
-		return () => {
-			window.removeEventListener('resize', handleResize);
-			bgGeometry.dispose();
-			bgMaterial.dispose();
-			sphereGeometry.dispose();
-			particlesGeometry.dispose();
-			particlesMaterial.dispose();
-			spheres.forEach((s) => s.material.dispose());
-			renderer.dispose();
-		};
-	}, []);
+	const isDark = mode === 'dark';
 
 	return (
 		<div
 			style={{
-				position: 'relative',
 				minHeight: '100vh',
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				padding: 24,
+				position: 'relative',
 				overflow: 'hidden',
+				background: isDark
+					? `linear-gradient(-45deg, #0a0a0a, #0d1520, #0a0a0a, #0f1525)`
+					: `linear-gradient(-45deg, #f8fafc, #e8f4fd, #f0f9ff, #e6f2ff)`,
+				backgroundSize: '400% 400%',
+				animation: 'gradientShift 15s ease infinite',
 			}}
 		>
-			<canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, zIndex: 0 }} />
+			{/* Floating Orbs */}
+			<div
+				style={{
+					position: 'absolute',
+					width: 300,
+					height: 300,
+					borderRadius: '50%',
+					background: `radial-gradient(circle, ${isDark ? 'rgba(24, 144, 255, 0.15)' : 'rgba(24, 144, 255, 0.12)'} 0%, transparent 70%)`,
+					top: '10%',
+					left: '5%',
+					animation: 'float1 20s ease-in-out infinite',
+					filter: 'blur(40px)',
+				}}
+			/>
+			<div
+				style={{
+					position: 'absolute',
+					width: 250,
+					height: 250,
+					borderRadius: '50%',
+					background: `radial-gradient(circle, ${isDark ? 'rgba(24, 144, 255, 0.12)' : 'rgba(24, 144, 255, 0.1)'} 0%, transparent 70%)`,
+					bottom: '15%',
+					right: '10%',
+					animation: 'float2 25s ease-in-out infinite',
+					filter: 'blur(50px)',
+				}}
+			/>
+			<div
+				style={{
+					position: 'absolute',
+					width: 200,
+					height: 200,
+					borderRadius: '50%',
+					background: `radial-gradient(circle, ${isDark ? 'rgba(96, 165, 250, 0.1)' : 'rgba(96, 165, 250, 0.08)'} 0%, transparent 70%)`,
+					top: '50%',
+					right: '5%',
+					animation: 'float3 18s ease-in-out infinite',
+					filter: 'blur(35px)',
+				}}
+			/>
 
-			{showWelcome && (
+			{/* Main Card */}
+			<Card
+				style={{
+					width: '100%',
+					maxWidth: 420,
+					borderRadius: 20,
+					background: isDark ? 'rgba(26, 26, 26, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+					backdropFilter: 'blur(20px)',
+					border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(24, 144, 255, 0.1)'}`,
+					boxShadow: isDark
+						? `0 0 60px rgba(24, 144, 255, ${animationStage >= 2 ? 0.15 : 0}), 
+						   0 0 120px rgba(24, 144, 255, ${animationStage >= 2 ? 0.08 : 0}),
+						   0 25px 50px rgba(0, 0, 0, 0.5)`
+						: `0 0 60px rgba(24, 144, 255, ${animationStage >= 2 ? 0.1 : 0}), 
+						   0 0 100px rgba(24, 144, 255, ${animationStage >= 2 ? 0.05 : 0}),
+						   0 25px 50px rgba(0, 0, 0, 0.1)`,
+					transform: animationStage >= 2 ? 'scale(1)' : 'scale(0.9)',
+					opacity: animationStage >= 2 ? 1 : 0,
+					transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+					animation: animationStage >= 2 ? 'breathe 4s ease-in-out infinite 1s' : 'none',
+					zIndex: 10,
+				}}
+				styles={{
+					body: {
+						padding: 48,
+					},
+				}}
+			>
+				{/* Logo with float animation */}
 				<div
 					style={{
-						position: 'fixed',
-						inset: 0,
-						zIndex: 10,
 						display: 'flex',
+						flexDirection: 'column',
 						alignItems: 'center',
-						justifyContent: 'center',
-						background:
-							'linear-gradient(135deg, rgba(0, 204, 204, 0.95) 0%, rgba(0, 153, 230, 0.95) 100%)',
-						animation: 'fadeOut 0.4s ease-out 1.6s forwards',
+						marginBottom: 24,
+						opacity: animationStage >= 1 ? 1 : 0,
+						transform: animationStage >= 1 ? 'translateY(0)' : 'translateY(-20px)',
+						transition: 'all 0.5s ease-out',
 					}}
 				>
 					<div
 						style={{
-							textAlign: 'center',
-							animation: 'scaleIn 0.6s ease-out',
+							width: 80,
+							height: 80,
+							borderRadius: 20,
+							background: isDark
+								? 'linear-gradient(135deg, rgba(24, 144, 255, 0.2) 0%, rgba(96, 165, 250, 0.15) 100%)'
+								: 'linear-gradient(135deg, rgba(24, 144, 255, 0.15) 0%, rgba(96, 165, 250, 0.1) 100%)',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							fontSize: 40,
+							marginBottom: 16,
+							boxShadow: isDark
+								? '0 0 30px rgba(24, 144, 255, 0.3)'
+								: '0 0 20px rgba(24, 144, 255, 0.2)',
+							animation: animationStage >= 1 ? 'logoFloat 3s ease-in-out infinite' : 'none',
 						}}
 					>
-						<div style={{ fontSize: 72, marginBottom: 16 }}>🎓</div>
-						<Title
-							level={1}
-							style={{
-								color: 'white',
-								fontSize: 48,
-								margin: 0,
-								fontWeight: 700,
-							}}
-						>
-							{t('login.welcome')}
-						</Title>
-						<Text
-							style={{
-								color: 'rgba(255, 255, 255, 0.9)',
-								fontSize: 20,
-							}}
-						>
-							Secure Assessment Platform
-						</Text>
+						🎓
 					</div>
-				</div>
-			)}
-
-			<div
-				style={{
-					position: 'relative',
-					zIndex: 1,
-					display: 'flex',
-					minHeight: '100vh',
-				}}
-			>
-				{/* Left side */}
-				<div
-					style={{
-						flex: 1,
-						display: 'flex',
-						flexDirection: 'column',
-						justifyContent: 'center',
-						padding: '0 80px',
-						color: 'white',
-						animation: 'slideLeft 0.8s ease-out 2s both',
-					}}
-				>
-					<div style={{ fontSize: 48, marginBottom: 24 }}>🎓</div>
 					<Title
-						level={1}
+						level={2}
 						style={{
-							color: 'white',
-							fontSize: 48,
-							marginBottom: 16,
+							margin: 0,
+							color: token.colorPrimary,
 							fontWeight: 700,
+							letterSpacing: 2,
+						}}
+					>
+						SAP
+					</Title>
+					<Text
+						type="secondary"
+						style={{
+							fontSize: 13,
+							letterSpacing: 0.5,
 						}}
 					>
 						Secure Assessment Platform
-					</Title>
-					<Text
-						style={{
-							color: 'rgba(255, 255, 255, 0.9)',
-							fontSize: 18,
-							marginBottom: 48,
-						}}
-					>
-						{t('login.subtitle')}
 					</Text>
-
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: 24,
-						}}
-					>
-						{[
-							{
-								icon: <SafetyOutlined />,
-								text: t('login.features.security'),
-							},
-							{
-								icon: <ThunderboltOutlined />,
-								text: t('login.features.performance'),
-							},
-							{
-								icon: <RocketOutlined />,
-								text: t('login.features.modern'),
-							},
-						].map((item, idx) => (
-							<div
-								key={idx}
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: 16,
-								}}
-							>
-								<div
-									style={{
-										width: 48,
-										height: 48,
-										borderRadius: 12,
-										background: 'rgba(255, 255, 255, 0.2)',
-										backdropFilter: 'blur(10px)',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										fontSize: 20,
-									}}
-								>
-									{item.icon}
-								</div>
-								<Text style={{ color: 'white', fontSize: 16 }}>{item.text}</Text>
-							</div>
-						))}
-					</div>
 				</div>
 
-				{/* Right side */}
-				<div
+				<Divider
 					style={{
-						width: 500,
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						padding: 40,
-						animation: 'slideRight 0.8s ease-out 2s both',
+						margin: '16px 0 28px',
+						opacity: animationStage >= 3 ? 1 : 0,
+						transition: 'opacity 0.4s ease-out 0.1s',
+					}}
+				/>
+
+				{/* Welcome Message */}
+				<Space
+					direction="vertical"
+					align="center"
+					style={{
+						width: '100%',
+						marginBottom: 32,
+						opacity: animationStage >= 3 ? 1 : 0,
+						transform: animationStage >= 3 ? 'translateY(0)' : 'translateY(15px)',
+						transition: 'all 0.5s ease-out 0.1s',
 					}}
 				>
-					<div
+					<Title
+						level={4}
 						style={{
-							width: '100%',
-							maxWidth: 400,
-							padding: 48,
-							borderRadius: 24,
-							background: 'rgba(255, 255, 255, 0.15)',
-							backdropFilter: 'blur(30px)',
-							border: '1px solid rgba(255, 255, 255, 0.25)',
-							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+							margin: 0,
+							fontWeight: 600,
 						}}
 					>
-						<div style={{ textAlign: 'center', marginBottom: 40 }}>
-							<Title
-								level={2}
-								style={{
-									color: 'white',
-									marginBottom: 8,
-									fontSize: 32,
-								}}
-							>
-								{t('login.welcomeBack')}
-							</Title>
-							<Text
-								style={{
-									color: 'rgba(255, 255, 255, 0.85)',
-									fontSize: 15,
-								}}
-							>
-								{t('login.loginPrompt')}
-							</Text>
-						</div>
+						{t('login.welcomeBack')}
+					</Title>
+					<Text type="secondary" style={{ textAlign: 'center' }}>
+						{t('login.loginPrompt')}
+					</Text>
+				</Space>
 
-						<Button
-							type="primary"
-							size="large"
-							icon={<LoginOutlined />}
-							onClick={login}
-							block
-							style={{
-								height: 56,
-								fontSize: 16,
-								fontWeight: 600,
-								borderRadius: 12,
-								background: 'white',
-								color: '#00cccc',
-								border: 'none',
-								boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
-								transition: 'all 0.3s',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.transform = 'translateY(-2px)';
-								e.currentTarget.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.25)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.transform = 'translateY(0)';
-								e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
-							}}
-						>
-							{t('login.loginWithCasdoor')}
-						</Button>
-
-						<div
-							style={{
-								marginTop: 32,
-								padding: 20,
-								borderRadius: 12,
-								background: 'rgba(255, 255, 255, 0.1)',
-								border: '1px solid rgba(255, 255, 255, 0.15)',
-								textAlign: 'center',
-							}}
-						>
-							<Text
-								style={{
-									color: 'rgba(255, 255, 255, 0.85)',
-									fontSize: 13,
-								}}
-							>
-								{t('login.useCasdoorAccount')}
-							</Text>
-						</div>
-					</div>
+				{/* Login Button */}
+				<div
+					style={{
+						opacity: animationStage >= 3 ? 1 : 0,
+						transform: animationStage >= 3 ? 'translateY(0)' : 'translateY(15px)',
+						transition: 'all 0.5s ease-out 0.2s',
+					}}
+				>
+					<Button
+						type="primary"
+						size="large"
+						icon={<LoginOutlined />}
+						onClick={login}
+						block
+						style={{
+							height: 52,
+							fontSize: 16,
+							fontWeight: 600,
+							borderRadius: 12,
+							boxShadow: '0 4px 15px rgba(24, 144, 255, 0.4)',
+							transition: 'all 0.3s ease',
+						}}
+						className="login-button"
+					>
+						{t('login.loginWithCasdoor')}
+					</Button>
 				</div>
-			</div>
 
+				{/* Helper Text */}
+				<Text
+					type="secondary"
+					style={{
+						display: 'block',
+						textAlign: 'center',
+						marginTop: 20,
+						fontSize: 13,
+						opacity: animationStage >= 3 ? 1 : 0,
+						transition: 'opacity 0.5s ease-out 0.3s',
+					}}
+				>
+					{t('login.useCasdoorAccount')}
+				</Text>
+			</Card>
+
+			{/* Footer */}
+			<Text
+				type="secondary"
+				style={{
+					marginTop: 40,
+					fontSize: 12,
+					opacity: animationStage >= 3 ? 0.7 : 0,
+					transition: 'opacity 0.5s ease-out 0.4s',
+					zIndex: 10,
+				}}
+			>
+				© 2025 SAP Team. All rights reserved.
+			</Text>
+
+			{/* CSS Animations */}
 			<style>{`
-        @keyframes fadeOut {
-          to { opacity: 0; pointer-events: none; }
-        }
-        @keyframes scaleIn {
-          from { transform: scale(0.9); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes slideLeft {
-          from { transform: translateX(-30px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideRight {
-          from { transform: translateX(30px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-      `}</style>
+				@keyframes gradientShift {
+					0% { background-position: 0% 50%; }
+					50% { background-position: 100% 50%; }
+					100% { background-position: 0% 50%; }
+				}
+
+				@keyframes float1 {
+					0%, 100% { transform: translate(0, 0) scale(1); }
+					25% { transform: translate(30px, -30px) scale(1.05); }
+					50% { transform: translate(-20px, 20px) scale(0.95); }
+					75% { transform: translate(40px, 10px) scale(1.02); }
+				}
+
+				@keyframes float2 {
+					0%, 100% { transform: translate(0, 0) scale(1); }
+					33% { transform: translate(-40px, 20px) scale(1.08); }
+					66% { transform: translate(30px, -40px) scale(0.92); }
+				}
+
+				@keyframes float3 {
+					0%, 100% { transform: translate(0, 0) scale(1); }
+					50% { transform: translate(-30px, -20px) scale(1.1); }
+				}
+
+				@keyframes logoFloat {
+					0%, 100% { transform: translateY(0); }
+					50% { transform: translateY(-6px); }
+				}
+
+				@keyframes breathe {
+					0%, 100% { 
+						box-shadow: ${isDark
+					? '0 0 60px rgba(24, 144, 255, 0.15), 0 0 120px rgba(24, 144, 255, 0.08), 0 25px 50px rgba(0, 0, 0, 0.5)'
+					: '0 0 60px rgba(24, 144, 255, 0.1), 0 0 100px rgba(24, 144, 255, 0.05), 0 25px 50px rgba(0, 0, 0, 0.1)'};
+					}
+					50% { 
+						box-shadow: ${isDark
+					? '0 0 80px rgba(24, 144, 255, 0.25), 0 0 150px rgba(24, 144, 255, 0.12), 0 25px 50px rgba(0, 0, 0, 0.5)'
+					: '0 0 80px rgba(24, 144, 255, 0.18), 0 0 120px rgba(24, 144, 255, 0.08), 0 25px 50px rgba(0, 0, 0, 0.1)'};
+					}
+				}
+
+				.login-button:hover {
+					transform: translateY(-2px) !important;
+					box-shadow: 0 8px 25px rgba(24, 144, 255, 0.5) !important;
+				}
+
+				.login-button:active {
+					transform: translateY(0) scale(0.98) !important;
+				}
+
+				@media (prefers-reduced-motion: reduce) {
+					*, *::before, *::after {
+						animation-duration: 0.01ms !important;
+						animation-iteration-count: 1 !important;
+						transition-duration: 0.01ms !important;
+					}
+				}
+			`}</style>
 		</div>
 	);
 };

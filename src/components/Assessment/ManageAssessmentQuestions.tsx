@@ -270,10 +270,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
 							t('manageAssessmentQuestions.cannotAddQuestions') +
-								' - ' +
-								(details.context?.has_attempts
-									? t('manageAssessmentQuestions.studentsStarted')
-									: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 						// Refresh to update UI state
 						onQuestionsChange?.();
@@ -408,10 +408,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
 							t('manageAssessmentQuestions.cannotAddQuestions') +
-								' - ' +
-								(details.context?.has_attempts
-									? t('manageAssessmentQuestions.studentsStarted')
-									: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 						onQuestionsChange?.();
 						return;
@@ -487,10 +487,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotAddQuestion') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+						' - ' +
+						(details.context?.has_attempts
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					// Refresh to update UI state
 					onQuestionsChange?.();
@@ -515,10 +515,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotRemoveQuestion') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+						' - ' +
+						(details.context?.has_attempts
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					return;
@@ -556,10 +556,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					if (details?.rule === 'assessment_questions_locked') {
 						showError(
 							t('manageAssessmentQuestions.cannotReorder') +
-								' - ' +
-								(details.context?.has_attempts
-									? t('manageAssessmentQuestions.studentsStarted')
-									: t('manageAssessmentQuestions.assessmentArchived'))
+							' - ' +
+							(details.context?.has_attempts
+								? t('manageAssessmentQuestions.studentsStarted')
+								: t('manageAssessmentQuestions.assessmentArchived'))
 						);
 					}
 				}
@@ -608,10 +608,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotUpdatePoints') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+						' - ' +
+						(details.context?.has_attempts
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					return;
@@ -682,10 +682,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 				if (details?.rule === 'assessment_questions_locked') {
 					showError(
 						t('manageAssessmentQuestions.cannotBulkUpdate') +
-							' - ' +
-							(details.context?.has_attempts
-								? t('manageAssessmentQuestions.studentsStarted')
-								: t('manageAssessmentQuestions.assessmentArchived'))
+						' - ' +
+						(details.context?.has_attempts
+							? t('manageAssessmentQuestions.studentsStarted')
+							: t('manageAssessmentQuestions.assessmentArchived'))
 					);
 					onQuestionsChange?.();
 					setBulkLoading(false);
@@ -887,7 +887,7 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 									.then((res) => {
 										setQuestionBanks(res.banks || []);
 									})
-									.catch(() => {});
+									.catch(() => { });
 							}}
 							title={t('manageAssessmentQuestions.addQuestion')}
 						>
@@ -941,8 +941,8 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 					description={
 						totalPoints > MAX_TOTAL_POINTS
 							? t('manageAssessmentQuestions.exceededBy', {
-									points: Math.abs(MAX_TOTAL_POINTS - totalPoints),
-								})
+								points: Math.abs(MAX_TOTAL_POINTS - totalPoints),
+							})
 							: undefined
 					}
 				/>
@@ -995,10 +995,10 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 										isQuestionsLocked
 											? undefined
 											: {
-													selectedRowKeys: selectedRows,
-													onChange: (keys) =>
-														setSelectedRows(keys as number[]),
-												}
+												selectedRowKeys: selectedRows,
+												onChange: (keys) =>
+													setSelectedRows(keys as number[]),
+											}
 									}
 									components={{
 										body: {
@@ -1131,25 +1131,25 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 											<Text strong style={{ color: '#1890ff' }}>
 												{Math.floor(
 													100 /
-														(questions.length +
-															selectedQuestions.length)
+													(questions.length +
+														selectedQuestions.length)
 												)}{' '}
 												{t('gradingDetail.pointsUnit')}
 											</Text>
 											{100 % (questions.length + selectedQuestions.length) >
 												0 && (
-												<Text type="secondary" style={{ fontSize: 12 }}>
-													{' '}
-													(
-													{t('manageAssessmentQuestions.extraPointNote', {
-														count:
-															100 %
-															(questions.length +
-																selectedQuestions.length),
-													})}
-													)
-												</Text>
-											)}
+													<Text type="secondary" style={{ fontSize: 12 }}>
+														{' '}
+														(
+														{t('manageAssessmentQuestions.extraPointNote', {
+															count:
+																100 %
+																(questions.length +
+																	selectedQuestions.length),
+														})}
+														)
+													</Text>
+												)}
 										</Text>
 									</Space>
 								}
@@ -1303,8 +1303,24 @@ export const ManageAssessmentQuestions: React.FC<Props> = ({
 						loading={fetchingQuestions}
 						rowSelection={{
 							selectedRowKeys: selectedQuestions,
+							preserveSelectedRowKeys: true, // Keep selections across pages
 							onChange: (keys) => {
-								setSelectedQuestions(keys as number[]);
+								// Get current page question IDs
+								const currentPageIds = availableQuestions.map((q) => q.id);
+
+								// Preserve selections from OTHER pages (not on current page)
+								const selectionsFromOtherPages = selectedQuestions.filter(
+									(id) => !currentPageIds.includes(id)
+								);
+
+								// Merge with new selections from current page
+								const newSelectedQuestions = [
+									...selectionsFromOtherPages,
+									...(keys as number[]),
+								];
+
+								setSelectedQuestions(newSelectedQuestions);
+
 								// Initialize points for newly selected questions
 								const newPoints = { ...questionPoints };
 								keys.forEach((key) => {

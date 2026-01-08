@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import dashboardService from '../../../services/dashboardService';
+import proctoringDashboardService from '../../../services/proctoringDashboardService';
 import { PIE_COLORS, REFETCH_INTERVAL, STALE_TIME } from '../constants';
 
 // Map API question types to translation keys
@@ -19,9 +20,20 @@ const questionTypeToTranslationKey: Record<string, string> = {
 /**
  * Custom hook for all dashboard data fetching
  * Centralizes React Query logic and data transformations
+ * Includes lazy loading for proctoring data
  */
 export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
 	const { t } = useTranslation();
+
+	// Lazy loading state - proctoring data loads after initial render
+	const [enableProctoring, setEnableProctoring] = useState(false);
+
+	useEffect(() => {
+		// Delay proctoring queries to prioritize core dashboard data
+		const timer = setTimeout(() => setEnableProctoring(true), 1000);
+		return () => clearTimeout(timer);
+	}, []);
+
 	// Dashboard stats
 	const statsQuery = useQuery({
 		queryKey: ['dashboard-stats'],
@@ -58,6 +70,23 @@ export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
 		refetchInterval: REFETCH_INTERVAL.REALTIME,
 	});
 
+	// Proctoring overview - lazy loaded
+	const proctoringQuery = useQuery({
+		queryKey: ['proctoring-overview'],
+		queryFn: () => proctoringDashboardService.getDashboardOverview(),
+		staleTime: STALE_TIME.MEDIUM,
+		enabled: enableProctoring,
+	});
+
+	// Real-time stats - lazy loaded with auto-refresh
+	const realTimeQuery = useQuery({
+		queryKey: ['realtime-stats'],
+		queryFn: () => proctoringDashboardService.getRealTimeStats(),
+		staleTime: STALE_TIME.SHORT,
+		refetchInterval: enableProctoring ? REFETCH_INTERVAL.REALTIME : false,
+		enabled: enableProctoring,
+	});
+
 	// Memoized chart data transformations
 	const questionChartData = useMemo(() => {
 		return (questionQuery.data || []).map((item, index) => ({
@@ -92,6 +121,8 @@ export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
 		questionTypeData: questionQuery.data || [],
 		performanceData: performanceQuery.data || [],
 		recentActivities: activitiesQuery.data || [],
+		proctoringOverview: proctoringQuery.data?.data,
+		realTimeStats: realTimeQuery.data,
 
 		// Loading states
 		isLoading: {
@@ -100,6 +131,8 @@ export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
 			question: questionQuery.isLoading,
 			performance: performanceQuery.isLoading,
 			activities: activitiesQuery.isLoading,
+			proctoring: proctoringQuery.isLoading,
+			realtime: realTimeQuery.isLoading,
 		},
 
 		// Error states
@@ -109,6 +142,8 @@ export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
 			question: questionQuery.isError,
 			performance: performanceQuery.isError,
 			activities: activitiesQuery.isError,
+			proctoring: proctoringQuery.isError,
+			realtime: realTimeQuery.isError,
 		},
 
 		errors: {
@@ -117,6 +152,8 @@ export const useDashboardData = (timePeriod: 'week' | 'month' | 'year') => {
 			question: questionQuery.error,
 			performance: performanceQuery.error,
 			activities: activitiesQuery.error,
+			proctoring: proctoringQuery.error,
+			realtime: realTimeQuery.error,
 		},
 
 		// Transformed chart data

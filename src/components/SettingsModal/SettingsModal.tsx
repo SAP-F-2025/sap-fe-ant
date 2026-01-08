@@ -6,11 +6,14 @@ import {
 	ClockCircleOutlined,
 	CloseOutlined,
 	DeleteOutlined,
+	DisconnectOutlined,
 	EyeOutlined,
 	GlobalOutlined,
 	InfoCircleOutlined,
+	LinkOutlined,
 	MoonOutlined,
 	SafetyOutlined,
+	SendOutlined,
 	SunOutlined,
 	UserOutlined,
 } from '@ant-design/icons';
@@ -42,6 +45,13 @@ import {
 	type SupportedLanguage,
 } from '../../i18n';
 import faceVerificationService from '../../services/faceVerificationService';
+import { notificationService } from '../../services/notificationService';
+import type {
+	NotificationPreferences,
+	NotificationTypeSettings,
+	TelegramLinkResponse,
+	TelegramStatus,
+} from '../../types/notification';
 import { useTheme, useThemeToken } from '../../theme/ThemeProvider';
 import type { ThemeMode } from '../../theme/tokens';
 import { getUserRole } from '../../utils/roleChecker';
@@ -1076,34 +1086,170 @@ interface NotificationsSectionProps {
 	blinkRed: boolean;
 }
 
+// Default notification type settings
+const DEFAULT_TYPE_SETTINGS: NotificationTypeSettings = {
+	enabled: true,
+	emailEnabled: true,
+	pushEnabled: true,
+	telegramEnabled: false,
+};
+
+const DEFAULT_PREFERENCES: NotificationPreferences = {
+	notificationsEnabled: true,
+	emailEnabled: true,
+	pushEnabled: true,
+	telegramEnabled: false,
+	notificationTypes: {
+		assessment_assigned: { ...DEFAULT_TYPE_SETTINGS },
+		assessment_reminders: { ...DEFAULT_TYPE_SETTINGS },
+		grade_notifications: { ...DEFAULT_TYPE_SETTINGS },
+		comments_feedback: { ...DEFAULT_TYPE_SETTINGS, emailEnabled: false },
+		system_updates: { enabled: false, emailEnabled: false, pushEnabled: false, telegramEnabled: false },
+	},
+};
+
 const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 	onChangesStateChange,
 	blinkRed,
 }) => {
 	const { token } = useThemeToken();
 	const { t } = useTranslation();
-	const [enableNotifications, setEnableNotifications] = useState(true);
-	const [settings, setSettings] = useState({
-		assessmentAssigned: { enabled: true, email: true, push: true },
-		assessmentReminders: { enabled: true, email: true, push: true },
-		gradeNotifications: { enabled: true, email: true, push: true },
-		comments: { enabled: true, email: false, push: true },
-		systemUpdates: { enabled: false, email: false, push: false },
-	});
-	const [originalSettings, setOriginalSettings] = useState({
-		enableNotifications,
-		settings,
-	});
-	const [hasChanges, setHasChanges] = useState(false);
-	const [saving, setSaving] = useState(false);
+	const { message } = App.useApp();
+	const queryClient = useQueryClient();
 
+	// Fetch preferences from backend
+	const { data: backendPreferences, isLoading } = useQuery({
+		queryKey: ['notification-preferences'],
+		queryFn: () => notificationService.getPreferences(),
+		retry: false,
+	});
+
+	// Local state for editing
+	const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
+	const [originalPreferences, setOriginalPreferences] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
+	const [hasChanges, setHasChanges] = useState(false);
+
+	// Update mutation
+	const updateMutation = useMutation({
+		mutationFn: (prefs: NotificationPreferences) => notificationService.updatePreferences(prefs),
+		onSuccess: (data) => {
+			setOriginalPreferences(data);
+			setPreferences(data);
+			setHasChanges(false);
+			message.success(t('settings.preferencesSaved'));
+			queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
+		},
+		onError: () => {
+			message.error(t('settings.preferencesError'));
+		},
+	});
+
+	// Create mutation (for first time)
+	const createMutation = useMutation({
+		mutationFn: (prefs: NotificationPreferences) => notificationService.createPreferences(prefs),
+		onSuccess: (data) => {
+			setOriginalPreferences(data);
+			setPreferences(data);
+			setHasChanges(false);
+			message.success(t('settings.preferencesSaved'));
+			queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
+		},
+		onError: () => {
+			message.error(t('settings.preferencesError'));
+		},
+	});
+
+	// ============= Telegram Integration =============
+	const [telegramModalOpen, setTelegramModalOpen] = useState(false);
+	const [telegramLink, setTelegramLink] = useState<TelegramLinkResponse | null>(null);
+	const [countdown, setCountdown] = useState(0);
+
+	// Telegram status query
+	const { data: telegramStatus, refetch: refetchTelegramStatus } = useQuery({
+		queryKey: ['telegram-status'],
+		queryFn: () => notificationService.getTelegramStatus(),
+		retry: false,
+		enabled: false, // Manual fetch only
+	});
+
+	// Generate link mutation
+	const generateLinkMutation = useMutation({
+		mutationFn: () => notificationService.generateTelegramLink(),
+		onSuccess: (data) => {
+			setTelegramLink(data);
+			setCountdown(data.expiresInSeconds);
+			setTelegramModalOpen(true);
+		},
+		onError: () => {
+			message.error(t('notification.telegramLinkError'));
+		},
+	});
+
+	// Unlink mutation
+	const unlinkMutation = useMutation({
+		mutationFn: () => notificationService.unlinkTelegram(),
+		onSuccess: () => {
+			message.success(t('notification.telegramUnlinked'));
+			queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
+			refetchTelegramStatus();
+		},
+		onError: () => {
+			message.error(t('notification.telegramUnlinkError'));
+		},
+	});
+
+	// Countdown timer for QR modal
 	useEffect(() => {
-		const changed =
-			JSON.stringify({ enableNotifications, settings }) !== JSON.stringify(originalSettings);
+		if (!telegramModalOpen || countdown <= 0) return;
+		const timer = setInterval(() => {
+			setCountdown((prev) => {
+				if (prev <= 1) {
+					clearInterval(timer);
+					setTelegramModalOpen(false);
+					message.warning(t('notification.telegramLinkExpired'));
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000);
+		return () => clearInterval(timer);
+	}, [telegramModalOpen, countdown, message, t]);
+
+	// Poll for link status when modal is open
+	useEffect(() => {
+		if (!telegramModalOpen) return;
+		const pollInterval = setInterval(async () => {
+			try {
+				const status = await notificationService.getTelegramStatus();
+				if (status.linked) {
+					setTelegramModalOpen(false);
+					message.success(t('notification.telegramLinked'));
+					queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
+				}
+			} catch {
+				// Ignore errors during polling
+			}
+		}, 3000);
+		return () => clearInterval(pollInterval);
+	}, [telegramModalOpen, message, t, queryClient]);
+
+	// Load preferences from backend when available
+	useEffect(() => {
+		if (backendPreferences) {
+			const merged = { ...DEFAULT_PREFERENCES, ...backendPreferences };
+			setPreferences(merged);
+			setOriginalPreferences(merged);
+		}
+	}, [backendPreferences]);
+
+	// Track changes
+	useEffect(() => {
+		const changed = JSON.stringify(preferences) !== JSON.stringify(originalPreferences);
 		setHasChanges(changed);
 		onChangesStateChange(changed);
-	}, [enableNotifications, settings, originalSettings, onChangesStateChange]);
+	}, [preferences, originalPreferences, onChangesStateChange]);
 
+	// Keyboard shortcuts
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (!hasChanges) return;
@@ -1120,23 +1266,41 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 	}, [hasChanges]);
 
 	const handleSave = async () => {
-		setSaving(true);
-		try {
-			// TODO: API call to save notification settings
-			// await notificationService.updateSettings({ enableNotifications, ...settings });
-			await new Promise((resolve) => setTimeout(resolve, 500));
-			setOriginalSettings({ enableNotifications, settings });
-			setHasChanges(false);
-		} finally {
-			setSaving(false);
+		if (backendPreferences?.id) {
+			updateMutation.mutate(preferences);
+		} else {
+			createMutation.mutate(preferences);
 		}
 	};
 
 	const handleReset = () => {
-		setEnableNotifications(originalSettings.enableNotifications);
-		setSettings(originalSettings.settings);
+		setPreferences(originalPreferences);
 		setHasChanges(false);
 	};
+
+	// Helper to update notification type settings
+	const updateTypeSettings = (
+		typeKey: string,
+		field: keyof NotificationTypeSettings,
+		value: boolean
+	) => {
+		setPreferences((prev) => ({
+			...prev,
+			notificationTypes: {
+				...prev.notificationTypes,
+				[typeKey]: {
+					...(prev.notificationTypes?.[typeKey] || DEFAULT_TYPE_SETTINGS),
+					[field]: value,
+				},
+			},
+		}));
+	};
+
+	const getTypeSettings = (typeKey: string): NotificationTypeSettings => {
+		return preferences.notificationTypes?.[typeKey] || DEFAULT_TYPE_SETTINGS;
+	};
+
+	const isSaving = updateMutation.isPending || createMutation.isPending;
 
 	return (
 		<div>
@@ -1144,516 +1308,204 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 				{t('settings.chooseNotifications')}
 			</Paragraph>
 
-			<Title level={5}>{t('settings.generalNotifications')}</Title>
-			<div
-				style={{
-					background: token.colorBgElevated,
-					borderRadius: 8,
-					padding: 16,
-					marginBottom: 24,
-				}}
-			>
-				<SettingItem
-					title={t('notification.enableNotifications')}
-					description={t('notification.enableNotificationsDesc')}
-					noBorder
-				>
-					<Switch checked={enableNotifications} onChange={setEnableNotifications} />
-				</SettingItem>
-			</div>
-
-			<div
-				style={{
-					maxHeight: enableNotifications ? '1000px' : '0',
-					opacity: enableNotifications ? 1 : 0,
-					overflow: 'hidden',
-					transition: 'max-height 0.3s ease, opacity 0.3s ease',
-				}}
-			>
-				<Title level={5}>{t('settings.notificationTypes')}</Title>
-				<div
-					style={{
-						background: token.colorBgElevated,
-						borderRadius: 8,
-						padding: 16,
-					}}
-				>
-					{/* Assessment Assigned */}
-					<div
-						style={{
-							paddingBottom: 12,
-							borderBottom: `1px solid ${token.colorBorderSecondary}`,
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: 8,
-							}}
-						>
-							<div style={{ flex: 1 }}>
-								<Text
-									strong
-									style={{
-										display: 'block',
-										marginBottom: 4,
-									}}
-								>
-									{t('notification.assessmentAssigned')}
-								</Text>
-								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t('notification.assessmentAssignedDesc')}
-								</Text>
-							</div>
-							<Switch
-								checked={settings.assessmentAssigned.enabled}
-								onChange={(checked) =>
-									setSettings({
-										...settings,
-										assessmentAssigned: {
-											...settings.assessmentAssigned,
-											enabled: checked,
-										},
-									})
-								}
-								disabled={!enableNotifications}
-							/>
-						</div>
-						<div
-							style={{
-								maxHeight: settings.assessmentAssigned.enabled ? '100px' : '0',
-								opacity: settings.assessmentAssigned.enabled ? 1 : 0,
-								overflow: 'hidden',
-								transition: 'max-height 0.3s ease, opacity 0.3s ease',
-							}}
-						>
-							<Space size="middle" style={{ marginTop: 8 }}>
-								<Space size="small">
-									<Text>Email</Text>
-									<Switch
-										size="small"
-										checked={settings.assessmentAssigned.email}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												assessmentAssigned: {
-													...settings.assessmentAssigned,
-													email: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications ||
-											!settings.assessmentAssigned.enabled
-										}
-									/>
-								</Space>
-								<Space size="small">
-									<Text>Push</Text>
-									<Switch
-										size="small"
-										checked={settings.assessmentAssigned.push}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												assessmentAssigned: {
-													...settings.assessmentAssigned,
-													push: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications ||
-											!settings.assessmentAssigned.enabled
-										}
-									/>
-								</Space>
-							</Space>
-						</div>
-					</div>
-
-					{/* Assessment Reminders */}
-					<div
-						style={{
-							paddingTop: 12,
-							paddingBottom: 12,
-							borderBottom: `1px solid ${token.colorBorderSecondary}`,
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: 8,
-							}}
-						>
-							<div style={{ flex: 1 }}>
-								<Text
-									strong
-									style={{
-										display: 'block',
-										marginBottom: 4,
-									}}
-								>
-									{t('notification.assessmentReminders')}
-								</Text>
-								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t('notification.assessmentRemindersDesc')}
-								</Text>
-							</div>
-							<Switch
-								checked={settings.assessmentReminders.enabled}
-								onChange={(checked) =>
-									setSettings({
-										...settings,
-										assessmentReminders: {
-											...settings.assessmentReminders,
-											enabled: checked,
-										},
-									})
-								}
-								disabled={!enableNotifications}
-							/>
-						</div>
-						<div
-							style={{
-								maxHeight: settings.assessmentReminders.enabled ? '100px' : '0',
-								opacity: settings.assessmentReminders.enabled ? 1 : 0,
-								overflow: 'hidden',
-								transition: 'max-height 0.3s ease, opacity 0.3s ease',
-							}}
-						>
-							<Space size="middle" style={{ marginTop: 8 }}>
-								<Space size="small">
-									<Text>Email</Text>
-									<Switch
-										size="small"
-										checked={settings.assessmentReminders.email}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												assessmentReminders: {
-													...settings.assessmentReminders,
-													email: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications ||
-											!settings.assessmentReminders.enabled
-										}
-									/>
-								</Space>
-								<Space size="small">
-									<Text>Push</Text>
-									<Switch
-										size="small"
-										checked={settings.assessmentReminders.push}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												assessmentReminders: {
-													...settings.assessmentReminders,
-													push: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications ||
-											!settings.assessmentReminders.enabled
-										}
-									/>
-								</Space>
-							</Space>
-						</div>
-					</div>
-
-					{/* Grade Notifications */}
-					<div
-						style={{
-							paddingTop: 12,
-							paddingBottom: 12,
-							borderBottom: `1px solid ${token.colorBorderSecondary}`,
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: 8,
-							}}
-						>
-							<div style={{ flex: 1 }}>
-								<Text
-									strong
-									style={{
-										display: 'block',
-										marginBottom: 4,
-									}}
-								>
-									{t('notification.gradeNotifications')}
-								</Text>
-								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t('notification.gradeNotificationsDesc')}
-								</Text>
-							</div>
-							<Switch
-								checked={settings.gradeNotifications.enabled}
-								onChange={(checked) =>
-									setSettings({
-										...settings,
-										gradeNotifications: {
-											...settings.gradeNotifications,
-											enabled: checked,
-										},
-									})
-								}
-								disabled={!enableNotifications}
-							/>
-						</div>
-						<div
-							style={{
-								maxHeight: settings.gradeNotifications.enabled ? '100px' : '0',
-								opacity: settings.gradeNotifications.enabled ? 1 : 0,
-								overflow: 'hidden',
-								transition: 'max-height 0.3s ease, opacity 0.3s ease',
-							}}
-						>
-							<Space size="middle" style={{ marginTop: 8 }}>
-								<Space size="small">
-									<Text>Email</Text>
-									<Switch
-										size="small"
-										checked={settings.gradeNotifications.email}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												gradeNotifications: {
-													...settings.gradeNotifications,
-													email: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications ||
-											!settings.gradeNotifications.enabled
-										}
-									/>
-								</Space>
-								<Space size="small">
-									<Text>Push</Text>
-									<Switch
-										size="small"
-										checked={settings.gradeNotifications.push}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												gradeNotifications: {
-													...settings.gradeNotifications,
-													push: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications ||
-											!settings.gradeNotifications.enabled
-										}
-									/>
-								</Space>
-							</Space>
-						</div>
-					</div>
-
-					{/* Comments */}
-					<div
-						style={{
-							paddingTop: 12,
-							paddingBottom: 12,
-							borderBottom: `1px solid ${token.colorBorderSecondary}`,
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: 8,
-							}}
-						>
-							<div style={{ flex: 1 }}>
-								<Text
-									strong
-									style={{
-										display: 'block',
-										marginBottom: 4,
-									}}
-								>
-									{t('notification.comments')}
-								</Text>
-								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t('notification.commentsDesc')}
-								</Text>
-							</div>
-							<Switch
-								checked={settings.comments.enabled}
-								onChange={(checked) =>
-									setSettings({
-										...settings,
-										comments: {
-											...settings.comments,
-											enabled: checked,
-										},
-									})
-								}
-								disabled={!enableNotifications}
-							/>
-						</div>
-						<div
-							style={{
-								maxHeight: settings.comments.enabled ? '100px' : '0',
-								opacity: settings.comments.enabled ? 1 : 0,
-								overflow: 'hidden',
-								transition: 'max-height 0.3s ease, opacity 0.3s ease',
-							}}
-						>
-							<Space size="middle" style={{ marginTop: 8 }}>
-								<Space size="small">
-									<Text>Email</Text>
-									<Switch
-										size="small"
-										checked={settings.comments.email}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												comments: {
-													...settings.comments,
-													email: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications || !settings.comments.enabled
-										}
-									/>
-								</Space>
-								<Space size="small">
-									<Text>Push</Text>
-									<Switch
-										size="small"
-										checked={settings.comments.push}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												comments: {
-													...settings.comments,
-													push: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications || !settings.comments.enabled
-										}
-									/>
-								</Space>
-							</Space>
-						</div>
-					</div>
-
-					{/* System Updates */}
-					<div style={{ paddingTop: 12 }}>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: 8,
-							}}
-						>
-							<div style={{ flex: 1 }}>
-								<Text
-									strong
-									style={{
-										display: 'block',
-										marginBottom: 4,
-									}}
-								>
-									{t('notification.systemUpdates')}
-								</Text>
-								<Text type="secondary" style={{ fontSize: 13 }}>
-									{t('notification.systemUpdatesDesc')}
-								</Text>
-							</div>
-							<Switch
-								checked={settings.systemUpdates.enabled}
-								onChange={(checked) =>
-									setSettings({
-										...settings,
-										systemUpdates: {
-											...settings.systemUpdates,
-											enabled: checked,
-										},
-									})
-								}
-								disabled={!enableNotifications}
-							/>
-						</div>
-						<div
-							style={{
-								maxHeight: settings.systemUpdates.enabled ? '100px' : '0',
-								opacity: settings.systemUpdates.enabled ? 1 : 0,
-								overflow: 'hidden',
-								transition: 'max-height 0.3s ease, opacity 0.3s ease',
-							}}
-						>
-							<Space size="middle" style={{ marginTop: 8 }}>
-								<Space size="small">
-									<Text>Email</Text>
-									<Switch
-										size="small"
-										checked={settings.systemUpdates.email}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												systemUpdates: {
-													...settings.systemUpdates,
-													email: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications || !settings.systemUpdates.enabled
-										}
-									/>
-								</Space>
-								<Space size="small">
-									<Text>Push</Text>
-									<Switch
-										size="small"
-										checked={settings.systemUpdates.push}
-										onChange={(checked) =>
-											setSettings({
-												...settings,
-												systemUpdates: {
-													...settings.systemUpdates,
-													push: checked,
-												},
-											})
-										}
-										disabled={
-											!enableNotifications || !settings.systemUpdates.enabled
-										}
-									/>
-								</Space>
-							</Space>
-						</div>
-					</div>
+			{isLoading ? (
+				<div style={{ textAlign: 'center', padding: 40 }}>
+					<Spin />
 				</div>
-			</div>
+			) : (
+				<>
+					<Title level={5}>{t('settings.generalNotifications')}</Title>
+					<div
+						style={{
+							background: token.colorBgElevated,
+							borderRadius: 8,
+							padding: 16,
+							marginBottom: 24,
+						}}
+					>
+						<SettingItem
+							title={t('notification.enableNotifications')}
+							description={t('notification.enableNotificationsDesc')}
+							noBorder
+						>
+							<Switch
+								checked={preferences.notificationsEnabled}
+								onChange={(checked) =>
+									setPreferences((prev) => ({ ...prev, notificationsEnabled: checked }))
+								}
+							/>
+						</SettingItem>
+					</div>
 
+					<div
+						style={{
+							maxHeight: preferences.notificationsEnabled ? '2000px' : '0',
+							opacity: preferences.notificationsEnabled ? 1 : 0,
+							overflow: 'hidden',
+							transition: 'max-height 0.3s ease, opacity 0.3s ease',
+						}}
+					>
+						<Title level={5}>{t('settings.notificationTypes')}</Title>
+						<div
+							style={{
+								background: token.colorBgElevated,
+								borderRadius: 8,
+								padding: 16,
+							}}
+						>
+							{/* Assessment Assigned */}
+							{renderNotificationType(
+								'assessment_assigned',
+								t('notification.assessmentAssigned'),
+								t('notification.assessmentAssignedDesc')
+							)}
+
+							{/* Assessment Reminders */}
+							{renderNotificationType(
+								'assessment_reminders',
+								t('notification.assessmentReminders'),
+								t('notification.assessmentRemindersDesc')
+							)}
+
+							{/* Grade Notifications */}
+							{renderNotificationType(
+								'grade_notifications',
+								t('notification.gradeNotifications'),
+								t('notification.gradeNotificationsDesc')
+							)}
+
+							{/* Comments & Feedback */}
+							{renderNotificationType(
+								'comments_feedback',
+								t('notification.comments'),
+								t('notification.commentsDesc')
+							)}
+
+							{/* System Updates */}
+							{renderNotificationType(
+								'system_updates',
+								t('notification.systemUpdates'),
+								t('notification.systemUpdatesDesc'),
+								true // noBorder for last item
+							)}
+						</div>
+					</div>
+
+					{/* ============= Telegram Integration Section ============= */}
+					<Title level={5} style={{ marginTop: 24 }}>
+						<SendOutlined style={{ marginRight: 8 }} />
+						{t('notification.telegramTitle')}
+					</Title>
+					<div
+						style={{
+							background: token.colorBgElevated,
+							borderRadius: 8,
+							padding: 16,
+						}}
+					>
+						<Paragraph type="secondary" style={{ marginBottom: 16 }}>
+							{t('notification.telegramDesc')}
+						</Paragraph>
+
+						{preferences.telegramChatId ? (
+							<Space direction="vertical" style={{ width: '100%' }}>
+								<Alert
+									message={t('notification.telegramLinkedStatus')}
+									description={`Chat ID: ****${preferences.telegramChatId.slice(-4)}`}
+									type="success"
+									showIcon
+									icon={<CheckCircleOutlined />}
+								/>
+								<Space>
+									<Button
+										icon={<LinkOutlined />}
+										onClick={() => generateLinkMutation.mutate()}
+										loading={generateLinkMutation.isPending}
+									>
+										{t('notification.telegramRelink')}
+									</Button>
+									<Button
+										danger
+										icon={<DisconnectOutlined />}
+										onClick={() => unlinkMutation.mutate()}
+										loading={unlinkMutation.isPending}
+									>
+										{t('notification.telegramUnlink')}
+									</Button>
+								</Space>
+							</Space>
+						) : (
+							<Space direction="vertical" style={{ width: '100%' }}>
+								<Alert
+									message={t('notification.telegramNotLinked')}
+									description={t('notification.telegramNotLinkedDesc')}
+									type="info"
+									showIcon
+								/>
+								<Button
+									type="primary"
+									icon={<SendOutlined />}
+									onClick={() => generateLinkMutation.mutate()}
+									loading={generateLinkMutation.isPending}
+								>
+									{t('notification.telegramLink')}
+								</Button>
+							</Space>
+						)}
+					</div>
+
+					{/* Telegram QR Modal */}
+					<Modal
+						title={t('notification.telegramLinkTitle')}
+						open={telegramModalOpen}
+						onCancel={() => setTelegramModalOpen(false)}
+						footer={null}
+						width={400}
+						centered
+					>
+						{telegramLink && (
+							<Space direction="vertical" style={{ width: '100%', textAlign: 'center' }} size="large">
+								<Alert
+									message={t('notification.telegramScanQR')}
+									type="info"
+									showIcon
+								/>
+
+								{/* QR Code */}
+								<div style={{
+									padding: 16,
+									background: '#fff',
+									borderRadius: 8,
+									display: 'inline-block'
+								}}>
+									<img
+										src={telegramLink.qrCode}
+										alt="Telegram QR Code"
+										style={{ width: 250, height: 250 }}
+									/>
+								</div>
+
+								{/* Countdown */}
+								<Text type="secondary">
+									<ClockCircleOutlined style={{ marginRight: 4 }} />
+									{t('notification.telegramExpiresIn')}: {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
+								</Text>
+
+								{/* Deep link fallback */}
+								<Button
+									type="link"
+									href={telegramLink.deepLink}
+									target="_blank"
+								>
+									{t('notification.telegramOpenInApp')}
+								</Button>
+							</Space>
+						)}
+					</Modal>
+				</>
+			)}
+
+			{/* Unsaved Changes Banner */}
 			{hasChanges && (
 				<div
 					style={{
@@ -1684,7 +1536,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 					</Text>
 					<Space size="middle">
 						<Button onClick={handleReset}>{t('common.cancel')}</Button>
-						<Button type="primary" onClick={handleSave} loading={saving}>
+						<Button type="primary" onClick={handleSave} loading={isSaving}>
 							{t('notification.saveChanges')}
 						</Button>
 					</Space>
@@ -1699,6 +1551,95 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 			`}</style>
 		</div>
 	);
+
+	// Helper function to render notification type row
+	function renderNotificationType(
+		typeKey: string,
+		title: string,
+		description: string,
+		noBorder = false
+	) {
+		const typeSettings = getTypeSettings(typeKey);
+
+		return (
+			<div
+				style={{
+					paddingTop: 12,
+					paddingBottom: 12,
+					borderBottom: noBorder ? 'none' : `1px solid ${token.colorBorderSecondary}`,
+				}}
+			>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: 8,
+					}}
+				>
+					<div style={{ flex: 1 }}>
+						<Text
+							strong
+							style={{
+								display: 'block',
+								marginBottom: 4,
+							}}
+						>
+							{title}
+						</Text>
+						<Text type="secondary" style={{ fontSize: 13 }}>
+							{description}
+						</Text>
+					</div>
+					<Switch
+						checked={typeSettings.enabled}
+						onChange={(checked) => updateTypeSettings(typeKey, 'enabled', checked)}
+						disabled={!preferences.notificationsEnabled}
+					/>
+				</div>
+				<div
+					style={{
+						maxHeight: typeSettings.enabled ? '100px' : '0',
+						opacity: typeSettings.enabled ? 1 : 0,
+						overflow: 'hidden',
+						transition: 'max-height 0.3s ease, opacity 0.3s ease',
+					}}
+				>
+					<Space size="middle" style={{ marginTop: 8 }}>
+						<Space size="small">
+							<Text>Email</Text>
+							<Switch
+								size="small"
+								checked={typeSettings.emailEnabled}
+								onChange={(checked) => updateTypeSettings(typeKey, 'emailEnabled', checked)}
+								disabled={!preferences.notificationsEnabled || !typeSettings.enabled}
+							/>
+						</Space>
+						<Space size="small">
+							<Text>Push</Text>
+							<Switch
+								size="small"
+								checked={typeSettings.pushEnabled}
+								onChange={(checked) => updateTypeSettings(typeKey, 'pushEnabled', checked)}
+								disabled={!preferences.notificationsEnabled || !typeSettings.enabled}
+							/>
+						</Space>
+						{preferences.telegramChatId && (
+							<Space size="small">
+								<Text>Telegram</Text>
+								<Switch
+									size="small"
+									checked={typeSettings.telegramEnabled}
+									onChange={(checked) => updateTypeSettings(typeKey, 'telegramEnabled', checked)}
+									disabled={!preferences.notificationsEnabled || !typeSettings.enabled}
+								/>
+							</Space>
+						)}
+					</Space>
+				</div>
+			</div>
+		);
+	}
 };
 
 interface AppearanceSectionProps {
@@ -1718,28 +1659,28 @@ const AppearanceSection: React.FC<AppearanceSectionProps> = ({ mode, setMode, to
 		bg: string;
 		color: string;
 	}> = [
-		{
-			key: 'light',
-			icon: <SunOutlined />,
-			label: t('settings.light'),
-			bg: '#ffffff',
-			color: '#333333',
-		},
-		{
-			key: 'dark',
-			icon: <MoonOutlined />,
-			label: t('settings.dark'),
-			bg: '#1a1a1a',
-			color: '#ffffff',
-		},
-		{
-			key: 'highContrast',
-			icon: <EyeOutlined />,
-			label: t('settings.highContrast'),
-			bg: '#000000',
-			color: '#ffff00',
-		},
-	];
+			{
+				key: 'light',
+				icon: <SunOutlined />,
+				label: t('settings.light'),
+				bg: '#ffffff',
+				color: '#333333',
+			},
+			{
+				key: 'dark',
+				icon: <MoonOutlined />,
+				label: t('settings.dark'),
+				bg: '#1a1a1a',
+				color: '#ffffff',
+			},
+			{
+				key: 'highContrast',
+				icon: <EyeOutlined />,
+				label: t('settings.highContrast'),
+				bg: '#000000',
+				color: '#ffff00',
+			},
+		];
 
 	return (
 		<div>

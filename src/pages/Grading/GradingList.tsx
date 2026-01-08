@@ -3,6 +3,7 @@ import {
 	ClockCircleOutlined,
 	EyeOutlined,
 	FileSearchOutlined,
+	HourglassOutlined,
 	SyncOutlined,
 	ThunderboltOutlined,
 	TrophyOutlined,
@@ -24,6 +25,7 @@ import {
 	message,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import type { FilterValue, SorterResult } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -58,6 +60,10 @@ const GradingList: React.FC = () => {
 	const [assessmentFilter, setAssessmentFilter] = useState<number | undefined>(undefined);
 	const [assessments, setAssessments] = useState<Assessment[]>([]);
 
+	// Sorting
+	const [sortBy, setSortBy] = useState<string | undefined>(undefined);
+	const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | undefined>(undefined);
+
 	// Selection state for attempts
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [selectedAttempts, setSelectedAttempts] = useState<AttemptListItem[]>([]);
@@ -71,10 +77,10 @@ const GradingList: React.FC = () => {
 		const avgScore =
 			graded > 0
 				? Math.round(
-						allAttemptsStats
-							.filter((a) => a.score !== undefined)
-							.reduce((sum, a) => sum + (a.score || 0), 0) / graded
-					)
+					allAttemptsStats
+						.filter((a) => a.score !== undefined)
+						.reduce((sum, a) => sum + (a.score || 0), 0) / graded
+				)
 				: 0;
 		return {
 			total: total,
@@ -86,7 +92,12 @@ const GradingList: React.FC = () => {
 
 	useEffect(() => {
 		fetchAttempts();
-	}, [pagination.current, pagination.pageSize, statusFilter, assessmentFilter]);
+	}, [pagination.current, pagination.pageSize, statusFilter, assessmentFilter, sortBy, sortOrder]);
+
+	// Reset to page 1 when filters change
+	useEffect(() => {
+		setPagination(prev => ({ ...prev, current: 1 }));
+	}, [statusFilter, assessmentFilter]);
 
 	useEffect(() => {
 		fetchAssessments();
@@ -117,6 +128,8 @@ const GradingList: React.FC = () => {
 				size: pagination.pageSize,
 				status: statusFilter,
 				assessment_id: assessmentFilter,
+				sort_by: sortBy,
+				sort_order: sortOrder,
 			});
 
 			setAttempts(response.data); // Changed from 'attempts' to 'data'
@@ -141,14 +154,39 @@ const GradingList: React.FC = () => {
 		}
 	};
 
-	const handleTableChange = (newPagination: TablePaginationConfig) => {
+	const handleTableChange = (
+		newPagination: TablePaginationConfig,
+		filters: Record<string, FilterValue | null>,
+		sorter: SorterResult<AttemptListItem> | SorterResult<AttemptListItem>[]
+	) => {
+		// Update pagination
 		setPagination({
 			current: newPagination.current || 1,
 			pageSize: newPagination.pageSize || 10,
 		});
+
+		// Update sorting
+		if (!Array.isArray(sorter) && sorter.field && sorter.order) {
+			const field = sorter.field as string;
+			setSortBy(field);
+			setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc');
+		} else if (!Array.isArray(sorter) && !sorter.order) {
+			// Clear sorting
+			setSortBy(undefined);
+			setSortOrder(undefined);
+		}
 	};
 
-	const getStatusBadge = (status: string) => {
+	const getStatusBadge = (status: string, isPendingGrade?: boolean) => {
+		// Show pending grade status with icon if is_pending_grade is true
+		if (isPendingGrade) {
+			return (
+				<Tag color="warning" icon={<HourglassOutlined />}>
+					{t('gradingList.statusPendingGrade')}
+				</Tag>
+			);
+		}
+
 		const statusMap: Record<string, 'in-progress' | 'completed' | 'failed' | 'pending'> = {
 			in_progress: 'in-progress',
 			completed: 'completed',
@@ -234,7 +272,8 @@ const GradingList: React.FC = () => {
 			dataIndex: 'status',
 			key: 'status',
 			width: 130,
-			render: (status) => getStatusBadge(status),
+			sorter: true,
+			render: (status, record) => getStatusBadge(status, record.is_pending_grade),
 			filters: [
 				{
 					text: t('gradingList.statusInProgress'),
@@ -252,7 +291,7 @@ const GradingList: React.FC = () => {
 			key: 'score',
 			width: 120,
 			align: 'center',
-			sorter: (a, b) => (a.score || 0) - (b.score || 0),
+			sorter: true,
 			render: (score, record) => (
 				<Space direction="vertical" size={0}>
 					{score !== undefined ? (
@@ -278,7 +317,7 @@ const GradingList: React.FC = () => {
 			dataIndex: 'started_at',
 			key: 'started_at',
 			width: 160,
-			sorter: (a, b) => dayjs(a.started_at).unix() - dayjs(b.started_at).unix(),
+			sorter: true,
 			render: (date) => (
 				<Space direction="vertical" size={0}>
 					<Text>{dayjs(date).format('DD/MM/YYYY')}</Text>
@@ -293,11 +332,7 @@ const GradingList: React.FC = () => {
 			dataIndex: 'completed_at',
 			key: 'completed_at',
 			width: 160,
-			sorter: (a, b) => {
-				if (!a.completed_at) return 1;
-				if (!b.completed_at) return -1;
-				return dayjs(a.completed_at).unix() - dayjs(b.completed_at).unix();
-			},
+			sorter: true,
 			render: (date) =>
 				date ? (
 					<Space direction="vertical" size={0}>

@@ -54,6 +54,9 @@
 		"goodLuck": "Chúc bạn làm bài tốt!",
 		"startNow": "Bắt đầu ngay",
 		"startError": "Không thể bắt đầu bài kiểm tra",
+		"resumeExamTitle": "Tiếp tục bài thi",
+		"resumeNow": "Tiếp tục ngay",
+		"resumeMessage": "Danh tính của bạn đã được xác minh. Bạn có thể tiếp tục làm bài.",
 		"preparingRoom": "Chuẩn bị vào phòng thi",
 		"attemptsUsed": "Số lần làm",
 		"passingScore": "Điểm đạt",
@@ -1219,6 +1222,23 @@
 			"fill_blank": "Điền khuyết",
 			"matching": "Nối cặp",
 			"ordering": "Sắp xếp"
+		},
+		"violations": {
+			"title": "Vi phạm giám sát",
+			"totalViolations": "Tổng vi phạm",
+			"severityLevel": "Mức nghiêm trọng",
+			"avgConfidence": "Độ tin cậy TB",
+			"prolongedViolations": "Vi phạm kéo dài",
+			"breakdownBySeverity": "Phân loại theo mức độ",
+			"breakdownByType": "Phân loại theo loại vi phạm",
+			"timeline": "Timeline vi phạm (theo khoảng 5 phút)",
+			"violationCount": "{{count}} vi phạm",
+			"confidence": "Độ tin cậy: {{value}}",
+			"timeRange": "Thời gian: {{start}} - {{end}} ({{duration}} phút)",
+			"critical": "Nghiêm trọng",
+			"high": "Cao",
+			"medium": "Trung bình",
+			"low": "Thấp"
 		}
 	},
 	"exam": {
@@ -1922,6 +1942,11 @@
 			"paste": "dán",
 			"cut": "cắt",
 			"browserTamper": "Phát hiện DevTools",
+			"handDetected": "Phát hiện tay trong khung hình",
+			"phoneDetected": "Phát hiện điện thoại",
+			"voice": "Phát hiện giọng nói",
+			"voiceChat": "Phát hiện cuộc gọi thoại",
+			"faceMismatch": "Khuôn mặt không khớp",
 			"default": "Vi phạm"
 		},
 		"loading": "Đang tải dữ liệu giám sát...",

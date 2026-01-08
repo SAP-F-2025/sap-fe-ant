@@ -42,6 +42,7 @@ const FaceVerification: React.FC = () => {
 	const streamRef = useRef<MediaStream | null>(null);
 
 	const assessmentData = location.state?.assessment;
+	const resumeAttemptId = location.state?.resumeAttemptId as number | undefined;
 
 	useEffect(() => {
 		if (!assessmentData) {
@@ -181,8 +182,12 @@ const FaceVerification: React.FC = () => {
 	};
 
 	const startAssessment = () => {
+		const isResume = !!resumeAttemptId;
+
 		modal.confirm({
-			title: t('faceVerification.startExamTitle'),
+			title: isResume
+				? t('faceVerification.resumeExamTitle')
+				: t('faceVerification.startExamTitle'),
 			content: (
 				<div>
 					<p>
@@ -193,16 +198,30 @@ const FaceVerification: React.FC = () => {
 						{t('common.minutes')}
 					</p>
 					<Alert
-						message={t('faceVerification.goodLuck')}
+						message={isResume
+							? t('faceVerification.resumeMessage')
+							: t('faceVerification.goodLuck')}
 						type="success"
 						showIcon
 						style={{ marginTop: 16 }}
 					/>
 				</div>
 			),
-			okText: t('faceVerification.startNow'),
+			okText: isResume
+				? t('faceVerification.resumeNow')
+				: t('faceVerification.startNow'),
 			cancelText: t('common.cancel'),
 			onOk: async () => {
+				// If resuming, skip startAttempt call and navigate directly
+				if (isResume) {
+					if (streamRef.current) {
+						streamRef.current.getTracks().forEach((track) => track.stop());
+					}
+					navigate(`/student/take/${resumeAttemptId}`);
+					return;
+				}
+
+				// Start new attempt
 				setIsStarting(true);
 				try {
 					const attempt = await studentService.startAttempt({

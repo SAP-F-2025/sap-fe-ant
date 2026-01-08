@@ -25,6 +25,7 @@ import {
 	Table,
 	Tag,
 	theme,
+	Tooltip,
 	Typography,
 } from 'antd';
 import dayjs from 'dayjs';
@@ -40,6 +41,26 @@ import type { AttemptDetail, QuestionScore, StudentAnswer } from '../../types';
 dayjs.extend(duration);
 
 const { Title, Text, Paragraph } = Typography;
+
+// Map violation type numbers to i18n keys and readable names
+// Based on backend ViolationType constants (violationService.ts)
+const VIOLATION_TYPE_NAMES: Record<number, string> = {
+	0: 'faceNotDetected',     // ViolationFaceNotDetected
+	1: 'multipleFaces',       // ViolationMultipleFaces
+	2: 'lookingAway',         // ViolationLookingAway
+	3: 'mouthOpen',           // ViolationMouthOpen
+	4: 'handDetected',        // ViolationHandDetected
+	5: 'headTurned',          // ViolationHeadTurnedAway
+	6: 'copyPaste',           // ViolationCopyPaste
+	7: 'tabSwitch',           // ViolationSwitchingTab
+	8: 'fullscreenExit',      // ViolationFullScreen
+	9: 'phoneDetected',       // ViolationPhoneDetect
+	10: 'voice',              // ViolationVoice
+	11: 'browserTamper',      // ViolationBrowserTamper
+	12: 'voiceChat',          // ViolationVoiceChat
+	13: 'faceMismatch',       // ViolationFaceMismatch
+	14: 'eyesClosed',         // ViolationFailLivenessChallenge
+};
 const { Panel } = Collapse;
 
 const AssessmentResults: React.FC = () => {
@@ -750,7 +771,7 @@ const AssessmentResults: React.FC = () => {
 					title={
 						<Space>
 							<WarningOutlined style={{ color: token.colorWarning }} />
-							<Text strong>Vi phạm giám sát</Text>
+							<Text strong>{t('assessmentResults.violations.title')}</Text>
 						</Space>
 					}
 					style={{ marginTop: '24px' }}
@@ -761,7 +782,7 @@ const AssessmentResults: React.FC = () => {
 							<Col xs={24} sm={12} md={6}>
 								<Card>
 									<Statistic
-										title="Tổng vi phạm"
+										title={t('assessmentResults.violations.totalViolations')}
 										value={violationSummary.total_violations}
 										prefix={<ExclamationCircleOutlined />}
 										valueStyle={{ color: token.colorWarning }}
@@ -771,9 +792,9 @@ const AssessmentResults: React.FC = () => {
 							<Col xs={24} sm={12} md={6}>
 								<Card>
 									<Statistic
-										title="Mức nghiêm trọng"
+										title={t('assessmentResults.violations.severityLevel')}
 										value={violationSummary.critical_count}
-										suffix="/ Critical"
+										suffix={`/ ${t('assessmentResults.violations.critical')}`}
 										valueStyle={{ color: '#ff4d4f' }}
 									/>
 								</Card>
@@ -781,7 +802,7 @@ const AssessmentResults: React.FC = () => {
 							<Col xs={24} sm={12} md={6}>
 								<Card>
 									<Statistic
-										title="Độ tin cậy TB"
+										title={t('assessmentResults.violations.avgConfidence')}
 										value={violationSummary.avg_confidence}
 										precision={2}
 										suffix="/ 1.00"
@@ -792,7 +813,7 @@ const AssessmentResults: React.FC = () => {
 							<Col xs={24} sm={12} md={6}>
 								<Card>
 									<Statistic
-										title="Vi phạm kéo dài"
+										title={t('assessmentResults.violations.prolongedViolations')}
 										value={violationSummary.prolonged_violations_count}
 										valueStyle={{ fontSize: '24px' }}
 									/>
@@ -803,34 +824,34 @@ const AssessmentResults: React.FC = () => {
 						{/* Severity Breakdown */}
 						<div>
 							<Text strong style={{ marginBottom: '8px', display: 'block' }}>
-								Phân loại theo mức độ
+								{t('assessmentResults.violations.breakdownBySeverity')}
 							</Text>
 							<Row gutter={[8, 8]}>
 								{violationSummary.critical_count > 0 && (
 									<Col>
 										<Tag color="error" style={{ fontSize: '14px', padding: '4px 12px' }}>
-											Nghiêm trọng: {violationSummary.critical_count}
+											{t('assessmentResults.violations.critical')}: {violationSummary.critical_count}
 										</Tag>
 									</Col>
 								)}
 								{violationSummary.high_count > 0 && (
 									<Col>
 										<Tag color="warning" style={{ fontSize: '14px', padding: '4px 12px' }}>
-											Cao: {violationSummary.high_count}
+											{t('assessmentResults.violations.high')}: {violationSummary.high_count}
 										</Tag>
 									</Col>
 								)}
 								{violationSummary.medium_count > 0 && (
 									<Col>
 										<Tag color="default" style={{ fontSize: '14px', padding: '4px 12px' }}>
-											Trung bình: {violationSummary.medium_count}
+											{t('assessmentResults.violations.medium')}: {violationSummary.medium_count}
 										</Tag>
 									</Col>
 								)}
 								{violationSummary.low_count > 0 && (
 									<Col>
 										<Tag color="success" style={{ fontSize: '14px', padding: '4px 12px' }}>
-											Thấp: {violationSummary.low_count}
+											{t('assessmentResults.violations.low')}: {violationSummary.low_count}
 										</Tag>
 									</Col>
 								)}
@@ -841,18 +862,24 @@ const AssessmentResults: React.FC = () => {
 						{violationAnalytics && violationAnalytics.count_by_type && (
 							<div>
 								<Text strong style={{ marginBottom: '8px', display: 'block' }}>
-									Phân loại theo loại vi phạm
+									{t('assessmentResults.violations.breakdownByType')}
 								</Text>
 								<Row gutter={[8, 8]}>
 									{Object.entries(violationAnalytics.count_by_type)
 										.sort(([, a], [, b]) => (b as number) - (a as number))
-										.map(([type, count]) => (
-											<Col key={type}>
-												<Tag color="blue" style={{ fontSize: '13px', padding: '3px 10px' }}>
-													{type.replace(/_/g, ' ')}: {count}
-												</Tag>
-											</Col>
-										))}
+										.map(([type, count]) => {
+											// Parse type as number and get i18n key
+											const typeNum = parseInt(type, 10);
+											const typeKey = VIOLATION_TYPE_NAMES[typeNum] || 'default';
+											const typeName = t(`proctoring.violations.${typeKey}`, { defaultValue: type.replace(/_/g, ' ') });
+											return (
+												<Col key={type}>
+													<Tag color="blue" style={{ fontSize: '13px', padding: '3px 10px' }}>
+														{typeName}: {count}
+													</Tag>
+												</Col>
+											);
+										})}
 								</Row>
 							</div>
 						)}
@@ -861,7 +888,7 @@ const AssessmentResults: React.FC = () => {
 						{violationAnalytics && violationAnalytics.timeline && violationAnalytics.timeline.length > 0 && (
 							<div>
 								<Text strong style={{ marginBottom: '12px', display: 'block' }}>
-									Timeline vi phạm (theo khoảng 5 phút)
+									{t('assessmentResults.violations.timeline')}
 								</Text>
 								<div
 									style={{
@@ -869,76 +896,164 @@ const AssessmentResults: React.FC = () => {
 										border: `1px solid ${token.colorBorder}`,
 										borderRadius: '8px',
 										padding: '16px',
-										maxHeight: '300px',
+										maxHeight: '350px',
 										overflowY: 'auto',
 									}}
 								>
 									<Space direction="vertical" style={{ width: '100%' }} size="small">
 										{violationAnalytics.timeline.map((point, idx) => {
 											const maxCount = Math.max(
-												...violationAnalytics.timeline.map((p) => p.count)
+												...violationAnalytics.timeline.map((p) => p.violation_count)
 											);
-											const barWidth = (point.count / maxCount) * 100;
-											const barColor =
-												point.count >= maxCount * 0.7
-													? '#ff4d4f'
-													: point.count >= maxCount * 0.4
-														? '#faad14'
-														: '#52c41a';
+											const barWidth = Math.max((point.violation_count / maxCount) * 100, 5); // Min 5% for visibility
 
-											return (
-												<div key={idx} style={{ marginBottom: '8px' }}>
-													<div
-														style={{
-															display: 'flex',
-															alignItems: 'center',
-															gap: '12px',
-														}}
-													>
-														<Text
-															type="secondary"
-															style={{
-																minWidth: '80px',
-																fontSize: '12px',
-																fontFamily: 'monospace',
-															}}
-														>
-															{dayjs(point.timestamp).format('HH:mm:ss')}
-														</Text>
-														<div
-															style={{
-																flex: 1,
-																position: 'relative',
-															}}
-														>
-															<div
-																style={{
-																	width: `${barWidth}%`,
-																	height: '24px',
-																	backgroundColor: barColor,
-																	borderRadius: '4px',
-																	transition: 'width 0.3s ease',
-																}}
-															/>
-														</div>
-														<div
-															style={{
-																display: 'flex',
-																gap: '12px',
-																alignItems: 'center',
-															}}
-														>
-															<Tag color={barColor} style={{ margin: 0 }}>
-																{point.count} vi phạm
-															</Tag>
-															<Text type="secondary" style={{ fontSize: '12px' }}>
-																Độ tin cậy: {point.avg_confidence?.toFixed(2) ?? 'N/A'}
-															</Text>
-														</div>
+											// Color based on severity: red for high count, yellow for medium, green for low
+											const getSeverityColor = () => {
+												if (point.violation_count >= maxCount * 0.7) return { bg: '#ff4d4f', light: '#fff1f0' };
+												if (point.violation_count >= maxCount * 0.4) return { bg: '#faad14', light: '#fffbe6' };
+												return { bg: '#52c41a', light: '#f6ffed' };
+											};
+											const colors = getSeverityColor();
+
+											// Determine severity level text
+											const getSeverityLevel = () => {
+												if (point.violation_count >= maxCount * 0.7) return t('assessmentResults.violations.critical');
+												if (point.violation_count >= maxCount * 0.4) return t('assessmentResults.violations.high');
+												if (point.violation_count >= maxCount * 0.2) return t('assessmentResults.violations.medium');
+												return t('assessmentResults.violations.low');
+											};
+
+											// Format time range for this bucket
+											const startTime = dayjs(point.bucket);
+											const endTime = startTime.add(5, 'minute');
+											const timeRange = `${startTime.format('HH:mm')} - ${endTime.format('HH:mm')}`;
+
+											const tooltipContent = (
+												<div style={{ minWidth: '200px' }}>
+													<div style={{ fontWeight: 'bold', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '4px' }}>
+														{timeRange}
+													</div>
+													<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+														<span>{t('assessmentResults.violations.totalViolations')}:</span>
+														<span style={{ fontWeight: 'bold' }}>{point.violation_count}</span>
+													</div>
+													<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+														<span>{t('assessmentResults.violations.severityLevel')}:</span>
+														<Tag color={colors.bg} style={{ margin: 0 }}>{getSeverityLevel()}</Tag>
+													</div>
+													<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+														<span>{t('assessmentResults.violations.critical')}:</span>
+														<span>{point.critical_count}</span>
 													</div>
 												</div>
 											);
+
+											return (
+												<Tooltip key={idx} title={tooltipContent} placement="right" color="rgba(0,0,0,0.85)">
+													<div
+														style={{
+															padding: '8px 12px',
+															borderRadius: '6px',
+															background: colors.light,
+															border: `1px solid ${colors.bg}20`,
+															cursor: 'pointer',
+															transition: 'all 0.2s ease',
+														}}
+														onMouseEnter={(e) => {
+															e.currentTarget.style.transform = 'translateX(4px)';
+															e.currentTarget.style.boxShadow = `0 2px 8px ${colors.bg}40`;
+														}}
+														onMouseLeave={(e) => {
+															e.currentTarget.style.transform = 'translateX(0)';
+															e.currentTarget.style.boxShadow = 'none';
+														}}
+													>
+														<div
+															style={{
+																display: 'flex',
+																alignItems: 'center',
+																gap: '12px',
+															}}
+														>
+															{/* Time label */}
+															<Text
+																style={{
+																	minWidth: '100px',
+																	fontSize: '12px',
+																	fontFamily: 'monospace',
+																	color: token.colorTextSecondary,
+																}}
+															>
+																{timeRange}
+															</Text>
+
+															{/* Progress bar container */}
+															<div style={{ flex: 1, position: 'relative', height: '24px' }}>
+																{/* Background track */}
+																<div
+																	style={{
+																		position: 'absolute',
+																		width: '100%',
+																		height: '100%',
+																		backgroundColor: `${colors.bg}15`,
+																		borderRadius: '4px',
+																	}}
+																/>
+																{/* Filled bar */}
+																<div
+																	style={{
+																		position: 'absolute',
+																		width: `${barWidth}%`,
+																		height: '100%',
+																		background: `linear-gradient(90deg, ${colors.bg}80, ${colors.bg})`,
+																		borderRadius: '4px',
+																		transition: 'width 0.3s ease',
+																		display: 'flex',
+																		alignItems: 'center',
+																		justifyContent: 'flex-end',
+																		paddingRight: barWidth > 15 ? '8px' : '0',
+																	}}
+																>
+																	{barWidth > 15 && (
+																		<Text style={{ color: '#fff', fontSize: '11px', fontWeight: 'bold' }}>
+																			{point.violation_count}
+																		</Text>
+																	)}
+																</div>
+															</div>
+
+															{/* Stats */}
+															<div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '140px' }}>
+																<Tag color={colors.bg} style={{ margin: 0, fontSize: '12px' }}>
+																	{t('assessmentResults.violations.violationCount', { count: point.violation_count })}
+																</Tag>
+																{point.critical_count > 0 && (
+																	<Tag color="error" style={{ margin: 0, fontSize: '11px' }}>
+																		{t('assessmentResults.violations.critical')}: {point.critical_count}
+																	</Tag>
+																)}
+															</div>
+														</div>
+													</div>
+												</Tooltip>
+											);
 										})}
+									</Space>
+								</div>
+
+								{/* Legend */}
+								<div style={{ marginTop: '12px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+									<Space size="small">
+										<div style={{ width: '12px', height: '12px', borderRadius: '2px', backgroundColor: '#ff4d4f' }} />
+										<Text type="secondary" style={{ fontSize: '12px' }}>{t('assessmentResults.violations.critical')} (≥70%)</Text>
+									</Space>
+									<Space size="small">
+										<div style={{ width: '12px', height: '12px', borderRadius: '2px', backgroundColor: '#faad14' }} />
+										<Text type="secondary" style={{ fontSize: '12px' }}>{t('assessmentResults.violations.high')} (40-70%)</Text>
+									</Space>
+									<Space size="small">
+										<div style={{ width: '12px', height: '12px', borderRadius: '2px', backgroundColor: '#52c41a' }} />
+										<Text type="secondary" style={{ fontSize: '12px' }}>{t('assessmentResults.violations.low')} (&lt;40%)</Text>
 									</Space>
 								</div>
 							</div>
@@ -948,9 +1063,11 @@ const AssessmentResults: React.FC = () => {
 						{violationSummary.first_violation_at && (
 							<div>
 								<Text type="secondary">
-									Thời gian: {dayjs(violationSummary.first_violation_at).format('HH:mm:ss')}{' '}
-									- {dayjs(violationSummary.last_violation_at).format('HH:mm:ss')}{' '}
-									({Math.floor(violationSummary.duration_seconds / 60)} phút)
+									{t('assessmentResults.violations.timeRange', {
+										start: dayjs(violationSummary.first_violation_at).format('HH:mm:ss'),
+										end: dayjs(violationSummary.last_violation_at).format('HH:mm:ss'),
+										duration: Math.floor(violationSummary.duration_seconds / 60)
+									})}
 								</Text>
 							</div>
 						)}
